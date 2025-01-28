@@ -39,124 +39,24 @@ import org.hiero.sdk.proto.TransactionResponse;
  */
 public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
-    /**
-     * A consensus node identifier in the network state.
-     * <p>
-     * The node identified MUST exist in the network address book.<br/>
-     * The node identified MUST NOT be deleted.<br/>
-     * This value is REQUIRED.
-     */
     private long nodeId = 0;
 
-    /**
-     * An account identifier.
-     * <p>
-     * If set, this SHALL replace the node account identifier.<br/>
-     * If set, this transaction MUST be signed by the active `key` for _both_
-     * the current node account _and_ the identified new node account.
-     */
     @Nullable
     private AccountId accountId = null;
 
-    /**
-     * A short description of the node.
-     * <p>
-     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
-     * If set, this value SHALL replace the previous value.
-     */
     @Nullable
     private String description = null;
 
-    /**
-     * A list of service endpoints for gossip.
-     * <p>
-     * If set, this list MUST meet the following requirements.
-     * <hr/>
-     * These endpoints SHALL represent the published endpoints to which other
-     * consensus nodes may _gossip_ transactions.<br/>
-     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
-     * This list MUST NOT be empty.<br/>
-     * This list MUST NOT contain more than `10` entries.<br/>
-     * The first two entries in this list SHALL be the endpoints published to
-     * all consensus nodes.<br/>
-     * All other entries SHALL be reserved for future use.
-     * <p>
-     * Each network may have additional requirements for these endpoints.
-     * A client MUST check network-specific documentation for those
-     * details.<br/>
-     * <blockquote>Example<blockquote>
-     * Hedera Mainnet _requires_ that address be specified, and does not
-     * permit DNS name (FQDN) to be specified.<br/>
-     * Mainnet also requires that the first entry be an "internal" IP
-     * address and the second entry be an "external" IP address.
-     * </blockquote>
-     * <blockquote>
-     * Solo, however, _requires_ DNS name (FQDN) but also permits
-     * address.
-     * </blockquote></blockquote>
-     * <p>
-     * If set, the new list SHALL replace the existing list.
-     */
     private List<Endpoint> gossipEndpoints = new ArrayList<>();
 
-    /**
-     * A list of service endpoints for gRPC calls.
-     * <p>
-     * If set, this list MUST meet the following requirements.
-     * <hr/>
-     * These endpoints SHALL represent the published endpoints to which clients
-     * may submit transactions.<br/>
-     * These endpoints SHOULD specify address and port.<br/>
-     * These endpoints MAY specify a DNS name.<br/>
-     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
-     * This list MUST NOT be empty.<br/>
-     * This list MUST NOT contain more than `8` entries.
-     * <p>
-     * Each network may have additional requirements for these endpoints.
-     * A client MUST check network-specific documentation for those
-     * details.
-     * <p>
-     * If set, the new list SHALL replace the existing list.
-     */
     private List<Endpoint> serviceEndpoints = new ArrayList<>();
 
-    /**
-     * A certificate used to sign gossip events.
-     * <p>
-     * This value MUST be a certificate of a type permitted for gossip
-     * signatures.<br/>
-     * This value MUST be the DER encoding of the certificate presented.
-     * <p>
-     * If set, the new value SHALL replace the existing bytes value.
-     */
     @Nullable
     private byte[] gossipCaCertificate = null;
 
-    /**
-     * A hash of the node gRPC TLS certificate.
-     * <p>
-     * This value MAY be used to verify the certificate presented by the node
-     * during TLS negotiation for gRPC.<br/>
-     * This value MUST be a SHA-384 hash.<br/>
-     * The TLS certificate to be hashed MUST first be in PEM format and MUST be
-     * encoded with UTF-8 NFKD encoding to a stream of bytes provided to
-     * the hash algorithm.<br/>
-     * <p>
-     * If set, the new value SHALL replace the existing hash value.
-     */
     @Nullable
     private byte[] grpcCertificateHash = null;
 
-    /**
-     * An administrative key controlled by the node operator.
-     * <p>
-     * This field is OPTIONAL.<br/>
-     * If set, this key MUST sign this transaction.<br/>
-     * If set, this key MUST sign each subsequent transaction to
-     * update this node.<br/>
-     * If set, this field MUST contain a valid `Key` value.<br/>
-     * If set, this field MUST NOT be set to an empty `KeyList`.
-     */
     @Nullable
     private Key adminKey = null;
 
@@ -196,7 +96,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Assign the consensus node identifier in the network state.
+     * A consensus node identifier in the network state.
+     * <p>
+     * The node identified MUST exist in the network address book.<br/>
+     * The node identified MUST NOT be deleted.<br/>
+     * This value is REQUIRED.
+     *
      * @param nodeId the consensus node identifier in the network state.
      * @return {@code this}
      */
@@ -215,7 +120,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Assign the Account ID of the Node.
+     * An account identifier.
+     * <p>
+     * If set, this SHALL replace the node account identifier.<br/>
+     * If set, this transaction MUST be signed by the active `key` for _both_
+     * the current node account _and_ the identified new node account.
+     *
      * @param accountId the Account ID of the Node.
      * @return {@code this}
      */
@@ -235,7 +145,11 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Sets the description of the node.
+     * A short description of the node.
+     * <p>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * If set, this value SHALL replace the previous value.
+     *
      * @param description The String to be set as the description of the node.
      * @return {@code this}
      */
@@ -264,7 +178,35 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Assign the list of service endpoints for gossip.
+     * A list of service endpoints for gossip.
+     * <p>
+     * If set, this list MUST meet the following requirements.
+     * <hr/>
+     * These endpoints SHALL represent the published endpoints to which other
+     * consensus nodes may _gossip_ transactions.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
+     * This list MUST NOT be empty.<br/>
+     * This list MUST NOT contain more than `10` entries.<br/>
+     * The first two entries in this list SHALL be the endpoints published to
+     * all consensus nodes.<br/>
+     * All other entries SHALL be reserved for future use.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.<br/>
+     * <blockquote>Example<blockquote>
+     * Hedera Mainnet _requires_ that address be specified, and does not
+     * permit DNS name (FQDN) to be specified.<br/>
+     * Mainnet also requires that the first entry be an "internal" IP
+     * address and the second entry be an "external" IP address.
+     * </blockquote>
+     * <blockquote>
+     * Solo, however, _requires_ DNS name (FQDN) but also permits
+     * address.
+     * </blockquote></blockquote>
+     * <p>
+     * If set, the new list SHALL replace the existing list.
+     *
      * @param gossipEndpoints the list of service endpoints for gossip.
      * @return {@code this}
      */
@@ -295,7 +237,24 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Assign the list of service endpoints for gRPC calls.
+     * A list of service endpoints for gRPC calls.
+     * <p>
+     * If set, this list MUST meet the following requirements.
+     * <hr/>
+     * These endpoints SHALL represent the published endpoints to which clients
+     * may submit transactions.<br/>
+     * These endpoints SHOULD specify address and port.<br/>
+     * These endpoints MAY specify a DNS name.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
+     * This list MUST NOT be empty.<br/>
+     * This list MUST NOT contain more than `8` entries.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.
+     * <p>
+     * If set, the new list SHALL replace the existing list.
+     *
      * @param serviceEndpoints list of service endpoints for gRPC calls.
      * @return {@code this}
      */
@@ -327,9 +286,14 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Sets the certificate used to sign gossip events.
-     * <br>
+     * A certificate used to sign gossip events.
+     * <p>
+     * This value MUST be a certificate of a type permitted for gossip
+     * signatures.<br/>
      * This value MUST be the DER encoding of the certificate presented.
+     * <p>
+     * If set, the new value SHALL replace the existing bytes value.
+     *
      * @param gossipCaCertificate the DER encoding of the certificate presented.
      * @return {@code this}
      */
@@ -349,9 +313,17 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Sets the hash of the node gRPC TLS certificate.
-     * <br>
-     * This value MUST be a SHA-384 hash.
+     * A hash of the node gRPC TLS certificate.
+     * <p>
+     * This value MAY be used to verify the certificate presented by the node
+     * during TLS negotiation for gRPC.<br/>
+     * This value MUST be a SHA-384 hash.<br/>
+     * The TLS certificate to be hashed MUST first be in PEM format and MUST be
+     * encoded with UTF-8 NFKD encoding to a stream of bytes provided to
+     * the hash algorithm.<br/>
+     * <p>
+     * If set, the new value SHALL replace the existing hash value.
+     *
      * @param grpcCertificateHash SHA-384 hash of the node gRPC TLS certificate.
      * @return {@code this}
      */
@@ -371,7 +343,15 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Sets an administrative key controlled by the node operator.
+     * An administrative key controlled by the node operator.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * If set, this key MUST sign this transaction.<br/>
+     * If set, this key MUST sign each subsequent transaction to
+     * update this node.<br/>
+     * If set, this field MUST contain a valid `Key` value.<br/>
+     * If set, this field MUST NOT be set to an empty `KeyList`.
+     *
      * @param adminKey an administrative key to be set.
      * @return {@code this}
      */

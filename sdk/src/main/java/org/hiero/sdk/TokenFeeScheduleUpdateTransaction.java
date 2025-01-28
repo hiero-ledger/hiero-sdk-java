@@ -70,7 +70,11 @@ public class TokenFeeScheduleUpdateTransaction extends Transaction<TokenFeeSched
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to modify with an updated
+     * custom fee schedule.<br/>
+     * The identified token MUST exist, and MUST NOT be deleted.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -92,7 +96,14 @@ public class TokenFeeScheduleUpdateTransaction extends Transaction<TokenFeeSched
     }
 
     /**
-     * Assign the list of custom fees.
+     * A list of custom fees representing a fee schedule.
+     * <p>
+     * This list MAY be empty to remove custom fees from a token.<br/>
+     * If the identified token is a non-fungible/unique type, the entries
+     * in this list MUST NOT declare a `fractional_fee`.<br/>
+     * If the identified token is a fungible/common type, the entries in this
+     * list MUST NOT declare a `royalty_fee`.<br/>
+     * Any token type MAY include entries that declare a `fixed_fee`.
      *
      * @param customFees               the list of custom fees
      * @return {@code this}

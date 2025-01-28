@@ -16,15 +16,27 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Delete a file or smart contract - can only be done with a Hedera admin.
- * <p>
- * When it is deleted, it immediately disappears from the system as seen by the user,
- * but is still stored internally until the expiration time, at which time it
- * is truly and permanently deleted.
- * <p>
- * Until that time, it can be undeleted by the Hedera admin.
- * When a smart contract is deleted, the cryptocurrency account within it continues
- * to exist, and is not affected by the expiration time here.
+ * Delete a file or contract bytecode as an administrative transaction.
+ *
+ * > Note
+ * >> A system delete/undelete for a `contractID` is not supported and
+ * >> SHALL return `INVALID_FILE_ID` or `MISSING_ENTITY_ID`.
+ *
+ * This transaction MAY be reversed by the `systemUndelete` transaction.
+ * A file deleted via `fileDelete`, however SHALL be irrecoverable.<br/>
+ * This transaction MUST specify an expiration timestamp (with seconds
+ * precision). The file SHALL be permanently removed from state when
+ * network consensus time exceeds the specified expiration time.<br/>
+ * This transaction MUST be signed by an Hedera administrative ("system")
+ * account.
+ *
+ * ### What is a "system" file
+ * A "system" file is any file with a file number less than or equal to the
+ * current configuration value for `ledger.numReservedSystemEntities`,
+ * typically `750`.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public final class SystemDeleteTransaction extends Transaction<SystemDeleteTransaction> {
     @Nullable
@@ -75,8 +87,13 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
     }
 
     /**
-     * Sets the file ID to delete.
+     * A file identifier.
      * <p>
+     * The identified file MUST exist in the HFS.<br/>
+     * The identified file MUST NOT be deleted.<br/>
+     * The identified file MUST NOT be a "system" file.<br/>
+     * This field is REQUIRED.
+     *
      * Mutually exclusive with {@link #setContractId(ContractId)}.
      *
      * @param fileId The FileId to be set
@@ -96,12 +113,15 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
      * @return                          the contract id
      */
     @Nullable
-    public final ContractId getContractId() {
+    public ContractId getContractId() {
         return contractId;
     }
 
     /**
-     * Sets the contract ID to delete.
+     * A contract identifier.
+     * <p>
+     * The identified contract MUST exist in network state.<br/>
+     * The identified contract bytecode MUST NOT be deleted.<br/>
      * <p>
      * Mutually exclusive with {@link #setFileId(FileId)}.
      *
@@ -127,8 +147,11 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
     }
 
     /**
-     * Sets the timestamp at which the "deleted" file should
-     * truly be permanently deleted.
+     * A timestamp indicating when the file will be removed from state.
+     * <p>
+     * This value SHALL be expressed in seconds since the `epoch`. The `epoch`
+     * SHALL be the UNIX epoch with 0 at `1970-01-01T00:00:00.000Z`.<br/>
+     * This field is REQUIRED.
      *
      * @param expirationTime The Instant to be set as expiration time
      * @return {@code this}

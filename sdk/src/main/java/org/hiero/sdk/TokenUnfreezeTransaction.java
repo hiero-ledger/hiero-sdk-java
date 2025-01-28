@@ -13,11 +13,25 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Unfreezes transfers of the specified token for the account.
+ * Resume transfers of a token type for an account.<br/>
+ * This releases previously frozen assets of one account with respect to
+ * one token type. Once unfrozen, that account can once again send or
+ * receive tokens of the identified type.
  *
- * The transaction must be signed by the token's Freeze Key.
+ * The token MUST have a `freeze_key` set and that key MUST NOT
+ * be an empty `KeyList`.<br/>
+ * The token `freeze_key` MUST sign this transaction.<br/>
+ * The identified token MUST exist, MUST NOT be deleted, MUST NOT be paused,
+ * and MUST NOT be expired.<br/>
+ * The identified account MUST exist, MUST NOT be deleted, and
+ * MUST NOT be expired.<br/>
+ * If the identified account is not frozen with respect to the identified
+ * token, the transaction SHALL succeed, but no change SHALL be made.<br/>
+ * An association between the identified account and the identified
+ * token MUST exist.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/unfreeze-an-account">Hedera Documentation</a>
+ * ### Block Stream Effects
+ * None
  */
 public class TokenUnfreezeTransaction extends org.hiero.sdk.Transaction<TokenUnfreezeTransaction> {
     @Nullable
@@ -66,7 +80,11 @@ public class TokenUnfreezeTransaction extends org.hiero.sdk.Transaction<TokenUnf
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to "unfreeze".<br/>
+     * The identified token MUST exist, MUST NOT be deleted, and MUST be
+     * associated to the identified account.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -89,7 +107,13 @@ public class TokenUnfreezeTransaction extends org.hiero.sdk.Transaction<TokenUnf
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.
+     * <p>
+     * This shall identify the account to "unfreeze".<br/>
+     * The identified account MUST exist, MUST NOT be deleted, MUST NOT be
+     * expired, and MUST be associated to the identified token.<br/>
+     * The identified account SHOULD be "frozen" with respect to the
+     * identified token.
      *
      * @param accountId                 the account id
      * @return {@code this}

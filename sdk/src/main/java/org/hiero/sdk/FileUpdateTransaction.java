@@ -20,8 +20,27 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Updates a file by submitting the transaction.
- * <p>
+ * Update the metadata, and/or replace the content, of a file in the
+ * Hedera File Service (HFS).
+ *
+ * Any field which is not set (i.e. is null) in this message, other than
+ * `fileID`, SHALL be ignored.<br/>
+ * If the `keys` list for the identified file is an empty `KeyList`, then
+ * this message MUST NOT set any field except `expirationTime`.
+ *
+ * #### Signature Requirements
+ * Every `Key` in the `keys` list for the identified file MUST sign this
+ * transaction, if any field other than `expirationTime` is to be updated.<br/>
+ * If the `keys` list for the identified file is an empty `KeyList` (because
+ * this file was previously created or updated to have an empty `KeyList`),
+ * then the file is considered immutable and this message MUST NOT set any
+ * field except `expirationTime`.<br/>
+ * See the [File Service](#FileService) specification for a detailed
+ * explanation of the signature requirements for all file transactions.
+ *
+ * ### Block Stream Effects
+ * None
+ *
  * See <a href="https://docs.hedera.com/guides/docs/sdks/file-storage/update-a-file">Hedera Documentation</a>
  */
 public final class FileUpdateTransaction extends Transaction<FileUpdateTransaction> {
@@ -102,7 +121,13 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
     }
 
     /**
-     * Set the keys which must sign any transactions modifying this file. Required.
+     * The new list of keys that "own" this file.
+     * <p>
+     * If set, every key in this `KeyList` MUST sign this transaction.<br/>
+     * If set, every key in the _previous_ `KeyList` MUST _also_
+     * sign this transaction.<br/>
+     * If this value is an empty `KeyList`, then the file SHALL be immutable
+     * after completion of this transaction.
      *
      * @param keys The Key or Keys to be set
      * @return {@code this}
@@ -126,10 +151,15 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
     }
 
     /**
-     * If set, update the expiration time of the file.
+     * An expiration timestamp.
      * <p>
-     * Must be in the future (may only be used to extend the expiration).
-     * To make a file inaccessible use {@link FileDeleteTransaction} instead.
+     * If set, this value MUST be strictly later than the existing
+     * `expirationTime` value, or else it will be ignored.<br/>
+     * If set, this value SHALL replace the existing `expirationTime`.<br/>
+     * If this field is the only field set, then this transaction SHALL NOT
+     * require any signature other than the `payer` for the transaction.<br/>
+     * When the network consensus time exceeds the then-current
+     * `expirationTime`, the network SHALL expire the file.
      *
      * @param expirationTime the new {@link Instant} at which the transaction will expire.
      * @return {@code this}
@@ -217,7 +247,10 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
     }
 
     /**
-     * Assign the file memo up to 100 bytes max.
+     * A short description of this file.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the file's memo
      * @return {@code this}

@@ -13,11 +13,19 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Grants KYC to the Hedera accounts for the given Hedera token.
+ * Grant "Know Your Customer"(KYC) for one account for a single token.
  *
- * This transaction must be signed by the token's KYC Key.
+ * This transaction MUST be signed by the `kyc_key` for the token.<br/>
+ * The identified token MUST have a `kyc_key` set to a valid `Key` value.<br/>
+ * The token `kyc_key` MUST NOT be an empty `KeyList`.<br/>
+ * The identified token MUST exist and MUST NOT be deleted.<br/>
+ * The identified account MUST exist and MUST NOT be deleted.<br/>
+ * The identified account MUST have an association to the identified token.<br/>
+ * On success the association between the identified account and the identified
+ * token SHALL be marked as "KYC granted".
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/enable-kyc-account-flag-1">Hedera Documentation</a>
+ * ### Block Stream Effects
+ * None
  */
 public class TokenGrantKycTransaction extends org.hiero.sdk.Transaction<TokenGrantKycTransaction> {
     @Nullable
@@ -66,7 +74,12 @@ public class TokenGrantKycTransaction extends org.hiero.sdk.Transaction<TokenGra
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * The identified token SHALL grant "KYC" for the account
+     * identified by the `account` field.<br/>
+     * The identified token MUST be associated to the account identified
+     * by the `account` field.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -89,7 +102,12 @@ public class TokenGrantKycTransaction extends org.hiero.sdk.Transaction<TokenGra
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.
+     * <p>
+     * The token identified by the `token` field SHALL grant "KYC" for the
+     * identified account.<br/>
+     * This account MUST be associated to the token identified
+     * by the `token` field.
      *
      * @param accountId                 the account id
      * @return {@code this}

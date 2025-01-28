@@ -18,8 +18,14 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * This transaction type is for approving account allowance.
- */
+ * # Approve Allowance
+ * This transaction body provides a mechanism to add "allowance" entries
+ * for an account. These allowances enable one account to spend or transfer
+ * token balances (for fungible/common tokens), individual tokens (for
+ * non-fungible/unique tokens), or all non-fungible tokens owned by the
+ * account, now or in the future (if `approved_for_all` is set).
+ *
+ **/
 public class AccountAllowanceApproveTransaction extends Transaction<AccountAllowanceApproveTransaction> {
     private final List<HbarAllowance> hbarAllowances = new ArrayList<>();
     private final List<TokenAllowance> tokenAllowances = new ArrayList<>();

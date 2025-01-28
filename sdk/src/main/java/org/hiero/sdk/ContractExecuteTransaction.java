@@ -93,7 +93,16 @@ public final class ContractExecuteTransaction extends Transaction<ContractExecut
     }
 
     /**
-     * Sets the maximum amount of gas to use for the call.
+     * A maximum limit to the amount of gas to use for this call.
+     * <p>
+     * The network SHALL charge the greater of the following, but
+     * SHALL NOT charge more than the value of this field.
+     * <ol>
+     *   <li>The actual gas consumed by the smart contract call.</li>
+     *   <li>`80%` of this value.</li>
+     * </ol>
+     * The `80%` factor encourages reasonable estimation, while allowing for
+     * some overage to ensure successful execution.
      *
      * @param gas The long to be set as gas
      * @return {@code this}
@@ -140,6 +149,10 @@ public final class ContractExecuteTransaction extends Transaction<ContractExecut
      * <p>
      * Use this instead of {@link #setFunction(String, ContractFunctionParameters)} if you have already
      * pre-encoded a solidity function call.
+     *
+     * This MUST contain The application binary interface (ABI) encoding of the
+     * function call per the Ethereum contract ABI standard, giving the
+     * function signature and arguments being passed to the function.
      *
      * @param functionParameters The function parameters to be set
      * @return {@code this}

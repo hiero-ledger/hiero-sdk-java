@@ -13,22 +13,25 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Revokes the KYC flag to the Hedera account for the given Hedera token.
- * This transaction must be signed by the token's KYC Key. If this key is
- * not set, you can submit a TokenUpdateTransaction to provide the token
- * with this key.
+ * Revoke "Know Your Customer"(KYC) from one account for a single token.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/disable-kyc-account-flag">Hedera Documentation</a>
+ * This transaction MUST be signed by the `kyc_key` for the token.<br/>
+ * The identified token MUST have a `kyc_key` set to a valid `Key` value.<br/>
+ * The token `kyc_key` MUST NOT be an empty `KeyList`.<br/>
+ * The identified token MUST exist and MUST NOT be deleted.<br/>
+ * The identified account MUST exist and MUST NOT be deleted.<br/>
+ * The identified account MUST have an association to the identified token.<br/>
+ * On success the association between the identified account and the identified
+ * token SHALL NOT be marked as "KYC granted".
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenRevokeKycTransaction extends org.hiero.sdk.Transaction<TokenRevokeKycTransaction> {
-    /**
-     * The token ID that is associated with the account to remove the KYC flag for
-     */
+
     @Nullable
     private TokenId tokenId = null;
-    /**
-     * The account ID that is associated with the account to remove the KYC flag
-     */
+
     @Nullable
     private AccountId accountId = null;
 
@@ -72,7 +75,12 @@ public class TokenRevokeKycTransaction extends org.hiero.sdk.Transaction<TokenRe
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * The identified token SHALL revoke "KYC" for the account
+     * identified by the `account` field.<br/>
+     * The identified token MUST be associated to the account identified
+     * by the `account` field.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -95,7 +103,12 @@ public class TokenRevokeKycTransaction extends org.hiero.sdk.Transaction<TokenRe
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.
+     * <p>
+     * The token identified by the `token` field SHALL revoke "KYC" for the
+     * identified account.<br/>
+     * This account MUST be associated to the token identified
+     * by the `token` field.
      *
      * @param accountId                 the account id
      * @return {@code this}

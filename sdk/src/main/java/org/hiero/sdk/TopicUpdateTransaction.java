@@ -26,39 +26,22 @@ import org.hiero.sdk.proto.TransactionResponse;
  * If a new autoRenewAccount is specified (not just being removed), that account must also sign the transaction.
  */
 public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransaction> {
-    /**
-     * Update the topic ID
-     */
+
     @Nullable
     private TopicId topicId = null;
-    /**
-     * Set a new auto-renew account ID for this topic (once autoRenew
-     * functionality is supported by HAPI).
-     */
+
     @Nullable
     private AccountId autoRenewAccountId = null;
-    /**
-     * Set a new short publicly visible memo on the new topic and is stored
-     * with the topic. (100 bytes)
-     */
+
     @Nullable
     private String topicMemo = null;
-    /**
-     * Set a new admin key that authorizes update topic and delete topic
-     * transactions.
-     */
+
     @Nullable
     private Key adminKey = null;
-    /**
-     * Set a new submit key for a topic that authorizes sending messages
-     * to this topic.
-     */
+
     @Nullable
     private Key submitKey = null;
-    /**
-     * Set a new auto -enew period for this topic (once autoRenew
-     * functionality is supported by HAPI).
-     */
+
     @Nullable
     private Duration autoRenewPeriod = null;
 
@@ -104,7 +87,10 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Set the topic ID to update.
+     * The topic ID specifying the topic to update.
+     * <p>
+     * A topic with this ID MUST exist and MUST NOT be deleted.<br/>
+     * This value is REQUIRED.
      *
      * @param topicId The TopicId to be set
      * @return {@code this}
@@ -127,7 +113,12 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Set a new memo for this topic.
+     * An updated memo to be associated with this topic.
+     * <p>
+     * If this value is set, the current `adminKey` for the topic MUST sign
+     * this transaction.<br/>
+     * This value, if set, SHALL be encoded UTF-8 and SHALL NOT exceed
+     * 100 bytes when so encoded.
      *
      * @param memo The memo to be set
      * @return {@code this}
@@ -161,7 +152,13 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Set a new admin key for this topic.
+     * Updated access control for modification of the topic.
+     * <p>
+     * If this field is set, that key and the previously set key MUST both
+     * sign this transaction.<br/>
+     * If this value is an empty `KeyList`, the prior key MUST sign this
+     * transaction, and the topic SHALL be immutable after this transaction
+     * completes, except for expiration and renewal.
      *
      * @param adminKey The Key to be set
      * @return {@code this}
@@ -195,7 +192,14 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Set a new submit key for this topic.
+     * Updated access control for message submission to the topic.
+     * <p>
+     * If this value is set, the current `adminKey` for the topic MUST sign
+     * this transaction.<br/>
+     * If this value is set to an empty `KeyList`, the `submitKey` for the
+     * topic will be unset after this transaction completes. When the
+     * `submitKey` is unset, any account may submit a message on the topic,
+     * without restriction.
      *
      * @param submitKey The Key to be set
      * @return {@code this}
@@ -228,8 +232,17 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         return autoRenewPeriod;
     }
 
-    /**
-     * Set a new auto renew period for this topic.
+    /*
+     * An updated value for the number of seconds by which the topic expiration
+     * will be automatically extended upon expiration, if it has a valid
+     * auto-renew account.
+     * <p>
+     * If this value is set, the current `adminKey` for the topic MUST sign
+     * this transaction.<br/>
+     * This value, if set, MUST be greater than the
+     * configured MIN_AUTORENEW_PERIOD.<br/>
+     * This value, if set, MUST be less than the
+     * configured MAX_AUTORENEW_PERIOD.
      *
      * @param autoRenewPeriod The Duration to be set for auto renewal
      * @return {@code this}
@@ -252,7 +265,15 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Set a new auto renew account ID for this topic.
+     * An updated ID for the account to be charged renewal fees at the topic's
+     * `expirationTime` to extend the lifetime of the topic.
+     * <p>
+     * If this value is set and not the "sentinel account", the referenced
+     * account MUST sign this transaction.<br/>
+     * If this value is set, the current `adminKey` for the topic MUST sign
+     * this transaction.<br/>
+     * If this value is set to the "sentinel account", which is `0.0.0`, the
+     * `autoRenewAccount` SHALL be removed from the topic.
      *
      * @param autoRenewAccountId The AccountId to be set for auto renewal
      * @return {@code this}

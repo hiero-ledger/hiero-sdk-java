@@ -17,25 +17,31 @@ import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Reject undesired token(s).<br/>
- * Transfer one or more token balances held by the requesting account to the treasury for each
- * token type.<br/>
+ * Transfer one or more token balances held by the requesting account to the
+ * treasury for each token type.
+ *
+ * Each transfer SHALL be one of the following
+ * - A single non-fungible/unique token.
+ * - The full balance held for a fungible/common token.
+ * A single `tokenReject` transaction SHALL support a maximum
+ * of 10 transfers.<br/>
+ * A token that is `pause`d MUST NOT be rejected.<br/>
+ * If the `owner` account is `frozen` with respect to the identified token(s)
+ * the token(s) MUST NOT be rejected.<br/>
+ * The `payer` for this transaction, and `owner` if set, SHALL NOT be charged
+ * any custom fees or other fees beyond the `tokenReject` transaction fee.
+ *
+ * ### Block Stream Effects
+ * - Each successful transfer from `payer` to `treasury` SHALL be recorded in
+ *   the `token_transfer_list` for the transaction record.
  */
 public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> {
 
-    /**
-     * An account holding the tokens to be rejected.
-     */
     @Nullable
     private AccountId ownerId = null;
 
-    /**
-     * A list of one or more token rejections (a fungible/common token type).
-     */
     private List<TokenId> tokenIds = new ArrayList<>();
 
-    /**
-     * A list of one or more token rejections (a single specific serialized non-fungible/unique token).
-     */
     private List<NftId> nftIds = new ArrayList<>();
 
     /**
@@ -75,7 +81,14 @@ public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> 
     }
 
     /**
-     * Assign the Account ID of the Owner.
+     * An account identifier.<br/>
+     * This OPTIONAL field identifies the account holding the
+     * tokens to be rejected.
+     * <p>
+     * If set, this account MUST sign this transaction.
+     * If not set, the `payer` for this transaction SHALL be the effective
+     * `owner` for this transaction.
+     *
      * @param ownerId the Account ID of the Owner.
      * @return {@code this}
      */
@@ -95,7 +108,8 @@ public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> 
     }
 
     /**
-     * Assign the list of tokenIds.
+     * A list of one or more token rejections (a fungible/common token type).
+     *
      * @param tokenIds the list of tokenIds.
      * @return {@code this}
      */
@@ -126,7 +140,8 @@ public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> 
     }
 
     /**
-     * Assign the list of nftIds.
+     * A list of one or more token rejections (a single specific serialized non-fungible/unique token).
+     *
      * @param nftIds the list of nftIds.
      * @return {@code this}
      */

@@ -15,7 +15,24 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * The transaction that will associate accounts to a token id.
+ * Associate a Hedera Token Service (HTS) token and an account.
+ *
+ * An association MUST exist between an account and a token before that
+ * account may transfer or receive that token.<br/>
+ * If the identified account is not found,
+ * the transaction SHALL return `INVALID_ACCOUNT_ID`.<br/>
+ * If the identified account has been deleted,
+ * the transaction SHALL return `ACCOUNT_DELETED`.<br/>
+ * If any of the identified tokens is not found,
+ * the transaction SHALL return `INVALID_TOKEN_REF`.<br/>
+ * If any of the identified tokens has been deleted,
+ * the transaction SHALL return `TOKEN_WAS_DELETED`.<br/>
+ * If an association already exists for any of the identified tokens,
+ * the transaction SHALL return `TOKEN_ALREADY_ASSOCIATED_TO_ACCOUNT`.<br/>
+ * The identified account MUST sign this transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenAssociateTransaction extends Transaction<TokenAssociateTransaction> {
     @Nullable
@@ -65,7 +82,14 @@ public class TokenAssociateTransaction extends Transaction<TokenAssociateTransac
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.
+     * <p>
+     * The identified account SHALL be associated to each of the
+     * tokens identified in the `tokens` field.<br/>
+     * This field is REQUIRED and MUST be a valid account identifier.<br/>
+     * The identified account MUST exist in state.<br/>
+     * The identified account MUST NOT be deleted.<br/>
+     * The identified account MUST NOT be expired.
      *
      * @param accountId                 the account id
      * @return {@code this}
@@ -87,7 +111,16 @@ public class TokenAssociateTransaction extends Transaction<TokenAssociateTransac
     }
 
     /**
-     * Assign a new list of token id's.
+     * A list of token identifiers.
+     * <p>
+     * Each token identified in this list SHALL be separately associated with
+     * the account identified in the `account` field.<br/>
+     * This list MUST NOT be empty.
+     * Each entry in this list MUST be a valid token identifier.<br/>
+     * Each entry in this list MUST NOT be currently associated to the
+     * account identified in `account`.<br/>
+     * Each entry in this list MUST NOT be expired.<br/>
+     * Each entry in this list MUST NOT be deleted.
      *
      * @param tokens                    the list of token id's
      * @return {@code this}

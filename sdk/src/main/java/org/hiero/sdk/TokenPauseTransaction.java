@@ -13,14 +13,19 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * A token pause transaction prevents the token from being involved in any
- * kind of operation. The token's pause key is required to sign the
- * transaction. This is a key that is specified during the creation of a
- * token. If a token has no pause key, you will not be able to pause the
- * token.  If the pause key was not set during the creation of a token, you
- * will not be able to update the token to add this key.
+ * Pause transaction activity for a token.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/pause-a-token">Hedera Documentation</a>
+ * This transaction MUST be signed by the Token `pause_key`.<br/>
+ * The `token` identified MUST exist, and MUST NOT be deleted.<br/>
+ * The `token` identified MAY be paused; if the token is already paused,
+ * this transaction SHALL have no effect.
+ * The `token` identified MUST have a `pause_key` set, the `pause_key` MUST be
+ * a valid `Key`, and the `pause_key` MUST NOT be an empty `KeyList`.<br/>
+ * A `paused` token SHALL NOT be transferred or otherwise modified except to
+ * "up-pause" the token with `unpauseToken` or in a `rejectToken` transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
     @Nullable
@@ -65,7 +70,10 @@ public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * The identified token SHALL be paused. Subsequent transactions
+     * involving that token SHALL fail until the token is "unpaused".
      *
      * @param tokenId                   the token id
      * @return {@code this}

@@ -13,9 +13,18 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Delete a scheduled transaction.
- * <p>
- * See <a href="https://docs.hedera.com/guides/docs/sdks/schedule-transaction/delete-a-schedule-transaction">Hedera Documentation</a>
+ * Mark a schedule in the network state as deleted.
+ *
+ * This transaction MUST be signed by the `adminKey` for the
+ * identified schedule.<br/>
+ * If a schedule does not have `adminKey` set or if `adminKey` is an empty
+ * `KeyList`, that schedule SHALL be immutable and MUST NOT be deleted.<br/>
+ * A deleted schedule SHALL not be executed.<br/>
+ * A deleted schedule MUST NOT be the subject of a subsequent
+ * `scheduleSign` transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public final class ScheduleDeleteTransaction extends Transaction<ScheduleDeleteTransaction> {
 
@@ -64,7 +73,9 @@ public final class ScheduleDeleteTransaction extends Transaction<ScheduleDeleteT
     }
 
     /**
-     * Assign the scheduled id.
+     * A schedule identifier.
+     * <p>
+     * This MUST identify the schedule which SHALL be deleted.
      *
      * @param scheduleId                the schedule id
      * @return {@code this}

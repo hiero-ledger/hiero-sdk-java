@@ -15,7 +15,17 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Execute an Ethereum transaction on Hedera
+ * A transaction in Ethereum format.<br/>
+ * Make an Ethereum transaction "call" with all data in Ethereum formats,
+ * including the contract alias. Call data may be in the transaction, or
+ * stored within an Hedera File.
+ *
+ * The caller MAY offer additional gas above what is offered in the call data,
+ * but MAY be charged up to 80% of that value if the amount required is less
+ * than this "floor" amount.
+ *
+ * ### Block Stream Effects
+ * An `EthereumOutput` message SHALL be emitted for each transaction.
  */
 public class EthereumTransaction extends Transaction<EthereumTransaction> {
     private byte[] ethereumData = new byte[0];

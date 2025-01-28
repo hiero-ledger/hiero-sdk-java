@@ -18,8 +18,34 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Set the freezing period in which the platform will stop creating events and accepting transactions.
- * This is used before safely shut down the platform for maintenance.
+ * A transaction body for all five freeze transactions.
+ *
+ * Combining five different transactions into a single message, this
+ * transaction body MUST support options to schedule a freeze, abort a
+ * scheduled freeze, prepare a software upgrade, prepare a telemetry
+ * upgrade, or initiate a software upgrade.
+ *
+ * For a scheduled freeze, at the scheduled time, according to
+ * network consensus time
+ *   - A freeze (`FREEZE_ONLY`) causes the network nodes to stop creating
+ *     events or accepting transactions, and enter a persistent
+ *     maintenance state.
+ *   - A freeze upgrade (`FREEZE_UPGRADE`) causes the network nodes to stop
+ *     creating events or accepting transactions, and upgrade the node software
+ *     from a previously prepared upgrade package. The network nodes then
+ *     restart and rejoin the network after upgrading.
+ *
+ * For other freeze types, immediately upon processing the freeze transaction
+ *   - A Freeze Abort (`FREEZE_ABORT`) cancels any pending scheduled freeze.
+ *   - A prepare upgrade (`PREPARE_UPGRADE`) begins to extract the contents of
+ *     the specified upgrade file to the local filesystem.
+ *   - A telemetry upgrade (`TELEMETRY_UPGRADE`) causes the network nodes to
+ *     extract a telemetry upgrade package to the local filesystem and signal
+ *     other software on the machine to upgrade, without impacting the node or
+ *     network processing.
+ *
+ * ### Block Stream Effects
+ * Unknown
  */
 public final class FreezeTransaction extends Transaction<FreezeTransaction> {
     private int endHour = 0;
@@ -72,7 +98,25 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
     }
 
     /**
-     * Assign the start time.
+     * A start time for the freeze.
+     * <p>
+     * If this field is REQUIRED for the specified `freeze_type`, then
+     * when the network consensus time reaches this instant<ol>
+     *   <li>The network SHALL stop accepting transactions.</li>
+     *   <li>The network SHALL gossip a freeze state.</li>
+     *   <li>The nodes SHALL, in coordinated order, disconnect and
+     *       shut down.</li>
+     *   <li>The nodes SHALL halt or perform a software upgrade, depending
+     *       on `freeze_type`.</li>
+     *   <li>If the `freeze_type` is `FREEZE_UPGRADE`, the nodes SHALL
+     *       restart and rejoin the network upon completion of the
+     *       software upgrade.</li>
+     * </ol>
+     * <blockquote>
+     * If the `freeze_type` is `TELEMETRY_UPGRADE`, the start time is required,
+     * but the network SHALL NOT stop, halt, or interrupt transaction
+     * processing. The required field is an historical anomaly and SHOULD
+     * change in a future release.</blockquote>
      *
      * @param startTime                 the start time
      * @return {@code this}
@@ -195,7 +239,11 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
     }
 
     /**
-     * The expected hash of the contents of the update file (used to verify the update)
+     * A SHA384 hash of file content.<br/>
+     * This is a hash of the file identified by `update_file`.
+     * <p>
+     * This MUST be set if `update_file` is set, and MUST match the
+     * SHA384 hash of the contents of that file.
      *
      * @param fileHash the fileHash to set
      * @return {@code this}
@@ -217,7 +265,13 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
     }
 
     /**
-     * Assign the freeze type.
+     * The type of freeze.
+     * <p>
+     * This REQUIRED field effectively selects between five quite different
+     * transactions in the same transaction body. Depending on this value
+     * the service may schedule a freeze, prepare upgrades, perform upgrades,
+     * or even abort a previously scheduled freeze.
+     *
      * {@link org.hiero.sdk.FreezeTransaction}
      *
      * @param freezeType                the freeze type

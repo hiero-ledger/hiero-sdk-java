@@ -30,13 +30,6 @@ import org.hiero.sdk.proto.TransactionResponse;
  */
 public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
 
-    /**
-     * A consensus node identifier in the network state.
-     * <p>
-     * The node identified MUST exist in the network address book.<br/>
-     * The node identified MUST NOT be deleted.<br/>
-     * This value is REQUIRED.
-     */
     private long nodeId = 0;
 
     /**
@@ -75,7 +68,12 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
     }
 
     /**
-     * Assign the consensus node identifier in the network state.
+     * A consensus node identifier in the network state.
+     * <p>
+     * The node identified MUST exist in the network address book.<br/>
+     * The node identified MUST NOT be deleted.<br/>
+     * This value is REQUIRED.
+     *
      * @param nodeId the consensus node identifier in the network state.
      * @return {@code this}
      */

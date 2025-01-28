@@ -19,8 +19,11 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * A hash---presumably of some kind of credential or certificate---along with a list of keys,
- * each of which may be either a primitive or a threshold key.
+ * A Live Hash value associating some item of content to an account.
+ *
+ * This message represents a desired entry in the ledger for a SHA-384
+ * hash of some content, an associated specific account, a list of authorized
+ * keys, and a duration the live hash is "valid".
  */
 public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransaction> {
     @Nullable

@@ -18,17 +18,28 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * A transaction that updates the properties of an existing token. The admin
- * key must sign this transaction to update any of the token properties. The
- * admin key can update exisitng keys, but cannot add new keys if they were
- * not set during the creation of the token. If no value is given for a
- * field, that field is left unchanged.
+ * Update an existing token.
  *
- * For an immutable token (that is, a token created without an admin key),
- * only the expiry may be updated. Setting any other field, in that case,
- * will cause the transaction status to resolve to TOKEN_IS_IMMUTABlE.
+ * This transaction SHALL NOT update any field that is not set.<br/>
+ * Most changes MUST be signed by the current `admin_key` of the token. If the
+ * token does not currently have a valid `admin_key`, then this transaction
+ * MUST NOT set any value other than `expiry` or a non-admin key.<br/>
+ * If the `treasury` is set to a new account, the new account MUST sign this
+ * transaction.<br/>
+ * If the `treasury` is set to a new account for a _non-fungible/unique_ token,
+ * The current treasury MUST NOT hold any tokens, or the network configuration
+ * property `tokens.nfts.useTreasuryWildcards` MUST be set.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/update-a-token">Hedera Documentation</a>
+ * #### Requirements for Keys
+ * Any of the key values may be changed, even without an admin key, but the
+ * key to be changed MUST have an existing valid key assigned, and both the
+ * current key and the new key MUST sign the transaction.<br/>
+ * A key value MAY be set to an empty `KeyList`. In this case the existing
+ * key MUST sign this transaction, but the new value is not a valid key, and the
+ * update SHALL effectively remove the existing key.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> {
     /**
@@ -36,119 +47,56 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      */
     @Nullable
     private TokenId tokenId = null;
-    /**
-     * The new treasury account of the token. If the provided treasury
-     * account is not existing or deleted, the response will be
-     * INVALID_TREASURY_ACCOUNT_FOR_TOKEN. If successful, the Token balance
-     * held in the previous Treasury Account is transferred to the new one.
-     */
+
     @Nullable
     private AccountId treasuryAccountId = null;
-    /**
-     * The new account which will be automatically charged to renew the
-     * token's expiration, at autoRenewPeriod interval.
-     */
+
     @Nullable
     private AccountId autoRenewAccountId = null;
-    /**
-     * The new name of the token. The token name is specified as a string of
-     * UTF-8 characters in Unicode. UTF-8 encoding of this Unicode cannot
-     * contain the 0 byte (NUL). Is not required to be unique.
-     */
+
     private String tokenName = "";
-    /**
-     * The new symbol of the token. The token symbol is specified as a string
-     * of UTF-8 characters in Unicode. UTF-8 encoding of this Unicode cannot
-     * contain the 0 byte (NUL). Is not required to be unique.
-     */
+
     private String tokenSymbol = "";
-    /**
-     * The new admin key of the token. If the token is immutable (no Admin
-     * Key was assigned during token creation), the transaction will resolve
-     * to TOKEN_IS_IMMUTABlE. Admin keys cannot update to add new keys that
-     * were not specified during the creation of the token.
-     */
+
     @Nullable
     private Key adminKey = null;
-    /**
-     * The new KYC key of the token. If the token does not have currently
-     * a KYC key, the transaction will resolve to TOKEN_HAS_NO_KYC_KEY.
-     */
+
     @Nullable
     private Key kycKey = null;
-    /**
-     * The new freeze key of the token. If the token does not have currently
-     * a freeze key, the transaction will resolve to TOKEN_HAS_NO_FREEZE_KEY.
-     */
+
     @Nullable
     private Key freezeKey = null;
-    /**
-     * The new wipe key of the token. If the token does not have currently
-     * a wipe key, the transaction will resolve to TOKEN_HAS_NO_WIPE_KEY.
-     */
+
     @Nullable
     private Key wipeKey = null;
-    /**
-     * The new supply key of the token. If the token does not have currently
-     * a supply key, the transaction will resolve to TOKEN_HAS_NO_SUPPLY_KEY.
-     */
+
     @Nullable
     private Key supplyKey = null;
-    /**
-     * If set, the new key to use to update the token's custom fee schedule;
-     * if the token does not currently have this key, transaction will
-     * resolve to TOKEN_HAS_NO_FEE_SCHEDULE_KEY
-     */
+
     @Nullable
     private Key feeScheduleKey = null;
-    /**
-     * Update the token's existing pause key. The pause key has the ability
-     * to pause or unpause a token.
-     */
+
     @Nullable
     private Key pauseKey = null;
-    /**
-     * The new metadata key of the token. The metadata key has the ability to
-     * change the metadata of a token (token definition, partition definition,
-     * and individual NFTs). If the Token does not currently have a Metadata key,
-     * the transaction will resolve to TOKEN_HAS_NO_METADATA_KEY.
-     */
+
     @Nullable
     private Key metadataKey = null;
-    /**
-     * The new expiry time of the token. Expiry can be updated even if the
-     * admin key is not set. If the provided expiry is earlier than the
-     * current token expiry, the transaction will resolve to
-     * INVALID_EXPIRATION_TIME.
-     */
+
     @Nullable
     private Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    /**
-     * The new interval at which the auto-renew account will be charged to
-     * extend the token's expiry.
-     *
-     * The default auto-renew period is 131,500 minutes.
-     */
     @Nullable
     private Duration autoRenewPeriod = null;
-    /**
-     * Short publicly visible memo about the token. No guarantee of
-     * uniqueness. (100 characters max)
-     */
+
     @Nullable
     private String tokenMemo = null;
-    /**
-     * Metadata of the created token definition
-     */
+
     private byte[] tokenMetadata = null;
-    /**
-     * Determines whether the system should check the validity of the passed keys for update.
-     * Defaults to FULL_VALIDATION;
-     */
+
     private TokenKeyValidation tokenKeyVerificationMode = TokenKeyValidation.FULL_VALIDATION;
+
     /**
      * Constructor.
      */
@@ -188,7 +136,12 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to delete.<br/>
+     * The identified token MUST exist, and MUST NOT be deleted.<br/>
+     * If any field other than `expiry` is set, the identified token MUST
+     * have a valid `admin_key`.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -211,7 +164,11 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the token name.
+     * A new name for the token.<br/>
+     * This is generally the "full name" displayed in wallet software.
+     * <p>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This value, if set, MUST NOT contain the Unicode NUL codepoint.
      *
      * @param name                      the token name
      * @return {@code this}
@@ -233,7 +190,10 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the token symbol.
+     * A new symbol to use for the token.
+     * <p>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This value, if set, MUST NOT contain the Unicode NUL codepoint.
      *
      * @param symbol                    the token symbol
      * @return {@code this}
@@ -256,7 +216,21 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the account id.
+     * A new treasury account identifier.
+     * <p>
+     * If set,
+     * - The identified account SHALL be designated the "treasury" for the
+     *   token, and all tokens "minted" SHALL be delivered to that account
+     *   following this transaction.<br/>
+     * - The identified account MUST exist, MUST NOT be expired, MUST NOT be
+     *   deleted, and SHOULD have a non-zero HBAR balance.<br/>
+     * - The identified account SHALL be associated to this token.
+     * - The full balance of this token held by the prior treasury account
+     *   SHALL be transferred to the new treasury account, if the token type
+     *   is fungible/common.
+     * - If the token type is non-fungible/unique, the previous treasury
+     *   account MUST NOT hold any tokens of this type.
+     * - The new treasury account key MUST sign this transaction.
      *
      * @param accountId                 the account id
      * @return {@code this}
@@ -279,7 +253,15 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the key.
+     * A Hedera key for token administration.
+     * <p>
+     * This key, if set, SHALL have administrative authority for this token and
+     * MAY authorize token update and/or token delete transactions.<br/>
+     * If this key is set to an empty `KeyList`, this token SHALL be
+     * immutable thereafter, except for expiration and renewal.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the key
      * @return {@code this}
@@ -302,7 +284,17 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the kyc key.
+     * A Hedera key for managing account KYC.
+     * <p>
+     * This key, if set, SHALL have KYC authority for this token and
+     * MAY authorize transactions to grant or revoke KYC for accounts.<br/>
+     * If this key is not set, or is an empty `KeyList`, KYC status for this
+     * token SHALL NOT be granted or revoked for any account.<br/>
+     * If this key is removed after granting KYC, those grants SHALL remain
+     * and cannot be revoked.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the kyc key
      * @return {@code this}
@@ -324,7 +316,18 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the freeze key.
+     * A Hedera key for managing asset "freeze".
+     * <p>
+     * This key, if set, SHALL have "freeze" authority for this token and
+     * MAY authorize transactions to freeze or unfreeze accounts
+     * with respect to this token.<br/>
+     * If this key is set to an empty `KeyList`, this token
+     * SHALL NOT be frozen or unfrozen for any account.<br/>
+     * If this key is removed after freezing accounts, those accounts
+     * SHALL remain frozen and cannot be unfrozen.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the freeze key
      * @return {@code this}
@@ -347,7 +350,16 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the wipe key.
+     * A Hedera key for wiping tokens from accounts.
+     * <p>
+     * This key, if set, SHALL have "wipe" authority for this token and
+     * MAY authorize transactions to "wipe" any amount of this token from
+     * any account, effectively burning the tokens "wiped".<br/>
+     * If this key is set to an empty `KeyList`, it SHALL NOT be
+     * possible to "wipe" this token from an account.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the wipe key
      * @return {@code this}
@@ -370,7 +382,17 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the supply key.
+     * An Hedera key for "minting" and "burning" tokens.
+     * <p>
+     * This key, if set, MAY authorize transactions to "mint" new tokens to
+     * be delivered to the token treasury or "burn" tokens held by the
+     * token treasury.<br/>
+     * If this key is set to an empty `KeyList`, it SHALL NOT be
+     * possible to change the supply of tokens and neither "mint" nor "burn"
+     * transactions SHALL be permitted.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the supply key
      * @return {@code this}
@@ -393,7 +415,15 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the fee schedule key.
+     * An Hedera key for managing the token custom fee schedule.
+     * <p>
+     * This key, if set, MAY authorize transactions to modify the
+     * `custom_fees` for this token.<br/>
+     * If this key is set to an empty `KeyList`, the `custom_fees`
+     * for this token SHALL NOT be modified.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the fee schedule key
      * @return {@code this}
@@ -416,7 +446,17 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the pause key.
+     * An Hedera key for managing token "pause".
+     * <p>
+     * This key, if set, SHALL have "pause" authority for this token and
+     * MAY authorize transactions to pause or unpause this token.<br/>
+     * If this key is set to an empty `KeyList`, this token
+     * SHALL NOT be paused or unpaused.<br/>
+     * If this key is removed while the token is paused, the token cannot
+     * be unpaused and SHALL remain paused.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the pause key
      * @return {@code this}
@@ -439,7 +479,15 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the metadata key.
+     * A Hedera key for managing the token `metadata`.
+     * <p>
+     * This key, if set, MAY authorize transactions to modify the
+     * `metadata` for this token.<br/>
+     * If this key is set to an empty `KeyList`, the `metadata`
+     * for this token SHALL NOT be modified.<br/>
+     * If set, this key MUST be a valid key or an empty `KeyList`.<br/>
+     * If set to a valid key, the previous key and new key MUST both
+     * sign this transaction.
      *
      * @param key                       the metadata key
      * @return {@code this}
@@ -462,7 +510,15 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the expiration time.
+     * An expiration timestamp.
+     * <p>
+     * If this value is set, the automatic renewal account is not set for the
+     * identified token, and token expiration is enabled in network
+     * configuration, this token SHALL expire when the consensus time exceeds
+     * this value, and MAY be subsequently removed from the network state.<br/>
+     * If `autoRenewAccount` is set or the `auto_renew_account_id` is set for
+     * the identified token, the token SHALL be subject to automatic renewal
+     * when the consensus time exceeds this value.
      *
      * @param expirationTime            the expiration time
      * @return {@code this}
@@ -496,7 +552,27 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the auto renew account id.
+     * An identifier for the account to be charged renewal fees at the token's
+     * expiry to extend the lifetime of the token.
+     * <p>
+     * If this value is set for the identified token, the token lifetime SHALL
+     * be extended by the _smallest_ of the following at expiration:
+     * <ul>
+     *   <li>The current `autoRenewPeriod` duration.</li>
+     *   <li>The maximum duration that this account has funds to purchase.</li>
+     *   <li>The configured MAX_AUTORENEW_PERIOD at the time of automatic
+     *       renewal.</li>
+     * </ul>
+     * If this account's HBAR balance is `0` when the token must be
+     * renewed, then the token SHALL be expired, and MAY be subsequently
+     * removed from state.<br/>
+     * If this value is set, the referenced account MUST sign this
+     * transaction.
+     * <p>
+     * <blockquote>Note<blockquote>
+     * It is not currently possible to remove an automatic renewal account.
+     * Once set, it can only be replaced by a valid account.
+     * </blockquote></blockquote>
      *
      * @param accountId                 the account id
      * @return {@code this}
@@ -519,7 +595,15 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the auto renew period.
+     * A duration between token automatic renewals.<br/>
+     * All entities in state may be charged "rent" occasionally (typically
+     * every 90 days) to prevent unnecessary growth of the ledger. This value
+     * sets the interval between such events for this token.
+     * <p>
+     * If set, this value MUST be greater than the configured
+     * `MIN_AUTORENEW_PERIOD`.<br/>
+     * If set, this value MUST be less than the configured
+     * `MAX_AUTORENEW_PERIOD`.
      *
      * @param period                    the auto renew period
      * @return {@code this}
@@ -542,7 +626,10 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the token memo.
+     * A short description for this token.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the token memo 100 bytes max
      * @return {@code this}
@@ -597,7 +684,24 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     }
 
     /**
-     * Assign the key verification mode.
+     * Set a key validation mode.<br/>
+     * Any key may be updated by a transaction signed by the token `admin_key`.
+     * Each role key may _also_ sign a transaction to update that key.
+     * If a role key signs an update to change that role key both old
+     * and new key must sign the transaction, _unless_ this field is set
+     * to `NO_VALIDATION`, in which case the _new_ key is not required to
+     * sign the transaction (the existing key is still required).<br/>
+     * The primary intent for this field is to allow a role key (e.g. a
+     * `pause_key`) holder to "remove" that key from the token by signing
+     * a transaction to set that role key to an empty `KeyList`.
+     * <p>
+     * If set to `FULL_VALIDATION`, either the `admin_key` or _both_ current
+     * and new key MUST sign this transaction to update a "key" field for the
+     * identified token.<br/>
+     * If set to `NO_VALIDATION`, either the `admin_key` or the current
+     * key MUST sign this transaction to update a "key" field for the
+     * identified token.<br/>
+     * This field SHALL be treated as `FULL_VALIDATION` if not set.
      *
      * @param tokenKeyVerificationMode the key verification mode
      * @return {@code this}

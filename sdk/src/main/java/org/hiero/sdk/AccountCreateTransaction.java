@@ -14,9 +14,18 @@ import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
-/**
+/*
  * Create a new Hedera™ account.
+ *
+ * If the auto_renew_account field is set, the key of the referenced account
+ * MUST sign this transaction.
+ * Current limitations REQUIRE that `shardID` and `realmID` both MUST be `0`.
+ * This is expected to change in the future.
+ *
+ * ### Block Stream Effects
+ * The newly created account SHALL be included in State Changes.
  */
+
 public final class AccountCreateTransaction extends Transaction<AccountCreateTransaction> {
     @Nullable
     private AccountId proxyAccountId = null;
@@ -82,10 +91,14 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Set the key for this account.
-     *
-     * <p>The key that must sign each transfer out of the account. If receiverSignatureRequired is
-     * true, then it must also sign any transfer into the account.
+     * The identifying key for this account.
+     * This key represents the account owner, and is required for most actions
+     * involving this account that do not modify the account itself. This key
+     * may also identify the account for smart contracts.
+     * <p>
+     * This field is REQUIRED.
+     * This `Key` MUST NOT be an empty `KeyList` and MUST contain at least one
+     * "primitive" (i.e. cryptographic) key value.
      *
      * @param key the key for this account.
      * @return {@code this}
@@ -107,7 +120,10 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Set the initial amount to transfer into this account.
+     * An amount, in tinybar, to deposit to the newly created account.
+     * <p>
+     * The deposited amount SHALL be debited to the "payer" account for this
+     * transaction.
      *
      * @param initialBalance the initial balance.
      * @return {@code this}
@@ -129,10 +145,14 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Set to true to require this account to sign any transfer of hbars to this account.
-     *
-     * <p>All transfers of hbars from this account must always be signed. This property only affects
-     * transfers to this account.
+     * A flag indicating the account holder must authorize all incoming
+     * token transfers.
+     * <p>
+     * If this flag is set then any transaction that would result in adding
+     * hbar or other tokens to this account balance MUST be signed by the
+     * identifying key of this account (that is, the `key` field).<br/>
+     * If this flag is set, then the account key (`key` field) MUST sign
+     * this create transaction, in addition to the transaction payer.
      *
      * @param receiveSignatureRequired true to require a signature when receiving hbars.
      * @return {@code this}
@@ -160,6 +180,9 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * @deprecated with no replacement
      *
      * Set the ID of the account to which this account is proxy staked.
+     *
+     * Use `staked_id` instead.<br/>
+     * An account identifier for a staking proxy.
      *
      * @param proxyAccountId the proxy account ID.
      * @return {@code this}
@@ -211,7 +234,15 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Grant an amount of tokens.
+     * A maximum number of tokens that can be auto-associated
+     * with this account.<br/>
+     * By default this value is 0 for all accounts except for automatically
+     * created accounts (e.g. smart contracts), which default to -1.
+     * <p>
+     * If this value is `0`, then this account MUST manually associate to
+     * a token before holding or transacting in that token.<br/>
+     * This value MAY also be `-1` to indicate no limit.<br/>
+     * This value MUST NOT be less than `-1`.
      *
      * @param amount                    the amount of tokens
      * @return                          {@code this}
@@ -232,7 +263,10 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Assign a memo to the account.
+     * A short description of this Account.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the memo
      * @return                          {@code this}
@@ -278,7 +312,13 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Set the node to which this account will stake
+     * ID of the node this account is staked to.
+     * <p>
+     * If this account is not currently staking its balances, then this
+     * field, if set, SHALL be the sentinel value of `-1`.<br/>
+     * Wallet software SHOULD surface staking issues to users and provide a
+     * simple mechanism to update staking to a new node ID in the event the
+     * prior staked node ID ceases to be valid.
      *
      * @param stakedNodeId ID of the node this account will be staked to.
      * @return {@code this}

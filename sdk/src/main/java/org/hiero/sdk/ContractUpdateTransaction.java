@@ -138,8 +138,14 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Sets the expiration of the instance and its account to this time (
-     * no effect if it already is this time or later).
+     * If set, modify the time at which this contract will expire.<br/>
+     * An expired contract requires a rent payment to "renew" the contract.
+     * A transaction to update this field is how that rent payment is made.
+     * <p>
+     * This value MUST NOT be less than the current `expirationTime`
+     * of the contract. If this value is earlier than the current
+     * value, the transaction SHALL fail with response
+     * code `EXPIRATION_REDUCTION_NOT_ALLOWED`.
      *
      * @param expirationTime The Instant to be set for expiration time
      * @return {@code this}
@@ -162,7 +168,16 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Sets a new admin key for this contract.
+     * If set, modify the key that authorizes updates to the contract.
+     * <p>
+     * If this field is set to a valid Key, this key and the previously set key
+     * MUST both sign this transaction.<br/>
+     * If this value is an empty `KeyList`, the prior key MUST sign this
+     * transaction, and the smart contract SHALL be immutable after this
+     * transaction completes, except for expiration and renewal.<br/>
+     * If this value is not an empty `KeyList`, but does not contain any
+     * cryptographic keys, or is otherwise malformed, this transaction SHALL
+     * fail with response code `INVALID_ADMIN_KEY`.
      *
      * @param adminKey The Key to be set
      * @return {@code this}
@@ -215,8 +230,13 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Sets the new maximum number of tokens that this contract can be
-     * automatically associated with (i.e., receive air-drops from).
+     * If set, modify the maximum number of tokens that can be auto-associated with the
+     * contract.
+     * <p>
+     * If this is set and less than or equal to `used_auto_associations`, or 0, then this contract
+     * MUST manually associate with a token before transacting in that token.<br/>
+     * This value MAY also be `-1` to indicate no limit.<br/>
+     * This value MUST NOT be less than `-1`.
      *
      * @param maxAutomaticTokenAssociations The maximum automatic token associations
      * @return  {@code this}
@@ -238,9 +258,10 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Sets the auto renew period for this contract.
+     * If set, modify the duration added to expiration time by each
+     * auto-renewal to this value.
      *
-     * @param autoRenewPeriod The Duration to be set for auto renewal
+     * @param autoRenewPeriod The Duration to be set for auto-renewal
      * @return {@code this}
      */
     public ContractUpdateTransaction setAutoRenewPeriod(Duration autoRenewPeriod) {
@@ -324,7 +345,14 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Set the account to which this contract will stake
+     * An account identifier.<br/>
+     * A staked account acts as a proxy, and this contract effectively
+     * nominates the same node as the identified account.
+     * <p>
+     * If set, modify this smart contract such that it SHALL stake its HBAR
+     * to the same node as the identified account.<br/>
+     * If this field is set to a default AccountID value (`0.0.0`), any
+     * pre-existing `staked_account_id` value SHALL be removed on success.
      *
      * @param stakedAccountId ID of the account to which this contract will stake.
      * @return {@code this}
@@ -359,7 +387,21 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Set the node to which this contract will stake
+     * A node identifier.<br/>
+     * A staked node identifier indicates the consensus node that this
+     * account nominates for staking.
+     * <p>
+     * If set, modify this smart contract such that it SHALL stake its HBAR
+     * to this node.
+     * If set to the value `-1` any pre-existing `staked_node_id` value
+     * SHALL be removed on success.
+     * <p>
+     * <blockquote>Note: node IDs do fluctuate as node operators change.
+     * Most contracts are immutable, and a contract staking to an invalid
+     * node ID SHALL NOT participate in staking. Immutable contracts may
+     * find it more reliable to use a proxy account for staking (via
+     * `staked_account_id`) to enable updating the _effective_ staking node
+     * ID when necessary through updating the proxy account.</blockquote>
      *
      * @param stakedNodeId ID of the node this contract will be staked to.
      * @return {@code this}
@@ -394,7 +436,14 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * If true, the contract declines receiving a staking reward. The default value is false.
+     * A flag indicating if staking rewards are declined.<br/>
+     * If set, modify the flag indicating if this contract declines to accept
+     * rewards for staking its HBAR to secure the network.
+     * <p>
+     * If set to true, this smart contract SHALL NOT receive any reward for
+     * staking its HBAR balance to help secure the network, regardless of
+     * staking configuration, but MAY stake HBAR to support the network
+     * without reward.
      *
      * @param declineStakingReward - If true, the contract declines receiving a staking reward. The default value is false.
      * @return {@code this}
@@ -427,11 +476,16 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * An account to charge for auto-renewal of this contract. If not set, or set to an
-     * account with zero hbar balance, the contract's own hbar balance will be used to
-     * cover auto-renewal fees.
+     * If set, modify the account, in the same shard and realm as this smart
+     * contract, that has agreed to allow the network to use its balance, when
+     * needed, to automatically extend this contract's expiration time.
+     * <p>
+     * If this field is set to a non-default value, that Account MUST sign this
+     * transaction.<br/>
+     * If this field is set to a default AccountID value (`0.0.0`), any
+     * pre-existing `auto_renew_account_id` value SHALL be removed on success.
      *
-     * @param autoRenewAccountId The AccountId to be set for auto renewal
+     * @param autoRenewAccountId The AccountId to be set for auto-renewal
      * @return {@code this}
      */
     public ContractUpdateTransaction setAutoRenewAccountId(AccountId autoRenewAccountId) {

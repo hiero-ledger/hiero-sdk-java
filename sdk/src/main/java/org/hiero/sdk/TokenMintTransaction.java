@@ -18,36 +18,34 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Minting fungible token allows you to increase the total supply of the
- * token. Minting a non-fungible token creates an NFT with its unique
- * metadata for the class of NFTs defined by the token ID. The Supply
- * Key must sign the transaction.
+ * Mint tokens and deliver the new tokens to the token treasury account.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/mint-a-token">Hedera Documentation</a>
+ * The token MUST have a `supply_key` set and that key MUST NOT
+ * be an empty `KeyList`.<br/>
+ * The token `supply_key` MUST sign this transaction.<br/>
+ * This operation SHALL increase the total supply for the token type by
+ * the number of tokens "minted".<br/>
+ * The total supply for the token type MUST NOT be increased above the
+ * maximum supply limit (2^63-1) by this transaction.<br/>
+ * The tokens minted SHALL be credited to the token treasury account.<br/>
+ * If the token is a fungible/common type, the amount MUST be specified.<br/>
+ * If the token is a non-fungible/unique type, the metadata bytes for each
+ * unique token MUST be specified in the `metadata` list.<br/>
+ * Each unique metadata MUST not exceed the global metadata size limit defined
+ * by the network configuration value `tokens.maxMetadataBytes`.<br/>
+ * The global batch size limit (`tokens.nfts.maxBatchSizeMint`) SHALL set
+ * the maximum number of individual NFT metadata permitted in a single
+ * `tokenMint` transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTransaction> {
     @Nullable
     private TokenId tokenId = null;
-    /**
-     * The metadata field is specific to NFTs.
-     *
-     * Once an NFT is minted, the metadata cannot be changed and is immutable.
-     *
-     * You can use the metadata field to add a URI that contains additional
-     * information about the token.
-     *
-     * The metadata field has a 100 byte limit.
-     */
+
     private List<byte[]> metadataList = new ArrayList<>();
-    /**
-     * amount provided must be in the lowest denomination possible.
-     *
-     * Example: Token A has 2 decimals.
-     *
-     * In order to mint 100 tokens, one must provide an amount of 10000.
-     *
-     * In order to mint 100.55 tokens, one must provide an amount of 10055.
-     */
+
     private long amount = 0;
 
     /**
@@ -89,7 +87,10 @@ public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTra
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to "mint".<br/>
+     * The identified token MUST exist, and MUST NOT be deleted.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -111,7 +112,15 @@ public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTra
     }
 
     /**
-     * Assign the amount to mint.
+     * An amount to mint to the Treasury Account.
+     * <p>
+     * This is interpreted as an amount in the smallest possible denomination
+     * for the token (10<sup>-decimals</sup> whole tokens).<br/>
+     * The balance for the token treasury account SHALL receive the newly
+     * minted tokens.<br/>
+     * If this value is equal to zero (`0`), the token SHOULD be a
+     * non-fungible/unique type.<br/>
+     * If this value is non-zero, the token MUST be a fungible/common type.
      *
      * @param amount                    the amount to mint
      * @return {@code this}
@@ -145,7 +154,17 @@ public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTra
     }
 
     /**
-     * Assign the metadata list.
+     * A list of metadata bytes.<br/>
+     * <p>
+     * One non-fungible/unique token SHALL be minted for each entry
+     * in this list.<br/>
+     * Each entry in this list MUST NOT be larger than the limit set by the
+     * current network configuration value `tokens.maxMetadataBytes`.<br/>
+     * This list MUST NOT contain more entries than the current limit set by
+     * the network configuration value `tokens.nfts.maxBatchSizeMint`.<br/>
+     * If this list is not empty, the token MUST be a
+     * non-fungible/unique type.<br/>
+     * If this list is empty, the token MUST be a fungible/common type.
      *
      * @param metadataList              the metadata list
      * @return {@code this}

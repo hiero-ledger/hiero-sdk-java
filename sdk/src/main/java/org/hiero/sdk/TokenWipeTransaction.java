@@ -16,36 +16,35 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Wipes the provided amount of fungible or non-fungible tokens from the
- * specified Hedera account. This transaction does not delete tokens from the
- * treasury account. This transaction must be signed by the token's Wipe Key.
- * Wiping an account's tokens burns the tokens and decreases the total supply.
+ * Wipe (administratively burn) tokens held by a non-treasury account.<br/>
+ * On success, the requested tokens will be removed from the identified account
+ * and the token supply will be reduced by the amount "wiped".
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/wipe-a-token">Hedera Documentation</a>
+ * This transaction MUST be signed by the token `wipe_key`.<br/>
+ * The identified token MUST exist, MUST NOT be deleted,
+ * and MUST NOT be paused.<br/>
+ * The identified token MUST have a valid `Key` set for the `wipe_key` field,
+ * and that key MUST NOT be an empty `KeyList`.<br/>
+ * The identified account MUST exist, MUST NOT be deleted, MUST be
+ * associated to the identified token, MUST NOT be frozen for the identified
+ * token, MUST NOT be the token `treasury`, and MUST hold a balance for the
+ * token or the specific serial numbers provided.<br/>
+ * This transaction SHOULD provide a value for `amount` or `serialNumbers`,
+ * but MUST NOT set both fields.
+ *
+ * ### Block Stream Effects
+ * The new total supply for the wiped token type SHALL be recorded.
  */
 public class TokenWipeTransaction extends org.hiero.sdk.Transaction<TokenWipeTransaction> {
-    /**
-     * The ID of the token to wipe from the account
-     */
+
     @Nullable
     private TokenId tokenId = null;
-    /**
-     * Applicable to tokens of type NON_FUNGIBLE_UNIQUE.
-     * The account ID to wipe the NFT from.
-     */
+
     @Nullable
     private AccountId accountId = null;
-    /**
-     * Applicable to tokens of type  FUNGIBLE_COMMON.The amount of token
-     * to wipe from the specified account. The amount must be a positive
-     * non-zero number in the lowest denomination possible, not bigger
-     * than the token balance of the account.
-     */
+
     private long amount = 0;
-    /**
-     * Applicable to tokens of type NON_FUNGIBLE_UNIQUE.
-     * The list of NFTs to wipe.
-     */
+
     private List<Long> serials = new ArrayList<>();
 
     /**
@@ -87,7 +86,11 @@ public class TokenWipeTransaction extends org.hiero.sdk.Transaction<TokenWipeTra
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * The identified token MUST exist, MUST NOT be paused, MUST NOT be
+     * deleted, and MUST NOT be expired.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -110,7 +113,15 @@ public class TokenWipeTransaction extends org.hiero.sdk.Transaction<TokenWipeTra
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.<br/>
+     * This identifies the account from which tokens will be wiped.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * The identified account MUST NOT be deleted or expired.<br/>
+     * If the identified token `kyc_key` is set to a valid key, the
+     * identified account MUST have "KYC" granted.<br/>
+     * The identified account MUST NOT be the `treasury` account for the
+     * identified token.
      *
      * @param accountId                 the account id
      * @return {@code this}
@@ -132,7 +143,22 @@ public class TokenWipeTransaction extends org.hiero.sdk.Transaction<TokenWipeTra
     }
 
     /**
-     * Assign the amount.
+     * An amount of fungible/common tokens to wipe.
+     * <p>
+     * If the identified token is a non-fungible/unique token type,
+     * this value MUST be exactly zero(`0`).<br/>
+     * If the identified token type is fungible/common:
+     * <ul>
+     *   <li>This value SHALL be specified in units of the smallest
+     *       denomination possible for the identified token
+     *       (<tt>10<sup>-decimals</sup></tt> whole tokens).</li>
+     *   <li>This value MUST be strictly less than `Long.MAX_VALUE`.</li>
+     *   <li>This value MUST be less than or equal to the current total
+     *       supply for the identified token.</li>
+     *   <li>This value MUST be less than or equal to the current balance
+     *       held by the identified account.</li>
+     *   <li>This value MAY be zero(`0`).</li>
+     * </ul>
      *
      * @param amount                    the amount
      * @return {@code this}
@@ -153,7 +179,26 @@ public class TokenWipeTransaction extends org.hiero.sdk.Transaction<TokenWipeTra
     }
 
     /**
-     * Assign the list of serial numbers.
+     * A list of serial numbers to wipe.<br/>
+     * The non-fungible/unique tokens with these serial numbers will be
+     * destroyed and cannot be recovered or reused.
+     * <p>
+     * If the identified token type is a fungible/common type, this
+     * list MUST be empty.<br/>
+     * If the identified token type is non-fungible/unique:
+     * <ul>
+     *   <li>This list MUST contain at least one entry if the identified token
+     *       type is non-fungible/unique.>/li>
+     *   <li>This list MUST NOT contain more entries than the current total
+     *       supply for the identified token.</li>
+     *   <li>Every entry in this list MUST be a valid serial number for the
+     *       identified token (i.e. "collection").</li>
+     *   <li>Every entry in this list MUST be owned by the
+     *       identified account</li>
+     *   <li></li>
+     * </ul>
+     * This list MUST NOT contain more entries than the network configuration
+     * value for batch size limit, typically ten(`10`).
      *
      * @param serials                   the list of serial numbers
      * @return {@code this}

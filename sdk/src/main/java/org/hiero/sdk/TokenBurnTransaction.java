@@ -17,25 +17,33 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Burns fungible and non-fungible tokens owned by the Treasury Account.
- * If no Supply Key is defined, the transaction will resolve to
- * TOKEN_HAS_NO_SUPPLY_KEY.
+ * Burns tokens from the Token's treasury Account.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/burn-a-token">Hedera Documentation</a>
+ * The token MUST have a `supply_key` set and that key MUST NOT
+ * be an empty `KeyList`.<br/>
+ * The token `supply_key` MUST sign this transaction.<br/>
+ * This operation SHALL decrease the total supply for the token type by
+ * the number of tokens "burned".<br/>
+ * The total supply for the token type MUST NOT be reduced below zero (`0`)
+ * by this transaction.<br/>
+ * The tokens to burn SHALL be deducted from the token treasury account.<br/>
+ * If the token is a fungible/common type, the amount MUST be specified.<br/>
+ * If the token is a non-fungible/unique type, the specific serial numbers
+ * MUST be specified.<br/>
+ * The global batch size limit (`tokens.nfts.maxBatchSizeBurn`) SHALL set
+ * the maximum number of individual NFT serial numbers permitted in a single
+ * `tokenBurn` transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenBurnTransaction extends org.hiero.sdk.Transaction<TokenBurnTransaction> {
-    /**
-     * The ID of the token to burn supply
-     */
+
     @Nullable
     private TokenId tokenId = null;
-    /**
-     * The ID of the token to burn supply
-     */
+
     private long amount = 0;
-    /**
-     * Applicable to tokens of type NON_FUNGIBLE_UNIQUE.The  list of NFT serial IDs to burn.
-     */
+
     private List<Long> serials = new ArrayList<>();
 
     /**
@@ -77,7 +85,10 @@ public class TokenBurnTransaction extends org.hiero.sdk.Transaction<TokenBurnTra
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to "burn".<br/>
+     * The identified token MUST exist, and MUST NOT be deleted.
      *
      * @param tokenId                   the token id
      * @return {@code this}
@@ -128,7 +139,15 @@ public class TokenBurnTransaction extends org.hiero.sdk.Transaction<TokenBurnTra
     }
 
     /**
-     * Assign the list of token serials.
+     * A list of serial numbers to burn from the Treasury Account.
+     * <p>
+     * This list MUST NOT contain more entries than the current limit set by
+     * the network configuration value `tokens.nfts.maxBatchSizeBurn`.<br/>
+     * The treasury account for the token MUST hold each unique token
+     * identified in this list.<br/>
+     * If this list is not empty, the token MUST be a
+     * non-fungible/unique type.<br/>
+     * If this list is empty, the token MUST be a fungible/common type.
      *
      * @param serials                   list of token serials
      * @return {@code this}

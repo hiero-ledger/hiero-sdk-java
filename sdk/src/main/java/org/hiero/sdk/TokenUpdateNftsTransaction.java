@@ -17,22 +17,28 @@ import org.hiero.sdk.proto.TokenUpdateNftsTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
+/**
+ * Modify the metadata field for an individual non-fungible/unique token (NFT).
+ *
+ * Updating the metadata of an NFT SHALL NOT affect ownership or
+ * the ability to transfer that NFT.<br/>
+ * This transaction SHALL affect only the specific serial numbered tokens
+ * identified.
+ * This transaction SHALL modify individual token metadata.<br/>
+ * This transaction MUST be signed by the token `metadata_key`.<br/>
+ * The token `metadata_key` MUST be a valid `Key`.<br/>
+ * The token `metadata_key` MUST NOT be an empty `KeyList`.
+ *
+ * ### Block Stream Effects
+ * None
+ */
 public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTransaction> {
 
-    /**
-     * The token for which to update NFTs.
-     */
     @Nullable
     private TokenId tokenId = null;
 
-    /**
-     * The list of serial numbers to be updated.
-     */
     private List<Long> serials = new ArrayList<>();
 
-    /**
-     * The new metadata of the NFT(s)
-     */
     private byte[] metadata = null;
 
     /**
@@ -69,7 +75,12 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.<br/>
+     * This is the token type (i.e. collection) for which to update NFTs.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * The identified token MUST exist, MUST NOT be paused, MUST have the type
+     * non-fungible/unique, and MUST have a valid `metadata_key`.
      *
      * @param tokenId the token id
      * @return {@code this}
@@ -91,7 +102,11 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
     }
 
     /**
-     * Assign the list of serial numbers.
+     * A list of serial numbers to be updated.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * This list MUST have at least one(1) entry.<br/>
+     * This list MUST NOT have more than ten(10) entries.
      *
      * @param serials the list of serial numbers
      * @return {@code this}
@@ -126,7 +141,10 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
     }
 
     /**
-     * Assign the metadata.
+     * A new value for the metadata.
+     * <p>
+     * If this field is not set, the metadata SHALL NOT change.<br/>
+     * This value, if set, MUST NOT exceed 100 bytes.
      *
      * @param metadata the metadata
      * @return {@code this}

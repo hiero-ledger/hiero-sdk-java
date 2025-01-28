@@ -15,10 +15,29 @@ import org.hiero.sdk.proto.TransactionID;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * <p>A transaction specifically to append data to a file on the network.
+ * A transaction body for an `appendContent` transaction.<br/>
+ * This transaction body provides a mechanism to append content to a "file" in
+ * network state. Hedera transactions are limited in size, but there are many
+ * uses for in-state byte arrays (e.g. smart contract bytecode) which require
+ * more than may fit within a single transaction. The `appendFile` transaction
+ * exists to support these requirements. The typical pattern is to create a
+ * file, append more data until the full content is stored, verify the file is
+ * correct, then update the file entry with any final metadata changes (e.g.
+ * adding threshold keys and removing the initial upload key).
  *
- * <p>If a file has multiple keys, all keys must sign to modify its contents.
- * (See {@link FileCreateTransaction#setKeys(Key...)} for more information.)
+ * Each append transaction MUST remain within the total transaction size limit
+ * for the network (typically 6144 bytes).<br/>
+ * The total size of a file MUST remain within the maximum file size limit for
+ * the network (typically 1048576 bytes).
+ *
+ * #### Signature Requirements
+ * Append transactions MUST have signatures from _all_ keys in the `KeyList`
+ * assigned to the `keys` field of the file.<br/>
+ * See the [File Service](#FileService) specification for a detailed
+ * explanation of the signature requirements for all file transactions.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTransaction> {
     static int DEFAULT_CHUNK_SIZE = 4096;
@@ -71,7 +90,15 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
     }
 
     /**
-     * <p>Set the ID of the file to append to. Required.
+     * A file identifier.<br/>
+     * This identifies the file to which the `contents` will be appended.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * The identified file MUST exist.<br/>
+     * The identified file MUST NOT be larger than the current maximum file
+     * size limit.<br/>
+     * The identified file MUST NOT be deleted.<br/>
+     * The identified file MUST NOT be immutable.
      *
      * @param fileId the ID of the file to append to.
      * @return {@code this}
@@ -94,7 +121,12 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
     }
 
     /**
-     * <p>Set the contents to append to the file as identified by {@link #setFileId(FileId)}.
+     * An array of bytes to append.<br/>
+     * <p>
+     * This content SHALL be appended to the identified file if this
+     * transaction succeeds.<br/>
+     * This field is REQUIRED.<br/>
+     * This field MUST NOT be empty.
      *
      * @param contents the contents to append to the file.
      * @return {@code this}

@@ -19,163 +19,110 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Create a new fungible or non-fungible token (NFT) on the Hedera network.
- * After you submit the transaction to the Hedera network, you can obtain the
- * new token ID by requesting the receipt. Smart contracts cannot access or
- * transfer HTS tokens at this time.
+ * Create an HTS token.
  *
- * NFTs
+ * #### Keys
+ * Each token has several keys that, separately, control different functions
+ * for that token. It is *_strongly_* recommended that each key assigned to
+ * a token be unique, or disabled by assigning an empty `KeyList`.
+ * Keys and purpose
+ * - `adminKey` is a general access and may authorize a token update
+ *   transaction as well as _update the other keys_. Even the admin key
+ *   cannot authorize _adding_ a key that is not present, however.<br/>
+ *   The admin key may also delete the token entirely.
+ * - `fee_schedule` may authorize updating the token custom fees. If this
+ *   key is not present, the custom fees for the token are fixed and immutable.
+ * - `freeze` may authorize a token freeze or unfreeze transaction.
+ *   If this key is not present, accounts holding this token cannot have
+ *   their tokens frozen or unfrozen.
+ * - `kyc` may authorize a token grant KYC or revoke KYC transaction.
+ *   If this key is not present, accounts holding this token cannot have
+ *   KYC status granted or revoked.
+ * - `metadata` may authorize token update nfts transactions.
+ *   If this key is not present, the token metadata values for that
+ *   non-fungible/unique token _type_ will be immutable.
+ * - `pause` may authorize a token pause or token unpause transaction.
+ *   If this key is not present, the token cannot be paused (preventing any
+ *   account from transacting in that token) or resumed.
+ * - `supply` may authorize a token mint or burn transaction.
+ *   If this key is not present, the token cannot mint additional supply and
+ *   existing tokens cannot be "burned" from the treasury (but _might_ still be
+ *   "burned" from individual accounts, c.f. `wipeKey` and `tokenWipe`).
+ * - `wipe` may authorize a token wipe account transaction.
+ *   If this key is not present, accounts holding this token cannot have
+ *   their balance or NFTs wiped (effectively burned).
  *
- * For non-fungible tokens, the token ID represents a NFT class. Once the token
- * is created, you will have to mint each NFT using the token mint operation.
+ * #### Requirements
+ * If `tokenType` is fungible/common, the `initialSupply` MUST be strictly
+ * greater than zero(`0`).<br/>
+ * If `tokenType` is non-fungible/unique, the `initialSupply` MUST
+ * be zero(`0`).<br/>
+ * If `tokenSupplyType` is "infinite", the `maxSupply` MUST be zero(`0`).<br/>
+ * If `tokenSupplyType` is "finite", the `maxSupply` MUST be strictly
+ * greater than zero(`0`).<br/>
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/define-a-token">Hedera Documentation</a>
+ * ### Block Stream Effects
+ * If the token is created, the Token Identifier SHALL be in the receipt.<br/>
  */
 public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> {
     private List<CustomFee> customFees = new ArrayList<>();
-    /**
-     * The account which will act as a treasury for the token. This account
-     * will receive the specified initial supply and any additional tokens
-     * that are minted.  If tokens are burned, the supply will be decreased
-     * from the treasury account.
-     */
+
     @Nullable
     private AccountId treasuryAccountId = null;
-    /**
-     * An account which will be automatically charged to renew the token's
-     * expiration, at autoRenewPeriod interval. This key is required to
-     * sign the transaction if present. This is not currently enabled.
-     */
+
     @Nullable
     private AccountId autoRenewAccountId = null;
-    /**
-     * Set the publicly visible name of the token. The token name is specified
-     * as a string of UTF-8 characters in Unicode. UTF-8 encoding of this
-     * Unicode cannot contain the 0 byte (NUL). The token name is not unique.
-     * Maximum of 100 characters.
-     */
+
     private String tokenName = "";
-    /**
-     * The publicly visible token symbol. Set the publicly visible name of the
-     * token. The token symbol is specified as a string of UTF-8 characters in
-     * Unicode. UTF-8 encoding of this Unicode cannot contain the 0 byte (NUL).
-     * The token symbol is not unique. Maximum of 100 characters.
-     */
+
     private String tokenSymbol = "";
-    /**
-     * The number of decimal places a token is divisible by. This field can
-     * never be changed.
-     */
+
     private int decimals = 0;
-    /**
-     * Specifies the initial supply of fungible tokens to be put in
-     * circulation. The initial supply is sent to the Treasury Account.
-     * The maximum supply of tokens is 9,223,372,036,854,775,807(2^63-1)
-     * tokens and is in the lowest denomination possible. For creating an
-     * NFT, you must set the initial supply to 0.
-     */
+
     private long initialSupply = 0;
-    /**
-     * The key which can perform token update and token delete operations on
-     * the token.The admin key has the authority to change the freeze key,
-     * wipe key, and KYC key. It can also update the treasury account of the
-     * token.  If empty, the token can be perceived as immutable (not being
-     * able to be updated/deleted). (KYC - Know Your Customer)
-     */
+
     @Nullable
     private Key adminKey = null;
-    /**
-     * The key which can grant or revoke KYC of an account for the token's
-     * transactions. If empty, KYC is not required, and KYC grant or revoke
-     * operations are not possible.
-     */
+
     @Nullable
     private Key kycKey = null;
-    /**
-     * The key which can sign to freeze or unfreeze an account for token
-     * transactions. If empty, freezing is not possible.
-     */
+
     @Nullable
     private Key freezeKey = null;
-    /**
-     * The key which can wipe the token balance of an account. If empty,
-     * wipe is not possible.
-     */
+
     @Nullable
     private Key wipeKey = null;
-    /**
-     * The key which can change the total supply of a token. This key is
-     * used to authorize token mint and burn transactions. If this is left
-     * empty, minting/burning tokens is not possible.
-     */
+
     @Nullable
     private Key supplyKey = null;
-    /**
-     * The key that can change the token's  schedule. A custom fee schedule
-     * token without a fee schedule key is immutable.
-     */
+
     @Nullable
     private Key feeScheduleKey = null;
-    /**
-     * The key that has the authority to pause or unpause a token. Pausing
-     * a token prevents the token from participating in all transactions.
-     */
+
     @Nullable
     private Key pauseKey = null;
-    /**
-     * The key which can change the metadata of a token
-     * (token definition, partition definition, and individual NFTs).
-     */
+
     @Nullable
     private Key metadataKey = null;
-    /**
-     * The default Freeze status (frozen or unfrozen) of Hedera accounts
-     * relative to this token. If true, an account must be unfrozen before
-     * it can receive the token.
-     */
+
     private boolean freezeDefault = false;
-    /**
-     * The epoch second at which the token should expire; if an auto-renew
-     * account and period are specified, this is coerced to the current
-     * epoch second plus the autoRenewPeriod. The default expiration time
-     * is 90 days.
-     */
+
     @Nullable
     private Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
-    /**
-     * The interval at which the auto-renew account will be charged to
-     * extend the token's expiry. The default auto-renew period is
-     * 131,500 minutes. This is not currently enabled.
-     */
+
     @Nullable
     private Duration autoRenewPeriod = null;
-    /**
-     * A short publicly visible memo about the token.
-     */
+
     private String tokenMemo = "";
-    /**
-     * The type of token to create. Either fungible or non-fungible.
-     */
+
     private TokenType tokenType = TokenType.FUNGIBLE_COMMON;
-    /**
-     * Specifies the token supply type. Defaults to INFINITE.
-     */
+
     private TokenSupplyType tokenSupplyType = TokenSupplyType.INFINITE;
-    /**
-     * For tokens of type FUNGIBLE_COMMON - the maximum number of tokens that
-     * can be in circulation.
-     *
-     * For tokens of type NON_FUNGIBLE_UNIQUE - the maximum number of NFTs
-     * (serial numbers) that can be minted. This field can never be changed.
-     *
-     * You must set the token supply type to FINITE if you set this field.
-     */
+
     private long maxSupply = 0;
-    /**
-     * Metadata of the created token definition.
-     */
+
     private byte[] tokenMetadata = {};
     /**
      * Constructor.
@@ -219,7 +166,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the token's name 100 bytes max.
+     * A name for the token.<br/>
+     * This is generally the "full name" displayed in wallet software.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * This value MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This value MUST NOT contain the Unicode NUL codepoint.
      *
      * @param name                      the token name
      * @return {@code this}
@@ -241,7 +193,11 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the token's symbol 100 bytes max.
+     * A symbol to use for the token.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * This value MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This value MUST NOT contain the Unicode NUL codepoint.
      *
      * @param symbol                    the token symbol
      * @return {@code this}
@@ -263,9 +219,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the number of decimal places a token is divisible by.
-     *
-     * This field can never be changed.
+     * A decimal precision of the token's smallest denomination.<br/>
+     * Most values are described in terms of this smallest denomination,
+     * so the token initial supply, for instance, must be divided by
+     * <tt>10<sup>decimals</sup></tt> to get whole tokens.
+     * <p>
+     * This MUST be zero(`0`) for non-fungible/unique tokens.
      *
      * @param decimals                  the number of decimals
      * @return {@code this}
@@ -286,7 +245,13 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the initial supply of tokens.
+     * An initial supply, in the smallest denomination for the token.
+     * <p>
+     * This amount SHALL be transferred to the treasury account as part
+     * of this transaction.<br/>
+     * This amount MUST be specified in the smallest denomination for the
+     * token (i.e. <tt>10<sup>-decimals</sup></tt> whole tokens).<br/>
+     * This MUST be zero(`0`) for a non-fungible/unique token.
      *
      * @param initialSupply             the initial supply of tokens
      * @return {@code this}
@@ -308,7 +273,15 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the treasury account id.
+     * A treasury account identifier.
+     * <p>
+     * This field is REQUIRED.<br/>
+     * The identified account SHALL be designated the "treasury" for the
+     * new token, and all tokens "minted" SHALL be delivered to that account,
+     * including the initial supply, if any.<br/>
+     * The identified account MUST exist, MUST NOT be expired, and SHOULD
+     * have a non-zero HBAR balance.<br/>
+     * The identified account SHALL be associated to the new token.
      *
      * @param accountId                 the treasury account id
      * @return {@code this}
@@ -331,7 +304,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the admin key.
+     * An Hedera key for token administration.
+     * <p>
+     * This key, if set, SHALL have administrative authority for this token and
+     * MAY authorize token update and/or token delete transactions.<br/>
+     * If this key is not set, or is an empty `KeyList`, this token SHALL be
+     * immutable, except for expiration and renewal.
      *
      * @param key                       the admin key
      * @return {@code this}
@@ -354,7 +332,14 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the kyc key.
+     * An Hedera key for managing account KYC.
+     * <p>
+     * This key, if set, SHALL have KYC authority for this token and
+     * MAY authorize transactions to grant or revoke KYC for accounts.<br/>
+     * If this key is not set, or is an empty `KeyList`, KYC status for this
+     * token SHALL NOT be granted or revoked for any account.<br/>
+     * If this key is removed after granting KYC, those grants SHALL remain
+     * and cannot be revoked.
      *
      * @param key                       the know your customer key
      * @return {@code this}
@@ -376,7 +361,15 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the freeze key.
+     * An Hedera key for managing asset "freeze".
+     * <p>
+     * This key, if set, SHALL have "freeze" authority for this token and
+     * MAY authorize transactions to freeze or unfreeze accounts
+     * with respect to this token.<br/>
+     * If this key is not set, or is an empty `KeyList`, this token
+     * SHALL NOT be frozen or unfrozen for any account.<br/>
+     * If this key is removed after freezing accounts, those accounts
+     * SHALL remain frozen and cannot be unfrozen.
      *
      * @param key                       the freeze key
      * @return {@code this}
@@ -399,7 +392,13 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the wipe key.
+     * An Hedera key for wiping tokens from accounts.
+     * <p>
+     * This key, if set, SHALL have "wipe" authority for this token and
+     * MAY authorize transactions to "wipe" any amount of this token from
+     * any account, effectively burning the tokens "wiped".<br/>
+     * If this key is not set, or is an empty `KeyList`, it SHALL NOT be
+     * possible to "wipe" this token from an account.
      *
      * @param key                       the wipe key
      * @return {@code this}
@@ -422,7 +421,14 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the supply key.
+     * An Hedera key for "minting" and "burning" tokens.
+     * <p>
+     * This key, if set, MAY authorize transactions to "mint" new tokens to
+     * be delivered to the token treasury or "burn" tokens held by the
+     * token treasury.<br/>
+     * If this key is not set, or is an empty `KeyList`, it SHALL NOT be
+     * possible to change the supply of tokens and neither "mint" nor "burn"
+     * transactions SHALL be permitted.
      *
      * @param key                       the supply key
      * @return {@code this}
@@ -445,7 +451,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the fee schedule key.
+     * An Hedera key for managing the token custom fee schedule.
+     * <p>
+     * This key, if set, MAY authorize transactions to modify the
+     * `custom_fees` for this token.<br/>
+     * If this key is not set, or is an empty `KeyList`, the `custom_fees`
+     * for this token SHALL NOT be modified.
      *
      * @param key                       the fee schedule key
      * @return {@code this}
@@ -468,7 +479,14 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the pause key.
+     * An Hedera key for managing token "pause".
+     * <p>
+     * This key, if set, SHALL have "pause" authority for this token and
+     * MAY authorize transactions to pause or unpause this token.<br/>
+     * If this key is not set, or is an empty `KeyList`, this token
+     * SHALL NOT be paused or unpaused.<br/>
+     * If this key is removed while the token is paused, the token cannot
+     * be unpaused and SHALL remain paused.
      *
      * @param key                      the pause key
      * @return {@code this}
@@ -491,7 +509,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the metadata key.
+     * An Hedera key for managing the token `metadata`.
+     * <p>
+     * This key, if set, MAY authorize transactions to modify the
+     * `metadata` for this token.<br/>
+     * If this key is not set, or is an empty `KeyList`, the `metadata`
+     * for this token SHALL NOT be modified.
      *
      * @param key                      the metadata key
      * @return {@code this}
@@ -513,7 +536,20 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the freeze default.
+     * An initial Freeze status for accounts associated to this token.
+     * <p>
+     * If this value is set, an account MUST be the subject of a
+     * `tokenUnfreeze` transaction after associating to the token before
+     * that account can send or receive this token.<br/>
+     * If this value is set, the `freezeKey` SHOULD be set.<br/>
+     * If the `freezeKey` is not set, any account associated to this token
+     * while this value is set SHALL be permanently frozen.
+     * <p>
+     * <blockquote>REVIEW NOTE<blockquote>
+     * Should we prevent setting this value true for tokens with no freeze
+     * key?<br/>
+     * Should we set this value to false if a freeze key is removed?
+     * </blockquote></blockquote>
      *
      * @param freezeDefault             the freeze default
      * @return {@code this}
@@ -535,7 +571,17 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the expiration time.
+     * An expiration timestamp.
+     * <p>
+     * If the `autoRenewAccount` and `autoRenewPeriod` fields are set, this
+     * value SHALL be replaced with the current consensus time extended
+     * by the `autoRenewPeriod` duration.<br/>
+     * If this value is set and token expiration is enabled in network
+     * configuration, this token SHALL expire when consensus time exceeds
+     * this value, and MAY be subsequently removed from the network state.<br/>
+     * If this value is not set, and the automatic renewal account is also not
+     * set, then this value SHALL default to the current consensus time
+     * extended by the "default" expiration period from network configuration.
      *
      * @param expirationTime            the expiration time
      * @return {@code this}
@@ -569,7 +615,22 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the auto renew account id.
+     * An identifier for the account to be charged renewal fees at the token's
+     * expiry to extend the lifetime of the token.
+     * <p>
+     * If this value is set, the token lifetime SHALL be extended by the
+     * _smallest_ of the following:
+     * <ul>
+     *   <li>The current `autoRenewPeriod` duration.</li>
+     *   <li>The maximum duration that this account has funds to purchase.</li>
+     *   <li>The configured MAX_AUTORENEW_PERIOD at the time of automatic
+     *       renewal.</li>
+     * </ul>
+     * If this account's HBAR balance is `0` when the token must be
+     * renewed, then the token SHALL be expired, and MAY be subsequently
+     * removed from state.<br/>
+     * If this value is set, the referenced account MUST sign this
+     * transaction.
      *
      * @param accountId                 the auto renew account id
      * @return {@code this}
@@ -592,7 +653,15 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the auto renew period.
+     * A duration between token automatic renewals.<br/>
+     * All entities in state may be charged "rent" occasionally (typically
+     * every 90 days) to prevent unnecessary growth of the ledger. This value
+     * sets the interval between such events for this token.
+     * <p>
+     * This value MUST be set.<br/>
+     * This value MUST be greater than the configured
+     * MIN_AUTORENEW_PERIOD.<br/>
+     * This value MUST be less than the configured MAX_AUTORENEW_PERIOD.
      *
      * @param period                    the auto renew period
      * @return {@code this}
@@ -614,7 +683,10 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the token's memo.
+     * A short description for this token.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the token's memo 100 bytes max
      * @return {@code this}
@@ -637,7 +709,15 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the custom fees.
+     * A list of custom fees representing a fee schedule.
+     * <p>
+     * This list MAY be empty, which SHALL mean that there
+     * are no custom fees for this token.<br/>
+     * If this token is a non-fungible/unique type, the entries
+     * in this list MUST NOT declare a `fractional_fee`.<br/>
+     * If this token is a fungible/common type, the entries in this
+     * list MUST NOT declare a `royalty_fee`.<br/>
+     * Any token type MAY include entries that declare a `fixed_fee`.
      *
      * @param customFees                the custom fees
      * @return {@code this}
@@ -658,7 +738,11 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the token type.
+     * A type for this token, according to IWA classification.
+     * <p>
+     * If this value is not set, the token SHALL have the default type of
+     * fungible/common.<br/>
+     * This field SHALL be immutable.
      *
      * @param tokenType                 the token type
      * @return {@code this}
@@ -680,7 +764,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the supply type.
+     * A supply type for this token, according to IWA classification.
+     * <p>
+     * If this value is not set, the token SHALL have the default supply
+     * type of "infinite" (which is, as a practical matter,
+     * (2<sup><i>63</i></sup>-1)/10<sup><i>decimals</i></sup>).<br/>
+     * This field SHALL be immutable.
      *
      * @param supplyType               the supply type
      * @return {@code this}
@@ -702,7 +791,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the max supply of tokens.
+     * A maximum supply for this token.
+     * <p>
+     * This SHALL be interpreted in terms of the smallest fractional unit for
+     * this token.<br/>
+     * If `supplyType` is "infinite", this MUST be `0`.<br/>
+     * This field SHALL be immutable.
      *
      * @param maxSupply                 the max supply of tokens
      * @return {@code this}
@@ -723,7 +817,13 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
     }
 
     /**
-     * Assign the token metadata.
+     * Token "Metadata".
+     * <p>
+     * The value, if set, MUST NOT exceed 100 bytes.<br/>
+     * <dl><dt>Examples</dt>
+     *   <dd>hcs://1/0.0.4896575</dd>
+     *   <dd>ipfs://bafkreifd7tcjjuwxxf4qkaibkj62pj4mhfuud7plwrc3pfoygt55al6syi</dd>
+     * </dl>
      *
      * @param tokenMetadata the token metadata
      * @return {@code this}

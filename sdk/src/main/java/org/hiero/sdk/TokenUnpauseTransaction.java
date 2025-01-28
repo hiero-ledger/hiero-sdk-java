@@ -13,12 +13,18 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * A token unpause transaction is a transaction that unpauses the token
- * that was previously disabled from participating in transactions. The
- * token's pause key is required to sign the transaction. Once the unpause
- * transaction is submitted the token pause status is updated to unpause.
+ * Resume transaction activity for a token.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/unpause-a-token">Hedera Documentation</a>
+ * This transaction MUST be signed by the Token `pause_key`.<br/>
+ * The `token` identified MUST exist, and MUST NOT be deleted.<br/>
+ * The `token` identified MAY not be paused; if the token is not paused,
+ * this transaction SHALL have no effect.
+ * The `token` identified MUST have a `pause_key` set, the `pause_key` MUST be
+ * a valid `Key`, and the `pause_key` MUST NOT be an empty `KeyList`.<br/>
+ * An `unpaused` token MAY be transferred or otherwise modified.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenUnpauseTransaction extends Transaction<TokenUnpauseTransaction> {
     @Nullable
@@ -63,7 +69,10 @@ public class TokenUnpauseTransaction extends Transaction<TokenUnpauseTransaction
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * The identified token SHALL be "unpaused". Subsequent transactions
+     * involving that token MAY succeed.
      *
      * @param tokenId                   the token id
      * @return {@code this}

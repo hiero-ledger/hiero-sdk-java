@@ -15,13 +15,32 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Disassociates the provided Hedera account from the provided Hedera tokens.
- * This transaction must be signed by the provided account's key. Once the
- * association is removed, no token related operation can be performed to that
- * account. AccountBalanceQuery and AccountInfoQuery will not return anything
- * related to the token that was disassociated.
+ * Dissociate an account from one or more HTS tokens.
  *
- * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/dissociate-tokens-from-an-account">Hedera Documentation</a>
+ * If the identified account is not found,
+ * the transaction SHALL return `INVALID_ACCOUNT_ID`.<br/>
+ * If the identified account has been deleted,
+ * the transaction SHALL return `ACCOUNT_DELETED`.<br/>
+ * If any of the identified tokens is not found,
+ * the transaction SHALL return `INVALID_TOKEN_REF`.<br/>
+ * If any of the identified tokens has been deleted,
+ * the transaction SHALL return `TOKEN_WAS_DELETED`.<br/>
+ * If an association does not exist for any of the identified tokens,
+ * the transaction SHALL return `TOKEN_NOT_ASSOCIATED_TO_ACCOUNT`.<br/>
+ * If the identified account has a nonzero balance for any of the identified
+ * tokens, and that token is neither deleted nor expired, the
+ * transaction SHALL return `TRANSACTION_REQUIRES_ZERO_TOKEN_BALANCES`.<br/>
+ * If one of the identified tokens is a fungible/common token that is expired,
+ * the account MAY disassociate from that token, even if that token balance is
+ * not zero for that account.<br/>
+ * If one of the identified tokens is a non-fungible/unique token that is
+ * expired, the account MUST NOT disassociate if that account holds any
+ * individual NFT of that token. In this situation the transaction SHALL
+ * return `TRANSACTION_REQUIRED_ZERO_TOKEN_BALANCES`.<br/>
+ * The identified account MUST sign this transaction.
+ *
+ * ### Block Stream Effects
+ * None
  */
 public class TokenDissociateTransaction extends org.hiero.sdk.Transaction<TokenDissociateTransaction> {
     @Nullable
@@ -71,7 +90,14 @@ public class TokenDissociateTransaction extends org.hiero.sdk.Transaction<TokenD
     }
 
     /**
-     * Assign the account id.
+     * An account identifier.
+     * <p>
+     * The identified account SHALL be dissociated from each of the
+     * tokens identified in the `tokens` field.
+     * This field is REQUIRED and MUST be a valid account identifier.<br/>
+     * The identified account MUST exist in state.<br/>
+     * The identified account MUST NOT be deleted.<br/>
+     * The identified account MUST NOT be expired.
      *
      * @param accountId                 the account id
      * @return {@code this}
@@ -93,7 +119,17 @@ public class TokenDissociateTransaction extends org.hiero.sdk.Transaction<TokenD
     }
 
     /**
-     * Assign the list of token id's.
+     * A list of token identifiers.
+     * <p>
+     * Each token identified in this list SHALL be dissociated from
+     * the account identified in the `account` field.<br/>
+     * This list MUST NOT be empty.
+     * Each entry in this list MUST be a valid token identifier.<br/>
+     * Each entry in this list MUST be currently associated to the
+     * account identified in `account`.<br/>
+     * Entries in this list MAY be expired, if the token type is
+     * fungible/common.<br/>
+     * Each entry in this list MUST NOT be deleted.
      *
      * @param tokens                    the list of token id's.
      * @return {@code this}

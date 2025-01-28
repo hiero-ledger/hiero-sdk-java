@@ -14,9 +14,77 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Create a scheduled transaction.
- * <p>
- * See <a href="https://docs.hedera.com/guides/docs/sdks/schedule-transaction/create-a-schedule-transaction">Hedera Documentation</a>
+ * Create a new Schedule.
+ *
+ * #### Requirements
+ * This transaction SHALL create a new _schedule_ entity in network state.<br/>
+ * The schedule created SHALL contain the `scheduledTransactionBody` to be
+ * executed.<br/>
+ * If successful the receipt SHALL contain a `scheduleID` with the full
+ * identifier of the schedule created.<br/>
+ * When a schedule _executes_ successfully, the receipt SHALL include a
+ * `scheduledTransactionID` with the `TransactionID` of the transaction that
+ * executed.<br/>
+ * When a scheduled transaction is executed the network SHALL charge the
+ * regular _service_ fee for the transaction to the `payerAccountID` for
+ * that schedule, but SHALL NOT charge node or network fees.<br/>
+ * If the `payerAccountID` field is not set, the effective `payerAccountID`
+ * SHALL be the `payer` for this create transaction.<br/>
+ * If an `adminKey` is not specified, or is an empty `KeyList`, the schedule
+ * created SHALL be immutable.<br/>
+ * An immutable schedule MAY be signed, and MAY execute, but SHALL NOT be
+ * deleted.<br/>
+ * If two schedules have the same values for all fields except `payerAccountID`
+ * then those two schedules SHALL be deemed "identical".<br/>
+ * If a `scheduleCreate` requests a new schedule that is identical to an
+ * existing schedule, the transaction SHALL fail and SHALL return a status
+ * code of `IDENTICAL_SCHEDULE_ALREADY_CREATED` in the receipt.<br/>
+ * The receipt for a duplicate schedule SHALL include the `ScheduleID` of the
+ * existing schedule and the `TransactionID` of the earlier `scheduleCreate`
+ * so that the earlier schedule may be queried and/or referred to in a
+ * subsequent `scheduleSign`.
+ *
+ * #### Signature Requirements
+ * A `scheduleSign` transaction SHALL be used to add additional signatures
+ * to an existing schedule.<br/>
+ * Each signature SHALL "activate" the corresponding cryptographic("primitive")
+ * key for that schedule.<br/>
+ * Signature requirements SHALL be met when the set of active keys includes
+ * all keys required by the scheduled transaction.<br/>
+ * A scheduled transaction for a "long term" schedule SHALL NOT execute if
+ * the signature requirements for that transaction are not met when the
+ * network consensus time reaches the schedule `expiration_time`.<br/>
+ * A "short term" schedule SHALL execute immediately once signature
+ * requirements are met. This MAY be immediately when created.
+ *
+ * #### Long Term Schedules
+ * A "short term" schedule SHALL have the flag `wait_for_expiry` _unset_.<br/>
+ * A "long term" schedule SHALL have the flag  `wait_for_expiry` _set_.<br/>
+ * A "long term" schedule SHALL NOT be accepted if the network configuration
+ * `scheduling.longTermEnabled` is not enabled.<br/>
+ * A "long term" schedule SHALL execute when the current consensus time
+ * matches or exceeds the `expiration_time` for that schedule, if the
+ * signature requirements for the scheduled transaction
+ * are met at that instant.<br/>
+ * A "long term" schedule SHALL NOT execute before the current consensus time
+ * matches or exceeds the `expiration_time` for that schedule.<br/>
+ * A "long term" schedule SHALL expire, and be removed from state, after the
+ * network consensus time exceeds the schedule `expiration_time`.<br/>
+ * A short term schedule SHALL expire, and be removed from state,
+ * after the network consensus time exceeds the current network
+ * configuration for `ledger.scheduleTxExpiryTimeSecs`.
+ *
+ * > Note
+ * >> Long term schedules are not (as of release 0.56.0) enabled. Any schedule
+ * >> created currently MUST NOT set the `wait_for_expiry` flag.<br/>
+ * >> When long term schedules are not enabled, schedules SHALL NOT be
+ * >> executed at expiration, and MUST meet signature requirements strictly
+ * >> before expiration to be executed.
+ *
+ * ### Block Stream Effects
+ * If the scheduled transaction is executed immediately, the transaction
+ * record SHALL include a `scheduleRef` with the schedule identifier of the
+ * schedule created.
  */
 public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateTransaction> {
     @Nullable
@@ -127,7 +195,16 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
     }
 
     /**
-     * Assign the payer's account ID.
+     * An account identifier of a `payer` for the scheduled transaction.
+     * <p>
+     * This value MAY be unset. If unset, the `payer` for this `scheduleCreate`
+     * transaction SHALL be the `payer` for the scheduled transaction.<br/>
+     * If this is set, the identified account SHALL be charged the fees
+     * required for the scheduled transaction when it is executed.<br/>
+     * If the actual `payer` for the _scheduled_ transaction lacks
+     * sufficient HBAR balance to pay service fees for the scheduled
+     * transaction _when it executes_, the scheduled transaction
+     * SHALL fail with `INSUFFICIENT_PAYER_BALANCE`.<br/>
      *
      * @param accountId                 the payer's account ID
      * @return {@code this}
@@ -179,7 +256,10 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
     }
 
     /**
-     * Assign the admin key.
+     * A `Key` required to delete this schedule.
+     * <p>
+     * If this is not set, or is an empty `KeyList`, this schedule SHALL be
+     * immutable and SHALL NOT be deleted.
      *
      * @param key                       the admin key
      * @return {@code this}
@@ -200,7 +280,10 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
     }
 
     /**
-     * Assign the schedule's memo.
+     * A short description of the schedule.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the schedule's memo
      * @return {@code this}

@@ -41,95 +41,21 @@ import org.hiero.sdk.proto.TransactionResponse;
  */
 public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
-    /**
-     * A Node account identifier.
-     * <p>
-     * This account identifier MUST be in the "account number" form.<br/>
-     * This account identifier MUST NOT use the alias field.<br/>
-     * If the identified account does not exist, this transaction SHALL fail.<br/>
-     * Multiple nodes MAY share the same node account.<br/>
-     * This field is REQUIRED.
-     */
     @Nullable
     private AccountId accountId = null;
 
-    /**
-     * A short description of the node.
-     * <p>
-     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
-     * This field is OPTIONAL.
-     */
     private String description = "";
 
-    /**
-     * A list of service endpoints for gossip.
-     * <p>
-     * These endpoints SHALL represent the published endpoints to which other
-     * consensus nodes may _gossip_ transactions.<br/>
-     * These endpoints MUST specify a port.<br/>
-     * This list MUST NOT be empty.<br/>
-     * This list MUST NOT contain more than `10` entries.<br/>
-     * The first two entries in this list SHALL be the endpoints published to
-     * all consensus nodes.<br/>
-     * All other entries SHALL be reserved for future use.
-     * <p>
-     * Each network may have additional requirements for these endpoints.
-     * A client MUST check network-specific documentation for those
-     * details.<br/>
-     * If the network configuration value `gossipFqdnRestricted` is set, then
-     * all endpoints in this list MUST supply only IP address.<br/>
-     * If the network configuration value `gossipFqdnRestricted` is _not_ set,
-     * then endpoints in this list MAY supply either IP address or FQDN, but
-     * MUST NOT supply both values for the same endpoint.
-     */
     private List<Endpoint> gossipEndpoints = new ArrayList<>();
 
-    /**
-     * A list of service endpoints for gRPC calls.
-     * <p>
-     * These endpoints SHALL represent the published gRPC endpoints to which
-     * clients may submit transactions.<br/>
-     * These endpoints MUST specify a port.<br/>
-     * Endpoints in this list MAY supply either IP address or FQDN, but MUST
-     * NOT supply both values for the same endpoint.<br/>
-     * This list MUST NOT be empty.<br/>
-     * This list MUST NOT contain more than `8` entries.
-     */
     private List<Endpoint> serviceEndpoints = new ArrayList<>();
 
-    /**
-     * A certificate used to sign gossip events.
-     * <p>
-     * This value MUST be a certificate of a type permitted for gossip
-     * signatures.<br/>
-     * This value MUST be the DER encoding of the certificate presented.<br/>
-     * This field is REQUIRED and MUST NOT be empty.
-     */
     @Nullable
     private byte[] gossipCaCertificate = null;
 
-    /**
-     * A hash of the node gRPC TLS certificate.
-     * <p>
-     * This value MAY be used to verify the certificate presented by the node
-     * during TLS negotiation for gRPC.<br/>
-     * This value MUST be a SHA-384 hash.<br/>
-     * The TLS certificate to be hashed MUST first be in PEM format and MUST be
-     * encoded with UTF-8 NFKD encoding to a stream of bytes provided to
-     * the hash algorithm.<br/>
-     * This field is OPTIONAL.
-     */
     @Nullable
     private byte[] grpcCertificateHash = null;
 
-    /**
-     * An administrative key controlled by the node operator.
-     * <p>
-     * This key MUST sign this transaction.<br/>
-     * This key MUST sign each transaction to update this node.<br/>
-     * This field MUST contain a valid `Key` value.<br/>
-     * This field is REQUIRED and MUST NOT be set to an empty `KeyList`.
-     */
     @Nullable
     private Key adminKey = null;
 
@@ -169,7 +95,14 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Assign the Account ID of the Node.
+     * A Node account identifier.
+     * <p>
+     * This account identifier MUST be in the "account number" form.<br/>
+     * This account identifier MUST NOT use the alias field.<br/>
+     * If the identified account does not exist, this transaction SHALL fail.<br/>
+     * Multiple nodes MAY share the same node account.<br/>
+     * This field is REQUIRED.
+     *
      * @param accountId the Account ID of the Node.
      * @return {@code this}
      */
@@ -188,7 +121,11 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Sets the description of the node.
+     * A short description of the node.
+     * <p>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This field is OPTIONAL.
+     *
      * @param description The String to be set as the description of the node.
      * @return {@code this}
      */
@@ -207,7 +144,26 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Assign the list of service endpoints for gossip.
+     * A list of service endpoints for gossip.
+     * <p>
+     * These endpoints SHALL represent the published endpoints to which other
+     * consensus nodes may _gossip_ transactions.<br/>
+     * These endpoints MUST specify a port.<br/>
+     * This list MUST NOT be empty.<br/>
+     * This list MUST NOT contain more than `10` entries.<br/>
+     * The first two entries in this list SHALL be the endpoints published to
+     * all consensus nodes.<br/>
+     * All other entries SHALL be reserved for future use.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.<br/>
+     * If the network configuration value `gossipFqdnRestricted` is set, then
+     * all endpoints in this list MUST supply only IP address.<br/>
+     * If the network configuration value `gossipFqdnRestricted` is _not_ set,
+     * then endpoints in this list MAY supply either IP address or FQDN, but
+     * MUST NOT supply both values for the same endpoint.
+     *
      * @param gossipEndpoints the list of service endpoints for gossip.
      * @return {@code this}
      */
@@ -238,7 +194,16 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Assign the list of service endpoints for gRPC calls.
+     * A list of service endpoints for gRPC calls.
+     * <p>
+     * These endpoints SHALL represent the published gRPC endpoints to which
+     * clients may submit transactions.<br/>
+     * These endpoints MUST specify a port.<br/>
+     * Endpoints in this list MAY supply either IP address or FQDN, but MUST
+     * NOT supply both values for the same endpoint.<br/>
+     * This list MUST NOT be empty.<br/>
+     * This list MUST NOT contain more than `8` entries.
+     *
      * @param serviceEndpoints list of service endpoints for gRPC calls.
      * @return {@code this}
      */
@@ -270,9 +235,13 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Sets the certificate used to sign gossip events.
-     * <br>
-     * This value MUST be the DER encoding of the certificate presented.
+     * A certificate used to sign gossip events.
+     * <p>
+     * This value MUST be a certificate of a type permitted for gossip
+     * signatures.<br/>
+     * This value MUST be the DER encoding of the certificate presented.<br/>
+     * This field is REQUIRED and MUST NOT be empty.
+     *
      * @param gossipCaCertificate the DER encoding of the certificate presented.
      * @return {@code this}
      */
@@ -292,9 +261,16 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Sets the hash of the node gRPC TLS certificate.
-     * <br>
-     * This value MUST be a SHA-384 hash.
+     * A hash of the node gRPC TLS certificate.
+     * <p>
+     * This value MAY be used to verify the certificate presented by the node
+     * during TLS negotiation for gRPC.<br/>
+     * This value MUST be an SHA-384 hash.<br/>
+     * The TLS certificate to be hashed MUST first be in PEM format and MUST be
+     * encoded with UTF-8 NFKD encoding to a stream of bytes provided to
+     * the hash algorithm.<br/>
+     * This field is OPTIONAL.
+     *
      * @param grpcCertificateHash SHA-384 hash of the node gRPC TLS certificate.
      * @return {@code this}
      */
@@ -314,7 +290,13 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
-     * Sets an administrative key controlled by the node operator.
+     * An administrative key controlled by the node operator.
+     * <p>
+     * This key MUST sign this transaction.<br/>
+     * This key MUST sign each transaction to update this node.<br/>
+     * This field MUST contain a valid `Key` value.<br/>
+     * This field is REQUIRED and MUST NOT be set to an empty `KeyList`.
+     *
      * @param adminKey an administrative key to be set.
      * @return {@code this}
      */

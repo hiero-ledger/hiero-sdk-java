@@ -66,7 +66,10 @@ public class TokenDeleteTransaction extends org.hiero.sdk.Transaction<TokenDelet
     }
 
     /**
-     * Assign the token id.
+     * A token identifier.
+     * <p>
+     * This SHALL identify the token type to delete.<br/>
+     * The identified token MUST exist, and MUST NOT be deleted.
      *
      * @param tokenId                   the token id
      * @return {@code this}

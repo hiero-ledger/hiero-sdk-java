@@ -18,20 +18,23 @@ import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 
 /**
- * Change properties for the given account.
- * <p>
- * Any null field is ignored (left unchanged).
- * <p>
- * This transaction must be signed by the existing key for this account.
- * <p>
- * If the transaction is changing the key field, then the transaction must be signed by
- * both the old key (from before the change) and the new key. The old key must sign for security.
- * The new key must sign as a safeguard to avoid accidentally
- * changing to an invalid key, and then having no way to recover.
- * <p>
- * When extending the expiration date, the cost is affected by the size
- * of the list of attached claims, and of the keys
- * associated with the claims and the account.
+ * Modify the current state of an account.
+ *
+ * ### Requirements
+ * - The `key` for this account MUST sign all account update transactions.
+ * - If the `key` field is set for this transaction, then _both_ the current
+ *   `key` and the new `key` MUST sign this transaction, for security and to
+ *   prevent setting the `key` field to an invalid value.
+ * - If the `auto_renew_account` field is set for this transaction, the account
+ *   identified in that field MUST sign this transaction.
+ * - Fields set to non-default values in this transaction SHALL be updated on
+ *   success. Fields not set to non-default values SHALL NOT be
+ *   updated on success.
+ * - All fields that may be modified in this transaction SHALL have a
+ *   default value of unset (a.k.a. `null`).
+ *
+ * ### Block Stream Effects
+ * None
  */
 public final class AccountUpdateTransaction extends Transaction<AccountUpdateTransaction> {
     @Nullable
@@ -132,7 +135,12 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Sets the new key.
+     * An account key.<br/>
+     * This may be a "primitive" key (a singly cryptographic key), or a
+     * composite key.
+     * <p>
+     * If set, this key MUST be a valid key.<br/>
+     * If set, the previous key and new key MUST both sign this transaction.
      *
      * @param key The Key to be set
      * @return {@code this}
@@ -212,8 +220,14 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Sets the new expiration time to extend to (ignored if equal to or
-     * before the current one).
+     * A new account expiration time, in seconds since the epoch.
+     * <p>
+     * For this purpose, `epoch` SHALL be the UNIX epoch with 0
+     * at `1970-01-01T00:00:00.000Z`.<br/>
+     * If set, this value MUST be later than the current consensus time.<br/>
+     * If set, this value MUST be earlier than the current consensus time
+     * extended by the current maximum expiration time configured for the
+     * network.
      *
      * @param expirationTime The Instant to be set as the expiration time
      * @return {@code this}
@@ -236,10 +250,14 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Sets the duration in which it will automatically extend the expiration period.
+     * A duration to extend account expiration.<br/>
+     * An amount of time, in seconds, to extend the expiration date for this
+     * account when _automatically_ renewed.
      * <p>
-     * If it doesn't have enough balance, it extends as long as possible.
-     * If it is empty when it expires, then it is deleted.
+     * This duration MUST be between the current configured minimum and maximum
+     * values defined for the network.<br/>
+     * This duration SHALL be applied only when _automatically_ extending the
+     * account expiration.
      *
      * @param autoRenewPeriod The Duration to be set for auto renewal
      * @return {@code this}
@@ -262,8 +280,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Sets whether this account's key must sign any transaction
-     * depositing into this account (in addition to all withdrawals).
+     * Removed to distinguish between unset and a default value.<br/>
+     * Do NOT use this field to set a false value because the server cannot
+     * distinguish from the default value. Use receiverSigRequiredWrapper
+     * field for this purpose.
      *
      * @param receiverSignatureRequired The bool to be set
      * @return {@code this}
@@ -285,7 +305,15 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Grant an amount of tokens.
+     * A maximum number of tokens that can be auto-associated
+     * with this account.<br/>
+     * By default this value is 0 for all accounts except for automatically
+     * created accounts (i.e smart contracts) which default to -1.
+     * <p>
+     * If this value is `0`, then this account MUST manually associate to
+     * a token before holding or transacting in that token.<br/>
+     * This value MAY also be `-1` to indicate no limit.<br/>
+     * If set, this value MUST NOT be less than `-1`.<br/>
      *
      * @param amount                    the amount of tokens
      * @return                          {@code this}
@@ -307,7 +335,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Assign a memo to the account.
+     * A short description of this Account.
+     * <p>
+     * This value, if set, MUST NOT exceed `transaction.maxMemoUtf8Bytes`
+     * (default 100) bytes when encoded as UTF-8.
      *
      * @param memo                      the memo
      * @return                          {@code this}
@@ -341,7 +372,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Set the account to which this account will stake
+     * ID of the account to which this account is staking its balances.
+     * <p>
+     * If this account is not currently staking its balances, then this
+     * field, if set, MUST be the sentinel value of `0.0.0`.
      *
      * @param stakedAccountId ID of the account to which this account will stake.
      * @return {@code this}
@@ -376,7 +410,13 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * Set the node to which this account will stake
+     * ID of the node this account is staked to.
+     * <p>
+     * If this account is not currently staking its balances, then this
+     * field, if set, SHALL be the sentinel value of `-1`.<br/>
+     * Wallet software SHOULD surface staking issues to users and provide a
+     * simple mechanism to update staking to a new node ID in the event the
+     * prior staked node ID ceases to be valid.
      *
      * @param stakedNodeId ID of the node this account will be staked to.
      * @return {@code this}
@@ -411,7 +451,11 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     }
 
     /**
-     * If true, the account declines receiving a staking reward. The default value is false.
+     * A boolean indicating that this account has chosen to decline rewards for
+     * staking its balances.
+     * <p>
+     * This account MAY still stake its balances, but SHALL NOT receive reward
+     * payments for doing so, if this value is set, and `true`.
      *
      * @param declineStakingReward - If true, the account declines receiving a staking reward. The default value is false.
      * @return {@code this}

@@ -66,7 +66,11 @@ public final class FileDeleteTransaction extends Transaction<FileDeleteTransacti
     }
 
     /**
-     * <p>Set the ID of the file to delete. Required.
+     * A file identifier.<br/>
+     * This identifies the file to delete.
+     * <p>
+     * The identified file MUST NOT be a "system" file.<br/>
+     * This field is REQUIRED.
      *
      * @param fileId the ID of the file to delete.
      * @return {@code this}
