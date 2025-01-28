@@ -4,6 +4,7 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
@@ -12,13 +13,12 @@ import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * When the client sends the node a transaction of any kind, the node
- * replies with this, which simply says that the transaction passed
- * the pre-check (so the node will submit it to the network) or it failed
- * (so it won't). To learn the consensus result, the client should later
- * obtain a receipt (free), or can buy a more detailed record (not free).
+ * When the client sends the node a transaction of any kind, the node replies with this, which simply says that the
+ * transaction passed the pre-check (so the node will submit it to the network) or it failed (so it won't). To learn the
+ * consensus result, the client should later obtain a receipt (free), or can buy a more detailed record (not free).
  * <br>
- * See <a href="https://docs.hedera.com/guides/docs/hedera-api/miscellaneous/transactionresponse">Hedera Documentation</a>
+ * See <a href="https://docs.hedera.com/guides/docs/hedera-api/miscellaneous/transactionresponse">Hedera
+ * Documentation</a>
  */
 public final class TransactionResponse {
 
@@ -44,29 +44,32 @@ public final class TransactionResponse {
     @Deprecated
     public final TransactionId scheduledTransactionId;
 
+    private final Transaction transaction;
+
     private boolean validateStatus = true;
 
     /**
      * Constructor.
      *
-     * @param nodeId                    the node id
-     * @param transactionId             the transaction id
-     * @param transactionHash           the transaction hash
-     * @param scheduledTransactionId    the scheduled transaction id
+     * @param nodeId                 the node id
+     * @param transactionId          the transaction id
+     * @param transactionHash        the transaction hash
+     * @param scheduledTransactionId the scheduled transaction id
      */
     TransactionResponse(
             AccountId nodeId,
             TransactionId transactionId,
             byte[] transactionHash,
-            @Nullable TransactionId scheduledTransactionId) {
+            @Nullable TransactionId scheduledTransactionId,
+            Transaction transaction) {
         this.nodeId = nodeId;
         this.transactionId = transactionId;
         this.transactionHash = transactionHash;
         this.scheduledTransactionId = scheduledTransactionId;
+        this.transaction = transaction;
     }
 
     /**
-     *
      * @return whether getReceipt() or getRecord() will throw an exception if the receipt status is not SUCCESS
      */
     public boolean getValidateStatus() {
@@ -74,8 +77,8 @@ public final class TransactionResponse {
     }
 
     /**
-     *
-     * @param validateStatus whether getReceipt() or getRecord() will throw an exception if the receipt status is not SUCCESS
+     * @param validateStatus whether getReceipt() or getRecord() will throw an exception if the receipt status is not
+     *                       SUCCESS
      * @return {@code this}
      */
     public TransactionResponse setValidateStatus(boolean validateStatus) {
@@ -86,11 +89,11 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction.
      *
-     * @param client                    The client with which this will be executed.
-     * @return                          the transaction receipt
-     * @throws TimeoutException             when the transaction times out
-     * @throws PrecheckStatusException      when the precheck fails
-     * @throws ReceiptStatusException       when there is an issue with the receipt
+     * @param client The client with which this will be executed.
+     * @return the transaction receipt
+     * @throws TimeoutException        when the transaction times out
+     * @throws PrecheckStatusException when the precheck fails
+     * @throws ReceiptStatusException  when there is an issue with the receipt
      */
     public TransactionReceipt getReceipt(Client client)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
@@ -100,18 +103,42 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client  The client with which this will be executed.
      * @param timeout The timeout after which the execution attempt will be cancelled.
-     * @return                          the transaction receipt
-     * @throws TimeoutException             when the transaction times out
-     * @throws PrecheckStatusException      when the precheck fails
-     * @throws ReceiptStatusException       when there is an issue with the receipt
+     * @return the transaction receipt
+     * @throws TimeoutException        when the transaction times out
+     * @throws PrecheckStatusException when the precheck fails
+     * @throws ReceiptStatusException  when there is an issue with the receipt
      */
     public TransactionReceipt getReceipt(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        var receipt = getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
+        while (true) {
+            try {
+                // Attempt to execute the receipt query
+                return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
+            } catch (ReceiptStatusException e) {
+                // Check if the exception status indicates throttling
+                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
+                    // Retry the transaction
+                    return retryTransaction(client);
+                } else {
+                    // If not throttled, rethrow the exception
+                    throw e;
+                }
+            }
+        }
+    }
 
-        return receipt;
+    private TransactionReceipt retryTransaction(Client client) throws PrecheckStatusException, TimeoutException {
+        // reset the transaction body
+        transaction.frozenBodyBuilder = null;
+        // regenerate the transaction id
+        transaction.regenerateTransactionId(client);
+        TransactionResponse transactionResponse = (TransactionResponse) this.transaction.execute(client);
+        return new TransactionReceiptQuery()
+                .setTransactionId(transactionResponse.transactionId)
+                .setNodeAccountIds(List.of(transactionResponse.nodeId))
+                .execute(client);
     }
 
     /**
@@ -128,8 +155,8 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @return                          future result of the transaction receipt
+     * @param client The client with which this will be executed.
+     * @return future result of the transaction receipt
      */
     public CompletableFuture<TransactionReceipt> getReceiptAsync(Client client) {
         return getReceiptAsync(client, client.getRequestTimeout());
@@ -138,9 +165,9 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client  The client with which this will be executed.
      * @param timeout The timeout after which the execution attempt will be cancelled.
-     * @return                          the transaction receipt
+     * @return the transaction receipt
      */
     public CompletableFuture<TransactionReceipt> getReceiptAsync(Client client, Duration timeout) {
         return getReceiptQuery().executeAsync(client, timeout).thenCompose(receipt -> {
@@ -155,7 +182,7 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client   The client with which this will be executed.
      * @param callback a BiConsumer which handles the result or error.
      */
     public void getReceiptAsync(Client client, BiConsumer<TransactionReceipt, Throwable> callback) {
@@ -165,8 +192,8 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @param timeout The timeout after which the execution attempt will be cancelled.
+     * @param client   The client with which this will be executed.
+     * @param timeout  The timeout after which the execution attempt will be cancelled.
      * @param callback a BiConsumer which handles the result or error.
      */
     public void getReceiptAsync(Client client, Duration timeout, BiConsumer<TransactionReceipt, Throwable> callback) {
@@ -176,7 +203,7 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client    The client with which this will be executed.
      * @param onSuccess a Consumer which consumes the result on success.
      * @param onFailure a Consumer which consumes the error on failure.
      */
@@ -187,8 +214,8 @@ public final class TransactionResponse {
     /**
      * Fetch the receipt of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @param timeout The timeout after which the execution attempt will be cancelled.
+     * @param client    The client with which this will be executed.
+     * @param timeout   The timeout after which the execution attempt will be cancelled.
      * @param onSuccess a Consumer which consumes the result on success.
      * @param onFailure a Consumer which consumes the error on failure.
      */
@@ -200,11 +227,11 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction.
      *
-     * @param client                    The client with which this will be executed.
-     * @return                          the transaction record
-     * @throws TimeoutException             when the transaction times out
-     * @throws PrecheckStatusException      when the precheck fails
-     * @throws ReceiptStatusException       when there is an issue with the receipt
+     * @param client The client with which this will be executed.
+     * @return the transaction record
+     * @throws TimeoutException        when the transaction times out
+     * @throws PrecheckStatusException when the precheck fails
+     * @throws ReceiptStatusException  when there is an issue with the receipt
      */
     public TransactionRecord getRecord(Client client)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
@@ -214,12 +241,12 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client  The client with which this will be executed.
      * @param timeout The timeout after which the execution attempt will be cancelled.
-     * @return                          the transaction record
-     * @throws TimeoutException             when the transaction times out
-     * @throws PrecheckStatusException      when the precheck fails
-     * @throws ReceiptStatusException       when there is an issue with the receipt
+     * @return the transaction record
+     * @throws TimeoutException        when the transaction times out
+     * @throws PrecheckStatusException when the precheck fails
+     * @throws ReceiptStatusException  when there is an issue with the receipt
      */
     public TransactionRecord getRecord(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
@@ -241,8 +268,8 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @return                          future result of the transaction record
+     * @param client The client with which this will be executed.
+     * @return future result of the transaction record
      */
     public CompletableFuture<TransactionRecord> getRecordAsync(Client client) {
         return getRecordAsync(client, client.getRequestTimeout());
@@ -251,9 +278,9 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client  The client with which this will be executed.
      * @param timeout The timeout after which the execution attempt will be cancelled.
-     * @return                          future result of the transaction record
+     * @return future result of the transaction record
      */
     public CompletableFuture<TransactionRecord> getRecordAsync(Client client, Duration timeout) {
         return getReceiptAsync(client, timeout)
@@ -263,7 +290,7 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client   The client with which this will be executed.
      * @param callback a BiConsumer which handles the result or error.
      */
     public void getRecordAsync(Client client, BiConsumer<TransactionRecord, Throwable> callback) {
@@ -273,8 +300,8 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @param timeout The timeout after which the execution attempt will be cancelled.
+     * @param client   The client with which this will be executed.
+     * @param timeout  The timeout after which the execution attempt will be cancelled.
      * @param callback a BiConsumer which handles the result or error.
      */
     public void getRecordAsync(Client client, Duration timeout, BiConsumer<TransactionRecord, Throwable> callback) {
@@ -284,7 +311,7 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
+     * @param client    The client with which this will be executed.
      * @param onSuccess a Consumer which consumes the result on success.
      * @param onFailure a Consumer which consumes the error on failure.
      */
@@ -295,8 +322,8 @@ public final class TransactionResponse {
     /**
      * Fetch the record of the transaction asynchronously.
      *
-     * @param client                    The client with which this will be executed.
-     * @param timeout The timeout after which the execution attempt will be cancelled.
+     * @param client    The client with which this will be executed.
+     * @param timeout   The timeout after which the execution attempt will be cancelled.
      * @param onSuccess a Consumer which consumes the result on success.
      * @param onFailure a Consumer which consumes the error on failure.
      */

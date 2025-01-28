@@ -363,22 +363,15 @@ public abstract class Query<O, T extends Query<O, T>> extends Executable<T, org.
      * @return                          the transaction
      */
     Transaction getPaymentTransaction(int index) {
-        var paymentTx = Objects.requireNonNull(paymentTransactions).get(index);
-        if (paymentTx != null) {
-            return paymentTx;
-        } else {
-            if (paymentTransactionId == null) {
-                paymentTransactionId = TransactionId.generate(Objects.requireNonNull(paymentOperator).accountId);
-            }
+        paymentTransactionId = TransactionId.generate(Objects.requireNonNull(paymentOperator).accountId);
 
-            var newPaymentTx = makePaymentTransaction(
-                    paymentTransactionId,
-                    nodeAccountIds.get(index),
-                    paymentOperator,
-                    Objects.requireNonNull(chosenQueryPayment));
-            paymentTransactions.set(index, newPaymentTx);
-            return newPaymentTx;
-        }
+        var newPaymentTx = makePaymentTransaction(
+                paymentTransactionId,
+                nodeAccountIds.get(index),
+                paymentOperator,
+                Objects.requireNonNull(chosenQueryPayment));
+        paymentTransactions.set(index, newPaymentTx);
+        return newPaymentTx;
     }
 
     @Override

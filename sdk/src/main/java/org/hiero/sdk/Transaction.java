@@ -1307,8 +1307,9 @@ public abstract class Transaction<T extends Transaction<T>>
             org.hiero.sdk.proto.Transaction request) {
         var transactionId = Objects.requireNonNull(getTransactionIdInternal());
         var hash = hash(request.getSignedTransactionBytes().toByteArray());
+        // advance is needed for chunked transactions
         transactionIds.advance();
-        return new TransactionResponse(nodeId, transactionId, hash, null);
+        return new TransactionResponse(nodeId, transactionId, hash, null, this);
     }
 
     @Override
@@ -1367,6 +1368,15 @@ public abstract class Transaction<T extends Transaction<T>>
             }
         }
         return super.getExecutionState(status, response);
+    }
+
+    Transaction regenerateTransactionId(Client client) {
+        Objects.requireNonNull(client.getOperatorAccountId());
+        transactionIds.setLocked(false);
+        var newTransactionID = TransactionId.generate(client.getOperatorAccountId());
+        transactionIds.set(transactionIds.getIndex(), newTransactionID);
+        transactionIds.setLocked(true);
+        return this;
     }
 
     @Override

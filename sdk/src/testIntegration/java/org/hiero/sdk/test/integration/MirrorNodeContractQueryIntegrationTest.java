@@ -3,7 +3,6 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.hiero.sdk.EntityIdHelper.getEvmAddressFromMirrorNodeAsync;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -239,9 +238,7 @@ class MirrorNodeContractQueryIntegrationTest {
             // Wait for mirror node to import data
             Thread.sleep(2000);
 
-            var receiverEvmAddress = getEvmAddressFromMirrorNodeAsync(testEnv.client, receiverAccountId.num)
-                    .get()
-                    .toString();
+            var receiverEvmAddress = receiverAccountId.toSolidityAddress();
 
             var owner = new MirrorNodeContractCallQuery()
                     .setContractId(contractId)

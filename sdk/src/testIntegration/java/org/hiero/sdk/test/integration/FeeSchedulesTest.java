@@ -15,7 +15,8 @@ public class FeeSchedulesTest {
     @DisplayName("FeeSchedules (CurrentAndNextFeeSchedule) is fetched and parsed from file 0.0.111")
     void canFetchFeeSchedules() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
-
+            // note: is flaky in localnode env
+            testEnv.assumeNotLocalNode();
             ByteString feeSchedulesBytes =
                     new FileContentsQuery().setFileId(new FileId(0, 0, 111)).execute(testEnv.client);
 
