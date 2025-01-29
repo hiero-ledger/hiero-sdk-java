@@ -90,7 +90,64 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * @param key the key for this account.
      * @return {@code this}
      */
+    @Deprecated
     public AccountCreateTransaction setKey(Key key) {
+        Objects.requireNonNull(key);
+        requireNotFrozen();
+        this.key = key;
+        return this;
+    }
+
+    /**
+     * Sets ECDSA private key, derives and sets it's EVM address in the background. Essentially does
+     * {@link AccountCreateTransaction#setKey(Key)} +
+     * {@link AccountCreateTransaction#setAlias(EvmAddress)}
+     *
+     * @param privateKeyECDSA
+     * @return this
+     */
+    public AccountCreateTransaction setKeyWithAlias(PrivateKey privateKeyECDSA) {
+        Objects.requireNonNull(privateKeyECDSA);
+        requireNotFrozen();
+        if (privateKeyECDSA.isECDSA()) {
+            this.key = privateKeyECDSA;
+            EvmAddress evmAddress = privateKeyECDSA.getPublicKey().toEvmAddress();
+            Objects.requireNonNull(evmAddress);
+            this.alias = evmAddress;
+        } else {
+            throw new BadKeyException("Private key is not ECDSA");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the account key and a separate ECDSA key that the EVM address is derived from.
+     * A user must sign the transaction with both keys for this flow to be successful.
+     *
+     * @param key
+     * @param privateKeyECDSA
+     * @return this
+     */
+    public AccountCreateTransaction setKeyWithAlias(Key key, PrivateKey privateKeyECDSA) {
+        Objects.requireNonNull(key);
+        requireNotFrozen();
+        this.key = key;
+        if (privateKeyECDSA.isECDSA()) {
+            EvmAddress evmAddress = privateKeyECDSA.getPublicKey().toEvmAddress();
+            Objects.requireNonNull(evmAddress);
+            this.alias = evmAddress;
+        } else {
+            throw new BadKeyException("Private key is not ECDSA");
+        }
+        return this;
+    }
+
+    /**
+     * Sets key where it is explicitly called out that the alias is not set
+     * @param key
+     * @return this
+     */
+    public AccountCreateTransaction setKeyWithoutAlias(Key key) {
         Objects.requireNonNull(key);
         requireNotFrozen();
         this.key = key;
