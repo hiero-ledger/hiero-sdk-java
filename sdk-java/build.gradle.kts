@@ -31,7 +31,7 @@ testModuleInfo {
     requires("org.junit.jupiter.params")
     requires("org.mockito")
 
-    requiresStatic("java.annotation")
+    requires("java.annotation")
 
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("org.slf4j.simple")
