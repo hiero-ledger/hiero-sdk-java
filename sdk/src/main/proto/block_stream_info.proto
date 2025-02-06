@@ -12,7 +12,7 @@
  */
 syntax = "proto3";
 
-package com.hedera.hashgraph.hapi.node.state.blockstream;
+package com.hedera.hapi.node.state.blockstream;
 
 /*
  * Copyright (C) 2024 Hedera Hashgraph, LLC

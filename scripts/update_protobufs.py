@@ -31,7 +31,7 @@ go_to_script_dir()
 
 
 PROTO_GIT_REMOTE = "https://github.com/hashgraph/hedera-services.git"
-PROTO_GIT_PATH = os.path.join("hiero-protos-git")
+PROTO_GIT_PATH = os.path.join("hedera-protos-git")
 PROTO_GIT_REF = sys.argv[1] if len(sys.argv)>1   else ""
 
 
@@ -43,10 +43,10 @@ RESPONSE_CODE_PATH = os.path.join(PROTO_IN_PATH, "response_code.proto")
 FREEZE_TYPE_PATH = os.path.join(PROTO_IN_PATH, "freeze_type.proto")
 
 
-MAIN_PATH = os.path.join("..", "sdk-java", "src", "main")
+MAIN_PATH = os.path.join("..", "sdk", "src", "main")
 PROTO_OUT_PATH = os.path.join(MAIN_PATH, "proto")
 PROTO_MIRROR_OUT_PATH = os.path.join(PROTO_OUT_PATH, "mirror")
-JAVA_OUT_PATH = os.path.join(MAIN_PATH, "java", "org", "hiero", "sdk", "java")
+JAVA_OUT_PATH = os.path.join(MAIN_PATH, "java", "com", "hedera", "hashgraph", "sdk")
 REQUEST_TYPE_OUT_PATH = os.path.join(JAVA_OUT_PATH, "RequestType.java")
 STATUS_OUT_PATH = os.path.join(JAVA_OUT_PATH, "Status.java")
 FEE_DATA_TYPE_OUT_PATH = os.path.join(JAVA_OUT_PATH, "FeeDataType.java")
@@ -100,7 +100,7 @@ def do_replacements_proto_imports(s, replacements):
     for r in replacements:
         # Check if the replacement should be skipped
         # Skip statements like `import "google/protobuf/wrappers.proto"`
-        # to update imports ONLY referred to hiero protobufs
+        # to update imports ONLY referred to hedera protobufs
         if 'google' in s:
             continue
         s = re.sub(r[0], r[1], s)
@@ -136,7 +136,7 @@ def ensure_protobufs():
         run_command("git", "clone", PROTO_GIT_REMOTE, PROTO_GIT_PATH)
     os.chdir(PROTO_GIT_PATH)
     run_command("git", "fetch")
-    checkout_ref = PROTO_GIT_REF if PROTO_GIT_REF else get_latest_tag()
+    checkout_ref = "v0.59.0-alpha.0"
     print(f">>> Checking out {checkout_ref}")
     run_command("git", "checkout", checkout_ref)
     if is_branch(checkout_ref):
@@ -297,11 +297,6 @@ def output_java_file(out_path, section_list):
     for section in section_list:
         out_file.write(section)
     out_file.close()
-
-
-
-
-
 
 def add_to_RequestType(original_name, cap_snake_name, comment_lines):
     RequestType_sections[1] += \

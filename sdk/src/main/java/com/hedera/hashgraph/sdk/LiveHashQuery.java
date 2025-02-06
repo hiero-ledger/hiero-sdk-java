@@ -13,8 +13,10 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
+ * @deprecated This query is no longer supported.
  * Requests a livehash associated to an account.
  */
+@Deprecated
 public final class LiveHashQuery extends Query<LiveHash, LiveHashQuery> {
     @Nullable
     private AccountId accountId = null;

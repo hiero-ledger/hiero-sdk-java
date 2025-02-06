@@ -15,10 +15,14 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 
 /**
+ * @deprecated
+ * This transaction is obsolete, not supported, and SHALL fail with a
+ * pre-check result of `NOT_SUPPORTED`.
  * Undelete a file or smart contract that was deleted by AdminDelete.
  * <p>
  * Can only be done with a Hedera admin.
  */
+@Deprecated
 public final class SystemUndeleteTransaction extends Transaction<SystemUndeleteTransaction> {
     @Nullable
     private FileId fileId;

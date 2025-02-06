@@ -16,6 +16,9 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 
 /**
+ * @deprecated
+ * This transaction is obsolete, not supported, and SHALL fail with a
+ * pre-check result of `NOT_SUPPORTED`.
  * Delete a file or smart contract - can only be done with a Hedera admin.
  * <p>
  * When it is deleted, it immediately disappears from the system as seen by the user,
@@ -26,6 +29,7 @@ import javax.annotation.Nullable;
  * When a smart contract is deleted, the cryptocurrency account within it continues
  * to exist, and is not affected by the expiration time here.
  */
+@Deprecated
 public final class SystemDeleteTransaction extends Transaction<SystemDeleteTransaction> {
     @Nullable
     private FileId fileId = null;

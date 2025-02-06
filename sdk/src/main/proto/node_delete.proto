@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.hedera.hashgraph.hapi.node.addressbook;
+package com.hedera.hapi.node.addressbook;
 
 /*
  * Copyright (C) 2024 Hedera Hashgraph, LLC

@@ -19,9 +19,13 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
+ * @deprecated
+ * This transaction is obsolete, not supported, and SHALL fail with a
+ * pre-check result of `NOT_SUPPORTED`.
  * A hash---presumably of some kind of credential or certificate---along with a list of keys,
  * each of which may be either a primitive or a threshold key.
  */
+@Deprecated
 public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransaction> {
     @Nullable
     private AccountId accountId = null;

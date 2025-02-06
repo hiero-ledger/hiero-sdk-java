@@ -456,12 +456,12 @@ public enum Status {
     INVALID_INITIAL_BALANCE(ResponseCodeEnum.INVALID_INITIAL_BALANCE),
 
     /**
-     * [Deprecated]. attempt to set negative receive record threshold
+     * Attempt to set negative receive record threshold
      */
     INVALID_RECEIVE_RECORD_THRESHOLD(ResponseCodeEnum.INVALID_RECEIVE_RECORD_THRESHOLD),
 
     /**
-     * [Deprecated]. attempt to set negative send record threshold
+     * Attempt to set negative send record threshold
      */
     INVALID_SEND_RECORD_THRESHOLD(ResponseCodeEnum.INVALID_SEND_RECORD_THRESHOLD),
 
@@ -1258,7 +1258,7 @@ public enum Status {
     UNEXPECTED_TOKEN_DECIMALS(ResponseCodeEnum.UNEXPECTED_TOKEN_DECIMALS),
 
     /**
-     * [Deprecated] The proxy account id is invalid or does not exist.
+     * The proxy account id is invalid or does not exist.
      */
     INVALID_PROXY_ACCOUNT_ID(ResponseCodeEnum.INVALID_PROXY_ACCOUNT_ID),
 
@@ -1295,7 +1295,7 @@ public enum Status {
     NEGATIVE_ALLOWANCE_AMOUNT(ResponseCodeEnum.NEGATIVE_ALLOWANCE_AMOUNT),
 
     /**
-     * [Deprecated] The approveForAll flag cannot be set for a fungible token.
+     * The approveForAll flag cannot be set for a fungible token.
      */
     CANNOT_APPROVE_FOR_ALL_FUNGIBLE_COMMON(ResponseCodeEnum.CANNOT_APPROVE_FOR_ALL_FUNGIBLE_COMMON),
 
@@ -1321,13 +1321,13 @@ public enum Status {
     EMPTY_ALLOWANCES(ResponseCodeEnum.EMPTY_ALLOWANCES),
 
     /**
-     * [Deprecated] Spender is repeated more than once in Crypto or Token or NFT allowance lists in a single
+     * Spender is repeated more than once in Crypto or Token or NFT allowance lists in a single
      * CryptoApproveAllowance transaction.
      */
     SPENDER_ACCOUNT_REPEATED_IN_ALLOWANCES(ResponseCodeEnum.SPENDER_ACCOUNT_REPEATED_IN_ALLOWANCES),
 
     /**
-     * [Deprecated] Serial numbers are repeated in nft allowance for a single spender account
+     * Serial numbers are repeated in nft allowance for a single spender account
      */
     REPEATED_SERIAL_NUMS_IN_NFT_ALLOWANCES(ResponseCodeEnum.REPEATED_SERIAL_NUMS_IN_NFT_ALLOWANCES),
 
@@ -1583,7 +1583,9 @@ public enum Status {
 
     /**
      * A transaction failed because the TLS certificate provided for the
-     * node is missing or invalid.<br/>
+     * node is missing or invalid.
+     * <p>
+     * #### Probable Causes
      * The certificate MUST be a TLS certificate of a type permitted for gossip
      * signatures.<br/>
      * The value presented MUST be a UTF-8 NFKD encoding of the TLS
@@ -1595,7 +1597,9 @@ public enum Status {
 
     /**
      * A transaction failed because the hash provided for the gRPC certificate
-     * is present but invalid.<br/>
+     * is present but invalid.
+     * <p>
+     * #### Probable Causes
      * The `grpc_certificate_hash` MUST be a SHA-384 hash.<br/>
      * The input hashed MUST be a UTF-8 NFKD encoding of the actual TLS
      * certificate.<br/>
@@ -1681,17 +1685,18 @@ public enum Status {
     TOKEN_HAS_NO_METADATA_OR_SUPPLY_KEY(ResponseCodeEnum.TOKEN_HAS_NO_METADATA_OR_SUPPLY_KEY),
 
     /**
-     * The transaction attempted to the use an empty List of `PendingAirdropId`.
+     * The list of `PendingAirdropId`s is empty and MUST NOT be empty.
      */
     EMPTY_PENDING_AIRDROP_ID_LIST(ResponseCodeEnum.EMPTY_PENDING_AIRDROP_ID_LIST),
 
     /**
-     * The transaction attempted to the same `PendingAirdropId` twice.
+     * A `PendingAirdropId` is repeated in a `claim` or `cancel` transaction.
      */
     PENDING_AIRDROP_ID_REPEATED(ResponseCodeEnum.PENDING_AIRDROP_ID_REPEATED),
 
     /**
-     * The transaction attempted to use more than the allowed number of `PendingAirdropId`.
+     * The number of `PendingAirdropId` values in the list exceeds the maximum
+     * allowable number.
      */
     PENDING_AIRDROP_ID_LIST_TOO_LONG(ResponseCodeEnum.PENDING_AIRDROP_ID_LIST_TOO_LONG),
 
@@ -1702,8 +1707,9 @@ public enum Status {
 
     /**
      * The identified account is sender for one or more pending airdrop(s)
-     * and cannot be deleted.<br/>
-     * Requester should cancel all pending airdrops before resending
+     * and cannot be deleted.
+     * <p>
+     * The requester SHOULD cancel all pending airdrops before resending
      * this transaction.
      */
     ACCOUNT_HAS_PENDING_AIRDROPS(ResponseCodeEnum.ACCOUNT_HAS_PENDING_AIRDROPS),
@@ -1734,8 +1740,8 @@ public enum Status {
      * The token might be deleted, or the sender may not have enough tokens
      * to fulfill the offer.
      * <p>
-     * The client SHOULD query mirror node to determine the status of the pending
-     * airdrop and whether the sender can fulfill the offer.
+     * The client SHOULD query mirror node to determine the status of the
+     * pending airdrop and whether the sender can fulfill the offer.
      */
     INVALID_TOKEN_IN_PENDING_AIRDROP(ResponseCodeEnum.INVALID_TOKEN_IN_PENDING_AIRDROP),
 
@@ -1755,7 +1761,90 @@ public enum Status {
      * A scheduled transaction configured to wait for expiry to execute was not
      * given an explicit expiration time.
      */
-    MISSING_EXPIRY_TIME(ResponseCodeEnum.MISSING_EXPIRY_TIME);
+    MISSING_EXPIRY_TIME(ResponseCodeEnum.MISSING_EXPIRY_TIME),
+
+    /**
+     * A contract operation attempted to schedule another transaction after it
+     * had already scheduled a recursive contract call.
+     */
+    NO_SCHEDULING_ALLOWED_AFTER_SCHEDULED_RECURSION(ResponseCodeEnum.NO_SCHEDULING_ALLOWED_AFTER_SCHEDULED_RECURSION),
+
+    /**
+     * A contract can schedule recursive calls a finite number of times (this is
+     * approximately four million times with typical network configuration.)
+     */
+    RECURSIVE_SCHEDULING_LIMIT_REACHED(ResponseCodeEnum.RECURSIVE_SCHEDULING_LIMIT_REACHED),
+
+    /**
+     * The target network is waiting for the ledger ID to be set, which is a
+     * side effect of finishing the network's TSS construction.
+     */
+    WAITING_FOR_LEDGER_ID(ResponseCodeEnum.WAITING_FOR_LEDGER_ID),
+
+    /**
+     * The provided fee exempt key list size exceeded the limit.
+     */
+    MAX_ENTRIES_FOR_FEE_EXEMPT_KEY_LIST_EXCEEDED(ResponseCodeEnum.MAX_ENTRIES_FOR_FEE_EXEMPT_KEY_LIST_EXCEEDED),
+
+    /**
+     * The provided fee exempt key list contains duplicated keys.
+     */
+    FEE_EXEMPT_KEY_LIST_CONTAINS_DUPLICATED_KEYS(ResponseCodeEnum.FEE_EXEMPT_KEY_LIST_CONTAINS_DUPLICATED_KEYS),
+
+    /**
+     * The provided fee exempt key list contains an invalid key.
+     */
+    INVALID_KEY_IN_FEE_EXEMPT_KEY_LIST(ResponseCodeEnum.INVALID_KEY_IN_FEE_EXEMPT_KEY_LIST),
+
+    /**
+     * The provided fee schedule key contains an invalid key.
+     */
+    INVALID_FEE_SCHEDULE_KEY(ResponseCodeEnum.INVALID_FEE_SCHEDULE_KEY),
+
+    /**
+     * If a fee schedule key is not set when we create a topic
+     * we cannot add it on update.
+     */
+    FEE_SCHEDULE_KEY_CANNOT_BE_UPDATED(ResponseCodeEnum.FEE_SCHEDULE_KEY_CANNOT_BE_UPDATED),
+
+    /**
+     * If the topic's custom fees are updated the topic SHOULD have a
+     * fee schedule key
+     */
+    FEE_SCHEDULE_KEY_NOT_SET(ResponseCodeEnum.FEE_SCHEDULE_KEY_NOT_SET),
+
+    /**
+     * The fee amount is exceeding the amount that the payer
+     * is willing to pay.
+     */
+    MAX_CUSTOM_FEE_LIMIT_EXCEEDED(ResponseCodeEnum.MAX_CUSTOM_FEE_LIMIT_EXCEEDED),
+
+    /**
+     * There are no corresponding custom fees.
+     */
+    NO_VALID_MAX_CUSTOM_FEE(ResponseCodeEnum.NO_VALID_MAX_CUSTOM_FEE),
+
+    /**
+     * The provided list contains invalid max custom fee.
+     */
+    INVALID_MAX_CUSTOM_FEES(ResponseCodeEnum.INVALID_MAX_CUSTOM_FEES),
+
+    /**
+     * The provided max custom fee list contains fees with
+     * duplicate denominations.
+     */
+    DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST(ResponseCodeEnum.DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST),
+
+    /**
+     * The provided max custom fee list contains fees with
+     * duplicate account id.
+     */
+    DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST(ResponseCodeEnum.DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST),
+
+    /**
+     * Max custom fees list is not supported for this operation.
+     */
+    MAX_CUSTOM_FEES_IS_NOT_SUPPORTED(ResponseCodeEnum.MAX_CUSTOM_FEES_IS_NOT_SUPPORTED);
 
     final ResponseCodeEnum code;
 
@@ -2096,6 +2185,21 @@ public enum Status {
             case SCHEDULE_EXPIRY_IS_BUSY -> SCHEDULE_EXPIRY_IS_BUSY;
             case INVALID_GRPC_CERTIFICATE_HASH -> INVALID_GRPC_CERTIFICATE_HASH;
             case MISSING_EXPIRY_TIME -> MISSING_EXPIRY_TIME;
+            case NO_SCHEDULING_ALLOWED_AFTER_SCHEDULED_RECURSION -> NO_SCHEDULING_ALLOWED_AFTER_SCHEDULED_RECURSION;
+            case RECURSIVE_SCHEDULING_LIMIT_REACHED -> RECURSIVE_SCHEDULING_LIMIT_REACHED;
+            case WAITING_FOR_LEDGER_ID -> WAITING_FOR_LEDGER_ID;
+            case MAX_ENTRIES_FOR_FEE_EXEMPT_KEY_LIST_EXCEEDED -> MAX_ENTRIES_FOR_FEE_EXEMPT_KEY_LIST_EXCEEDED;
+            case FEE_EXEMPT_KEY_LIST_CONTAINS_DUPLICATED_KEYS -> FEE_EXEMPT_KEY_LIST_CONTAINS_DUPLICATED_KEYS;
+            case INVALID_KEY_IN_FEE_EXEMPT_KEY_LIST -> INVALID_KEY_IN_FEE_EXEMPT_KEY_LIST;
+            case INVALID_FEE_SCHEDULE_KEY -> INVALID_FEE_SCHEDULE_KEY;
+            case FEE_SCHEDULE_KEY_CANNOT_BE_UPDATED -> FEE_SCHEDULE_KEY_CANNOT_BE_UPDATED;
+            case FEE_SCHEDULE_KEY_NOT_SET -> FEE_SCHEDULE_KEY_NOT_SET;
+            case MAX_CUSTOM_FEE_LIMIT_EXCEEDED -> MAX_CUSTOM_FEE_LIMIT_EXCEEDED;
+            case NO_VALID_MAX_CUSTOM_FEE -> NO_VALID_MAX_CUSTOM_FEE;
+            case INVALID_MAX_CUSTOM_FEES -> INVALID_MAX_CUSTOM_FEES;
+            case DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST -> DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST;
+            case DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST -> DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST;
+            case MAX_CUSTOM_FEES_IS_NOT_SUPPORTED -> MAX_CUSTOM_FEES_IS_NOT_SUPPORTED;
             case UNRECOGNIZED ->
             // NOTE: Protobuf deserialization will not give us the code on the wire
             throw new IllegalArgumentException(

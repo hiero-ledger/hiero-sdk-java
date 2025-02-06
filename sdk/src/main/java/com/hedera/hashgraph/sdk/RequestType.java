@@ -8,371 +8,414 @@ import com.hedera.hashgraph.sdk.proto.HederaFunctionality;
  */
 public enum RequestType {
     /**
-     * UNSPECIFIED - Need to keep first value as unspecified because first element is ignored and
-     * not parsed (0 is ignored by parser)
+     * FUTURE - Uncomment when https://github.com/hashgraph/pbj/issues/339 is fixed;
+     * currently the PBJ-generated unit tests fail when using reserved ordinals
+     * reserved 96, 97, 98, 99;
+     * Unused - The first value is unused because this default value is
+     * ambiguous with an "unset" value and therefore should not be used.
      */
     NONE(HederaFunctionality.NONE),
 
     /**
-     * crypto transfer
+     * Transfer tokens among accounts.
      */
     CRYPTO_TRANSFER(HederaFunctionality.CryptoTransfer),
 
     /**
-     * crypto update account
+     * Update an account.
      */
     CRYPTO_UPDATE(HederaFunctionality.CryptoUpdate),
 
     /**
-     * crypto delete account
+     * Delete an account.
      */
     CRYPTO_DELETE(HederaFunctionality.CryptoDelete),
 
     /**
-     * Add a livehash to a crypto account
+     * Add a livehash to an account
      */
     CRYPTO_ADD_LIVE_HASH(HederaFunctionality.CryptoAddLiveHash),
 
     /**
-     * Delete a livehash from a crypto account
+     * Delete a livehash from an account
      */
     CRYPTO_DELETE_LIVE_HASH(HederaFunctionality.CryptoDeleteLiveHash),
 
     /**
-     * Smart Contract Call
+     * Execute a smart contract call.
      */
     CONTRACT_CALL(HederaFunctionality.ContractCall),
 
     /**
-     * Smart Contract Create Contract
+     * Create a smart contract.
      */
     CONTRACT_CREATE(HederaFunctionality.ContractCreate),
 
     /**
-     * Smart Contract update contract
+     * Update a smart contract.
      */
     CONTRACT_UPDATE(HederaFunctionality.ContractUpdate),
 
     /**
-     * File Operation create file
+     * Create a "file" stored in the ledger.
      */
     FILE_CREATE(HederaFunctionality.FileCreate),
 
     /**
-     * File Operation append file
+     * Append data to a "file" stored in the ledger.
      */
     FILE_APPEND(HederaFunctionality.FileAppend),
 
     /**
-     * File Operation update file
+     * Update a "file" stored in the ledger.
      */
     FILE_UPDATE(HederaFunctionality.FileUpdate),
 
     /**
-     * File Operation delete file
+     * Delete a "file" stored in the ledger.
      */
     FILE_DELETE(HederaFunctionality.FileDelete),
 
     /**
-     * crypto get account balance
+     * Get the balance for an account.
      */
     CRYPTO_GET_ACCOUNT_BALANCE(HederaFunctionality.CryptoGetAccountBalance),
 
     /**
-     * crypto get account record
+     * Get a full account record.
      */
     CRYPTO_GET_ACCOUNT_RECORDS(HederaFunctionality.CryptoGetAccountRecords),
 
     /**
-     * Crypto get info
+     * Get information about a token.
      */
     CRYPTO_GET_INFO(HederaFunctionality.CryptoGetInfo),
 
     /**
-     * Smart Contract Call
+     * Execute a local smart contract call.<br/>
+     * Used by contracts to call other contracts.
      */
     CONTRACT_CALL_LOCAL(HederaFunctionality.ContractCallLocal),
 
     /**
-     * Smart Contract get info
+     * Get information about a smart contract.
      */
     CONTRACT_GET_INFO(HederaFunctionality.ContractGetInfo),
 
     /**
-     * Smart Contract, get the runtime code
+     * Get the compiled bytecode that implements a smart contract.
      */
     CONTRACT_GET_BYTECODE(HederaFunctionality.ContractGetBytecode),
 
     /**
-     * Smart Contract, get by solidity ID
+     * Get a smart contract record by reference to the solidity ID.
      */
     GET_BY_SOLIDITY_ID(HederaFunctionality.GetBySolidityID),
 
     /**
-     * Smart Contract, get by key
+     * Get a smart contract by reference to the contract key.
      */
     GET_BY_KEY(HederaFunctionality.GetByKey),
 
     /**
-     * Get a live hash from a crypto account
+     * Get the live hash for an account
      */
     CRYPTO_GET_LIVE_HASH(HederaFunctionality.CryptoGetLiveHash),
 
     /**
-     * Crypto, get the stakers for the node
+     * Get the accounts proxy staking to a given account.
      */
     CRYPTO_GET_STAKERS(HederaFunctionality.CryptoGetStakers),
 
     /**
-     * File Operations get file contents
+     * Get the contents of a "file" stored in the ledger.
      */
     FILE_GET_CONTENTS(HederaFunctionality.FileGetContents),
 
     /**
-     * File Operations get the info of the file
+     * Get the metadata for a "file" stored in the ledger.
      */
     FILE_GET_INFO(HederaFunctionality.FileGetInfo),
 
     /**
-     * Crypto get the transaction records
+     * Get transaction record(s) for a specified transaction ID.
      */
     TRANSACTION_GET_RECORD(HederaFunctionality.TransactionGetRecord),
 
     /**
-     * Contract get the transaction records
+     * Get all transaction records for a specified contract ID in
+     * the past 24 hours.<br/>
+     * deprecated since version 0.9.0
      */
     CONTRACT_GET_RECORDS(HederaFunctionality.ContractGetRecords),
 
     /**
-     * crypto create account
+     * Create a new account
      */
     CRYPTO_CREATE(HederaFunctionality.CryptoCreate),
 
     /**
-     * system delete file
+     * Delete a "system" "file" stored in the ledger.<br/>
+     * "System" files are files with special purpose and ID values within a
+     * specific range.<br/>
+     * These files require additional controls and can only be deleted when
+     * authorized by accounts with elevated privilege.
      */
     SYSTEM_DELETE(HederaFunctionality.SystemDelete),
 
     /**
-     * system undelete file
+     * Undo the delete of a "system" "file" stored in the ledger.<br/>
+     * "System" files are files with special purpose and ID values within a
+     * specific range.<br/>
+     * These files require additional controls and can only be deleted when
+     * authorized by accounts with elevated privilege. This operation allows
+     * such files to be restored, within a reasonable timeframe, if
+     * deleted improperly.
      */
     SYSTEM_UNDELETE(HederaFunctionality.SystemUndelete),
 
     /**
-     * delete contract
+     * Delete a smart contract
      */
     CONTRACT_DELETE(HederaFunctionality.ContractDelete),
 
     /**
-     * freeze
+     * Stop all processing and "freeze" the entire network.<br/>
+     * This is generally sent immediately prior to upgrading the network.<br/>
+     * After processing this transactions all nodes enter a quiescent state.
      */
     FREEZE(HederaFunctionality.Freeze),
 
     /**
-     * Create Tx Record
+     * Create a Transaction Record.<br/>
+     * This appears to be purely internal and unused.
      */
     CREATE_TRANSACTION_RECORD(HederaFunctionality.CreateTransactionRecord),
 
     /**
-     * Crypto Auto Renew
+     * Auto-renew an account.<br/>
+     * This is used for internal fee calculations.
      */
     CRYPTO_ACCOUNT_AUTO_RENEW(HederaFunctionality.CryptoAccountAutoRenew),
 
     /**
-     * Contract Auto Renew
+     * Auto-renew a smart contract.<br/>
+     * This is used for internal fee calculations.
      */
     CONTRACT_AUTO_RENEW(HederaFunctionality.ContractAutoRenew),
 
     /**
-     * Get Version
+     * Get version information for the ledger.<br/>
+     * This returns a the version of the software currently running the network
+     * for both the protocol buffers and the network services (node).
      */
     GET_VERSION_INFO(HederaFunctionality.GetVersionInfo),
 
     /**
-     * Transaction Get Receipt
+     * Get a receipt for a specified transaction ID.
      */
     TRANSACTION_GET_RECEIPT(HederaFunctionality.TransactionGetReceipt),
 
     /**
-     * Create Topic
+     * Create a topic for the Hedera Consensus Service (HCS).
      */
     CONSENSUS_CREATE_TOPIC(HederaFunctionality.ConsensusCreateTopic),
 
     /**
-     * Update Topic
+     * Update an HCS topic.
      */
     CONSENSUS_UPDATE_TOPIC(HederaFunctionality.ConsensusUpdateTopic),
 
     /**
-     * Delete Topic
+     * Delete an HCS topic.
      */
     CONSENSUS_DELETE_TOPIC(HederaFunctionality.ConsensusDeleteTopic),
 
     /**
-     * Get Topic information
+     * Get metadata (information) for an HCS topic.
      */
     CONSENSUS_GET_TOPIC_INFO(HederaFunctionality.ConsensusGetTopicInfo),
 
     /**
-     * Submit message to topic
+     * Publish a message to an HCS topic.
      */
     CONSENSUS_SUBMIT_MESSAGE(HederaFunctionality.ConsensusSubmitMessage),
 
+    /**
+     * Submit a transaction, bypassing intake checking.
+     * Only enabled in local-mode.
+     */
     UNCHECKED_SUBMIT(HederaFunctionality.UncheckedSubmit),
 
     /**
-     * Create Token
+     * Create a token for the Hedera Token Service (HTS).
      */
     TOKEN_CREATE(HederaFunctionality.TokenCreate),
 
     /**
-     * Get Token information
+     * Get metadata (information) for an HTS token.
      */
     TOKEN_GET_INFO(HederaFunctionality.TokenGetInfo),
 
     /**
-     * Freeze Account
+     * Freeze a specific account with respect to a specific HTS token.
+     * <p>
+     * Once this transaction completes that account CANNOT send or receive
+     * the specified token.
      */
     TOKEN_FREEZE_ACCOUNT(HederaFunctionality.TokenFreezeAccount),
 
     /**
-     * Unfreeze Account
+     * Remove a "freeze" from an account with respect to a specific HTS token.
      */
     TOKEN_UNFREEZE_ACCOUNT(HederaFunctionality.TokenUnfreezeAccount),
 
     /**
-     * Grant KYC to Account
+     * Grant KYC status to an account for a specific HTS token.
      */
     TOKEN_GRANT_KYC_TO_ACCOUNT(HederaFunctionality.TokenGrantKycToAccount),
 
     /**
-     * Revoke KYC from Account
+     * Revoke KYC status from an account for a specific HTS token.
      */
     TOKEN_REVOKE_KYC_FROM_ACCOUNT(HederaFunctionality.TokenRevokeKycFromAccount),
 
     /**
-     * Delete Token
+     * Delete a specific HTS token.
      */
     TOKEN_DELETE(HederaFunctionality.TokenDelete),
 
     /**
-     * Update Token
+     * Update a specific HTS token.
      */
     TOKEN_UPDATE(HederaFunctionality.TokenUpdate),
 
     /**
-     * Mint tokens to treasury
+     * Mint HTS token amounts to the treasury account for that token.
      */
     TOKEN_MINT(HederaFunctionality.TokenMint),
 
     /**
-     * Burn tokens from treasury
+     * Burn HTS token amounts from the treasury account for that token.
      */
     TOKEN_BURN(HederaFunctionality.TokenBurn),
 
     /**
-     * Wipe token amount from Account holder
+     * Wipe all amounts for a specific HTS token from a specified account.
      */
     TOKEN_ACCOUNT_WIPE(HederaFunctionality.TokenAccountWipe),
 
     /**
-     * Associate tokens to an account
+     * Associate a specific HTS token to an account.
      */
     TOKEN_ASSOCIATE_TO_ACCOUNT(HederaFunctionality.TokenAssociateToAccount),
 
     /**
-     * Dissociate tokens from an account
+     * Dissociate a specific HTS token from an account.
      */
     TOKEN_DISSOCIATE_FROM_ACCOUNT(HederaFunctionality.TokenDissociateFromAccount),
 
     /**
-     * Create Scheduled Transaction
+     * Create a scheduled transaction
      */
     SCHEDULE_CREATE(HederaFunctionality.ScheduleCreate),
 
     /**
-     * Delete Scheduled Transaction
+     * Delete a scheduled transaction
      */
     SCHEDULE_DELETE(HederaFunctionality.ScheduleDelete),
 
     /**
-     * Sign Scheduled Transaction
+     * Sign a scheduled transaction
      */
     SCHEDULE_SIGN(HederaFunctionality.ScheduleSign),
 
     /**
-     * Get Scheduled Transaction Information
+     * Get metadata (information) for a scheduled transaction
      */
     SCHEDULE_GET_INFO(HederaFunctionality.ScheduleGetInfo),
 
     /**
-     * Get Token Account Nft Information
+     * Get NFT metadata (information) for a range of NFTs associated to a
+     * specific non-fungible/unique HTS token and owned by a specific account.
      */
     TOKEN_GET_ACCOUNT_NFT_INFOS(HederaFunctionality.TokenGetAccountNftInfos),
 
     /**
-     * Get Token Nft Information
+     * Get metadata (information) for a specific NFT identified by token and
+     * serial number.
      */
     TOKEN_GET_NFT_INFO(HederaFunctionality.TokenGetNftInfo),
 
     /**
-     * Get Token Nft List Information
+     * Get NFT metadata (information) for a range of NFTs associated to a
+     * specific non-fungible/unique HTS token.
      */
     TOKEN_GET_NFT_INFOS(HederaFunctionality.TokenGetNftInfos),
 
     /**
-     * Update a token's custom fee schedule, if permissible
+     * Update a token's custom fee schedule.
+     * <p>
+     * If a transaction of this type is not signed by the token
+     * `fee_schedule_key` it SHALL fail with INVALID_SIGNATURE, or
+     * TOKEN_HAS_NO_FEE_SCHEDULE_KEY if there is no `fee_schedule_key` set.
      */
     TOKEN_FEE_SCHEDULE_UPDATE(HederaFunctionality.TokenFeeScheduleUpdate),
 
     /**
-     * Get execution time(s) by TransactionID, if available
+     * Get execution time(s) for one or more "recent" TransactionIDs.
      */
     NETWORK_GET_EXECUTION_TIME(HederaFunctionality.NetworkGetExecutionTime),
 
     /**
-     * Pause the Token
+     * Pause a specific HTS token
      */
     TOKEN_PAUSE(HederaFunctionality.TokenPause),
 
     /**
-     * Unpause the Token
+     * Unpause a paused HTS token.
      */
     TOKEN_UNPAUSE(HederaFunctionality.TokenUnpause),
 
     /**
-     * Approve allowance for a spender relative to the owner account
+     * Approve an allowance for a spender relative to the owner account, which
+     * MUST sign the transaction.
      */
     CRYPTO_APPROVE_ALLOWANCE(HederaFunctionality.CryptoApproveAllowance),
 
     /**
-     * Deletes granted allowances on owner account
+     * Delete (unapprove) an allowance previously approved
+     * for the owner account.
      */
     CRYPTO_DELETE_ALLOWANCE(HederaFunctionality.CryptoDeleteAllowance),
 
     /**
-     * Gets all the information about an account, including balance and allowances. This does not get the list of
-     * account records.
+     * Get all the information about an account, including balance
+     * and allowances.<br/>
+     * This does not get a list of account records.
      */
     GET_ACCOUNT_DETAILS(HederaFunctionality.GetAccountDetails),
 
     /**
-     * Ethereum Transaction
+     * Perform an Ethereum (EVM) transaction.<br/>
+     * CallData may be inline if small, or in a "file" if large.
      */
     ETHEREUM_TRANSACTION(HederaFunctionality.EthereumTransaction),
 
     /**
-     * Updates the staking info at the end of staking period to indicate new staking period has started.
+     * Used to indicate when the network has updated the staking information
+     * at the end of a staking period and to indicate a new staking period
+     * has started.
      */
     NODE_STAKE_UPDATE(HederaFunctionality.NodeStakeUpdate),
 
     /**
-     * Generates a pseudorandom number.
+     * Generate and return a pseudorandom number based on network state.
      */
     PRNG(HederaFunctionality.UtilPrng),
 
     /**
-     * Get a record for a transaction.
+     * Get a record for a "recent" transaction.
      */
     TRANSACTION_GET_FAST_RECORD(HederaFunctionality.TransactionGetFastRecord),
 
@@ -397,7 +440,8 @@ public enum RequestType {
     NODE_DELETE(HederaFunctionality.NodeDelete),
 
     /**
-     * Transfer one or more token balances held by the requesting account to the treasury for each token type.
+     * Transfer one or more token balances held by the requesting account
+     * to the treasury for each token type.
      */
     TOKEN_REJECT(HederaFunctionality.TokenReject),
 
@@ -407,7 +451,8 @@ public enum RequestType {
     TOKEN_AIRDROP(HederaFunctionality.TokenAirdrop),
 
     /**
-     * Remove one or more pending airdrops from state on behalf of the sender(s) for each airdrop.
+     * Remove one or more pending airdrops from state on behalf of
+     * the sender(s) for each airdrop.
      */
     TOKEN_CANCEL_AIRDROP(HederaFunctionality.TokenCancelAirdrop),
 
@@ -417,19 +462,24 @@ public enum RequestType {
     TOKEN_CLAIM_AIRDROP(HederaFunctionality.TokenClaimAirdrop),
 
     /**
-     * A message produced as part of Threshold Signature Scheme (TSS) processing.
+     * Submit a signature of a state root hash gossiped to other nodes
      */
-    TSS_MESSAGE(HederaFunctionality.TssMessage),
+    STATE_SIGNATURE_TRANSACTION(HederaFunctionality.StateSignatureTransaction),
 
     /**
-     * Submit a vote as part of the Threshold Signature Scheme (TSS) processing.
+     * Sign a particular history assembly.
      */
-    TSS_VOTE(HederaFunctionality.TssVote),
+    HISTORY_ASSEMBLY_SIGNATURE(HederaFunctionality.HistoryAssemblySignature),
 
     /**
-     * Submit a node signature as part of the Threshold Signature Scheme (TSS) processing.
+     * Publish a roster history proof key to the network.
      */
-    TSS_SHARE_SIGNATURE(HederaFunctionality.TssShareSignature);
+    HISTORY_PROOF_KEY_PUBLICATION(HederaFunctionality.HistoryProofKeyPublication),
+
+    /**
+     * Vote for a particular history proof.
+     */
+    HISTORY_PROOF_VOTE(HederaFunctionality.HistoryProofVote);
 
     final HederaFunctionality code;
 
@@ -521,9 +571,10 @@ public enum RequestType {
             case TokenAirdrop -> TOKEN_AIRDROP;
             case TokenCancelAirdrop -> TOKEN_CANCEL_AIRDROP;
             case TokenClaimAirdrop -> TOKEN_CLAIM_AIRDROP;
-            case TssMessage -> TSS_MESSAGE;
-            case TssVote -> TSS_VOTE;
-            case TssShareSignature -> TSS_SHARE_SIGNATURE;
+            case StateSignatureTransaction -> STATE_SIGNATURE_TRANSACTION;
+            case HistoryAssemblySignature -> HISTORY_ASSEMBLY_SIGNATURE;
+            case HistoryProofKeyPublication -> HISTORY_PROOF_KEY_PUBLICATION;
+            case HistoryProofVote -> HISTORY_PROOF_VOTE;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -613,9 +664,10 @@ public enum RequestType {
             case TOKEN_AIRDROP -> "TOKEN_AIRDROP";
             case TOKEN_CANCEL_AIRDROP -> "TOKEN_CANCEL_AIRDROP";
             case TOKEN_CLAIM_AIRDROP -> "TOKEN_CLAIM_AIRDROP";
-            case TSS_MESSAGE -> "TSS_MESSAGE";
-            case TSS_VOTE -> "TSS_VOTE";
-            case TSS_SHARE_SIGNATURE -> "TSS_SHARE_SIGNATURE";
+            case STATE_SIGNATURE_TRANSACTION -> "STATE_SIGNATURE_TRANSACTION";
+            case HISTORY_ASSEMBLY_SIGNATURE -> "HISTORY_ASSEMBLY_SIGNATURE";
+            case HISTORY_PROOF_KEY_PUBLICATION -> "HISTORY_PROOF_KEY_PUBLICATION";
+            case HISTORY_PROOF_VOTE -> "HISTORY_PROOF_VOTE";
         };
     }
 }
