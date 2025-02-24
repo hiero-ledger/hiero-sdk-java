@@ -99,6 +99,11 @@ class EthereumFlowMockTest {
                                 .setReceipt(
                                         TransactionReceipt.newBuilder().setStatusValue(ResponseCodeEnum.SUCCESS_VALUE)))
                         .build(),
+                Response.newBuilder()
+                        .setTransactionGetReceipt(TransactionGetReceiptResponse.newBuilder()
+                                .setReceipt(
+                                        TransactionReceipt.newBuilder().setStatusValue(ResponseCodeEnum.SUCCESS_VALUE)))
+                        .build(),
                 (Function<Object, Object>) o -> {
                     var signedTransaction = SignedTransaction.parseFrom(((Transaction) o).getSignedTransactionBytes());
                     var transactionBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
@@ -110,7 +115,7 @@ class EthereumFlowMockTest {
                                             .getEthereumData()
                                             .toByteArray())
                                     .callData)
-                            .isEmpty();
+                            .isEqualTo(LONG_CALL_DATA.toByteArray());
                     return TransactionResponse.newBuilder()
                             .setNodeTransactionPrecheckCodeValue(0)
                             .build();
