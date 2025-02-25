@@ -341,6 +341,38 @@ class TopicCreateIntegrationTest {
         }
     }
 
+    // There is currently an issue with setting autoRenewAccountId when lacking admin key
+
+    @Test
+    @DisplayName("Should assign autoRenewAccountId to the topic creator")
+    void createTopicTransactionShouldAssignAutomaticallyAutoRenewAccountId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var topicId = new TopicCreateTransaction().execute(testEnv.client).getReceipt(testEnv.client).topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should not assing autoRenewAccountId when AdminKey is set")
+    void createTopicTransactionShouldNotAssignAutomaticallyAutoRenewAccountIdWhenAdminKeyIsSet() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var topicId = new TopicCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isNull();
+        }
+    }
+
     private AccountId createAccount(IntegrationTestEnv testEnv, Hbar initialBalance, PrivateKey key) throws Exception {
         return new AccountCreateTransaction()
                 .setInitialBalance(initialBalance)

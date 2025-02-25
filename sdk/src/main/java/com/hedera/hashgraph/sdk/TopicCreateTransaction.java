@@ -455,4 +455,15 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setConsensusCreateTopic(build());
     }
+
+    @Override
+    public TopicCreateTransaction freezeWith(@Nullable Client client) {
+        if (this.adminKey == null
+                && this.autoRenewAccountId == null
+                && client != null
+                && client.getOperatorAccountId() != null) {
+            this.autoRenewAccountId = client.getOperatorAccountId();
+        }
+        return super.freezeWith(client);
+    }
 }
