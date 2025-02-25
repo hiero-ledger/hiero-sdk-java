@@ -341,8 +341,6 @@ class TopicCreateIntegrationTest {
         }
     }
 
-    // There is currently an issue with setting autoRenewAccountId when lacking admin key
-
     @Test
     @DisplayName("Should assign autoRenewAccountId to the topic creator")
     void createTopicTransactionShouldAssignAutomaticallyAutoRenewAccountId() throws Exception {
