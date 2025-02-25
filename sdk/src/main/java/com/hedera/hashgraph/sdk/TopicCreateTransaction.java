@@ -458,10 +458,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
 
     @Override
     public TopicCreateTransaction freezeWith(@Nullable Client client) {
-        if (this.adminKey == null
-                && this.autoRenewAccountId == null
-                && client != null
-                && client.getOperatorAccountId() != null) {
+        if (this.autoRenewAccountId == null && client != null && client.getOperatorAccountId() != null) {
             this.autoRenewAccountId = client.getOperatorAccountId();
         }
         return super.freezeWith(client);
