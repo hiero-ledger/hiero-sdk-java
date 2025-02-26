@@ -445,7 +445,7 @@ class TokenCreateIntegrationTest {
     }
 
     @Test
-    @DisplayName("Can set expiration time when creating token")
+    @DisplayName("AutoRenewAccountId should be equal to TransactionId AccountId")
     void whenTransactionIdIsSetAutoRenewAccountIdShouldBeEqualToTransactionIdAccountId() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var privateKey = PrivateKey.generateECDSA();
