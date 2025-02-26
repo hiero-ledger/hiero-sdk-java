@@ -843,8 +843,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
 
     @Override
     public TokenCreateTransaction freezeWith(@Nullable Client client) {
-        if (autoRenewAccountId == null && client != null && client.getOperatorAccountId() != null) {
-            autoRenewAccountId = client.getOperatorAccountId();
+        if (this.autoRenewAccountId == null && client != null && client.getOperatorAccountId() != null) {
+            this.autoRenewAccountId = this.transactionIds != null
+                            && !this.transactionIds.isEmpty()
+                            && this.transactionIds.getCurrent() != null
+                    ? this.transactionIds.getCurrent().accountId
+                    : client.getOperatorAccountId();
         }
 
         return super.freezeWith(client);

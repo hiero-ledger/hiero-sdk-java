@@ -443,4 +443,35 @@ class TokenCreateIntegrationTest {
             assertThat(tokenInfo.expirationTime.getEpochSecond()).isEqualTo(expirationTime.getEpochSecond());
         }
     }
+
+    @Test
+    @DisplayName("Can set expiration time when creating token")
+    void whenTransactionIdIsSetAutoRenewAccountIdShouldBeEqualToTransactionIdAccountId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var privateKey = PrivateKey.generateECDSA();
+            var publicKey = privateKey.getPublicKey();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(publicKey)
+                    .setInitialBalance(Hbar.from(10))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            var tokenId = new TokenCreateTransaction()
+                    .setTokenName("ffff")
+                    .setTokenSymbol("F")
+                    .setTransactionId(TransactionId.generate(accountId))
+                    .setTreasuryAccountId(accountId)
+                    .freezeWith(testEnv.client)
+                    .sign(privateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .tokenId;
+
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.autoRenewAccount).isEqualTo(accountId);
+        }
+    }
 }
