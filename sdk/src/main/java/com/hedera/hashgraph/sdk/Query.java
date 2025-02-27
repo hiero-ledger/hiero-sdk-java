@@ -526,8 +526,8 @@ public abstract class Query<O, T extends Query<O, T>>
             // now go back to sleep
             // without this, an error of MISSING_QUERY_HEADER is returned
             headerBuilder.setPayment(new TransferTransaction()
-                    .setNodeAccountIds(Collections.singletonList(new AccountId(0)))
-                    .setTransactionId(TransactionId.withValidStart(new AccountId(0), Instant.ofEpochSecond(0)))
+                    .setNodeAccountIds(Collections.singletonList(new AccountId(0, 0, 0)))
+                    .setTransactionId(TransactionId.withValidStart(new AccountId(0, 0, 0), Instant.ofEpochSecond(0)))
                     .freeze()
                     .makeRequest());
 

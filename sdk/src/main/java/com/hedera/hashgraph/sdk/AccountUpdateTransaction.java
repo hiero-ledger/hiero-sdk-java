@@ -394,7 +394,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      */
     public AccountUpdateTransaction clearStakedAccountId() {
         requireNotFrozen();
-        this.stakedAccountId = new AccountId(0);
+        this.stakedAccountId = new AccountId(0, 0, 0);
         this.stakedNodeId = null;
         return this;
     }

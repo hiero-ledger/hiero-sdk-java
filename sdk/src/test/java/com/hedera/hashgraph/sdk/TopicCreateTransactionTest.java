@@ -129,9 +129,9 @@ public class TopicCreateTransactionTest {
     @Test
     void shouldSetTopicCustomFees() {
         List<CustomFixedFee> customFixedFees = new ArrayList<>(List.of(
-                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0)),
-                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(1)),
-                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(2))));
+                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0, 0, 0)),
+                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(0, 0, 1)),
+                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(0, 0, 2))));
 
         TopicCreateTransaction topicCreateTransaction = new TopicCreateTransaction();
         topicCreateTransaction.setCustomFees(customFixedFees);
@@ -144,12 +144,12 @@ public class TopicCreateTransactionTest {
     @Test
     void shouldAddTopicCustomFeeToList() {
         List<CustomFixedFee> customFixedFees = new ArrayList<>(List.of(
-                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0)),
-                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(1)),
-                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(2))));
+                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0, 0, 0)),
+                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(0, 0, 1)),
+                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(0, 0, 2))));
 
         CustomFixedFee customFixedFeeToBeAdded =
-                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(3));
+                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(0, 0, 3));
 
         List<CustomFixedFee> expectedCustomFees = new ArrayList<>(customFixedFees);
         expectedCustomFees.add(customFixedFeeToBeAdded);
@@ -166,7 +166,7 @@ public class TopicCreateTransactionTest {
     @Test
     void shouldAddTopicCustomFeeToEmptyList() {
         CustomFixedFee customFixedFeeToBeAdded =
-                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(3));
+                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(0, 0, 3));
 
         TopicCreateTransaction topicCreateTransaction = new TopicCreateTransaction();
         topicCreateTransaction.addCustomFee(customFixedFeeToBeAdded);

@@ -50,6 +50,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
      *
      * @param num                       the num part of the account id
      */
+    @Deprecated
     public ContractId(@Nonnegative long num) {
         this(0, 0, num);
     }

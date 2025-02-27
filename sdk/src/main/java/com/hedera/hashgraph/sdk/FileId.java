@@ -47,6 +47,7 @@ public final class FileId implements Comparable<FileId> {
      *
      * @param num                       the num portion not negative
      */
+    @Deprecated
     public FileId(@Nonnegative long num) {
         this(0, 0, num);
     }

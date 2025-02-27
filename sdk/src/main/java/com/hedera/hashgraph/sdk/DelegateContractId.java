@@ -15,6 +15,7 @@ public final class DelegateContractId extends ContractId {
      *
      * @param num                       the num portion of the contract id
      */
+    @Deprecated
     public DelegateContractId(long num) {
         super(num);
     }

@@ -39,6 +39,7 @@ public final class ScheduleId implements Comparable<ScheduleId> {
      *
      * @param num                       the num part
      */
+    @Deprecated
     public ScheduleId(@Nonnegative long num) {
         this(0, 0, num);
     }

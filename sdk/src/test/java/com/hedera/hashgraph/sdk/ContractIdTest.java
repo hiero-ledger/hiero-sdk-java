@@ -71,19 +71,20 @@ class ContractIdTest {
 
     @Test
     void toBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(Hex.toHexString(new ContractId(5005).toBytes())).toMatchSnapshot();
+        SnapshotMatcher.expect(Hex.toHexString(new ContractId(0, 0, 5005).toBytes()))
+                .toMatchSnapshot();
     }
 
     @Test
     void fromBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(
-                        ContractId.fromBytes(new ContractId(5005).toBytes()).toString())
+        SnapshotMatcher.expect(ContractId.fromBytes(new ContractId(0, 0, 5005).toBytes())
+                        .toString())
                 .toMatchSnapshot();
     }
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new ContractId(5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new ContractId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
     }
 
     @Test

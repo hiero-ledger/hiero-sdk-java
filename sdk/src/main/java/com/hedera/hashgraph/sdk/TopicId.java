@@ -37,6 +37,7 @@ public final class TopicId implements Comparable<TopicId> {
      *
      * @param num                       the num part
      */
+    @Deprecated
     public TopicId(@Nonnegative long num) {
         this(0, 0, num);
     }

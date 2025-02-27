@@ -58,6 +58,7 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @param num                       the num part of the account id
      */
+    @Deprecated
     public AccountId(@Nonnegative long num) {
         this(0, 0, num);
     }

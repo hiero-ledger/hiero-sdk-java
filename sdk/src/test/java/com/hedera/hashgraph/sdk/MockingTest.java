@@ -60,8 +60,9 @@ public class MockingTest {
         var responses = List.of(responses1);
 
         try (var mocker = Mocker.withResponses(responses)) {
-            var balance =
-                    new AccountBalanceQuery().setAccountId(new AccountId(10)).execute(mocker.client);
+            var balance = new AccountBalanceQuery()
+                    .setAccountId(new AccountId(0, 0, 10))
+                    .execute(mocker.client);
 
             Assertions.assertEquals(balance.hbars, Hbar.fromTinybars(100));
         }
@@ -372,7 +373,7 @@ public class MockingTest {
 
         try (var mocker = Mocker.withResponses(responses)) {
             Assertions.assertThrows(RuntimeException.class, () -> new AccountBalanceQuery()
-                    .setAccountId(new AccountId(10))
+                    .setAccountId(new AccountId(0, 0, 10))
                     .execute(mocker.client));
         }
     }

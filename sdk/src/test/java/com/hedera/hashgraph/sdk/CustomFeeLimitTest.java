@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CustomFeeLimitTest {
-    private static final AccountId TEST_PAYER_ID = new AccountId(1234);
+    private static final AccountId TEST_PAYER_ID = new AccountId(0, 0, 1234);
 
     // Creating a sample FixedFee protobuf for testing
     private static final FixedFee TEST_FIXED_FEE_PROTO =
@@ -67,7 +67,7 @@ public class CustomFeeLimitTest {
 
     @Test
     public void testSetPayerId() {
-        AccountId newPayerId = new AccountId(5678);
+        AccountId newPayerId = new AccountId(0, 0, 5678);
 
         // Create a new instance using the builder
         CustomFeeLimit updatedFeeLimit = CustomFeeLimit.newBuilder()

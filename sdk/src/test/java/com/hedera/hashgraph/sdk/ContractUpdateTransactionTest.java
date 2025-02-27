@@ -57,9 +57,9 @@ public class ContractUpdateTransactionTest {
                 .setContractMemo("3")
                 .setStakedAccountId(AccountId.fromString("0.0.3"))
                 .setExpirationTime(Instant.ofEpochMilli(4))
-                .setProxyAccountId(new AccountId(4))
+                .setProxyAccountId(new AccountId(0, 0, 4))
                 .setMaxTransactionFee(Hbar.fromTinybars(100_000))
-                .setAutoRenewAccountId(new AccountId(30))
+                .setAutoRenewAccountId(new AccountId(0, 0, 30))
                 .freeze()
                 .sign(privateKey);
     }
@@ -75,9 +75,9 @@ public class ContractUpdateTransactionTest {
                 .setContractMemo("3")
                 .setStakedNodeId(4L)
                 .setExpirationTime(Instant.ofEpochMilli(4))
-                .setProxyAccountId(new AccountId(4))
+                .setProxyAccountId(new AccountId(0, 0, 4))
                 .setMaxTransactionFee(Hbar.fromTinybars(100_000))
-                .setAutoRenewAccountId(new AccountId(30))
+                .setAutoRenewAccountId(new AccountId(0, 0, 30))
                 .freeze()
                 .sign(privateKey);
     }

@@ -75,26 +75,26 @@ public class HederaTrustManagerTest {
 
     @Test
     void properlyChecksCertificateAgainstCurrentNetworkAddressBook() throws InterruptedException, CertificateException {
-        var client = Client.forNetwork(Map.of("0.previewnet.hedera.com:50211", new AccountId(3)))
+        var client = Client.forNetwork(Map.of("0.previewnet.hedera.com:50211", new AccountId(0, 0, 3)))
                 .setTransportSecurity(true)
                 .setVerifyCertificates(true)
                 .setLedgerId(LedgerId.PREVIEWNET);
 
         var nodeAddress = Objects.requireNonNull(
-                Objects.requireNonNull(client.network.addressBook).get(new AccountId(3)));
+                Objects.requireNonNull(client.network.addressBook).get(new AccountId(0, 0, 3)));
         new HederaTrustManager(nodeAddress.getCertHash(), client.isVerifyCertificates())
                 .checkServerTrusted(CERTIFICATE_CHAIN, "");
     }
 
     @Test
     void certificateCheckFailWhenHashMismatches() throws InterruptedException, CertificateException {
-        var client = Client.forNetwork(Map.of("0.previewnet.hedera.com:50211", new AccountId(3)))
+        var client = Client.forNetwork(Map.of("0.previewnet.hedera.com:50211", new AccountId(0, 0, 3)))
                 .setTransportSecurity(true)
                 .setVerifyCertificates(true)
                 .setLedgerId(LedgerId.PREVIEWNET);
 
         var nodeAddress = Objects.requireNonNull(
-                Objects.requireNonNull(client.network.addressBook).get(new AccountId(4)));
+                Objects.requireNonNull(client.network.addressBook).get(new AccountId(0, 0, 4)));
         assertThatExceptionOfType(CertificateException.class)
                 .isThrownBy(() -> new HederaTrustManager(nodeAddress.getCertHash(), client.isVerifyCertificates())
                         .checkServerTrusted(CERTIFICATE_CHAIN, ""));

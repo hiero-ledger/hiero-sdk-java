@@ -39,6 +39,7 @@ public class TokenId implements Comparable<TokenId> {
      *
      * @param num                       the num part
      */
+    @Deprecated
     public TokenId(@Nonnegative long num) {
         this(0, 0, num);
     }

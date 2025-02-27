@@ -716,7 +716,7 @@ public class TransactionIntegrationTest {
     @DisplayName("transaction can be serialized into bytes, deserialized, signature added and executed")
     void transactionFromToBytes2() {
         assertThatNoException().isThrownBy(() -> {
-            var id = TransactionId.generate(new AccountId(542348));
+            var id = TransactionId.generate(new AccountId(0, 0, 542348));
 
             var transactionBodyBuilder = TransactionBody.newBuilder();
             transactionBodyBuilder
@@ -823,25 +823,32 @@ public class TransactionIntegrationTest {
 
             try (var testEnv = new IntegrationTestEnv(1)) {
 
-                assertThat(tx.getHbarTransfers().get(new AccountId(542348)).toTinybars())
+                assertThat(tx.getHbarTransfers()
+                                .get(new AccountId(0, 0, 542348))
+                                .toTinybars())
                         .isEqualTo(-10);
-                assertThat(tx.getHbarTransfers().get(new AccountId(47439)).toTinybars())
+                assertThat(tx.getHbarTransfers().get(new AccountId(0, 0, 47439)).toTinybars())
                         .isEqualTo(10);
 
                 assertThat(tx.getNodeAccountIds()).isNotNull();
                 assertThat(tx.getNodeAccountIds().size()).isEqualTo(1);
-                assertThat(tx.getNodeAccountIds().get(0)).isEqualTo(new AccountId(3));
+                assertThat(tx.getNodeAccountIds().get(0)).isEqualTo(new AccountId(0, 0, 3));
 
                 var signatures = tx.getSignatures();
-                assertThat(Arrays.toString(signatures.get(new AccountId(3)).get(publicKey1)))
+                assertThat(Arrays.toString(
+                                signatures.get(new AccountId(0, 0, 3)).get(publicKey1)))
                         .isEqualTo(Arrays.toString(signature1));
-                assertThat(Arrays.toString(signatures.get(new AccountId(3)).get(publicKey2)))
+                assertThat(Arrays.toString(
+                                signatures.get(new AccountId(0, 0, 3)).get(publicKey2)))
                         .isEqualTo(Arrays.toString(signature2));
-                assertThat(Arrays.toString(signatures.get(new AccountId(3)).get(publicKey3)))
+                assertThat(Arrays.toString(
+                                signatures.get(new AccountId(0, 0, 3)).get(publicKey3)))
                         .isEqualTo(Arrays.toString(signature3));
-                assertThat(Arrays.toString(signatures.get(new AccountId(3)).get(publicKey4)))
+                assertThat(Arrays.toString(
+                                signatures.get(new AccountId(0, 0, 3)).get(publicKey4)))
                         .isEqualTo(Arrays.toString(signature4));
-                assertThat(Arrays.toString(signatures.get(new AccountId(3)).get(publicKey5)))
+                assertThat(Arrays.toString(
+                                signatures.get(new AccountId(0, 0, 3)).get(publicKey5)))
                         .isEqualTo(Arrays.toString(signature5));
 
                 var resp = tx.execute(testEnv.client);

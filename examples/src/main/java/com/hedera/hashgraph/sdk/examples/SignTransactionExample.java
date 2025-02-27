@@ -100,11 +100,11 @@ class SignTransactionExample {
          */
         System.out.println("Creating a transfer transaction...");
         TransferTransaction transferTx = new TransferTransaction()
-                .setNodeAccountIds(Collections.singletonList(new AccountId(3)))
+                .setNodeAccountIds(Collections.singletonList(new AccountId(0, 0, 3)))
                 .addHbarTransfer(
                         Objects.requireNonNull(createAccountTxReceipt.accountId),
                         Hbar.from(1).negated())
-                .addHbarTransfer(new AccountId(3), Hbar.from(1))
+                .addHbarTransfer(new AccountId(0, 0, 3), Hbar.from(1))
                 .freezeWith(client);
 
         /*
