@@ -1,5 +1,5 @@
 # Default code owners for entire repository
-*                                               @hiero-ledger/hiero-sdk-java-maintainers
+*                                               @hiero-ledger/hiero-sdk-java-maintainers @hiero-ledger/hiero-sdk-java-committers
 
 #########################
 #####  Core Files  ######
@@ -31,7 +31,7 @@ gradlew.bat                                     @hiero-ledger/github-maintainers
 /CODEOWNERS                                     @hiero-ledger/github-maintainers
 
 # Protect the repository root files
-/README.md                                      @hiero-ledger/github-maintainers @hiero-ledger/github-committers @hiero-ledger/hiero-sdk-java-maintainers
+/README.md                                      @hiero-ledger/github-maintainers @hiero-ledger/github-committers @hiero-ledger/hiero-sdk-java-maintainers @hiero-ledger/hiero-sdk-java-committers
 **/LICENSE                                      @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers
 
 # CodeCov configuration
