@@ -341,6 +341,49 @@ class TopicCreateIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName("Should assign autoRenewAccountId to the topic creator")
+    void createTopicTransactionShouldAssignAutomaticallyAutoRenewAccountId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var topicId = new TopicCreateTransaction().execute(testEnv.client).getReceipt(testEnv.client).topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should assign autoRenewAccountId to the transactionId accountId")
+    void createTopicTransactionWithTransactionIdShouldAssignAutoRenewAccountIdToTransactionIdAccountId()
+            throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var privateKey = PrivateKey.generateECDSA();
+            var publicKey = privateKey.getPublicKey();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(publicKey)
+                    .setInitialBalance(Hbar.from(10))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            var topicId = new TopicCreateTransaction()
+                    .setTransactionId(TransactionId.generate(accountId))
+                    .freezeWith(testEnv.client)
+                    .sign(privateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isEqualTo(accountId);
+        }
+    }
+
     private AccountId createAccount(IntegrationTestEnv testEnv, Hbar initialBalance, PrivateKey key) throws Exception {
         return new AccountCreateTransaction()
                 .setInitialBalance(initialBalance)

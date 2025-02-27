@@ -1,20 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.test.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.CustomFee;
-import com.hedera.hashgraph.sdk.CustomFixedFee;
-import com.hedera.hashgraph.sdk.CustomFractionalFee;
-import com.hedera.hashgraph.sdk.CustomRoyaltyFee;
-import com.hedera.hashgraph.sdk.Hbar;
-import com.hedera.hashgraph.sdk.PrecheckStatusException;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.ReceiptStatusException;
-import com.hedera.hashgraph.sdk.Status;
-import com.hedera.hashgraph.sdk.TokenCreateTransaction;
-import com.hedera.hashgraph.sdk.TokenType;
+import com.hedera.hashgraph.sdk.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -385,6 +377,101 @@ class TokenCreateIntegrationTest {
                             .setFeeCollectorAccountId(testEnv.operatorId)))
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create token with minimal properties set and autoRenewAccount should be automatically set")
+    @SuppressWarnings("UnusedVariable")
+    void canCreateTokenWithMinimalPropertiesSetAutoRenewAccountShouldBeAutomaticallySet() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+
+            var tokenId = new TokenCreateTransaction()
+                    .setTokenName("ffff")
+                    .setTokenSymbol("F")
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .tokenId;
+
+            var autoRenewAccount = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client).autoRenewAccount;
+
+            assertThat(autoRenewAccount).isNotNull();
+            assertThat(autoRenewAccount).isEqualByComparingTo(testEnv.operatorId);
+        }
+    }
+
+    @Test
+    @DisplayName("Can set auto-renew period when creating token")
+    void canSetAutoRenewPeriod() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var autoRenewPeriod = Duration.ofSeconds(7890000);
+            var expirationTime = Instant.now().plus(autoRenewPeriod);
+
+            var response = new TokenCreateTransaction()
+                    .setTokenName("ffff")
+                    .setTokenSymbol("F")
+                    .setAutoRenewPeriod(autoRenewPeriod)
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .execute(testEnv.client);
+
+            var tokenId = response.getReceipt(testEnv.client).tokenId;
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.autoRenewAccount).isEqualTo(testEnv.operatorId);
+            assertThat(tokenInfo.autoRenewPeriod).isEqualTo(autoRenewPeriod);
+            assertThat(tokenInfo.expirationTime.getEpochSecond()).isEqualTo(expirationTime.getEpochSecond());
+        }
+    }
+
+    @Test
+    @DisplayName("Can set expiration time when creating token")
+    void canSetExpirationTime() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var expirationTime = Instant.now().plusSeconds(8000001);
+
+            var response = new TokenCreateTransaction()
+                    .setTokenName("ffff")
+                    .setTokenSymbol("F")
+                    .setExpirationTime(expirationTime)
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .execute(testEnv.client);
+
+            var tokenId = response.getReceipt(testEnv.client).tokenId;
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.expirationTime.getEpochSecond()).isEqualTo(expirationTime.getEpochSecond());
+        }
+    }
+
+    @Test
+    @DisplayName("AutoRenewAccountId should be equal to TransactionId AccountId")
+    void whenTransactionIdIsSetAutoRenewAccountIdShouldBeEqualToTransactionIdAccountId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var privateKey = PrivateKey.generateECDSA();
+            var publicKey = privateKey.getPublicKey();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(publicKey)
+                    .setInitialBalance(Hbar.from(10))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            var tokenId = new TokenCreateTransaction()
+                    .setTokenName("ffff")
+                    .setTokenSymbol("F")
+                    .setTransactionId(TransactionId.generate(accountId))
+                    .setTreasuryAccountId(accountId)
+                    .freezeWith(testEnv.client)
+                    .sign(privateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .tokenId;
+
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.autoRenewAccount).isEqualTo(accountId);
         }
     }
 }

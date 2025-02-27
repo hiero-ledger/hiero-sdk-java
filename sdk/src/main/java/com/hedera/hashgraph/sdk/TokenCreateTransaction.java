@@ -584,6 +584,9 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      * set, then this value SHALL default to the current consensus time
      * extended by the "default" expiration period from network configuration.
      *
+     * Setting this value will clear the autoRenewPeriod as the autoRenewPeriod period has default value
+     * of 7890000 seconds and leaving it set will override the expiration time
+     *
      * @param expirationTime            the expiration time
      * @return {@code this}
      */
@@ -663,6 +666,9 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      * This value MUST be greater than the configured
      * MIN_AUTORENEW_PERIOD.<br/>
      * This value MUST be less than the configured MAX_AUTORENEW_PERIOD.
+     *
+     * If expirationTime is set - autoRenewPeriod will be effectively ignored,
+     * and it's effect will be replaced by expirationTime
      *
      * @param period                    the auto renew period
      * @return {@code this}
@@ -837,11 +843,12 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
 
     @Override
     public TokenCreateTransaction freezeWith(@Nullable Client client) {
-        if (autoRenewPeriod != null
-                && autoRenewAccountId == null
-                && client != null
-                && client.getOperatorAccountId() != null) {
-            autoRenewAccountId = client.getOperatorAccountId();
+        if (this.autoRenewAccountId == null && client != null && client.getOperatorAccountId() != null) {
+            this.autoRenewAccountId = this.transactionIds != null
+                            && !this.transactionIds.isEmpty()
+                            && this.transactionIds.getCurrent() != null
+                    ? this.transactionIds.getCurrent().accountId
+                    : client.getOperatorAccountId();
         }
 
         return super.freezeWith(client);
