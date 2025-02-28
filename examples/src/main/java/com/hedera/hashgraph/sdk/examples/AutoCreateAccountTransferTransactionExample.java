@@ -94,7 +94,7 @@ public class AutoCreateAccountTransferTransactionExample {
          */
         TransferTransaction transferTx = new TransferTransaction()
                 .addHbarTransfer(OPERATOR_ID, Hbar.from(1).negated())
-                .addHbarTransfer(AccountId.fromEvmAddress(evmAddress,0,0), Hbar.from(1))
+                .addHbarTransfer(AccountId.fromEvmAddress(evmAddress, 0, 0), Hbar.from(1))
                 .freezeWith(client);
 
         /*
