@@ -155,7 +155,8 @@ class AccountIdTest {
 
     @Test
     void toBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(Hex.toHexString(new AccountId(5005).toProtobuf().toByteArray()))
+        SnapshotMatcher.expect(
+                        Hex.toHexString(new AccountId(0, 0, 5005).toProtobuf().toByteArray()))
                 .toMatchSnapshot();
     }
 
@@ -177,13 +178,13 @@ class AccountIdTest {
     @Test
     void fromBytes() throws InvalidProtocolBufferException {
         SnapshotMatcher.expect(
-                        AccountId.fromBytes(new AccountId(5005).toBytes()).toString())
+                        AccountId.fromBytes(new AccountId(0, 0, 5005).toBytes()).toString())
                 .toMatchSnapshot();
     }
 
     @Test
     void toFromProtobuf() {
-        var id1 = new AccountId(5005);
+        var id1 = new AccountId(0, 0, 5005);
         var id2 = AccountId.fromProtobuf(id1.toProtobuf());
         assertThat(id2).isEqualTo(id1);
     }
@@ -237,7 +238,7 @@ class AccountIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new AccountId(5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new AccountId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
     }
 
     @Test

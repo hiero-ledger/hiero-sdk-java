@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class ContractNonceInfoTest {
     private final com.hedera.hashgraph.sdk.proto.ContractNonceInfo info =
             com.hedera.hashgraph.sdk.proto.ContractNonceInfo.newBuilder()
-                    .setContractId(new ContractId(1).toProtobuf())
+                    .setContractId(new ContractId(0, 0, 1).toProtobuf())
                     .setNonce(2)
                     .build();
 

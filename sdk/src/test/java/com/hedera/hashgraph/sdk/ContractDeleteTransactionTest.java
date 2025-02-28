@@ -38,7 +38,7 @@ public class ContractDeleteTransactionTest {
                 .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
                 .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
                 .setContractId(ContractId.fromString("0.0.5007"))
-                .setTransferAccountId(new AccountId(9))
+                .setTransferAccountId(new AccountId(0, 0, 9))
                 .setTransferContractId(ContractId.fromString("0.0.5008"))
                 .setMaxTransactionFee(Hbar.fromTinybars(100_000))
                 .freeze()

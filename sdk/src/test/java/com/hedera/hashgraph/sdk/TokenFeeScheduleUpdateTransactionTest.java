@@ -30,11 +30,11 @@ public class TokenFeeScheduleUpdateTransactionTest {
     private TokenFeeScheduleUpdateTransaction spawnTestTransaction() {
         var customFees = new ArrayList<CustomFee>();
         customFees.add(new CustomFixedFee()
-                .setFeeCollectorAccountId(new AccountId(4322))
-                .setDenominatingTokenId(new TokenId(483902))
+                .setFeeCollectorAccountId(new AccountId(0, 0, 4322))
+                .setDenominatingTokenId(new TokenId(0, 0, 483902))
                 .setAmount(10));
         customFees.add(new CustomFractionalFee()
-                .setFeeCollectorAccountId(new AccountId(389042))
+                .setFeeCollectorAccountId(new AccountId(0, 0, 389042))
                 .setNumerator(3)
                 .setDenominator(7)
                 .setMin(3)
@@ -42,7 +42,7 @@ public class TokenFeeScheduleUpdateTransactionTest {
                 .setAssessmentMethod(FeeAssessmentMethod.EXCLUSIVE));
 
         return new TokenFeeScheduleUpdateTransaction()
-                .setTokenId(new TokenId(8798))
+                .setTokenId(new TokenId(0, 0, 8798))
                 .setCustomFees(customFees)
                 .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
                 .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))

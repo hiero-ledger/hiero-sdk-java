@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public class ContractLogInfoTest {
     private static final ContractLoginfo info = ContractLoginfo.newBuilder()
-            .setContractID(new ContractId(10).toProtobuf())
+            .setContractID(new ContractId(0, 0, 10).toProtobuf())
             .setBloom(ByteString.copyFrom("bloom", StandardCharsets.UTF_8))
             .addTopic(ByteString.copyFrom("bloom", StandardCharsets.UTF_8))
             .setData(ByteString.copyFrom("data", StandardCharsets.UTF_8))

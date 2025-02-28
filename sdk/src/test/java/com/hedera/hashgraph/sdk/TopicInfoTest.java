@@ -30,7 +30,7 @@ public class TopicInfoTest {
     private static final byte[] hash = {2};
 
     private static final List<CustomFixedFee> customFees =
-            List.of(new CustomFixedFee().setAmount(100).setDenominatingTokenId(new TokenId(0)));
+            List.of(new CustomFixedFee().setAmount(100).setDenominatingTokenId(new TokenId(0, 0, 0)));
 
     private static final ConsensusGetTopicInfoResponse info = ConsensusGetTopicInfoResponse.newBuilder()
             .setTopicInfo(ConsensusTopicInfo.newBuilder()
@@ -48,7 +48,7 @@ public class TopicInfoTest {
                     .addAllCustomFees(customFees.stream()
                             .map(CustomFixedFee::toTopicFeeProtobuf)
                             .toList())
-                    .setAutoRenewAccount(new AccountId(4).toProtobuf())
+                    .setAutoRenewAccount(new AccountId(0, 0, 4).toProtobuf())
                     .setLedgerId(LedgerId.TESTNET.toByteString()))
             .build();
 

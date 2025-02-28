@@ -46,7 +46,11 @@ public final class FileId implements Comparable<FileId> {
      * Assign the num portion of the file id.
      *
      * @param num                       the num portion not negative
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
+    @Deprecated
     public FileId(@Nonnegative long num) {
         this(0, 0, num);
     }

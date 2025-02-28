@@ -36,7 +36,11 @@ public final class TopicId implements Comparable<TopicId> {
      * Constructor.
      *
      * @param num                       the num part
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
+    @Deprecated
     public TopicId(@Nonnegative long num) {
         this(0, 0, num);
     }

@@ -57,7 +57,11 @@ public final class AccountId implements Comparable<AccountId> {
      * Assign the num part of the account id.
      *
      * @param num                       the num part of the account id
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
+    @Deprecated
     public AccountId(@Nonnegative long num) {
         this(0, 0, num);
     }

@@ -41,19 +41,20 @@ class DelegateContractIdTest {
 
     @Test
     void toBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(Hex.toHexString(new DelegateContractId(5005).toBytes()))
+        SnapshotMatcher.expect(Hex.toHexString(new DelegateContractId(0, 0, 5005).toBytes()))
                 .toMatchSnapshot();
     }
 
     @Test
     void fromBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(DelegateContractId.fromBytes(new DelegateContractId(5005).toBytes())
+        SnapshotMatcher.expect(DelegateContractId.fromBytes(new DelegateContractId(0, 0, 5005).toBytes())
                         .toString())
                 .toMatchSnapshot();
     }
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new DelegateContractId(5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new DelegateContractId(0, 0, 5005).toSolidityAddress())
+                .toMatchSnapshot();
     }
 }

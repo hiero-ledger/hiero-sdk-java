@@ -14,7 +14,7 @@ public class ClientHelper {
 
     private static final String LOCAL_MIRROR_NODE_GRPC_ENDPOINT = "127.0.0.1:5600";
 
-    private static final AccountId LOCAL_CONSENSUS_NODE_ACCOUNT_ID = new AccountId(3);
+    private static final AccountId LOCAL_CONSENSUS_NODE_ACCOUNT_ID = new AccountId(0, 0, 3);
 
     public static Client forName(String network) throws InterruptedException {
         Client client;

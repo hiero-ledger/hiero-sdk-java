@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public class ProxyStakerTest {
     private static final ProxyStaker proxyStaker = ProxyStaker.newBuilder()
-            .setAccountID(new AccountId(100).toProtobuf())
+            .setAccountID(new AccountId(0, 0, 100).toProtobuf())
             .setAmount(10)
             .build();
 

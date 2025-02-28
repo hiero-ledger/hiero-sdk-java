@@ -16,7 +16,7 @@ public class TopicMessageChunkTest {
     private static final byte[] testContents = new byte[] {0x01, 0x02, 0x03};
     private static final byte[] testRunningHash = new byte[] {0x04, 0x05, 0x06};
     private static final long testSequenceNumber = 7L;
-    private static final TransactionId testTransactionId = new TransactionId(new AccountId(1), testTimestamp);
+    private static final TransactionId testTransactionId = new TransactionId(new AccountId(0, 0, 1), testTimestamp);
 
     @Test
     void constructWithArgs() {
