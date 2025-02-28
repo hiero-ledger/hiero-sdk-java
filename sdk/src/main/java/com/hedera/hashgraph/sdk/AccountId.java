@@ -126,7 +126,7 @@ public final class AccountId implements Comparable<AccountId> {
      * @throws IllegalArgumentException when the account id and checksum are invalid
      */
     public static AccountId fromString(String id) {
-        if ((id.startsWith("0x") && id.length() == 42) || id.length() == 40) return fromEvmAddress(id, 0 ,0);
+        if ((id.startsWith("0x") && id.length() == 42) || id.length() == 40) return fromEvmAddress(id, 0, 0);
 
         try {
             return EntityIdHelper.fromString(id, AccountId::new);
@@ -216,7 +216,7 @@ public final class AccountId implements Comparable<AccountId> {
         if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, AccountId::new);
         } else {
-            return fromEvmAddress(address, 0 ,0);
+            return fromEvmAddress(address, 0, 0);
         }
     }
 

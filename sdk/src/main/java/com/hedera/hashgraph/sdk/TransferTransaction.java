@@ -123,7 +123,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @return the updated transaction
      */
     public TransferTransaction addHbarTransfer(EvmAddress evmAddress, Hbar value) {
-        AccountId accountId = AccountId.fromEvmAddress(evmAddress,0,0);
+        AccountId accountId = AccountId.fromEvmAddress(evmAddress, 0, 0);
         return doAddHbarTransfer(accountId, value, false);
     }
 
