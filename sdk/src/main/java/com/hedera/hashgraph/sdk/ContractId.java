@@ -49,6 +49,9 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * Assign the num part of the contract id.
      *
      * @param num                       the num part of the account id
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
     @Deprecated
     public ContractId(@Nonnegative long num) {

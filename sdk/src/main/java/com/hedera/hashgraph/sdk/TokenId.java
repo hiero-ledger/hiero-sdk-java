@@ -38,6 +38,9 @@ public class TokenId implements Comparable<TokenId> {
      * Constructor.
      *
      * @param num                       the num part
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
     @Deprecated
     public TokenId(@Nonnegative long num) {

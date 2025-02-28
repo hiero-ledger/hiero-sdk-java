@@ -14,6 +14,9 @@ public final class DelegateContractId extends ContractId {
      * Constructor.
      *
      * @param num                       the num portion of the contract id
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
     @Deprecated
     public DelegateContractId(long num) {
