@@ -255,8 +255,8 @@ class AccountIdTest {
     void fromEvmAddressWithPrefix() {
         String evmAddressString = "302a300506032b6570032100114e6abc371b82da";
         EvmAddress evmAddress = EvmAddress.fromString(evmAddressString);
-        var id1 = AccountId.fromEvmAddress(evmAddress);
-        var id2 = AccountId.fromEvmAddress("0x" + evmAddressString);
+        var id1 = AccountId.fromEvmAddress(evmAddress, 0, 0);
+        var id2 = AccountId.fromEvmAddress("0x" + evmAddressString, 0, 0);
         assertThat(id2).isEqualTo(id1);
     }
 }
