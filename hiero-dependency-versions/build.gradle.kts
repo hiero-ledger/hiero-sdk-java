@@ -11,7 +11,7 @@ group = "org.hiero"
 val bouncycastle = "1.80"
 val grpc = "1.70.0"
 val protobuf = "4.29.3"
-val slf4j = "2.0.16"
+val slf4j = "2.0.17"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.4.2"))
