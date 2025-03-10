@@ -25,7 +25,7 @@ public class SdkService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("setup")
     public SetupResponse setup(final SetupParams params) throws Exception {
-        var clientExecutor = Executors.newFixedThreadPool(16);
+        var clientExecutor = Executors.newVirtualThreadPerTaskExecutor();
         String clientType;
         if (params.getNodeIp().isPresent()
                 && params.getNodeAccountId().isPresent()

@@ -25,14 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -121,20 +114,11 @@ public final class Client implements AutoCloseable {
      * @return the executor service
      */
     static ExecutorService createExecutor() {
-        var threadFactory = new ThreadFactoryBuilder()
-                .setNameFormat("hedera-sdk-%d")
-                .setDaemon(true)
-                .build();
 
-        int nThreads = Runtime.getRuntime().availableProcessors();
-        return new ThreadPoolExecutor(
-                nThreads,
-                nThreads,
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(),
-                threadFactory,
-                new ThreadPoolExecutor.CallerRunsPolicy());
+        return Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual()
+                .name("hedera-sdk-", 0)
+                .factory());
     }
 
     /**
