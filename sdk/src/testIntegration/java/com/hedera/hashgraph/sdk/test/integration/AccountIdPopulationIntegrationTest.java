@@ -21,7 +21,7 @@ class AccountIdPopulationIntegrationTest {
             var publicKey = privateKey.getPublicKey();
 
             var evmAddress = publicKey.toEvmAddress();
-            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress);
+            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress, 0, 0);
 
             var tx = new TransferTransaction()
                     .addHbarTransfer(evmAddressAccount, new Hbar(1))
@@ -35,7 +35,7 @@ class AccountIdPopulationIntegrationTest {
 
             var newAccountId = receipt.children.get(0).accountId;
 
-            var idMirror = AccountId.fromEvmAddress(evmAddress);
+            var idMirror = AccountId.fromEvmAddress(evmAddress, 0, 0);
             Thread.sleep(5000);
             var accountId = idMirror.populateAccountNum(testEnv.client);
 
@@ -52,7 +52,7 @@ class AccountIdPopulationIntegrationTest {
             var publicKey = privateKey.getPublicKey();
 
             var evmAddress = publicKey.toEvmAddress();
-            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress);
+            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress, 0, 0);
 
             var tx = new TransferTransaction()
                     .addHbarTransfer(evmAddressAccount, new Hbar(1))
@@ -66,7 +66,7 @@ class AccountIdPopulationIntegrationTest {
 
             var newAccountId = receipt.children.get(0).accountId;
 
-            var idMirror = AccountId.fromEvmAddress(evmAddress);
+            var idMirror = AccountId.fromEvmAddress(evmAddress, 0, 0);
             Thread.sleep(5000);
             var accountId = idMirror.populateAccountNumAsync(testEnv.client).get();
 
@@ -83,7 +83,7 @@ class AccountIdPopulationIntegrationTest {
             var publicKey = privateKey.getPublicKey();
 
             var evmAddress = publicKey.toEvmAddress();
-            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress);
+            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress, 0, 0);
 
             var tx = new TransferTransaction()
                     .addHbarTransfer(evmAddressAccount, new Hbar(1))
@@ -113,7 +113,7 @@ class AccountIdPopulationIntegrationTest {
             var publicKey = privateKey.getPublicKey();
 
             var evmAddress = publicKey.toEvmAddress();
-            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress);
+            var evmAddressAccount = AccountId.fromEvmAddress(evmAddress, 0, 0);
 
             var tx = new TransferTransaction()
                     .addHbarTransfer(evmAddressAccount, new Hbar(1))

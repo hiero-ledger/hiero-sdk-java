@@ -9,7 +9,7 @@ To get started with a Java project, you'll need to add the following **three** d
 _Gradle:_
 
 ```groovy
-implementation 'com.hedera.hashgraph:sdk:2.50.0'
+implementation 'com.hedera.hashgraph:sdk:2.51.0'
 ```
 
 _Maven:_
@@ -18,7 +18,7 @@ _Maven:_
 <dependency>
   <groupId>com.hedera.hashgraph</groupId>
   <artifactId>sdk</artifactId>
-  <version>2.50.0</version>
+  <version>2.51.0</version>
 </dependency>
 ```
 

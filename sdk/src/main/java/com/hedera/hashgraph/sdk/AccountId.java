@@ -126,7 +126,7 @@ public final class AccountId implements Comparable<AccountId> {
      * @throws IllegalArgumentException when the account id and checksum are invalid
      */
     public static AccountId fromString(String id) {
-        if ((id.startsWith("0x") && id.length() == 42) || id.length() == 40) return fromEvmAddress(id);
+        if ((id.startsWith("0x") && id.length() == 42) || id.length() == 40) return fromEvmAddress(id, 0, 0);
 
         try {
             return EntityIdHelper.fromString(id, AccountId::new);
@@ -155,7 +155,11 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @param evmAddress                a string representing the EVM address
      * @return                          the account id object
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
+    @Deprecated
     public static AccountId fromEvmAddress(String evmAddress) {
         return fromEvmAddress(evmAddress, 0, 0);
     }
@@ -167,6 +171,8 @@ public final class AccountId implements Comparable<AccountId> {
      * @param shard                     the shard part of the account id
      * @param realm                     the shard realm of the account id
      * @return                          the account id object
+     *
+     * In case shard and realm are unknown, they should be set to zero
      */
     public static AccountId fromEvmAddress(String evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
         return fromEvmAddress(EvmAddress.fromString(evmAddress), shard, realm);
@@ -177,7 +183,11 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @param evmAddress                an EvmAddress instance
      * @return                          the account id object
+     *
+     * Constructor that uses shard, realm and num should be used instead
+     * as shard and realm should not assume 0 value
      */
+    @Deprecated
     public static AccountId fromEvmAddress(EvmAddress evmAddress) {
         return fromEvmAddress(evmAddress, 0, 0);
     }
@@ -189,6 +199,8 @@ public final class AccountId implements Comparable<AccountId> {
      * @param shard                     the shard part of the account id
      * @param realm                     the shard realm of the account id
      * @return                          the account id object
+     *
+     * In case shard and realm are unknown, they should be set to zero
      */
     public static AccountId fromEvmAddress(EvmAddress evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
         return new AccountId(shard, realm, 0, null, null, evmAddress);
@@ -204,7 +216,7 @@ public final class AccountId implements Comparable<AccountId> {
         if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, AccountId::new);
         } else {
-            return fromEvmAddress(address);
+            return fromEvmAddress(address, 0, 0);
         }
     }
 

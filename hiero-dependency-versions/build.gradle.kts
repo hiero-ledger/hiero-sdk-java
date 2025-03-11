@@ -10,12 +10,12 @@ group = "org.hiero"
 
 val bouncycastle = "1.80"
 val grpc = "1.70.0"
-val protobuf = "4.29.3"
-val slf4j = "2.0.16"
+val protobuf = "4.30.0"
+val slf4j = "2.0.17"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.4.2"))
-    api(platform("io.netty:netty-bom:4.1.118.Final"))
+    api(platform("io.netty:netty-bom:4.1.119.Final"))
 }
 
 dependencies.constraints {
@@ -38,7 +38,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.18.2") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.18.3") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.0-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
