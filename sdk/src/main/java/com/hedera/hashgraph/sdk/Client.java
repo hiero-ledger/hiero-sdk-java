@@ -104,7 +104,6 @@ public final class Client implements AutoCloseable {
             ExecutorService executor,
             Network network,
             MirrorNetwork mirrorNetwork,
-            @Nullable Duration networkUpdateInitialDelay,
             boolean shouldShutdownExecutor,
             @Nullable Duration networkUpdatePeriod) {
         this.executor = executor;
@@ -112,7 +111,7 @@ public final class Client implements AutoCloseable {
         this.mirrorNetwork = mirrorNetwork;
         this.shouldShutdownExecutor = shouldShutdownExecutor;
         this.networkUpdatePeriod = networkUpdatePeriod;
-        scheduleNetworkUpdate(networkUpdateInitialDelay);
+        scheduleNetworkUpdate();
     }
 
     /**
@@ -153,7 +152,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, false, null);
+        return new Client(executor, network, mirrorNetwork, false, null);
     }
 
     /**
@@ -173,7 +172,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, true, null);
+        return new Client(executor, network, mirrorNetwork, true, null);
     }
 
     /**
@@ -187,7 +186,7 @@ public final class Client implements AutoCloseable {
         var executor = createExecutor();
         var network = Network.forNetwork(executor, new HashMap<>());
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
-        var client = new Client(executor, network, mirrorNetwork, null, true, null);
+        var client = new Client(executor, network, mirrorNetwork, true, null);
         var addressBook = new AddressBookQuery().setFileId(FileId.ADDRESS_BOOK).execute(client);
         client.setNetworkFromAddressBook(addressBook);
         return client;
@@ -219,8 +218,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -234,8 +232,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -250,8 +247,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -265,8 +261,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, true, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -280,8 +275,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, true, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -296,8 +290,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
-        return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(executor, network, mirrorNetwork, true, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -380,12 +373,10 @@ public final class Client implements AutoCloseable {
         return this;
     }
 
-    private synchronized void scheduleNetworkUpdate(@Nullable Duration delay) {
-        if (delay == null) {
-            networkUpdateFuture = null;
+    private synchronized void scheduleNetworkUpdate() {
+        if (networkUpdateFuture == null) {
             return;
         }
-        networkUpdateFuture = Delayer.delayFor(delay.toMillis(), executor);
         networkUpdateFuture.thenRun(() -> {
             // Checking networkUpdatePeriod != null must be synchronized, so I've put it in a synchronized method.
             requireNetworkUpdatePeriodNotNull(() -> {
@@ -404,7 +395,7 @@ public final class Client implements AutoCloseable {
                             logger.warn("Failed to update address book via mirror node query ", error);
                             return null;
                         });
-                scheduleNetworkUpdate(networkUpdatePeriod);
+                scheduleNetworkUpdate();
                 return null;
             });
         });
@@ -1303,7 +1294,7 @@ public final class Client implements AutoCloseable {
     public synchronized Client setNetworkUpdatePeriod(Duration networkUpdatePeriod) {
         cancelScheduledNetworkUpdate();
         this.networkUpdatePeriod = networkUpdatePeriod;
-        scheduleNetworkUpdate(networkUpdatePeriod);
+        scheduleNetworkUpdate();
         return this;
     }
 
