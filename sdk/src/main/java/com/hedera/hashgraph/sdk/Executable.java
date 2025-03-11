@@ -362,6 +362,11 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
      * @throws TimeoutException        when the transaction times out
      * @throws PrecheckStatusException when the precheck fails
      */
+//    public 0 executenVirtualThread(Client client, Duration timeout) {
+//        client.executor.submit(() -> {
+//            execute(client)
+//        })
+//    }
     public O execute(Client client, Duration timeout) throws TimeoutException, PrecheckStatusException {
         Throwable lastException = null;
 

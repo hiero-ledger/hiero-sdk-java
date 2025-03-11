@@ -76,6 +76,9 @@ class LoadIntegrationTest {
         AtomicInteger failureCount = new AtomicInteger(0);
 
         long startTime = System.currentTimeMillis();
+        var client = Client.forNetwork(testEnv.client.getNetwork(), clientExecutor);
+        client.setOperator(operatorId, operatorPrivateKey);
+        client.setMaxAttempts(10);
 
         for (int i = 0; i < nTasks; i++) {
             int taskId = i;
@@ -100,11 +103,7 @@ class LoadIntegrationTest {
                                 break;
                             }
                         }
-
-                        try (var client = Client.forNetwork(testEnv.client.getNetwork(), clientExecutor)) {
-                            client.setOperator(operatorId, operatorPrivateKey);
-                            client.setMaxAttempts(10);
-
+                        try {
                             new AccountCreateTransaction()
                                 .setKeyWithoutAlias(PrivateKey.generateED25519())
                                 .execute(client)
@@ -137,7 +136,6 @@ class LoadIntegrationTest {
                     if (semaphore != null) {
                         semaphore.release();
                     }
-
                     // Always count down the latch
                     latch.countDown();
                 }
