@@ -385,7 +385,7 @@ public final class Client implements AutoCloseable {
             networkUpdateFuture = null;
             return;
         }
-        networkUpdateFuture = Delayer.delayFor(10, executor);
+        networkUpdateFuture = Delayer.delayFor(delay.toMillis(), executor);
         networkUpdateFuture.thenRun(() -> {
             // Checking networkUpdatePeriod != null must be synchronized, so I've put it in a synchronized method.
             requireNetworkUpdatePeriodNotNull(() -> {
