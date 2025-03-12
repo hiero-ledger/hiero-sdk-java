@@ -21,9 +21,9 @@ class TopicCreateIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
 
             new TopicCreateTransaction()
-                .setTopicMemo("[e2e::TopicCreateTransaction]")
-                .execute(testEnv.client)
-                .getReceipt(testEnv.client);
+                    .setTopicMemo("[e2e::TopicCreateTransaction]")
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
 
             var response = new TopicCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
