@@ -312,7 +312,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearAutoRenewAccountId() {
         requireNotFrozen();
-        autoRenewAccountId = new AccountId(0);
+        autoRenewAccountId = new AccountId(0, 0, 0);
         return this;
     }
 
@@ -548,7 +548,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
             topicId.validateChecksum(client);
         }
 
-        if ((autoRenewAccountId != null) && !autoRenewAccountId.equals(new AccountId(0))) {
+        if ((autoRenewAccountId != null) && !autoRenewAccountId.equals(new AccountId(0, 0, 0))) {
             autoRenewAccountId.validateChecksum(client);
         }
     }

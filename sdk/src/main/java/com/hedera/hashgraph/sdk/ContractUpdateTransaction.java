@@ -371,7 +371,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      */
     public ContractUpdateTransaction clearStakedAccountId() {
         requireNotFrozen();
-        this.stakedAccountId = new AccountId(0);
+        this.stakedAccountId = new AccountId(0, 0, 0);
         this.stakedNodeId = null;
         return this;
     }
@@ -501,7 +501,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      * @return {@code this}
      */
     public ContractUpdateTransaction clearAutoRenewAccountId() {
-        this.autoRenewAccountId = new AccountId(0);
+        this.autoRenewAccountId = new AccountId(0, 0, 0);
         return this;
     }
 

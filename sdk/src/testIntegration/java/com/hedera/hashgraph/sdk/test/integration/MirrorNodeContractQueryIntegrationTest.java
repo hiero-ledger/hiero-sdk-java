@@ -103,7 +103,7 @@ class MirrorNodeContractQueryIntegrationTest {
     void returnsDefaultValuesWhenContractIsNotDeployed() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var defaultGas = 22892;
-            var contractId = new ContractId(1231456);
+            var contractId = new ContractId(0, 0, 1231456);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)

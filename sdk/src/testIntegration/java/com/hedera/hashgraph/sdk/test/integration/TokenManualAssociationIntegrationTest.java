@@ -103,7 +103,7 @@ class TokenManualAssociationIntegrationTest {
             var contractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
             new TokenAssociateTransaction()
-                    .setAccountId(new AccountId(contractId.num))
+                    .setAccountId(new AccountId(0, 0, contractId.num))
                     .setTokenIds(Collections.singletonList(tokenId))
                     .freezeWith(testEnv.client)
                     .execute(testEnv.client)
@@ -138,7 +138,7 @@ class TokenManualAssociationIntegrationTest {
             var contractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
             new TokenAssociateTransaction()
-                    .setAccountId(new AccountId(contractId.num))
+                    .setAccountId(new AccountId(0, 0, contractId.num))
                     .setTokenIds(Collections.singletonList(tokenId))
                     .freezeWith(testEnv.client)
                     .execute(testEnv.client)

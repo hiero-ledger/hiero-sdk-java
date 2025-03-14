@@ -276,7 +276,7 @@ public class TopicUpdateTransactionTest {
     void clearAutoRenewAccountId() {
         var topicUpdateTransaction = new TopicUpdateTransaction().setAutoRenewAccountId(testAutoRenewAccountId);
         topicUpdateTransaction.clearAutoRenewAccountId();
-        assertThat(topicUpdateTransaction.getAutoRenewAccountId()).isEqualTo(new AccountId(0));
+        assertThat(topicUpdateTransaction.getAutoRenewAccountId()).isEqualTo(new AccountId(0, 0, 0));
     }
 
     @Test
@@ -344,9 +344,9 @@ public class TopicUpdateTransactionTest {
     @Test
     void shouldSetCustomFees() {
         List<CustomFixedFee> customFixedFees = List.of(
-                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0)),
-                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(1)),
-                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(2)));
+                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0, 0, 0)),
+                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(0, 0, 1)),
+                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(0, 0, 2)));
 
         TopicUpdateTransaction topicUpdateTransaction = new TopicUpdateTransaction();
         topicUpdateTransaction.setCustomFees(new ArrayList<>(customFixedFees));
@@ -357,12 +357,12 @@ public class TopicUpdateTransactionTest {
     @Test
     void shouldAddCustomFeeToList() {
         List<CustomFixedFee> customFixedFees = List.of(
-                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0)),
-                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(1)),
-                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(2)));
+                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0, 0, 0)),
+                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(0, 0, 1)),
+                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(0, 0, 2)));
 
         CustomFixedFee customFixedFeeToBeAdded =
-                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(3));
+                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(0, 0, 3));
 
         List<CustomFixedFee> expectedCustomFees = new ArrayList<>(customFixedFees);
         expectedCustomFees.add(customFixedFeeToBeAdded);
@@ -377,7 +377,7 @@ public class TopicUpdateTransactionTest {
     @Test
     void shouldAddCustomFeeToEmptyList() {
         CustomFixedFee customFixedFeeToBeAdded =
-                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(3));
+                new CustomFixedFee().setAmount(4).setDenominatingTokenId(new TokenId(0, 0, 3));
 
         TopicUpdateTransaction topicUpdateTransaction = new TopicUpdateTransaction();
         topicUpdateTransaction.addCustomFee(customFixedFeeToBeAdded);
@@ -388,9 +388,9 @@ public class TopicUpdateTransactionTest {
     @Test
     void shouldClearCustomFees() {
         List<CustomFixedFee> customFixedFees = List.of(
-                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0)),
-                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(1)),
-                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(2)));
+                new CustomFixedFee().setAmount(1).setDenominatingTokenId(new TokenId(0, 0, 0)),
+                new CustomFixedFee().setAmount(2).setDenominatingTokenId(new TokenId(0, 0, 1)),
+                new CustomFixedFee().setAmount(3).setDenominatingTokenId(new TokenId(0, 0, 2)));
 
         TopicUpdateTransaction topicUpdateTransaction = new TopicUpdateTransaction();
         topicUpdateTransaction.setCustomFees(new ArrayList<>(customFixedFees));

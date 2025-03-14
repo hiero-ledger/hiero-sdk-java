@@ -33,7 +33,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-medium
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           egress-policy: audit
 
@@ -151,7 +151,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           egress-policy: audit
 
@@ -184,7 +184,7 @@ jobs:
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
       - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.60.0-alpha.0
 
       - name: Run Unit and Integration Tests
         env:
@@ -210,7 +210,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           egress-policy: audit
 
@@ -244,7 +244,7 @@ jobs:
         run: ./gradlew -p example-android assemble
 
       - name: Start the local node
-        run: npx @hashgraph/hedera-local start -d --network local
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.60.0-alpha.0
 
       - name: Prepare .env for Examples
         run: |
@@ -265,7 +265,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           egress-policy: audit
 

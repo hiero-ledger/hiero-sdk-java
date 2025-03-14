@@ -70,14 +70,15 @@ class NftIdTest {
 
     @Test
     void toBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(Hex.toHexString(new TokenId(5005).nft(4920).toBytes()))
+        SnapshotMatcher.expect(Hex.toHexString(new TokenId(0, 0, 5005).nft(4920).toBytes()))
                 .toMatchSnapshot();
     }
 
     @Test
     void fromBytes() throws InvalidProtocolBufferException {
         SnapshotMatcher.expect(
-                        NftId.fromBytes(new TokenId(5005).nft(574489).toBytes()).toString())
+                        NftId.fromBytes(new TokenId(0, 0, 5005).nft(574489).toBytes())
+                                .toString())
                 .toMatchSnapshot();
     }
 }

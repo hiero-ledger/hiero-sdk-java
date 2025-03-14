@@ -105,11 +105,11 @@ class MultiSigOfflineExample {
          */
         System.out.println("Transferring 1 Hbar from new account to the account with ID `0.0.3`...");
         TransferTransaction transferTx = new TransferTransaction()
-                .setNodeAccountIds(Collections.singletonList(new AccountId(3)))
+                .setNodeAccountIds(Collections.singletonList(new AccountId(0, 0, 3)))
                 .addHbarTransfer(
                         Objects.requireNonNull(createAccountTxReceipt.accountId),
                         Hbar.from(1).negated())
-                .addHbarTransfer(new AccountId(3), Hbar.from(1))
+                .addHbarTransfer(new AccountId(0, 0, 3), Hbar.from(1))
                 .freezeWith(client);
 
         /*

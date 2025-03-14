@@ -16,7 +16,7 @@ public class FileInfoTest {
             "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
 
     private static final FileGetInfoResponse.FileInfo info = FileGetInfoResponse.FileInfo.newBuilder()
-            .setFileID(new FileId(1).toProtobuf())
+            .setFileID(new FileId(0, 0, 1).toProtobuf())
             .setSize(2)
             .setExpirationTime(InstantConverter.toProtobuf(Instant.ofEpochMilli(3)))
             .setDeleted(true)

@@ -29,8 +29,8 @@ public class TransactionTest {
 
         var transaction = (TransferTransaction) fromBytes(bytes);
 
-        assertThat(transaction.getHbarTransfers()).containsEntry(new AccountId(476260), new Hbar(1).negated());
-        assertThat(transaction.getHbarTransfers()).containsEntry(new AccountId(476267), new Hbar(1));
+        assertThat(transaction.getHbarTransfers()).containsEntry(new AccountId(0, 0, 476260), new Hbar(1).negated());
+        assertThat(transaction.getHbarTransfers()).containsEntry(new AccountId(0, 0, 476267), new Hbar(1));
     }
 
     @Test

@@ -46,7 +46,7 @@ public class Mocker implements AutoCloseable {
             var index = new AtomicInteger();
             var response = responses.get(i);
             var name = InProcessServerBuilder.generateName();
-            var nodeAccountId = new AccountId(3 + i);
+            var nodeAccountId = new AccountId(0, 0, 3 + i);
             var builder = InProcessServerBuilder.forName(name);
 
             network.put("in-process:" + name, nodeAccountId);
@@ -99,7 +99,7 @@ public class Mocker implements AutoCloseable {
         }
 
         this.client = Client.forNetwork(network)
-                .setOperator(new AccountId(1800), PRIVATE_KEY)
+                .setOperator(new AccountId(0, 0, 1800), PRIVATE_KEY)
                 .setMinBackoff(Duration.ofMillis(0))
                 .setMaxBackoff(Duration.ofMillis(0))
                 .setNodeMinBackoff(Duration.ofMillis(0))

@@ -30,7 +30,7 @@ go_to_script_dir()
 
 
 
-PROTO_GIT_REMOTE = "https://github.com/hashgraph/hedera-services.git"
+PROTO_GIT_REMOTE = "https://github.com/hiero-ledger/hiero-consensus-node.git"
 PROTO_GIT_PATH = os.path.join("hedera-protos-git")
 PROTO_GIT_REF = sys.argv[1] if len(sys.argv)>1   else ""
 

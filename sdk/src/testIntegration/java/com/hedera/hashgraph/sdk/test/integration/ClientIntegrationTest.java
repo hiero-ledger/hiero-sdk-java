@@ -21,12 +21,12 @@ public class ClientIntegrationTest {
         var client = Client.forTestnet().setTransportSecurity(true);
 
         var nodes = new ArrayList<AccountId>();
-        nodes.add(new AccountId(1000));
-        nodes.add(new AccountId(1001));
+        nodes.add(new AccountId(0, 0, 1000));
+        nodes.add(new AccountId(0, 0, 1001));
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> new AccountBalanceQuery()
                         .setNodeAccountIds(nodes)
-                        .setAccountId(new AccountId(7))
+                        .setAccountId(new AccountId(0, 0, 7))
                         .execute(client))
                 .withMessageContaining("All node account IDs did not map to valid nodes in the client's network");
         client.close();
@@ -38,10 +38,10 @@ public class ClientIntegrationTest {
         var client = Client.forTestnet().setTransportSecurity(true);
 
         var nodes = new ArrayList<>(client.getNetwork().values().stream().toList());
-        nodes.add(new AccountId(1000));
+        nodes.add(new AccountId(0, 0, 1000));
         new AccountBalanceQuery()
                 .setNodeAccountIds(nodes)
-                .setAccountId(new AccountId(7))
+                .setAccountId(new AccountId(0, 0, 7))
                 .execute(client);
 
         client.close();
@@ -51,8 +51,8 @@ public class ClientIntegrationTest {
     @DisplayName("setNetwork() functions correctly")
     void testReplaceNodes() throws Exception {
         Map<String, AccountId> network = new HashMap<>();
-        network.put("0.testnet.hedera.com:50211", new AccountId(3));
-        network.put("1.testnet.hedera.com:50211", new AccountId(4));
+        network.put("0.testnet.hedera.com:50211", new AccountId(0, 0, 3));
+        network.put("1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
 
         try (var testEnv = new IntegrationTestEnv(1)) {
 
@@ -64,19 +64,19 @@ public class ClientIntegrationTest {
             assertThat(testEnv.operatorId).isNotNull();
 
             // Execute two simple queries so we create a channel for each network node.
-            new AccountBalanceQuery().setAccountId(new AccountId(3)).execute(testEnv.client);
+            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 3)).execute(testEnv.client);
 
-            new AccountBalanceQuery().setAccountId(new AccountId(3)).execute(testEnv.client);
+            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 3)).execute(testEnv.client);
 
             network = new HashMap<>();
-            network.put("1.testnet.hedera.com:50211", new AccountId(4));
-            network.put("2.testnet.hedera.com:50211", new AccountId(5));
+            network.put("1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
+            network.put("2.testnet.hedera.com:50211", new AccountId(0, 0, 5));
 
             testEnv.client.setNetwork(network);
 
             network = new HashMap<>();
-            network.put("35.186.191.247:50211", new AccountId(4));
-            network.put("35.192.2.25:50211", new AccountId(5));
+            network.put("35.186.191.247:50211", new AccountId(0, 0, 4));
+            network.put("35.192.2.25:50211", new AccountId(0, 0, 5));
 
             testEnv.client.setNetwork(network);
         }

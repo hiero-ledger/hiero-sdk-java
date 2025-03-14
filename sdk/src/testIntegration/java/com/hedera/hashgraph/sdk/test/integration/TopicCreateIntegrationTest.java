@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -18,6 +19,11 @@ class TopicCreateIntegrationTest {
     @DisplayName("Can create topic")
     void canCreateTopic() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
+
+            new TopicCreateTransaction()
+                    .setTopicMemo("[e2e::TopicCreateTransaction]")
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
 
             var response = new TopicCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
@@ -338,6 +344,51 @@ class TopicCreateIntegrationTest {
             var balance = new AccountBalanceQuery().setAccountId(payerAccountId).execute(testEnv.client).hbars;
 
             assertThat(balance.toTinybars()).isGreaterThan(hbarAmount / 2);
+        }
+    }
+
+    @Test
+    @DisplayName("Should assign autoRenewAccountId to the topic creator")
+    @Disabled("This will be reintroduced once all networks (previewnet, testnet, mainnet) are on version 0.60.")
+    void createTopicTransactionShouldAssignAutomaticallyAutoRenewAccountId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var topicId = new TopicCreateTransaction().execute(testEnv.client).getReceipt(testEnv.client).topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should assign autoRenewAccountId to the transactionId accountId")
+    @Disabled("This will be reintroduced once all networks (previewnet, testnet, mainnet) are on version 0.60.")
+    void createTopicTransactionWithTransactionIdShouldAssignAutoRenewAccountIdToTransactionIdAccountId()
+            throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var privateKey = PrivateKey.generateECDSA();
+            var publicKey = privateKey.getPublicKey();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(publicKey)
+                    .setInitialBalance(Hbar.from(10))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            var topicId = new TopicCreateTransaction()
+                    .setTransactionId(TransactionId.generate(accountId))
+                    .freezeWith(testEnv.client)
+                    .sign(privateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .topicId;
+
+            var autoRenewAccountId =
+                    new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client).autoRenewAccountId;
+
+            assertThat(autoRenewAccountId).isEqualTo(accountId);
         }
     }
 

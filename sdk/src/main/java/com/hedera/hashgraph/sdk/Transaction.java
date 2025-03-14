@@ -208,7 +208,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 }
             }
 
-            nodeAccountIds.remove(new AccountId(0));
+            nodeAccountIds.remove(new AccountId(0, 0, 0));
 
             // Verify that transaction bodies match
             for (int i = 0; i < txCount; i++) {

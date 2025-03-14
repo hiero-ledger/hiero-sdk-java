@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 public class ContractInfoTest {
     private final ContractGetInfoResponse.ContractInfo info = ContractGetInfoResponse.ContractInfo.newBuilder()
-            .setContractID(new ContractId(1).toProtobuf())
-            .setAccountID(new AccountId(2).toProtobuf())
+            .setContractID(new ContractId(0, 0, 1).toProtobuf())
+            .setAccountID(new AccountId(0, 0, 2).toProtobuf())
             .setContractAccountID("3")
             .setExpirationTime(InstantConverter.toProtobuf(Instant.ofEpochMilli(4)))
             .setAutoRenewPeriod(DurationConverter.toProtobuf(Duration.ofDays(5)))

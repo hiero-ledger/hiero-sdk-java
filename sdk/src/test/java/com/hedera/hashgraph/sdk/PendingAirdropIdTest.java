@@ -17,10 +17,10 @@ class PendingAirdropIdTest {
 
     @BeforeEach
     void setUp() {
-        sender = new AccountId(1001);
-        receiver = new AccountId(1002);
-        tokenId = new TokenId(1003);
-        nftId = new NftId(new TokenId(1004), 1);
+        sender = new AccountId(0, 0, 1001);
+        receiver = new AccountId(0, 0, 1002);
+        tokenId = new TokenId(0, 0, 1003);
+        nftId = new NftId(new TokenId(0, 0, 1004), 1);
     }
 
     @Test

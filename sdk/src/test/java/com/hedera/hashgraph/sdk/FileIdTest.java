@@ -26,12 +26,14 @@ class FileIdTest {
 
     @Test
     void toBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(Hex.toHexString(new FileId(5005).toBytes())).toMatchSnapshot();
+        SnapshotMatcher.expect(Hex.toHexString(new FileId(0, 0, 5005).toBytes()))
+                .toMatchSnapshot();
     }
 
     @Test
     void fromBytes() throws InvalidProtocolBufferException {
-        SnapshotMatcher.expect(FileId.fromBytes(new FileId(5005).toBytes()).toString())
+        SnapshotMatcher.expect(
+                        FileId.fromBytes(new FileId(0, 0, 5005).toBytes()).toString())
                 .toMatchSnapshot();
     }
 
@@ -44,6 +46,6 @@ class FileIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new FileId(5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new FileId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
     }
 }

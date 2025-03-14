@@ -111,7 +111,7 @@ class CreateAccountThresholdKeyExample {
         System.out.println("Transferring 1 Hbar from a newly created account...");
         TransactionResponse transferTxResponse = new TransferTransaction()
                 .addHbarTransfer(newAccountId, Hbar.from(1).negated())
-                .addHbarTransfer(new AccountId(3), Hbar.from(1))
+                .addHbarTransfer(new AccountId(0, 0, 3), Hbar.from(1))
                 // To manually sign, you must explicitly build the Transaction.
                 .freezeWith(client)
                 // We sign with 2 of the 3 keys.

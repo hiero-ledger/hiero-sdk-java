@@ -21,8 +21,8 @@ class Ed25519PublicKeyTest {
     @Test
     void verifyTransaction() {
         var transaction = new TransferTransaction()
-                .setNodeAccountIds(Collections.singletonList(new AccountId(3)))
-                .setTransactionId(TransactionId.generate(new AccountId(4)))
+                .setNodeAccountIds(Collections.singletonList(new AccountId(0, 0, 3)))
+                .setTransactionId(TransactionId.generate(new AccountId(0, 0, 4)))
                 .freeze();
 
         var key = PrivateKey.fromStringED25519("8776c6b831a1b61ac10dac0304a2843de4716f54b1919bb91a2685d0fe3f3048");

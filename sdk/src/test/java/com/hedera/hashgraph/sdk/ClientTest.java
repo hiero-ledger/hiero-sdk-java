@@ -192,8 +192,8 @@ class ClientTest {
     @DisplayName("setNetwork() functions correctly")
     void setNetworkWorks() throws Exception {
         var defaultNetwork = Map.of(
-                "0.testnet.hedera.com:50211", new AccountId(3),
-                "1.testnet.hedera.com:50211", new AccountId(4));
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
 
         Client client = Client.forNetwork(defaultNetwork);
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
@@ -202,32 +202,32 @@ class ClientTest {
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
 
         var defaultNetworkWithExtraNode = Map.of(
-                "0.testnet.hedera.com:50211", new AccountId(3),
-                "1.testnet.hedera.com:50211", new AccountId(4),
-                "2.testnet.hedera.com:50211", new AccountId(5));
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4),
+                "2.testnet.hedera.com:50211", new AccountId(0, 0, 5));
 
         client.setNetwork(defaultNetworkWithExtraNode);
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetworkWithExtraNode);
 
-        var singleNodeNetwork = Map.of("2.testnet.hedera.com:50211", new AccountId(5));
+        var singleNodeNetwork = Map.of("2.testnet.hedera.com:50211", new AccountId(0, 0, 5));
 
         client.setNetwork(singleNodeNetwork);
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(singleNodeNetwork);
 
-        var singleNodeNetworkWithDifferentAccountId = Map.of("2.testnet.hedera.com:50211", new AccountId(6));
+        var singleNodeNetworkWithDifferentAccountId = Map.of("2.testnet.hedera.com:50211", new AccountId(0, 0, 6));
 
         client.setNetwork(singleNodeNetworkWithDifferentAccountId);
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(singleNodeNetworkWithDifferentAccountId);
 
         var multiAddressNetwork = Map.of(
-                "0.testnet.hedera.com:50211", new AccountId(3),
-                "34.94.106.61:50211", new AccountId(3),
-                "50.18.132.211:50211", new AccountId(3),
-                "138.91.142.219:50211", new AccountId(3),
-                "1.testnet.hedera.com:50211", new AccountId(4),
-                "35.237.119.55:50211", new AccountId(4),
-                "3.212.6.13:50211", new AccountId(4),
-                "52.168.76.241:50211", new AccountId(4));
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "34.94.106.61:50211", new AccountId(0, 0, 3),
+                "50.18.132.211:50211", new AccountId(0, 0, 3),
+                "138.91.142.219:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4),
+                "35.237.119.55:50211", new AccountId(0, 0, 4),
+                "3.212.6.13:50211", new AccountId(0, 0, 4),
+                "52.168.76.241:50211", new AccountId(0, 0, 4));
 
         client.setNetwork(multiAddressNetwork);
         assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(multiAddressNetwork);
@@ -394,8 +394,11 @@ class ClientTest {
     @DisplayName("setNetworkFromAddressBook() updates security parameters in the client")
     void setNetworkFromAddressBook() throws Exception {
         try (Client client = Client.forNetwork(Map.of())) {
-            Function<Integer, NodeAddress> nodeAddress = accountNum ->
-                    client.network.network.get(new AccountId(accountNum)).get(0).getAddressBookEntry();
+            Function<Integer, NodeAddress> nodeAddress = accountNum -> client.network
+                    .network
+                    .get(new AccountId(0, 0, accountNum))
+                    .get(0)
+                    .getAddressBookEntry();
 
             // reconfigure client network from addressbook (add new nodes)
             client.setNetworkFromAddressBook(
