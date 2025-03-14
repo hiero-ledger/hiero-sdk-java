@@ -455,16 +455,18 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setConsensusCreateTopic(build());
     }
-
-    @Override
-    public TopicCreateTransaction freezeWith(@Nullable Client client) {
-        if (client != null && client.getOperatorAccountId() != null && this.autoRenewAccountId == null) {
-            this.autoRenewAccountId = this.transactionIds != null
-                            && !this.transactionIds.isEmpty()
-                            && this.transactionIds.getCurrent() != null
-                    ? this.transactionIds.getCurrent().accountId
-                    : client.getOperatorAccountId();
-        }
-        return super.freezeWith(client);
-    }
+    // TODO This will be reintroduced once all networks (previewnet, testnet, mainnet) are on version 0.60.
+    //    @Override
+    //    public TopicCreateTransaction freezeWith(@Nullable Client client) {
+    //        if (client != null
+    //                && client.getOperatorAccountId() != null
+    //                && this.autoRenewAccountId == null) {
+    //            this.autoRenewAccountId = this.transactionIds != null
+    //                            && !this.transactionIds.isEmpty()
+    //                            && this.transactionIds.getCurrent() != null
+    //                    ? this.transactionIds.getCurrent().accountId
+    //                    : client.getOperatorAccountId();
+    //        }
+    //        return super.freezeWith(client);
+    //    }
 }
