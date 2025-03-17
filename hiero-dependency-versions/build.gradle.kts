@@ -19,7 +19,7 @@ dependencies {
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:12.3.3") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.1.0") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
     api("com.google.code.gson:gson:2.12.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
