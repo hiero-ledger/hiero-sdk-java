@@ -364,7 +364,7 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
 
         @Override
         public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-            MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
             ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
             return new ForwardingClientCall.SimpleForwardingClientCall<>(call) {
                 @Override
