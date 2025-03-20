@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param.transfer;
 
 import java.util.Map;
@@ -24,10 +25,6 @@ public class TokenTransferParams {
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));
         var parsedDecimals = Optional.ofNullable((Long) jrpcParams.get("decimals"));
 
-        return new TokenTransferParams(
-            parsedAccountId,
-            parsedTokenId,
-            parsedAmount,
-            parsedDecimals);
+        return new TokenTransferParams(parsedAccountId, parsedTokenId, parsedAmount, parsedDecimals);
     }
 }

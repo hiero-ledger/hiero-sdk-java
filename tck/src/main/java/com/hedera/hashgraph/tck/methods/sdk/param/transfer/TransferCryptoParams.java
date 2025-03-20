@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param.transfer;
 
 import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
@@ -23,20 +24,20 @@ public class TransferCryptoParams extends JSONRPC2Param {
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTransfers = Optional.ofNullable(jrpcParams.get("transfers"))
-            .filter(obj -> obj instanceof List)
-            .map(obj -> {
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> transfersList = (List<Map<String, Object>>) obj;
-                return transfersList.stream()
-                    .map(transferMap -> {
-                        try {
-                            return TransferParams.parse(transferMap);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toList();
-            });
+                .filter(obj -> obj instanceof List)
+                .map(obj -> {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> transfersList = (List<Map<String, Object>>) obj;
+                    return transfersList.stream()
+                            .map(transferMap -> {
+                                try {
+                                    return TransferParams.parse(transferMap);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .toList();
+                });
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 

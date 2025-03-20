@@ -2,7 +2,6 @@
 package com.hedera.hashgraph.tck.methods.sdk.param;
 
 import com.hedera.hashgraph.sdk.*;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,6 @@ public class CommonTransactionParams {
             } catch (IllegalArgumentException e) {
                 transaction.setTransactionId(TransactionId.generate(AccountId.fromString(txId)));
             }
-
         });
         maxTransactionFee.ifPresent(maxFee -> transaction.setMaxTransactionFee(Hbar.fromTinybars(maxFee)));
         validTransactionDuration.ifPresent(

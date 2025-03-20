@@ -190,14 +190,14 @@ public class AccountService extends AbstractJSONRPC2Service {
         TransferTransaction transferTransaction = new TransferTransaction();
 
         params.getTransfers()
-            .ifPresent(transfers -> transfers.forEach(txParams -> processTransfer(transferTransaction, txParams)));
+                .ifPresent(transfers -> transfers.forEach(txParams -> processTransfer(transferTransaction, txParams)));
 
         params.getCommonTransactionParams()
-            .ifPresent(commonParams ->
-                commonParams.fillOutTransaction(transferTransaction, sdkService.getClient()));
+                .ifPresent(
+                        commonParams -> commonParams.fillOutTransaction(transferTransaction, sdkService.getClient()));
 
         TransactionReceipt receipt =
-            transferTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                transferTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return Map.of("status", receipt.status.toString());
     }
@@ -232,7 +232,7 @@ public class AccountService extends AbstractJSONRPC2Service {
             hbarParams.getEvmAddress().ifPresent(evmAddressStr -> {
                 EvmAddress evmAddress = EvmAddress.fromString(evmAddressStr);
                 if (approved) {
-                    tx.addApprovedHbarTransfer(AccountId.fromEvmAddress(evmAddress, 0 ,0), amount);
+                    tx.addApprovedHbarTransfer(AccountId.fromEvmAddress(evmAddress, 0, 0), amount);
                 } else {
                     tx.addHbarTransfer(evmAddress, amount);
                 }

@@ -1,5 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param.transfer;
-
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,8 +24,9 @@ public class HbarTransferParams {
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));
 
         if ((parsedAccountId.isPresent() && parsedEvmAddress.isPresent())
-            || (parsedAccountId.isEmpty() && parsedEvmAddress.isEmpty())) {
-            throw new IllegalArgumentException("invalid parameters: only one of accountId or evmAddress SHALL be provided.");
+                || (parsedAccountId.isEmpty() && parsedEvmAddress.isEmpty())) {
+            throw new IllegalArgumentException(
+                    "invalid parameters: only one of accountId or evmAddress SHALL be provided.");
         }
 
         return new HbarTransferParams(parsedAccountId, parsedEvmAddress, parsedAmount);
