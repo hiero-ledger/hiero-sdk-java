@@ -32,7 +32,7 @@ public final class EvmAddress extends Key {
         if (address.length() == 40) {
             return new EvmAddress(Hex.decode(address));
         }
-        return null;
+        throw new IllegalArgumentException("Invalid EvmAddress: " + text);
     }
 
     @Nullable
