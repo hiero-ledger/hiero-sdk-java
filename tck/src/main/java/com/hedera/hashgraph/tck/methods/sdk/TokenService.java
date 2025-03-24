@@ -10,7 +10,9 @@ import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -485,5 +487,38 @@ public class TokenService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return new TokenBurnResponse("", receipt.status, receipt.totalSupply.toString());
+    }
+
+    @JSONRPC2Method("wipeToken")
+    public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
+        TokenWipeTransaction tokenWipeTransaction = new TokenWipeTransaction();
+
+        params.getTokenId()
+            .ifPresent(tokenId -> tokenWipeTransaction.setTokenId(TokenId.fromString(tokenId)));
+
+        params.getAccountId()
+            .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
+
+        params.getAmount()
+            .ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
+
+        params.getSerialNumbers()
+            .ifPresent(serialNumbers -> {
+                List<Long> serialNumbersList = new ArrayList<>();
+                for (String serialNumber : serialNumbers) {
+                    serialNumbersList.add(Long.parseLong(serialNumber));
+                }
+                tokenWipeTransaction.setSerials(serialNumbersList);
+            });
+
+        params.getCommonTransactionParams()
+            .ifPresent(commonTransactionParams ->
+                commonTransactionParams.fillOutTransaction(
+                    tokenWipeTransaction, sdkService.getClient()));
+
+        TransactionReceipt receipt =
+            tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
     }
 }
