@@ -499,8 +499,11 @@ public class TokenService extends AbstractJSONRPC2Service {
         params.getAccountId()
             .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
 
-        params.getAmount()
-            .ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
+        try {
+            params.getAmount().ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
+        } catch (NumberFormatException e) {
+            tokenWipeTransaction.setAmount(-1L);
+        }
 
         params.getSerialNumbers()
             .ifPresent(serialNumbers -> {

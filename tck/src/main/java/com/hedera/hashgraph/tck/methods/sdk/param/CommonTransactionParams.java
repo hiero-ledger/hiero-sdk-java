@@ -51,12 +51,8 @@ public class CommonTransactionParams {
     }
 
     public void fillOutTransaction(final Transaction<?> transaction, final Client client) {
-        transactionId.ifPresent(txId -> {
-            try {
-                transaction.setTransactionId(TransactionId.fromString(txId));
-            } catch (IllegalArgumentException e) {
-                transaction.setTransactionId(TransactionId.generate(AccountId.fromString(txId)));
-            }
+        transactionId.ifPresent(payerID -> {
+            transaction.setTransactionId(TransactionId.generate(AccountId.fromString(payerID)));
         });
         maxTransactionFee.ifPresent(maxFee -> transaction.setMaxTransactionFee(Hbar.fromTinybars(maxFee)));
         validTransactionDuration.ifPresent(
