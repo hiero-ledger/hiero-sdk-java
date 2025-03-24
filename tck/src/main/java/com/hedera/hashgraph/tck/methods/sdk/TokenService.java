@@ -493,11 +493,10 @@ public class TokenService extends AbstractJSONRPC2Service {
     public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
         TokenWipeTransaction tokenWipeTransaction = new TokenWipeTransaction();
 
-        params.getTokenId()
-            .ifPresent(tokenId -> tokenWipeTransaction.setTokenId(TokenId.fromString(tokenId)));
+        params.getTokenId().ifPresent(tokenId -> tokenWipeTransaction.setTokenId(TokenId.fromString(tokenId)));
 
         params.getAccountId()
-            .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
+                .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
 
         try {
             params.getAmount().ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
@@ -505,22 +504,20 @@ public class TokenService extends AbstractJSONRPC2Service {
             tokenWipeTransaction.setAmount(-1L);
         }
 
-        params.getSerialNumbers()
-            .ifPresent(serialNumbers -> {
-                List<Long> serialNumbersList = new ArrayList<>();
-                for (String serialNumber : serialNumbers) {
-                    serialNumbersList.add(Long.parseLong(serialNumber));
-                }
-                tokenWipeTransaction.setSerials(serialNumbersList);
-            });
+        params.getSerialNumbers().ifPresent(serialNumbers -> {
+            List<Long> serialNumbersList = new ArrayList<>();
+            for (String serialNumber : serialNumbers) {
+                serialNumbersList.add(Long.parseLong(serialNumber));
+            }
+            tokenWipeTransaction.setSerials(serialNumbersList);
+        });
 
         params.getCommonTransactionParams()
-            .ifPresent(commonTransactionParams ->
-                commonTransactionParams.fillOutTransaction(
-                    tokenWipeTransaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenWipeTransaction, sdkService.getClient()));
 
         TransactionReceipt receipt =
-            tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return Map.of("status", receipt.status.toString());
     }

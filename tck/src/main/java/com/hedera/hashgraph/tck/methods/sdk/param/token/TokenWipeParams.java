@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param.token;
 
 import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
@@ -36,10 +37,6 @@ public class TokenWipeParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new TokenWipeParams(
-            parsedTokenId,
-            parsedAccountId,
-            parsedAmount,
-            parsedSerialNumbers,
-            parsedCommonTransactionParams);
+                parsedTokenId, parsedAccountId, parsedAmount, parsedSerialNumbers, parsedCommonTransactionParams);
     }
 }
