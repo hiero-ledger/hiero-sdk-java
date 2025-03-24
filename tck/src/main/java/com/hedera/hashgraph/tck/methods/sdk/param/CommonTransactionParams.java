@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param;
 
-import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.Hbar;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.Transaction;
-import com.hedera.hashgraph.sdk.TransactionId;
+import com.hedera.hashgraph.sdk.*;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +51,13 @@ public class CommonTransactionParams {
     }
 
     public void fillOutTransaction(final Transaction<?> transaction, final Client client) {
-        transactionId.ifPresent(txId -> transaction.setTransactionId(TransactionId.fromString(txId)));
+        transactionId.ifPresent(txId -> {
+            try {
+                transaction.setTransactionId(TransactionId.fromString(txId));
+            } catch (IllegalArgumentException e) {
+                transaction.setTransactionId(TransactionId.generate(AccountId.fromString(txId)));
+            }
+        });
         maxTransactionFee.ifPresent(maxFee -> transaction.setMaxTransactionFee(Hbar.fromTinybars(maxFee)));
         validTransactionDuration.ifPresent(
                 validDuration -> transaction.setTransactionValidDuration(Duration.ofSeconds(validDuration)));
