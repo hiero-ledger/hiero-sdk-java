@@ -14,22 +14,7 @@ syntax = "proto3";
 
 package proto;
 
-/*
- * Copyright (C) 2018-2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// SPDX-License-Identifier: Apache-2.0
 option java_package = "com.hedera.hashgraph.sdk.proto";
 option java_multiple_files = true;
 
@@ -102,7 +87,11 @@ import "node_update.proto";
 import "node_delete.proto";
 
 import "custom_fees.proto";
-import "state_signature_transaction.proto";
+
+import "hints_key_publication.proto";
+import "hints_preprocessing_vote.proto";
+import "hints_partial_signature.proto";
+import "crs_publication.proto";
 
 import "history_proof_signature.proto";
 import "history_proof_key_publication.proto";
@@ -172,7 +161,7 @@ message Transaction {
  */
 message TransactionBody {
     // <<<pbj.java_package = "com.hedera.hapi.node.transaction">>> This comment is special code for setting PBJ Compiler java package
-    reserved 30, 61, 62, 63, 64, 66, 67, 68;
+    reserved 30, 61, 62, 63, 64;
 
     reserved "tssMessage", "tssVote", "tssShareSignature", "tssEncryptionKey";
 
@@ -248,17 +237,13 @@ message TransactionBody {
     string memo = 6;
 
     /**
- * The <b>entire public key</b> of the trusted batch assembler.
- *
- * Only Ed25519 and ECDSA(secp256k1) keys and hence signatures are currently supported.
- */
-    Key batchKey = 73;
+     * The <b>public key</b> of the trusted batch assembler.
+     */
+    Key batch_key = 73;
 
     // The fields here are ordered in strictly ascending field ordinal
     // order due to limitations in PBJ.
     oneof data {
-
-        AtomicBatchTransactionBody atomicBatch = 74;
         /**
          * Call a function defined on a smart contract.
          */
@@ -619,9 +604,19 @@ message TransactionBody {
         TokenClaimAirdropTransactionBody tokenClaimAirdrop = 60;
 
         /**
-         * A transaction body for signature of a state root hash gossiped to other nodes
+         * A transaction body for voting on hinTS aggregation keys.
          */
-        com.hedera.hapi.platform.event.StateSignatureTransaction state_signature_transaction = 65;
+        com.hedera.hapi.services.auxiliary.hints.HintsPreprocessingVoteTransactionBody hints_preprocessing_vote = 66;
+
+        /**
+         * A transaction body for publishing a node's hintTS key.
+         */
+        com.hedera.hapi.services.auxiliary.hints.HintsKeyPublicationTransactionBody hints_key_publication = 67;
+
+        /**
+         * A transaction body for broadcasting a node's hintTS partial signature on a message.
+         */
+        com.hedera.hapi.services.auxiliary.hints.HintsPartialSignatureTransactionBody hints_partial_signature = 68;
 
         /**
          * A transaction body for contributed a signature with a node's proof key to a history proof.
@@ -637,6 +632,16 @@ message TransactionBody {
          * A transaction body for voting on a metadata proof descending from the ledger id.
          */
         com.hedera.hapi.services.auxiliary.history.HistoryProofVoteTransactionBody history_proof_vote = 71;
+
+        /**
+         * A transaction body for broadcasting a node's crs publication
+         */
+        com.hedera.hapi.services.auxiliary.hints.CrsPublicationTransactionBody crs_publication = 72;
+
+        /**
+         * A transaction body for handling a set of transactions atomically.
+         */
+        AtomicBatchTransactionBody atomic_batch = 74;
     }
 
     /**
@@ -653,5 +658,6 @@ message TransactionBody {
  * A transaction body for handling a set of transactions atomically.
  */
 message AtomicBatchTransactionBody {
-    repeated Transaction transactions = 1;
+  // <<<pbj.java_package = "com.hedera.hapi.node.util">>> This comment is special code for setting PBJ Compiler java package
+  repeated Transaction transactions = 1;
 }
