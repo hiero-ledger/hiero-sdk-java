@@ -247,9 +247,18 @@ message TransactionBody {
      */
     string memo = 6;
 
+    /**
+ * The <b>entire public key</b> of the trusted batch assembler.
+ *
+ * Only Ed25519 and ECDSA(secp256k1) keys and hence signatures are currently supported.
+ */
+    Key batchKey = 73;
+
     // The fields here are ordered in strictly ascending field ordinal
     // order due to limitations in PBJ.
     oneof data {
+
+        AtomicBatchTransactionBody atomicBatch = 74;
         /**
          * Call a function defined on a smart contract.
          */
@@ -638,4 +647,11 @@ message TransactionBody {
      * If used with a transaction type that does not support custom fee limits, the transaction will fail.
      */
     repeated CustomFeeLimit max_custom_fees = 1001;
+}
+
+/**
+ * A transaction body for handling a set of transactions atomically.
+ */
+message AtomicBatchTransactionBody {
+    repeated Transaction transactions = 1;
 }

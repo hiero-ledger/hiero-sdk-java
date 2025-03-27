@@ -131,6 +131,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
+    protected Key batchKey = null;
+
     /**
      * Constructor.
      */
@@ -366,6 +368,7 @@ public abstract class Transaction<T extends Transaction<T>>
             case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(txs);
             case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(txs);
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
+            case ATOMICBATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }
@@ -749,6 +752,22 @@ public abstract class Transaction<T extends Transaction<T>>
         this.memo = memo;
         // noinspection unchecked
         return (T) this;
+    }
+    /**
+     * Set the key that will sign the batch of which this Transaction is a part.
+     */
+    public final T setBatchKey(Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+        return (T) this;
+    }
+
+    /**
+     * Get the key that will sign the batch of which this Transaction is a part.
+     */
+    public Key getBatchKey(){
+        return batchKey;
     }
     /**
      * Extract a byte array representation.

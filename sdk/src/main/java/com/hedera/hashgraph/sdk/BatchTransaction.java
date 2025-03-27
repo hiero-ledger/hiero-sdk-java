@@ -1,0 +1,175 @@
+package com.hedera.hashgraph.sdk;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.hedera.hashgraph.sdk.proto.AtomicBatchTransactionBody;
+import com.hedera.hashgraph.sdk.proto.BatchServiceGrpc;
+import com.hedera.hashgraph.sdk.proto.BatchTransactionBody;
+import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionResponse;
+import io.grpc.MethodDescriptor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
+
+/**
+ * Execute multiple transactions in a single consensus event.
+ *
+ * ### Requirements
+ * - All transactions must be signed as required for each individual transaction.
+ * - The BatchTransaction must be signed by the operator account.
+ * - Individual transaction failures do not cause the batch to fail.
+ * - Fees are assessed for each inner transaction separately.
+ *
+ * ### Block Stream Effects
+ * Each inner transaction will appear in the transaction record stream.
+ */
+public final class BatchTransaction extends Transaction<BatchTransaction> {
+    private List<Transaction> transactions = new ArrayList<>();
+
+    @Nullable
+    private List<TransactionId> innerTransactionIds = null;
+
+    /**
+     * Constructor.
+     */
+    public BatchTransaction() {}
+
+    /**
+     * Constructor.
+     *
+     * @param txs                       Compound list of transaction id's list of (AccountId, Transaction) records
+     * @throws InvalidProtocolBufferException  when there is an issue with the protobuf
+     */
+    BatchTransaction(
+        LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txs)
+        throws InvalidProtocolBufferException {
+        super(txs);
+        initFromTransactionBody();
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param txBody                    protobuf TransactionBody
+     */
+    BatchTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) {
+        super(txBody);
+        initFromTransactionBody();
+    }
+
+    /**
+     * Set the list of transactions to be executed as part of this BatchTransaction.
+     *
+     * @param transactions The list of transactions to be executed
+     * @return {@code this}
+     */
+    public BatchTransaction setTransactions(List<Transaction<?>> transactions) {
+        Objects.requireNonNull(transactions);
+        requireNotFrozen();
+        this.transactions.clear();
+        this.transactions.addAll(transactions);
+        return this;
+    }
+
+    /**
+     * Append a transaction to the list of transactions this BatchTransaction will execute.
+     *
+     * @param transaction The transaction to be added
+     * @return {@code this}
+     */
+    public BatchTransaction addTransaction(Transaction<?> transaction) {
+        Objects.requireNonNull(transaction);
+        requireNotFrozen();
+        this.transactions.add(transaction);
+        return this;
+    }
+
+    /**
+     * Get the list of transactions this BatchTransaction is currently configured to execute.
+     *
+     * @return The list of transactions
+     */
+    public List<Transaction<?>> getTransactions() {
+        return Collections.unmodifiableList(transactions);
+    }
+
+    /**
+     * Get the list of transaction IDs of each inner transaction of this BatchTransaction.
+     *
+     * **NOTE**: this will return undefined data until the transaction IDs for each inner
+     * transaction actually get generated/set (i.e. this BatchTransaction has been executed).
+     * This is provided to the user as a convenience feature in case they would like to get
+     * the receipts of each individual inner transaction.
+     *
+     * @return The list of inner transaction IDs
+     */
+    public List<TransactionId> getInnerTransactionIds() {
+        if (innerTransactionIds == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(innerTransactionIds);
+    }
+
+    @Override
+    void validateChecksums(Client client) throws BadEntityIdException {
+        for (Transaction<?> transaction : transactions) {
+            transaction.validateChecksums(client);
+        }
+    }
+
+    /**
+     * Initialize from the transaction body.
+     */
+    void initFromTransactionBody() {
+        var body = sourceTransactionBody.getAtomicBatch();
+        var transactionList = body.getTransactionsList();
+        // Initialize transactions from the protobuf
+        // Note: This implementation would depend on how transactions are stored in the protobuf
+        // This is a simplified placeholder for illustration
+
+        // Initialize innerTransactionIds from the protobuf if they exist
+        // This would require the BatchTransactionBody to have a field for storing these IDs
+    }
+
+    @Override
+    MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {
+        return BatchServiceGrpc.getSubmitBatchMethod();
+    }
+
+    /**
+     * Create the builder.
+     *
+     * @return the transaction builder
+     */
+    AtomicBatchTransactionBody build() {
+        var builder = AtomicBatchTransactionBody.newBuilder();
+
+        // Add all transactions to the builder
+        for (Transaction<?> transaction : transactions) {
+            // Convert each transaction to its protobuf representation
+            // This would depend on the actual BatchTransactionBody protobuf definition
+            if (transaction instanceof AccountCreateTransaction) {
+                ((AccountCreateTransaction) transaction).build();
+            }
+            com.hedera.hashgraph.sdk.proto.Transaction.newBuilder().setSignedTransactionBytes()transaction.frozenBodyBuilder.build()
+
+
+        }
+
+        return builder;
+    }
+
+    @Override
+    void onFreeze(TransactionBody.Builder bodyBuilder) {
+        bodyBuilder.setAtomicBatch(build());
+    }
+
+    @Override
+    void onScheduled(SchedulableTransactionBody.Builder scheduled) {
+        scheduled.setBatchTransactions(build());
+    }
+}

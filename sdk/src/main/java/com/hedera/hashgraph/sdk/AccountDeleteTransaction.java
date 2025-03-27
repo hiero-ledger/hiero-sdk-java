@@ -172,6 +172,9 @@ public final class AccountDeleteTransaction extends Transaction<AccountDeleteTra
         }
     }
 
+    AccountDeleteTransaction fromProtobuf() {
+    }
+
     @Override
     void onFreeze(TransactionBody.Builder bodyBuilder) {
         bodyBuilder.setCryptoDelete(build());
