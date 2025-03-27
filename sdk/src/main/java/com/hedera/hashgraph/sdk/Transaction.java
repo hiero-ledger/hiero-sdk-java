@@ -368,7 +368,7 @@ public abstract class Transaction<T extends Transaction<T>>
             case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(txs);
             case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(txs);
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
-            case ATOMICBATCH -> new BatchTransaction(txs);
+            case ATOMIC_BATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }

@@ -2,11 +2,10 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AtomicBatchTransactionBody;
-import com.hedera.hashgraph.sdk.proto.BatchServiceGrpc;
-import com.hedera.hashgraph.sdk.proto.BatchTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
+import com.hedera.hashgraph.sdk.proto.UtilServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,8 +92,8 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      *
      * @return The list of transactions
      */
-    public List<Transaction<?>> getTransactions() {
-        return Collections.unmodifiableList(transactions);
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
     /**
@@ -126,18 +125,12 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      */
     void initFromTransactionBody() {
         var body = sourceTransactionBody.getAtomicBatch();
-        var transactionList = body.getTransactionsList();
-        // Initialize transactions from the protobuf
-        // Note: This implementation would depend on how transactions are stored in the protobuf
-        // This is a simplified placeholder for illustration
-
-        // Initialize innerTransactionIds from the protobuf if they exist
-        // This would require the BatchTransactionBody to have a field for storing these IDs
+        System.out.println("hii");
     }
 
     @Override
     MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {
-        return BatchServiceGrpc.getSubmitBatchMethod();
+        return UtilServiceGrpc.getAtomicBatchMethod();
     }
 
     /**
@@ -146,21 +139,8 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @return the transaction builder
      */
     AtomicBatchTransactionBody build() {
-        var builder = AtomicBatchTransactionBody.newBuilder();
-
-        // Add all transactions to the builder
-        for (Transaction<?> transaction : transactions) {
-            // Convert each transaction to its protobuf representation
-            // This would depend on the actual BatchTransactionBody protobuf definition
-            if (transaction instanceof AccountCreateTransaction) {
-                ((AccountCreateTransaction) transaction).build();
-            }
-            com.hedera.hashgraph.sdk.proto.Transaction.newBuilder().setSignedTransactionBytes()transaction.frozenBodyBuilder.build()
-
-
-        }
-
-        return builder;
+        System.out.println("hi");
+        return AtomicBatchTransactionBody.newBuilder().build();
     }
 
     @Override
@@ -170,6 +150,6 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
-        scheduled.setBatchTransactions(build());
+        throw new UnsupportedOperationException("Cannot schedule Atomic Batch");
     }
 }
