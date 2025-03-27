@@ -35,9 +35,7 @@ PROTO_GIT_PATH = os.path.join("hedera-protos-git")
 PROTO_GIT_REF = sys.argv[1] if len(sys.argv)>1   else ""
 
 
-PROTO_IN_PATH = os.path.join(PROTO_GIT_PATH, "hapi/hedera-protobufs/services")
-PROTO_SDK_IN_PATH = os.path.join(PROTO_GIT_PATH, "sdk")
-PROTO_MIRROR_IN_PATH = os.path.join(PROTO_GIT_PATH, "mirror")
+PROTO_IN_PATH = os.path.join(PROTO_GIT_PATH, "hapi/hedera-protobuf-java-api/src/main/proto/services")
 BASIC_TYPES_PATH = os.path.join(PROTO_IN_PATH, "basic_types.proto")
 RESPONSE_CODE_PATH = os.path.join(PROTO_IN_PATH, "response_code.proto")
 FREEZE_TYPE_PATH = os.path.join(PROTO_IN_PATH, "freeze_type.proto")
@@ -136,7 +134,7 @@ def ensure_protobufs():
         run_command("git", "clone", PROTO_GIT_REMOTE, PROTO_GIT_PATH)
     os.chdir(PROTO_GIT_PATH)
     run_command("git", "fetch")
-    checkout_ref = "v0.59.0-alpha.0"
+    checkout_ref = "v0.61.0"
     print(f">>> Checking out {checkout_ref}")
     run_command("git", "checkout", checkout_ref)
     if is_branch(checkout_ref):

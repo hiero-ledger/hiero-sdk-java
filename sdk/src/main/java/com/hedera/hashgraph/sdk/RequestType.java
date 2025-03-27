@@ -467,6 +467,21 @@ public enum RequestType {
     STATE_SIGNATURE_TRANSACTION(HederaFunctionality.StateSignatureTransaction),
 
     /**
+     * Publish a hinTS key to the network.
+     */
+    HINTS_KEY_PUBLICATION(HederaFunctionality.HintsKeyPublication),
+
+    /**
+     * Vote for a particular preprocessing output of a hinTS construction.
+     */
+    HINTS_PREPROCESSING_VOTE(HederaFunctionality.HintsPreprocessingVote),
+
+    /**
+     * Sign a partial signature for the active hinTS construction.
+     */
+    HINTS_PARTIAL_SIGNATURE(HederaFunctionality.HintsPartialSignature),
+
+    /**
      * Sign a particular history assembly.
      */
     HISTORY_ASSEMBLY_SIGNATURE(HederaFunctionality.HistoryAssemblySignature),
@@ -479,7 +494,17 @@ public enum RequestType {
     /**
      * Vote for a particular history proof.
      */
-    HISTORY_PROOF_VOTE(HederaFunctionality.HistoryProofVote);
+    HISTORY_PROOF_VOTE(HederaFunctionality.HistoryProofVote),
+
+    /**
+     * Publish a random CRS to the network.
+     */
+    CRS_PUBLICATION(HederaFunctionality.CrsPublication),
+
+    /**
+     * Submit a batch of transactions to run atomically
+     */
+    ATOMIC_BATCH(HederaFunctionality.AtomicBatch);
 
     final HederaFunctionality code;
 
@@ -572,9 +597,14 @@ public enum RequestType {
             case TokenCancelAirdrop -> TOKEN_CANCEL_AIRDROP;
             case TokenClaimAirdrop -> TOKEN_CLAIM_AIRDROP;
             case StateSignatureTransaction -> STATE_SIGNATURE_TRANSACTION;
+            case HintsKeyPublication -> HINTS_KEY_PUBLICATION;
+            case HintsPreprocessingVote -> HINTS_PREPROCESSING_VOTE;
+            case HintsPartialSignature -> HINTS_PARTIAL_SIGNATURE;
             case HistoryAssemblySignature -> HISTORY_ASSEMBLY_SIGNATURE;
             case HistoryProofKeyPublication -> HISTORY_PROOF_KEY_PUBLICATION;
             case HistoryProofVote -> HISTORY_PROOF_VOTE;
+            case CrsPublication -> CRS_PUBLICATION;
+            case AtomicBatch -> ATOMIC_BATCH;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -665,9 +695,14 @@ public enum RequestType {
             case TOKEN_CANCEL_AIRDROP -> "TOKEN_CANCEL_AIRDROP";
             case TOKEN_CLAIM_AIRDROP -> "TOKEN_CLAIM_AIRDROP";
             case STATE_SIGNATURE_TRANSACTION -> "STATE_SIGNATURE_TRANSACTION";
+            case HINTS_KEY_PUBLICATION -> "HINTS_KEY_PUBLICATION";
+            case HINTS_PREPROCESSING_VOTE -> "HINTS_PREPROCESSING_VOTE";
+            case HINTS_PARTIAL_SIGNATURE -> "HINTS_PARTIAL_SIGNATURE";
             case HISTORY_ASSEMBLY_SIGNATURE -> "HISTORY_ASSEMBLY_SIGNATURE";
             case HISTORY_PROOF_KEY_PUBLICATION -> "HISTORY_PROOF_KEY_PUBLICATION";
             case HISTORY_PROOF_VOTE -> "HISTORY_PROOF_VOTE";
+            case CRS_PUBLICATION -> "CRS_PUBLICATION";
+            case ATOMIC_BATCH -> "ATOMIC_BATCH";
         };
     }
 }
