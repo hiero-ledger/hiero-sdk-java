@@ -87,6 +87,7 @@ import "node_update.proto";
 import "node_delete.proto";
 
 import "custom_fees.proto";
+import "state_signature_transaction.proto";
 
 import "hints_key_publication.proto";
 import "hints_preprocessing_vote.proto";
@@ -602,6 +603,11 @@ message TransactionBody {
         * Claim one or more "pending" airdrops.
          */
         TokenClaimAirdropTransactionBody tokenClaimAirdrop = 60;
+
+        /**
+        * A transaction body for signature of a state root hash gossiped to other nodes
+         */
+        com.hedera.hapi.platform.event.StateSignatureTransaction state_signature_transaction = 65;
 
         /**
          * A transaction body for voting on hinTS aggregation keys.
