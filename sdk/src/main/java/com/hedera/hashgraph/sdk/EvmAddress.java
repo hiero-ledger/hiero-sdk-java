@@ -24,15 +24,15 @@ public final class EvmAddress extends Key {
     /**
      * Convert a string to an ethereum address.
      *
-     * @param text                      the string
+     * @param evmAddress                      the string
      * @return                          the ethereum address
      */
-    public static EvmAddress fromString(String text) {
-        String address = text.startsWith("0x") ? text.substring(2) : text;
+    public static EvmAddress fromString(String evmAddress) {
+        String address = evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress;
         if (address.length() == 40) {
             return new EvmAddress(Hex.decode(address));
         }
-        return null;
+        throw new IllegalArgumentException("Invalid EvmAddress: " + evmAddress);
     }
 
     @Nullable
