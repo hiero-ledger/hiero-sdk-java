@@ -53,5 +53,5 @@ dependencies.constraints {
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
     // Examples
-    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.10") { because("kotlin.stdlib") }
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.20") { because("kotlin.stdlib") }
 }
