@@ -9,17 +9,17 @@ plugins {
 group = "org.hiero"
 
 val bouncycastle = "1.80"
-val grpc = "1.70.0"
+val grpc = "1.71.0"
 val protobuf = "4.30.0"
 val slf4j = "2.0.17"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
     api(platform("io.netty:netty-bom:4.1.119.Final"))
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:13.1.0") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.1.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
     api("com.google.code.gson:gson:2.12.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
@@ -53,5 +53,5 @@ dependencies.constraints {
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
     // Examples
-    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.10") { because("kotlin.stdlib") }
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.20") { because("kotlin.stdlib") }
 }
