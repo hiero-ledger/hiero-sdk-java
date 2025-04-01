@@ -31,8 +31,8 @@ tasks.testCodeCoverageReport {
                     objects.named(VerificationType.JACOCO_RESULTS),
                 )
                 attributes.attribute(
-                    TestSuiteType.TEST_SUITE_TYPE_ATTRIBUTE,
-                    objects.named(TestSuiteType.INTEGRATION_TEST),
+                    TestSuiteName.TEST_SUITE_NAME_ATTRIBUTE,
+                    objects.named("testIntegration"),
                 )
             }
             .files
