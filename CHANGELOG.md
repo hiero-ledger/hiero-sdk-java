@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 2.58.0
 
 ### Fixed
- - gRPC retries enabled
+
+- gRPC retries enabled
+
 ### Added
+
 - JSON-RPC method endpoint for TokenWipeTransaction
 - JSON-RPC method endpoint for TransferTransaction
 
