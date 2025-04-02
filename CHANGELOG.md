@@ -5,16 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.58.0
-
-### Fixed
-
-- gRPC retries enabled
+## 2.53.0
 
 ### Added
 
-- JSON-RPC method endpoint for TokenWipeTransaction
-- JSON-RPC method endpoint for TransferTransaction
+- Enabled gRPC retry option for more stable connection with nodes [#2264](https://github.com/hiero-ledger/hiero-sdk-java/pull/2264)
 
 ## 2.52.0
 
