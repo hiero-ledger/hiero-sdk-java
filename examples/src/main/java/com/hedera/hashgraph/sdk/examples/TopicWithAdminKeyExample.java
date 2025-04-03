@@ -93,7 +93,6 @@ class TopicWithAdminKeyExample {
         Transaction<?> topicCreateTx = new TopicCreateTransaction()
                 .setTopicMemo("demo topic")
                 .setAdminKey(thresholdKey)
-                .setFeeScheduleKey(thresholdKey)
                 .freezeWith(client);
 
         /*
@@ -144,7 +143,6 @@ class TopicWithAdminKeyExample {
                 .setTopicId(hederaTopicId)
                 .setTopicMemo("This topic will be updated")
                 .setAdminKey(newThresholdKey)
-                .setFeeScheduleKey(newThresholdKey)
                 .freezeWith(client);
 
         /*

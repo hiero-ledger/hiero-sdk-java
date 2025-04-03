@@ -389,9 +389,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearFeeExemptKeys() {
         requireNotFrozen();
-        if (feeExemptKeys != null) {
-            this.feeExemptKeys = new ArrayList<>();
-        }
+        this.feeExemptKeys = new ArrayList<>();
         return this;
     }
 
@@ -440,9 +438,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearCustomFees() {
         requireNotFrozen();
-        if (customFees != null) {
-            customFees = new ArrayList<>();
-        }
+        //        if (customFees != null) {
+        //        }
+        customFees = new ArrayList<>();
         return this;
     }
 
@@ -493,12 +491,12 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         if (body.hasFeeScheduleKey()) {
             feeScheduleKey = Key.fromProtobufKey(body.getFeeScheduleKey());
         }
-        if (body.getFeeExemptKeyList() != null) {
+        if (body.hasFeeExemptKeyList()) {
             feeExemptKeys = body.getFeeExemptKeyList().getKeysList().stream()
                     .map(Key::fromProtobufKey)
                     .collect(Collectors.toList());
         }
-        if (body.getCustomFees() != null) {
+        if (body.hasCustomFees()) {
             customFees = body.getCustomFees().getFeesList().stream()
                     .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
                     .collect(Collectors.toList());
@@ -543,8 +541,6 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
                 feeExemptKeyList.addKeys(feeExemptKey.toProtobufKey());
             }
             builder.setFeeExemptKeyList(feeExemptKeyList);
-        } else {
-            builder.setFeeExemptKeyList(feeExemptKeyList);
         }
 
         var protoCustomFeeList = FixedCustomFeeList.newBuilder();
@@ -552,8 +548,6 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
             for (CustomFixedFee customFee : customFees) {
                 protoCustomFeeList.addFees(customFee.toTopicFeeProtobuf());
             }
-            builder.setCustomFees(protoCustomFeeList);
-        } else {
             builder.setCustomFees(protoCustomFeeList);
         }
 
