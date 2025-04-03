@@ -438,8 +438,6 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearCustomFees() {
         requireNotFrozen();
-        //        if (customFees != null) {
-        //        }
         customFees = new ArrayList<>();
         return this;
     }
