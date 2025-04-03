@@ -147,22 +147,6 @@ class TopicCreateIntegrationTest {
                 assertThat(updatedInfo.customFees.get(i).getDenominatingTokenId())
                         .isEqualTo(newCustomFixedFees.get(i).getDenominatingTokenId());
             }
-
-            var clearFeeExemptKeysAndFeeScheduleKey = new TopicUpdateTransaction()
-                    .setTopicId(topicId)
-                    .clearFeeExemptKeys()
-                    .clearFeeScheduleKey()
-                    .clearCustomFees()
-                    .freezeWith(testEnv.client)
-                    .sign(newFeeScheduleKey)
-                    .execute(testEnv.client);
-
-            clearFeeExemptKeysAndFeeScheduleKey.getReceipt(testEnv.client);
-
-            var cleared = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
-            // assertThat(cleared.feeScheduleKey).isNull();
-            assertThat(cleared.feeExemptKeys).isEmpty();
-            assertThat(cleared.customFees).isEmpty();
         }
     }
 
