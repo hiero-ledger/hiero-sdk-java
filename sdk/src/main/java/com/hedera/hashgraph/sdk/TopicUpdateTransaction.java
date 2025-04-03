@@ -359,7 +359,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
 
     public TopicUpdateTransaction clearFeeScheduleKey() {
         requireNotFrozen();
-        this.feeScheduleKey = null;
+        this.feeScheduleKey = new KeyList();
         return this;
     }
 

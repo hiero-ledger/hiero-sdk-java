@@ -491,6 +491,7 @@ class TopicCreateIntegrationTest {
 
             var cleared = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
             assertThat(cleared.feeExemptKeys).isEmpty();
+            assertThat(cleared.feeScheduleKey).isNull();
             assertThat(cleared.customFees).isEmpty();
         }
     }
