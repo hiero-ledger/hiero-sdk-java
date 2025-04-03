@@ -147,6 +147,22 @@ class TopicCreateIntegrationTest {
                 assertThat(updatedInfo.customFees.get(i).getDenominatingTokenId())
                         .isEqualTo(newCustomFixedFees.get(i).getDenominatingTokenId());
             }
+
+            var clearFeeExemptKeysAndFeeScheduleKey = new TopicUpdateTransaction()
+                    .setTopicId(topicId)
+                    .clearFeeExemptKeys()
+                    .clearFeeScheduleKey()
+                    .clearCustomFees()
+                    .freezeWith(testEnv.client)
+                    .sign(newFeeScheduleKey)
+                    .execute(testEnv.client);
+
+            clearFeeExemptKeysAndFeeScheduleKey.getReceipt(testEnv.client);
+
+            var cleared = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+            // assertThat(cleared.feeScheduleKey).isNull();
+            assertThat(cleared.feeExemptKeys).isEmpty();
+            assertThat(cleared.customFees).isEmpty();
         }
     }
 
@@ -421,5 +437,77 @@ class TopicCreateIntegrationTest {
                 .execute(testEnv.client);
 
         return Objects.requireNonNull(tokenCreateResponse.getReceipt(testEnv.client).tokenId);
+    }
+
+    @Test
+    @DisplayName("Can clear customFeesList and feeExemptKeys list")
+    void canClearCustomFeesListAndFeeExemptKeysList() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            List<Key> feeExemptKeys = new ArrayList<>(List.of(PrivateKey.generateECDSA(), PrivateKey.generateECDSA()));
+
+            var denominatingTokenId1 = createToken(testEnv);
+            var amount1 = 1;
+
+            var denominatingTokenId2 = createToken(testEnv);
+            var amount2 = 2;
+
+            var customFixedFees = List.of(
+                    new CustomFixedFee()
+                            .setFeeCollectorAccountId(testEnv.operatorId)
+                            .setDenominatingTokenId(denominatingTokenId1)
+                            .setAmount(amount1),
+                    new CustomFixedFee()
+                            .setFeeCollectorAccountId(testEnv.operatorId)
+                            .setDenominatingTokenId(denominatingTokenId2)
+                            .setAmount(amount2));
+
+            // Create revenue-generating topic
+            var response = new TopicCreateTransaction()
+                    .setFeeScheduleKey(testEnv.operatorKey)
+                    .setSubmitKey(testEnv.operatorKey)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setFeeExemptKeys(feeExemptKeys)
+                    .setCustomFees(customFixedFees)
+                    .execute(testEnv.client);
+
+            var topicId = Objects.requireNonNull(response.getReceipt(testEnv.client).topicId);
+
+            // Get Topic Info
+            var info = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+
+            assertThat(info.feeScheduleKey).isEqualTo(testEnv.operatorKey);
+
+            // Validate fee exempt keys
+            for (int i = 0; i < feeExemptKeys.size(); i++) {
+                var key = (PrivateKey) feeExemptKeys.get(i);
+                PublicKey publicKey = key.getPublicKey();
+                assertThat(info.feeExemptKeys.get(i)).isEqualTo(publicKey);
+            }
+
+            // Validate custom fees
+            for (int i = 0; i < customFixedFees.size(); i++) {
+                assertThat(info.customFees.get(i).getAmount())
+                        .isEqualTo(customFixedFees.get(i).getAmount());
+                assertThat(info.customFees.get(i).getDenominatingTokenId())
+                        .isEqualTo(customFixedFees.get(i).getDenominatingTokenId());
+            }
+
+            var newFeeScheduleKey = PrivateKey.generateECDSA();
+
+            var clearFeeExemptKeysAndFeeScheduleKey = new TopicUpdateTransaction()
+                    .setTopicId(topicId)
+                    .clearFeeExemptKeys()
+                    .clearFeeScheduleKey()
+                    .clearCustomFees()
+                    .freezeWith(testEnv.client)
+                    .sign(newFeeScheduleKey)
+                    .execute(testEnv.client);
+
+            clearFeeExemptKeysAndFeeScheduleKey.getReceipt(testEnv.client);
+
+            var cleared = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+            assertThat(cleared.feeExemptKeys).isEmpty();
+            assertThat(cleared.customFees).isEmpty();
+        }
     }
 }
