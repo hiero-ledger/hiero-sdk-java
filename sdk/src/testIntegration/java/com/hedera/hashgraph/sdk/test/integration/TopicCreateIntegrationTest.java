@@ -424,7 +424,7 @@ class TopicCreateIntegrationTest {
     }
 
     @Test
-    @DisplayName("Can clear customFeesList and feeExemptKeys list")
+    @DisplayName("Can clear customFeesList, feeExemptKeysList and feeScheduleKey")
     void canClearCustomFeesListAndFeeExemptKeysList() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             List<Key> feeExemptKeys = new ArrayList<>(List.of(PrivateKey.generateECDSA(), PrivateKey.generateECDSA()));

@@ -50,9 +50,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
 
     private Key feeScheduleKey = null;
 
-    private List<Key> feeExemptKeys = new ArrayList<>();
+    private List<Key> feeExemptKeys = null;
 
-    private List<CustomFixedFee> customFees = new ArrayList<>();
+    private List<CustomFixedFee> customFees = null;
 
     /**
      * Constructor.
@@ -389,7 +389,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearFeeExemptKeys() {
         requireNotFrozen();
-        this.feeExemptKeys = new ArrayList<>();
+        if (feeExemptKeys != null) {
+            this.feeExemptKeys = new ArrayList<>();
+        }
         return this;
     }
 
@@ -401,6 +403,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     public TopicUpdateTransaction addFeeExemptKey(Key feeExemptKey) {
         Objects.requireNonNull(feeExemptKey);
         if (feeExemptKeys != null) {
+            feeExemptKeys.add(feeExemptKey);
+        } else {
+            feeExemptKeys = new ArrayList<>();
             feeExemptKeys.add(feeExemptKey);
         }
         requireNotFrozen();
@@ -435,7 +440,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction clearCustomFees() {
         requireNotFrozen();
-        this.customFees.clear();
+        if (customFees != null) {
+            customFees = new ArrayList<>();
+        }
         return this;
     }
 
@@ -446,8 +453,13 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * @return {@code this}
      */
     public TopicUpdateTransaction addCustomFee(CustomFixedFee customFixedFee) {
-        Objects.requireNonNull(customFees);
-        customFees.add(customFixedFee);
+        Objects.requireNonNull(customFixedFee);
+        if (customFees != null) {
+            customFees.add(customFixedFee);
+        } else {
+            customFees = new ArrayList<>();
+            customFees.add(customFixedFee);
+        }
         requireNotFrozen();
         return this;
     }
@@ -526,16 +538,24 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
             builder.setFeeScheduleKey(feeScheduleKey.toProtobufKey());
         }
         var feeExemptKeyList = FeeExemptKeyList.newBuilder();
-        for (var feeExemptKey : feeExemptKeys) {
-            feeExemptKeyList.addKeys(feeExemptKey.toProtobufKey());
+        if (feeExemptKeys != null) {
+            for (var feeExemptKey : feeExemptKeys) {
+                feeExemptKeyList.addKeys(feeExemptKey.toProtobufKey());
+            }
+            builder.setFeeExemptKeyList(feeExemptKeyList);
+        } else {
+            builder.setFeeExemptKeyList(feeExemptKeyList);
         }
-        builder.setFeeExemptKeyList(feeExemptKeyList);
 
         var protoCustomFeeList = FixedCustomFeeList.newBuilder();
-        for (CustomFixedFee customFee : customFees) {
-            protoCustomFeeList.addFees(customFee.toTopicFeeProtobuf());
+        if (customFees != null) {
+            for (CustomFixedFee customFee : customFees) {
+                protoCustomFeeList.addFees(customFee.toTopicFeeProtobuf());
+            }
+            builder.setCustomFees(protoCustomFeeList);
+        } else {
+            builder.setCustomFees(protoCustomFeeList);
         }
-        builder.setCustomFees(protoCustomFeeList);
 
         return builder;
     }
