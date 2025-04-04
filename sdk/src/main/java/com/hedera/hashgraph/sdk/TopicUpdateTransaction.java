@@ -400,13 +400,11 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction addFeeExemptKey(Key feeExemptKey) {
         Objects.requireNonNull(feeExemptKey);
-        if (feeExemptKeys != null) {
-            feeExemptKeys.add(feeExemptKey);
-        } else {
-            feeExemptKeys = new ArrayList<>();
-            feeExemptKeys.add(feeExemptKey);
-        }
         requireNotFrozen();
+        if (feeExemptKeys == null) {
+            feeExemptKeys = new ArrayList<>();
+        }
+        feeExemptKeys.add(feeExemptKey);
         return this;
     }
 
@@ -450,13 +448,11 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      */
     public TopicUpdateTransaction addCustomFee(CustomFixedFee customFixedFee) {
         Objects.requireNonNull(customFixedFee);
-        if (customFees != null) {
-            customFees.add(customFixedFee);
-        } else {
-            customFees = new ArrayList<>();
-            customFees.add(customFixedFee);
-        }
         requireNotFrozen();
+        if (customFees == null) {
+            customFees = new ArrayList<>();
+        }
+        customFees.add(customFixedFee);
         return this;
     }
 

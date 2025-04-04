@@ -495,4 +495,69 @@ class TopicCreateIntegrationTest {
             assertThat(cleared.customFees).isEmpty();
         }
     }
+
+    @Test
+    @DisplayName("Can update without specifying anything")
+    void canUpdateTopicWithoutSpecifyingAnythingTopicShouldHaveTheSameValues() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            List<Key> feeExemptKeys = new ArrayList<>(List.of(PrivateKey.generateECDSA(), PrivateKey.generateECDSA()));
+
+            var denominatingTokenId1 = createToken(testEnv);
+            var amount1 = 1;
+
+            var denominatingTokenId2 = createToken(testEnv);
+            var amount2 = 2;
+
+            var customFixedFees = List.of(
+                    new CustomFixedFee()
+                            .setFeeCollectorAccountId(testEnv.operatorId)
+                            .setDenominatingTokenId(denominatingTokenId1)
+                            .setAmount(amount1),
+                    new CustomFixedFee()
+                            .setFeeCollectorAccountId(testEnv.operatorId)
+                            .setDenominatingTokenId(denominatingTokenId2)
+                            .setAmount(amount2));
+
+            // Create revenue-generating topic
+            var response = new TopicCreateTransaction()
+                    .setFeeScheduleKey(testEnv.operatorKey)
+                    .setSubmitKey(testEnv.operatorKey)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setFeeExemptKeys(feeExemptKeys)
+                    .setCustomFees(customFixedFees)
+                    .execute(testEnv.client);
+
+            var topicId = Objects.requireNonNull(response.getReceipt(testEnv.client).topicId);
+
+            // Get Topic Info
+            var info = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+
+            assertThat(info.feeScheduleKey).isEqualTo(testEnv.operatorKey);
+
+            // Validate fee exempt keys
+            for (int i = 0; i < feeExemptKeys.size(); i++) {
+                var key = (PrivateKey) feeExemptKeys.get(i);
+                PublicKey publicKey = key.getPublicKey();
+                assertThat(info.feeExemptKeys.get(i)).isEqualTo(publicKey);
+            }
+
+            // Validate custom fees
+            for (int i = 0; i < customFixedFees.size(); i++) {
+                assertThat(info.customFees.get(i).getAmount())
+                        .isEqualTo(customFixedFees.get(i).getAmount());
+                assertThat(info.customFees.get(i).getDenominatingTokenId())
+                        .isEqualTo(customFixedFees.get(i).getDenominatingTokenId());
+            }
+
+            var topicUpdate = new TopicUpdateTransaction().setTopicId(topicId).execute(testEnv.client);
+
+            topicUpdate.getReceipt(testEnv.client);
+
+            var sameTopic = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+            assertThat(sameTopic.feeExemptKeys).isEqualTo(info.feeExemptKeys);
+            assertThat(sameTopic.feeScheduleKey).isEqualTo(info.feeScheduleKey);
+            assertThat(sameTopic.customFees.get(0).getAmount())
+                    .isEqualTo(info.customFees.get(0).getAmount());
+        }
+    }
 }
