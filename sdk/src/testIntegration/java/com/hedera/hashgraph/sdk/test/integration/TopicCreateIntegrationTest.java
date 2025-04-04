@@ -478,16 +478,15 @@ class TopicCreateIntegrationTest {
 
             var newFeeScheduleKey = PrivateKey.generateECDSA();
 
-            var clearFeeExemptKeysAndFeeScheduleKey = new TopicUpdateTransaction()
+            new TopicUpdateTransaction()
                     .setTopicId(topicId)
                     .clearFeeExemptKeys()
                     .clearFeeScheduleKey()
                     .clearCustomFees()
                     .freezeWith(testEnv.client)
                     .sign(newFeeScheduleKey)
-                    .execute(testEnv.client);
-
-            clearFeeExemptKeysAndFeeScheduleKey.getReceipt(testEnv.client);
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
 
             var cleared = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
             assertThat(cleared.feeExemptKeys).isEmpty();
@@ -549,9 +548,10 @@ class TopicCreateIntegrationTest {
                         .isEqualTo(customFixedFees.get(i).getDenominatingTokenId());
             }
 
-            var topicUpdate = new TopicUpdateTransaction().setTopicId(topicId).execute(testEnv.client);
-
-            topicUpdate.getReceipt(testEnv.client);
+            new TopicUpdateTransaction()
+                    .setTopicId(topicId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
 
             var sameTopic = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
             assertThat(sameTopic.feeExemptKeys).isEqualTo(info.feeExemptKeys);

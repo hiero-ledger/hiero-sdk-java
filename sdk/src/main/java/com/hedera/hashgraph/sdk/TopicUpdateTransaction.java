@@ -529,16 +529,16 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         if (feeScheduleKey != null) {
             builder.setFeeScheduleKey(feeScheduleKey.toProtobufKey());
         }
-        var feeExemptKeyList = FeeExemptKeyList.newBuilder();
         if (feeExemptKeys != null) {
+            var feeExemptKeyList = FeeExemptKeyList.newBuilder();
             for (var feeExemptKey : feeExemptKeys) {
                 feeExemptKeyList.addKeys(feeExemptKey.toProtobufKey());
             }
             builder.setFeeExemptKeyList(feeExemptKeyList);
         }
 
-        var protoCustomFeeList = FixedCustomFeeList.newBuilder();
         if (customFees != null) {
+            var protoCustomFeeList = FixedCustomFeeList.newBuilder();
             for (CustomFixedFee customFee : customFees) {
                 protoCustomFeeList.addFees(customFee.toTopicFeeProtobuf());
             }
