@@ -1,5 +1,6 @@
 package com.hedera.hashgraph.sdk;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AtomicBatchTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
@@ -7,11 +8,8 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import com.hedera.hashgraph.sdk.proto.UtilServiceGrpc;
 import io.grpc.MethodDescriptor;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import javax.annotation.Nullable;
 
 /**
@@ -83,6 +81,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     public BatchTransaction addTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
+        //transaction.publicKeys.size()  >0
         this.transactions.add(transaction);
         return this;
     }
@@ -124,7 +123,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * Initialize from the transaction body.
      */
     void initFromTransactionBody() {
-        var body = sourceTransactionBody.getAtomicBatch();
+        var body = sourceTransactionBody;
         System.out.println("hii");
     }
 
@@ -139,8 +138,11 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @return the transaction builder
      */
     AtomicBatchTransactionBody build() {
-        System.out.println("hi");
-        return AtomicBatchTransactionBody.newBuilder().build();
+        var builder = AtomicBatchTransactionBody.newBuilder();
+        for (var transaction : transactions) {
+             builder.addTransactions(transaction.makeRequest().getSignedTransactionBytes());
+        }
+        return builder.build();
     }
 
     @Override
