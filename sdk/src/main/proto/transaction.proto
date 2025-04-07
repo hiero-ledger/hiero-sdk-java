@@ -605,7 +605,7 @@ message TransactionBody {
         TokenClaimAirdropTransactionBody tokenClaimAirdrop = 60;
 
         /**
-        * A transaction body for signature of a state root hash gossiped to other nodes
+         * A transaction body for signature of a state root hash gossiped to other nodes
          */
         com.hedera.hapi.platform.event.StateSignatureTransaction state_signature_transaction = 65;
 
@@ -665,5 +665,8 @@ message TransactionBody {
  */
 message AtomicBatchTransactionBody {
   // <<<pbj.java_package = "com.hedera.hapi.node.util">>> This comment is special code for setting PBJ Compiler java package
-  repeated Transaction transactions = 1;
+    /**
+     * A list of signed bytes that represent the batch transactions.
+     */
+    repeated bytes transactions = 1;
 }
