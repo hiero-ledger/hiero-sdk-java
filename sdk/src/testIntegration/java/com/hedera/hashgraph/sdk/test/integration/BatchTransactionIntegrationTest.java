@@ -64,9 +64,11 @@ public class BatchTransactionIntegrationTest {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
-            var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
-
-            assertThat(status).isEqualTo(Status.BATCH_LIST_EMPTY);
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining(Status.BATCH_LIST_EMPTY.toString());
         }
     }
 
@@ -84,10 +86,14 @@ public class BatchTransactionIntegrationTest {
                     .setFreezeType(FreezeType.FREEZE_ONLY)
                     .batchify(testEnv.client, testEnv.operatorKey);
 
-            var status =
-                    batchTransaction.addTransaction(tx1).execute(testEnv.client).getReceipt(testEnv.client).status;
-
-            assertThat(status).isEqualTo(Status.BATCH_TRANSACTION_IN_BLACKLIST);
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        batchTransaction
+                                .addTransaction(tx1)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining(Status.BATCH_TRANSACTION_IN_BLACKLIST.toString());
         }
     }
 
@@ -106,10 +112,14 @@ public class BatchTransactionIntegrationTest {
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, invalidKey.getPublicKey());
 
-            var status =
-                    batchTransaction.addTransaction(tx1).execute(testEnv.client).getReceipt(testEnv.client).status;
-
-            assertThat(status).isEqualTo(Status.INVALID_SIGNATURE);
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        batchTransaction
+                                .addTransaction(tx1)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining(Status.INVALID_SIGNATURE.toString());
         }
     }
 
