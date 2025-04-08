@@ -10,7 +10,7 @@ group = "org.hiero"
 
 val bouncycastle = "1.80"
 val grpc = "1.71.0"
-val protobuf = "4.30.0"
+val protobuf = "4.30.2"
 val slf4j = "2.0.17"
 
 dependencies {
