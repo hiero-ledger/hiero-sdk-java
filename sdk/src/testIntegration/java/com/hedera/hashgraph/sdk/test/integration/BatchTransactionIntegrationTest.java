@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.test.integration;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.hedera.hashgraph.sdk.*;
@@ -118,18 +119,17 @@ public class BatchTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
             var key = PrivateKey.generateECDSA();
 
-            var execute = new AccountCreateTransaction()
-                    .setKeyWithoutAlias(key)
-                    // without setting this property it is not possible to test this use case
-                    .setNodeAccountIds(Collections.singletonList(AccountId.fromString("0.0.3")))
-                    .batchify(testEnv.client, testEnv.operatorKey)
-                    .execute(testEnv.client);
-
-            try {
-                execute.getReceipt(testEnv.client);
-            } catch (Exception e) {
-                assertThat(e).hasMessageContaining(String.valueOf(Status.BATCH_KEY_SET_ON_NON_INNER_TRANSACTION));
-            }
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        new AccountCreateTransaction()
+                                .setKeyWithoutAlias(key)
+                                // without setting this property it is not possible to test this use case
+                                .setNodeAccountIds(Collections.singletonList(AccountId.fromString("0.0.3")))
+                                .batchify(testEnv.client, testEnv.operatorKey)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining(Status.BATCH_KEY_SET_ON_NON_INNER_TRANSACTION.toString());
         }
     }
 
@@ -174,7 +174,6 @@ public class BatchTransactionIntegrationTest {
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
 
             var key = PrivateKey.generateECDSA();
-            var invalidKey = PrivateKey.generateECDSA();
 
             var tx1 = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
