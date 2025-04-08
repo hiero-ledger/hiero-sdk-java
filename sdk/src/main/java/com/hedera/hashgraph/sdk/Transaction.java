@@ -60,6 +60,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * Default transaction duration
      */
     private static final Duration DEFAULT_TRANSACTION_VALID_DURATION = Duration.ofSeconds(120);
+
     private static final String ATOMIC_BATCH_NODE_ACCOUNT_ID = "0.0.0";
 
     /**
@@ -772,7 +773,6 @@ public abstract class Transaction<T extends Transaction<T>>
      * @param batchKey
      * @return
      */
-
     public final T batchify(Client client, Key batchKey) {
         requireNotFrozen();
         Objects.requireNonNull(batchKey);
@@ -784,7 +784,7 @@ public abstract class Transaction<T extends Transaction<T>>
     /**
      * Get the key that will sign the batch of which this Transaction is a part.
      */
-    public Key getBatchKey(){
+    public Key getBatchKey() {
         return batchKey;
     }
     /**
@@ -1124,17 +1124,15 @@ public abstract class Transaction<T extends Transaction<T>>
         var feeHbars = maxTransactionFee != null ? maxTransactionFee : defaultFee;
 
         var builder = TransactionBody.newBuilder()
-            .setTransactionFee(feeHbars.toTinybars())
-            .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
-            .addAllMaxCustomFees(
-                customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
-            .setMemo(memo);
+                .setTransactionFee(feeHbars.toTinybars())
+                .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
+                .addAllMaxCustomFees(
+                        customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
+                .setMemo(memo);
         if (batchKey != null) {
             builder.setBatchKey(batchKey.toProtobufKey());
         }
         return builder;
-
-
     }
 
     /**
@@ -1189,7 +1187,8 @@ public abstract class Transaction<T extends Transaction<T>>
                 if (batchKey == null) {
                     nodeAccountIds.setList(client.network.getNodeAccountIdsForExecute());
                 } else {
-                    nodeAccountIds.setList(Collections.singletonList(AccountId.fromString(ATOMIC_BATCH_NODE_ACCOUNT_ID)));
+                    nodeAccountIds.setList(
+                            Collections.singletonList(AccountId.fromString(ATOMIC_BATCH_NODE_ACCOUNT_ID)));
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
