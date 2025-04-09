@@ -31,6 +31,14 @@ public class BatchTransactionIntegrationTest {
             var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
 
             assertThat(status).isEqualTo(Status.SUCCESS);
+
+            var accountIdInnerTransaction =
+                    batchTransaction.getInnerTransactionIds().getFirst().accountId;
+
+            var execute = new AccountInfoQuery()
+                    .setAccountId(accountIdInnerTransaction)
+                    .execute(testEnv.client);
+            assertThat(accountIdInnerTransaction).isEqualTo(execute.accountId);
         }
     }
 

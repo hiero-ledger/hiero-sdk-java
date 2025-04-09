@@ -767,7 +767,7 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
-     * This method is used to mark a transaction as part of a batch transaction or so-called inner transaction
+     * This method is used to mark a transaction as part of a batch transaction or so-called inner transaction.
      * Transaction is signed by the executor of the batch transaction
      * @param client
      * @param batchKey
