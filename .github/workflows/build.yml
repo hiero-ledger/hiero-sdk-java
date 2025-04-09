@@ -184,7 +184,7 @@ jobs:
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
       - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.0-alpha.0
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.0
 
       - name: Run Unit and Integration Tests
         env:
@@ -244,7 +244,7 @@ jobs:
         run: ./gradlew -p example-android assemble
 
       - name: Start the local node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.0-alpha.0
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.0
 
       - name: Prepare .env for Examples
         run: |
