@@ -201,15 +201,15 @@ public class BatchTransactionIntegrationTest {
                     .batchify(testEnv.client, PrivateKey.generateECDSA());
 
             assertThatExceptionOfType(Exception.class)
-                .isThrownBy(() -> {
-                    batchTransaction
-                        .addTransaction(tx1)
-                        .addTransaction(tx2)
-                        .addTransaction(tx3)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                })
-                .withMessageContaining(Status.INVALID_SIGNATURE.toString());
+                    .isThrownBy(() -> {
+                        batchTransaction
+                                .addTransaction(tx1)
+                                .addTransaction(tx2)
+                                .addTransaction(tx3)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining(Status.INVALID_SIGNATURE.toString());
 
             var finalBalance =
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
