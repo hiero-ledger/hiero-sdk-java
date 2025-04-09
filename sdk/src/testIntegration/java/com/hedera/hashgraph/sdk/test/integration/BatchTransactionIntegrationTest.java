@@ -214,8 +214,9 @@ public class BatchTransactionIntegrationTest {
             var finalBalance =
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
 
-            System.out.println(initialBalance);
-            System.out.println(finalBalance);
+            assertThat(finalBalance.getValue().intValue()
+                            < initialBalance.getValue().intValue())
+                    .isTrue();
         }
     }
 }
