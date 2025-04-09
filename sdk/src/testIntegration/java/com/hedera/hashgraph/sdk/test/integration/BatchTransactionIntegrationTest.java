@@ -33,7 +33,7 @@ public class BatchTransactionIntegrationTest {
             assertThat(status).isEqualTo(Status.SUCCESS);
 
             var accountIdInnerTransaction =
-                    batchTransaction.getInnerTransactionIds().getFirst().accountId;
+                    batchTransaction.getInnerTransactionIds().get(0).accountId;
 
             var execute = new AccountInfoQuery()
                     .setAccountId(accountIdInnerTransaction)
