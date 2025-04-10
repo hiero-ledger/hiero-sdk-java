@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AtomicBatchTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
@@ -125,18 +124,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * Initialize from the transaction body.
      */
     void initFromTransactionBody() {
-        var transactionsList = sourceTransactionBody.getAtomicBatch().getTransactionsList();
-        for (ByteString bytes : transactionsList) {
-            try {
-                Transaction.fromBytes(bytes.toByteArray());
-            } catch (InvalidProtocolBufferException e) {
-                System.out.println(e.getMessage());
-                throw new RuntimeException(e);
-            }
-        }
-        // TODO throw unsupporterted operation if can't do Ethereum Transaction
-        var body = transactionsList;
-        System.out.println("hii");
+        throw new UnsupportedOperationException("Cannot construct BatchTransaction from bytes");
     }
 
     @Override

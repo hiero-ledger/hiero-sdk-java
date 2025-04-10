@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
@@ -10,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BatchTransactionTest {
@@ -72,20 +69,5 @@ public class BatchTransactionTest {
                 .setTransactions(INNER_TRANSACTIONS)
                 .freeze()
                 .sign(batchKey);
-    }
-
-    @Disabled
-    @Test
-    void shouldBytes() throws Exception {
-        var tx = spawnTestTransaction();
-        var tx2 = BatchTransaction.fromBytes(tx.toBytes());
-        assertThat(tx2.toString()).isEqualTo(tx.toString());
-    }
-
-    @Test
-    void shouldBytesNoSetters() throws Exception {
-        var tx = new BatchTransaction();
-        var tx2 = Transaction.fromBytes(tx.toBytes());
-        assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
 }
