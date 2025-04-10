@@ -756,15 +756,6 @@ public abstract class Transaction<T extends Transaction<T>>
         // noinspection unchecked
         return (T) this;
     }
-    /**
-     * Set the key that will sign the batch of which this Transaction is a part.
-     */
-    public final T setBatchKey(Key batchKey) {
-        requireNotFrozen();
-        Objects.requireNonNull(batchKey);
-        this.batchKey = batchKey;
-        return (T) this;
-    }
 
     /**
      * This method is used to mark a transaction as part of a batch transaction or so-called inner transaction.
