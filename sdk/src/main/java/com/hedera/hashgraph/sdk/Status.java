@@ -1564,6 +1564,7 @@ public enum Status {
      * does not exist or is not valid.<br/>
      * One common source of this error is providing a node account identifier
      * using the "alias" form rather than "numeric" form.
+     * It is also used for atomic batch transaction for child transaction if the node account id is not 0.0.0.
      */
     INVALID_NODE_ACCOUNT_ID(ResponseCodeEnum.INVALID_NODE_ACCOUNT_ID),
 
@@ -1844,7 +1845,53 @@ public enum Status {
     /**
      * Max custom fees list is not supported for this operation.
      */
-    MAX_CUSTOM_FEES_IS_NOT_SUPPORTED(ResponseCodeEnum.MAX_CUSTOM_FEES_IS_NOT_SUPPORTED);
+    MAX_CUSTOM_FEES_IS_NOT_SUPPORTED(ResponseCodeEnum.MAX_CUSTOM_FEES_IS_NOT_SUPPORTED),
+
+    /**
+     * The list of batch transactions is empty
+     */
+    BATCH_LIST_EMPTY(ResponseCodeEnum.BATCH_LIST_EMPTY),
+
+    /**
+     * The list of batch transactions contains duplicated transactions
+     */
+    BATCH_LIST_CONTAINS_DUPLICATES(ResponseCodeEnum.BATCH_LIST_CONTAINS_DUPLICATES),
+
+    /**
+     * The list of batch transactions contains a transaction type that is
+     * in the AtomicBatch blacklist as configured in the network.
+     */
+    BATCH_TRANSACTION_IN_BLACKLIST(ResponseCodeEnum.BATCH_TRANSACTION_IN_BLACKLIST),
+
+    /**
+     * The inner transaction of a batch transaction failed
+     */
+    INNER_TRANSACTION_FAILED(ResponseCodeEnum.INNER_TRANSACTION_FAILED),
+
+    /**
+     * The inner transaction of a batch transaction is missing a batch key
+     */
+    MISSING_BATCH_KEY(ResponseCodeEnum.MISSING_BATCH_KEY),
+
+    /**
+     * The batch key is set for a non batch transaction
+     */
+    BATCH_KEY_SET_ON_NON_INNER_TRANSACTION(ResponseCodeEnum.BATCH_KEY_SET_ON_NON_INNER_TRANSACTION),
+
+    /**
+     * The batch key is not valid
+     */
+    INVALID_BATCH_KEY(ResponseCodeEnum.INVALID_BATCH_KEY),
+
+    /**
+     * The provided schedule expiry time is not configurable.
+     */
+    SCHEDULE_EXPIRY_NOT_CONFIGURABLE(ResponseCodeEnum.SCHEDULE_EXPIRY_NOT_CONFIGURABLE),
+
+    /**
+     * The network just started at genesis and is creating system entities.
+     */
+    CREATING_SYSTEM_ENTITIES(ResponseCodeEnum.CREATING_SYSTEM_ENTITIES);
 
     final ResponseCodeEnum code;
 
@@ -2200,6 +2247,15 @@ public enum Status {
             case DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST -> DUPLICATE_DENOMINATION_IN_MAX_CUSTOM_FEE_LIST;
             case DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST -> DUPLICATE_ACCOUNT_ID_IN_MAX_CUSTOM_FEE_LIST;
             case MAX_CUSTOM_FEES_IS_NOT_SUPPORTED -> MAX_CUSTOM_FEES_IS_NOT_SUPPORTED;
+            case BATCH_LIST_EMPTY -> BATCH_LIST_EMPTY;
+            case BATCH_LIST_CONTAINS_DUPLICATES -> BATCH_LIST_CONTAINS_DUPLICATES;
+            case BATCH_TRANSACTION_IN_BLACKLIST -> BATCH_TRANSACTION_IN_BLACKLIST;
+            case INNER_TRANSACTION_FAILED -> INNER_TRANSACTION_FAILED;
+            case MISSING_BATCH_KEY -> MISSING_BATCH_KEY;
+            case BATCH_KEY_SET_ON_NON_INNER_TRANSACTION -> BATCH_KEY_SET_ON_NON_INNER_TRANSACTION;
+            case INVALID_BATCH_KEY -> INVALID_BATCH_KEY;
+            case SCHEDULE_EXPIRY_NOT_CONFIGURABLE -> SCHEDULE_EXPIRY_NOT_CONFIGURABLE;
+            case CREATING_SYSTEM_ENTITIES -> CREATING_SYSTEM_ENTITIES;
             case UNRECOGNIZED ->
             // NOTE: Protobuf deserialization will not give us the code on the wire
             throw new IllegalArgumentException(

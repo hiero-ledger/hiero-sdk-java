@@ -270,8 +270,8 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
         channel = channelBuilder
                 .keepAliveTimeout(10, TimeUnit.SECONDS)
                 .keepAliveWithoutCalls(true)
-                .disableRetry()
                 .intercept(new MetadataInterceptor())
+                .enableRetry()
                 .executor(executor)
                 .build();
 
