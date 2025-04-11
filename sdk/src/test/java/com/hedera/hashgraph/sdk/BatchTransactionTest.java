@@ -66,7 +66,7 @@ public class BatchTransactionTest {
         return new BatchTransaction()
                 .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
                 .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
-                .setTransactions(INNER_TRANSACTIONS)
+                .setInnerTransactions(INNER_TRANSACTIONS)
                 .freeze()
                 .sign(batchKey);
     }

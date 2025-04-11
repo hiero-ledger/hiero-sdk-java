@@ -26,7 +26,7 @@ public class BatchTransactionIntegrationTest {
                     .batchify(testEnv.client, testEnv.operatorKey);
 
             // create new Batch Transaction
-            BatchTransaction batchTransaction = new BatchTransaction().addTransaction(tx1);
+            BatchTransaction batchTransaction = new BatchTransaction().addInnerTransaction(tx1);
 
             var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
 
@@ -56,7 +56,7 @@ public class BatchTransactionIntegrationTest {
                         .setInitialBalance(new Hbar(1))
                         .batchify(testEnv.client, testEnv.operatorKey);
 
-                batchTransaction.addTransaction(tx1);
+                batchTransaction.addInnerTransaction(tx1);
             }
 
             var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
@@ -97,7 +97,7 @@ public class BatchTransactionIntegrationTest {
             assertThatExceptionOfType(Exception.class)
                     .isThrownBy(() -> {
                         batchTransaction
-                                .addTransaction(tx1)
+                                .addInnerTransaction(tx1)
                                 .execute(testEnv.client)
                                 .getReceipt(testEnv.client);
                     })
@@ -123,7 +123,7 @@ public class BatchTransactionIntegrationTest {
             assertThatExceptionOfType(Exception.class)
                     .isThrownBy(() -> {
                         batchTransaction
-                                .addTransaction(tx1)
+                                .addInnerTransaction(tx1)
                                 .execute(testEnv.client)
                                 .getReceipt(testEnv.client);
                     })
@@ -172,7 +172,7 @@ public class BatchTransactionIntegrationTest {
                     .batchify(testEnv.client, testEnv.operatorKey);
 
             var status = batchTransaction
-                    .addTransaction(topicMessageSubmitTransaction)
+                    .addInnerTransaction(topicMessageSubmitTransaction)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
                     .status;
@@ -211,9 +211,9 @@ public class BatchTransactionIntegrationTest {
             assertThatExceptionOfType(Exception.class)
                     .isThrownBy(() -> {
                         batchTransaction
-                                .addTransaction(tx1)
-                                .addTransaction(tx2)
-                                .addTransaction(tx3)
+                                .addInnerTransaction(tx1)
+                                .addInnerTransaction(tx2)
+                                .addInnerTransaction(tx3)
                                 .execute(testEnv.client)
                                 .getReceipt(testEnv.client);
                     })

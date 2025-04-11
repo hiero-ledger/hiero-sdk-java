@@ -63,7 +63,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @param transactions The list of transactions to be executed
      * @return {@code this}
      */
-    public BatchTransaction setTransactions(List<Transaction<?>> transactions) {
+    public BatchTransaction setInnerTransactions(List<Transaction<?>> transactions) {
         Objects.requireNonNull(transactions);
         requireNotFrozen();
         this.transactions.clear();
@@ -77,7 +77,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @param transaction The transaction to be added
      * @return {@code this}
      */
-    public BatchTransaction addTransaction(Transaction<?> transaction) {
+    public BatchTransaction addInnerTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
         if (transaction.isFrozen() && transaction.getTransactionId() != null) {
@@ -92,7 +92,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      *
      * @return The list of transactions
      */
-    public List<Transaction> getTransactions() {
+    public List<Transaction> getInnerTransactions() {
         return transactions;
     }
 

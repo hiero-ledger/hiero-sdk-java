@@ -102,9 +102,9 @@ class BatchTransactionExample {
          */
         System.out.println("Creating batch transaction...");
         BatchTransaction batchTransaction = new BatchTransaction();
-        batchTransaction.addTransaction(accountCreateTx1);
-        batchTransaction.addTransaction(accountCreateTx2);
-        batchTransaction.addTransaction(accountCreateTx3);
+        batchTransaction.addInnerTransaction(accountCreateTx1);
+        batchTransaction.addInnerTransaction(accountCreateTx2);
+        batchTransaction.addInnerTransaction(accountCreateTx3);
 
         /*
          * Step 5:
