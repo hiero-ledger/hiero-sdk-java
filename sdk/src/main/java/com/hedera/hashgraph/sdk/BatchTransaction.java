@@ -13,15 +13,12 @@ import javax.annotation.Nullable;
 
 /**
  * Execute multiple transactions in a single consensus event.
- *
- * ### Requirements
- * - All transactions must be signed as required for each individual transaction.
- * - The BatchTransaction must be signed by the operator account.
- * - Individual transaction failures do not cause the batch to fail.
- * - Fees are assessed for each inner transaction separately.
- *
- * ### Block Stream Effects
- * Each inner transaction will appear in the transaction record stream.
+ * <p>
+ * ### Requirements - All transactions must be signed as required for each individual transaction. - The
+ * BatchTransaction must be signed by the operator account. - Individual transaction failures do not cause the batch to
+ * fail. - Fees are assessed for each inner transaction separately.
+ * <p>
+ * ### Block Stream Effects Each inner transaction will appear in the transaction record stream.
  */
 public final class BatchTransaction extends Transaction<BatchTransaction> {
     private List<Transaction> transactions = new ArrayList<>();
@@ -37,8 +34,8 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     /**
      * Constructor.
      *
-     * @param txs                       Compound list of transaction id's list of (AccountId, Transaction) records
-     * @throws InvalidProtocolBufferException  when there is an issue with the protobuf
+     * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
+     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     BatchTransaction(
             LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txs)
@@ -50,9 +47,9 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     /**
      * Constructor.
      *
-     * @param txBody                    protobuf TransactionBody
+     * @param txBody protobuf TransactionBody
      */
-    BatchTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) {
+    BatchTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) throws InvalidProtocolBufferException {
         super(txBody);
         initFromTransactionBody();
     }
@@ -63,7 +60,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @param transactions The list of transactions to be executed
      * @return {@code this}
      */
-    public BatchTransaction setInnerTransactions(List<Transaction<?>> transactions) {
+    public BatchTransaction setInnerTransactions(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
         requireNotFrozen();
         this.transactions.clear();
@@ -98,11 +95,10 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     /**
      * Get the list of transaction IDs of each inner transaction of this BatchTransaction.
-     *
-     * **NOTE**: this will return undefined data until the transaction IDs for each inner
-     * transaction actually get generated/set (i.e. this BatchTransaction has been executed).
-     * This is provided to the user as a convenience feature in case they would like to get
-     * the receipts of each individual inner transaction.
+     * <p>
+     * **NOTE**: this will return undefined data until the transaction IDs for each inner transaction actually get
+     * generated/set (i.e. this BatchTransaction has been executed). This is provided to the user as a convenience
+     * feature in case they would like to get the receipts of each individual inner transaction.
      *
      * @return The list of inner transaction IDs
      */
@@ -123,8 +119,14 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     /**
      * Initialize from the transaction body.
      */
-    void initFromTransactionBody() {
-        throw new UnsupportedOperationException("Cannot construct BatchTransaction from bytes");
+    void initFromTransactionBody() throws InvalidProtocolBufferException {
+        var body = sourceTransactionBody.getAtomicBatch();
+
+        for (var atomicTransaction : body.getTransactionsList()) {
+            var transaction = com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                    .setSignedTransactionBytes(atomicTransaction);
+            transactions.add(Transaction.fromBytes(transaction.build().toByteArray()));
+        }
     }
 
     @Override

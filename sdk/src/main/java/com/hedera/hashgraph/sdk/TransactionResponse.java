@@ -117,8 +117,7 @@ public final class TransactionResponse {
             return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
         } catch (ReceiptStatusException e) {
             // Check if the exception status indicates throttling or inner txn throttling
-            if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS
-                    || e.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+            if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
                 // Retry the transaction
                 return retryTransaction(client);
             } else {
@@ -128,7 +127,8 @@ public final class TransactionResponse {
         }
     }
 
-    private TransactionReceipt retryTransaction(Client client) throws PrecheckStatusException, TimeoutException {
+    private TransactionReceipt retryTransaction(Client client)
+            throws PrecheckStatusException, TimeoutException, ReceiptStatusException {
         // reset the transaction body
         transaction.frozenBodyBuilder = null;
         // regenerate the transaction id
@@ -137,7 +137,8 @@ public final class TransactionResponse {
         return new TransactionReceiptQuery()
                 .setTransactionId(transactionResponse.transactionId)
                 .setNodeAccountIds(List.of(transactionResponse.nodeId))
-                .execute(client);
+                .execute(client)
+                .validateStatus(validateStatus);
     }
 
     /**

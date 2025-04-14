@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
@@ -58,6 +60,13 @@ public class BatchTransactionTest {
     @Test
     void shouldSerialize() {
         SnapshotMatcher.expect(spawnTestTransaction().toString()).toMatchSnapshot();
+    }
+
+    @Test
+    void shouldBytes() throws Exception {
+        var tx = spawnTestTransaction();
+        var tx2 = BatchTransaction.fromBytes(tx.toBytes());
+        assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
 
     private BatchTransaction spawnTestTransaction() {

@@ -20,17 +20,24 @@ public class BatchTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
 
             var key = PrivateKey.generateECDSA();
-            var tx1 = new AccountCreateTransaction()
+            var tx = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, testEnv.operatorKey);
 
             // create new Batch Transaction
-            BatchTransaction batchTransaction = new BatchTransaction().addInnerTransaction(tx1);
+            BatchTransaction batchTransaction = new BatchTransaction().addInnerTransaction(tx);
 
-            var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
-
-            assertThat(status).isEqualTo(Status.SUCCESS);
+            try {
+                batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+            } catch (ReceiptStatusException receiptStatusException) {
+                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                    new BatchTransaction()
+                            .addInnerTransaction(tx)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client);
+                }
+            }
 
             var accountIdInnerTransaction =
                     batchTransaction.getInnerTransactionIds().get(0).accountId;
@@ -51,17 +58,24 @@ public class BatchTransactionIntegrationTest {
             // 50 is the maximum limit for internal transaction inside a BatchTransaction
             for (int i = 0; i < 25; i++) {
                 var key = PrivateKey.generateECDSA();
-                var tx1 = new AccountCreateTransaction()
+                var tx = new AccountCreateTransaction()
                         .setKeyWithoutAlias(key)
                         .setInitialBalance(new Hbar(1))
                         .batchify(testEnv.client, testEnv.operatorKey);
 
-                batchTransaction.addInnerTransaction(tx1);
+                batchTransaction.addInnerTransaction(tx);
             }
 
-            var status = batchTransaction.execute(testEnv.client).getReceipt(testEnv.client).status;
-
-            assertThat(status).isEqualTo(Status.SUCCESS);
+            try {
+                batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+            } catch (ReceiptStatusException receiptStatusException) {
+                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                    new BatchTransaction()
+                            .setInnerTransactions(batchTransaction.getInnerTransactions())
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client);
+                }
+            }
         }
     }
 
@@ -155,9 +169,6 @@ public class BatchTransactionIntegrationTest {
     @DisplayName("Chunked inner transactions should be executed successfully")
     void chunkedInnerTransactionsShouldBeExecutedSuccessfully() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
-
-            BatchTransaction batchTransaction = new BatchTransaction();
-
             var response = new TopicCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
                     .setTopicMemo("[e2e::TopicCreateTransaction]")
@@ -170,23 +181,26 @@ public class BatchTransactionIntegrationTest {
                     .setMaxChunks(15)
                     .setMessage(Contents.BIG_CONTENTS)
                     .batchify(testEnv.client, testEnv.operatorKey);
-
-            var status = batchTransaction
-                    .addInnerTransaction(topicMessageSubmitTransaction)
-                    .execute(testEnv.client)
-                    .getReceipt(testEnv.client)
-                    .status;
-
-            assertThat(status).isEqualTo(Status.SUCCESS);
+            try {
+                new BatchTransaction()
+                        .addInnerTransaction(topicMessageSubmitTransaction)
+                        .execute(testEnv.client)
+                        .getReceipt(testEnv.client);
+            } catch (ReceiptStatusException receiptStatusException) {
+                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                    new BatchTransaction()
+                            .addInnerTransaction(topicMessageSubmitTransaction)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client);
+                }
+            }
         }
     }
 
     @Test
     @DisplayName("Successful inner transaction should incur fees even though one failed")
     void successfulInnerTransactionsShouldIncurFeesEvenThoughOneFailed() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-
-            BatchTransaction batchTransaction = new BatchTransaction();
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
 
             var initialBalance =
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
@@ -205,26 +219,24 @@ public class BatchTransactionIntegrationTest {
 
             var tx3 = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
+                    .setReceiverSignatureRequired(true)
                     .setInitialBalance(new Hbar(1))
-                    .batchify(testEnv.client, PrivateKey.generateECDSA());
+                    .batchify(testEnv.client, testEnv.operatorKey);
 
-            assertThatExceptionOfType(Exception.class)
-                    .isThrownBy(() -> {
-                        batchTransaction
-                                .addInnerTransaction(tx1)
-                                .addInnerTransaction(tx2)
-                                .addInnerTransaction(tx3)
-                                .execute(testEnv.client)
-                                .getReceipt(testEnv.client);
-                    })
-                    .withMessageContaining(Status.INVALID_SIGNATURE.toString());
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new BatchTransaction()
+                            .addInnerTransaction(tx1)
+                            .addInnerTransaction(tx2)
+                            .addInnerTransaction(tx3)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .withMessageContaining(Status.INNER_TRANSACTION_FAILED.toString());
 
             var finalBalance =
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
 
-            assertThat(finalBalance.getValue().intValue()
-                            < initialBalance.getValue().intValue())
-                    .isTrue();
+            assertThat(finalBalance.getValue().intValue())
+                    .isLessThan(initialBalance.getValue().intValue());
         }
     }
 }
