@@ -25,7 +25,7 @@ public final class TransactionResponse {
     /**
      * The maximum number of retry attempts for throttled transactions
      */
-    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final int MAX_RETRY_ATTEMPTS = 5;
 
     /**
      * The initial backoff delay in milliseconds
@@ -136,8 +136,9 @@ public final class TransactionResponse {
                 // Attempt to execute the receipt query
                 return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
             } catch (ReceiptStatusException e) {
-                // Check if the exception status indicates throttling
-                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
+                // Check if the exception status indicates throttling or inner transaction throttling
+                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS
+                        || e.receipt.status == Status.INNER_TRANSACTION_FAILED) {
                     lastException = e;
                     attempts++;
 

@@ -62,7 +62,8 @@ class AccountIdPopulationIntegrationTest {
             var receipt = new TransactionReceiptQuery()
                     .setTransactionId(tx.transactionId)
                     .setIncludeChildren(true)
-                    .execute(testEnv.client);
+                    .execute(testEnv.client)
+                    .validateStatus(true);
 
             var newAccountId = receipt.children.get(0).accountId;
 

@@ -31,6 +31,7 @@ public class BatchTransactionIntegrationTest {
             try {
                 batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
             } catch (ReceiptStatusException receiptStatusException) {
+                Thread.sleep(3000);
                 if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
                     new BatchTransaction()
                             .addInnerTransaction(tx)
@@ -70,6 +71,7 @@ public class BatchTransactionIntegrationTest {
                 batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
             } catch (ReceiptStatusException receiptStatusException) {
                 if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                    Thread.sleep(3000);
                     new BatchTransaction()
                             .setInnerTransactions(batchTransaction.getInnerTransactions())
                             .execute(testEnv.client)
@@ -187,6 +189,7 @@ public class BatchTransactionIntegrationTest {
                         .execute(testEnv.client)
                         .getReceipt(testEnv.client);
             } catch (ReceiptStatusException receiptStatusException) {
+                Thread.sleep(3000);
                 if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
                     new BatchTransaction()
                             .addInnerTransaction(topicMessageSubmitTransaction)
