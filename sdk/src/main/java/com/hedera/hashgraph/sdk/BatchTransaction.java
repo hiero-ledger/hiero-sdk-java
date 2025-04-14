@@ -9,7 +9,6 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import com.hedera.hashgraph.sdk.proto.UtilServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.*;
-import javax.annotation.Nullable;
 
 /**
  * Execute multiple transactions in a single consensus event.
@@ -21,10 +20,7 @@ import javax.annotation.Nullable;
  * ### Block Stream Effects Each inner transaction will appear in the transaction record stream.
  */
 public final class BatchTransaction extends Transaction<BatchTransaction> {
-    private List<Transaction> transactions = new ArrayList<>();
-
-    @Nullable
-    private List<TransactionId> innerTransactionIds = new ArrayList<>();
+    private List<Transaction> innerTransactions = new ArrayList<>();
 
     /**
      * Constructor.
@@ -63,8 +59,8 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     public BatchTransaction setInnerTransactions(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
         requireNotFrozen();
-        this.transactions.clear();
-        this.transactions.addAll(transactions);
+        this.innerTransactions.clear();
+        this.innerTransactions.addAll(transactions);
         return this;
     }
 
@@ -77,10 +73,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     public BatchTransaction addInnerTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
-        if (transaction.isFrozen() && transaction.getTransactionId() != null) {
-            innerTransactionIds.add(transaction.getTransactionId());
-        }
-        this.transactions.add(transaction);
+        this.innerTransactions.add(transaction);
         return this;
     }
 
@@ -90,7 +83,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @return The list of transactions
      */
     public List<Transaction> getInnerTransactions() {
-        return transactions;
+        return innerTransactions;
     }
 
     /**
@@ -103,15 +96,14 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @return The list of inner transaction IDs
      */
     public List<TransactionId> getInnerTransactionIds() {
-        if (innerTransactionIds == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(innerTransactionIds);
+        return this.innerTransactions.stream()
+                .map(Transaction::getTransactionId)
+                .toList();
     }
 
     @Override
     void validateChecksums(Client client) throws BadEntityIdException {
-        for (Transaction<?> transaction : transactions) {
+        for (Transaction<?> transaction : innerTransactions) {
             transaction.validateChecksums(client);
         }
     }
@@ -125,7 +117,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         for (var atomicTransaction : body.getTransactionsList()) {
             var transaction = com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
                     .setSignedTransactionBytes(atomicTransaction);
-            transactions.add(Transaction.fromBytes(transaction.build().toByteArray()));
+            innerTransactions.add(Transaction.fromBytes(transaction.build().toByteArray()));
         }
     }
 
@@ -141,7 +133,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      */
     AtomicBatchTransactionBody build() {
         var builder = AtomicBatchTransactionBody.newBuilder();
-        for (var transaction : transactions) {
+        for (var transaction : innerTransactions) {
             builder.addTransactions(transaction.makeRequest().getSignedTransactionBytes());
         }
         return builder.build();

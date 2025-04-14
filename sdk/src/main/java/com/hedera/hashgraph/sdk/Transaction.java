@@ -758,8 +758,8 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
-     * This method is used to mark a transaction as part of a batch transaction or so-called inner transaction.
-     * Transaction is signed by the executor of the batch transaction
+     * batchify method is used to mark a transaction as part of a batch transaction or make it so-called inner transaction.
+     * The Transaction will be frozen and signed by the operator of the client.
      * @param client
      * @param batchKey
      * @return
