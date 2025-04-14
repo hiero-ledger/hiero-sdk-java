@@ -23,6 +23,21 @@ import org.bouncycastle.util.encoders.Hex;
 public final class TransactionResponse {
 
     /**
+     * The maximum number of retry attempts for throttled transactions
+     */
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+
+    /**
+     * The initial backoff delay in milliseconds
+     */
+    private static final long INITIAL_BACKOFF_MS = 250;
+
+    /**
+     * The maximum backoff delay in milliseconds
+     */
+    private static final long MAX_BACKOFF_MS = 8000;
+
+    /**
      * The node ID
      */
     public final AccountId nodeId;
@@ -112,19 +127,46 @@ public final class TransactionResponse {
      */
     public TransactionReceipt getReceipt(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        try {
-            // Attempt to execute the receipt query
-            return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
-        } catch (ReceiptStatusException e) {
-            // Check if the exception status indicates throttling or inner txn throttling
-            if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
-                // Retry the transaction
-                return retryTransaction(client);
-            } else {
-                // If not throttled, rethrow the exception
-                throw e;
+        int attempts = 0;
+        ReceiptStatusException lastException = null;
+        long backoffMs = INITIAL_BACKOFF_MS;
+
+        while (attempts < MAX_RETRY_ATTEMPTS) {
+            try {
+                // Attempt to execute the receipt query
+                return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
+            } catch (ReceiptStatusException e) {
+                // Check if the exception status indicates throttling
+                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
+                    lastException = e;
+                    attempts++;
+                    
+                    if (attempts < MAX_RETRY_ATTEMPTS) {
+                        try {
+                            // Wait with exponential backoff before retrying
+                            Thread.sleep(Math.min(backoffMs, MAX_BACKOFF_MS));
+                            // Double the backoff for next attempt
+                            backoffMs *= 2;
+                            
+                            // Retry the transaction
+                            return retryTransaction(client);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException("Retry interrupted", ie);
+                        } catch (ReceiptStatusException retryException) {
+                            // Store the exception and continue with the next attempt
+                            lastException = retryException;
+                        }
+                    }
+                } else {
+                    // If not throttled, rethrow the exception immediately
+                    throw e;
+                }
             }
         }
+
+        // If we've exhausted all retries, throw the last exception
+        throw lastException;
     }
 
     private TransactionReceipt retryTransaction(Client client)
