@@ -22,7 +22,7 @@ public class BatchTransactionTest {
 
     static final Instant validStart = Instant.ofEpochSecond(1554158542);
 
-    private static final List<Transaction<?>> INNER_TRANSACTIONS = List.of(
+    private static final List<Transaction> INNER_TRANSACTIONS = List.of(
             spawnTestTransactionAccountCreate(),
             spawnTestTransactionAccountCreate(),
             spawnTestTransactionAccountCreate());
