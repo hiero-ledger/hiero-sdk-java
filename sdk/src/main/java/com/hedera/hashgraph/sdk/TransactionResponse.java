@@ -140,14 +140,14 @@ public final class TransactionResponse {
                 if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
                     lastException = e;
                     attempts++;
-                    
+
                     if (attempts < MAX_RETRY_ATTEMPTS) {
                         try {
                             // Wait with exponential backoff before retrying
                             Thread.sleep(Math.min(backoffMs, MAX_BACKOFF_MS));
                             // Double the backoff for next attempt
                             backoffMs *= 2;
-                            
+
                             // Retry the transaction
                             return retryTransaction(client);
                         } catch (InterruptedException ie) {
