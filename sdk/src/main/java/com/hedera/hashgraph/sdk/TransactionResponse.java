@@ -112,19 +112,18 @@ public final class TransactionResponse {
      */
     public TransactionReceipt getReceipt(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        while (true) {
-            try {
-                // Attempt to execute the receipt query
-                return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
-            } catch (ReceiptStatusException e) {
-                // Check if the exception status indicates throttling
-                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
-                    // Retry the transaction
-                    return retryTransaction(client);
-                } else {
-                    // If not throttled, rethrow the exception
-                    throw e;
-                }
+        try {
+            // Attempt to execute the receipt query
+            return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
+        } catch (ReceiptStatusException e) {
+            // Check if the exception status indicates throttling or inner txn throttling
+            if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS
+                    || e.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                // Retry the transaction
+                return retryTransaction(client);
+            } else {
+                // If not throttled, rethrow the exception
+                throw e;
             }
         }
     }

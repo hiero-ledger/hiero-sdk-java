@@ -17,7 +17,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Can create batch transaction")
     void canCreateBatchTransaction() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             var key = PrivateKey.generateECDSA();
             var tx1 = new AccountCreateTransaction()
@@ -45,7 +45,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Can execute a large batch transaction up to maximum request size")
     void canExecuteLargeBatchTransactionUpToMaximumRequestSize() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
             // 50 is the maximum limit for internal transaction inside a BatchTransaction
@@ -68,7 +68,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Batch Transaction with empty inner transaction's list should throw an error")
     void batchTransactionWithoutInnerTransactionsShouldThrowAnError() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
@@ -83,7 +83,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Blacklisted inner transaction should throw an error")
     void batchTransactionWithBlacklistedInnerTransactionShouldThrowAnError() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
@@ -108,7 +108,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Invalid batch key set to inner transaction should throw an error")
     void batchTransactionWithInvalidBatchKeyInsideInnerTransactionShouldThrowAnError() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
@@ -134,7 +134,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Non-batch transaction with batch key should throw an error")
     void nonBatchTransactionWithBatchKeyShouldThrowAnError() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateECDSA();
 
             assertThatExceptionOfType(Exception.class)
@@ -154,7 +154,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Chunked inner transactions should be executed successfully")
     void chunkedInnerTransactionsShouldBeExecutedSuccessfully() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
@@ -184,7 +184,7 @@ public class BatchTransactionIntegrationTest {
     @Test
     @DisplayName("Successful inner transaction should incur fees even though one failed")
     void successfulInnerTransactionsShouldIncurFeesEvenThoughOneFailed() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             BatchTransaction batchTransaction = new BatchTransaction();
 
