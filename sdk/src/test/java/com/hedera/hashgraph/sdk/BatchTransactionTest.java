@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
@@ -145,5 +146,49 @@ class BatchTransactionTest {
         assertThat(batchTransaction.getInnerTransactions()).hasSize(1);
         assertThat(batchTransaction.getNodeAccountIds()).hasSize(1);
         assertThat(batchTransaction.getTransactionId()).isNotNull();
+    }
+
+    @Test
+    void shouldRejectFreezeTransaction() {
+        var batchTransaction = new BatchTransaction();
+        var freezeTransaction = new FreezeTransaction()
+            .setStartTime(Instant.now())
+            .setFreezeType(FreezeType.FREEZE_ONLY)
+            .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+            .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+            .freeze();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> batchTransaction.addInnerTransaction(freezeTransaction))
+            .withMessageContaining("FreezeTransaction is not allowed in a batch transaction");
+    }
+
+    @Test
+    void shouldRejectBatchTransaction() {
+        var batchTransaction = new BatchTransaction();
+        var innerBatchTransaction = new BatchTransaction()
+            .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+            .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+            .freeze();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> batchTransaction.addInnerTransaction(innerBatchTransaction))
+            .withMessageContaining("BatchTransaction is not allowed in a batch transaction");
+    }
+
+    @Test
+    void shouldRejectBlacklistedTransactionInList() {
+        var batchTransaction = new BatchTransaction();
+        var validTransaction = spawnTestTransactionAccountCreate();
+        var freezeTransaction = new FreezeTransaction()
+            .setStartTime(Instant.now())
+            .setFreezeType(FreezeType.FREEZE_ONLY)
+            .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+            .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+            .freeze();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> batchTransaction.setInnerTransactions(List.of(validTransaction, freezeTransaction)))
+            .withMessageContaining("FreezeTransaction is not allowed in a batch transaction");
     }
 }

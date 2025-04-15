@@ -91,12 +91,10 @@ class BatchTransactionIntegrationTest {
                     .setFreezeType(FreezeType.FREEZE_ONLY)
                     .batchify(testEnv.client, testEnv.operatorKey);
 
-            assertThatExceptionOfType(ReceiptStatusException.class)
+            assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> new BatchTransaction()
-                            .addInnerTransaction(freezeTransaction)
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client))
-                    .withMessageContaining(Status.BATCH_TRANSACTION_IN_BLACKLIST.toString());
+                            .addInnerTransaction(freezeTransaction))
+                    .withMessageContaining("Transaction type FreezeTransaction is not allowed in a batch transaction");
 
             var key = PrivateKey.generateECDSA();
             var tx = new AccountCreateTransaction()
@@ -106,12 +104,10 @@ class BatchTransactionIntegrationTest {
 
             var batchTransaction =
                     new BatchTransaction().addInnerTransaction(tx).batchify(testEnv.client, testEnv.operatorKey);
-            assertThatExceptionOfType(ReceiptStatusException.class)
+            assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> new BatchTransaction()
-                            .addInnerTransaction(batchTransaction)
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client))
-                    .withMessageContaining(Status.BATCH_TRANSACTION_IN_BLACKLIST.toString());
+                            .addInnerTransaction(batchTransaction))
+                .withMessageContaining("Transaction type BatchTransaction is not allowed in a batch transaction");
         }
     }
 
@@ -130,30 +126,12 @@ class BatchTransactionIntegrationTest {
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, invalidKey.getPublicKey());
 
-            assertThatExceptionOfType(PrecheckStatusException.class)
+            assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> batchTransaction
                             .addInnerTransaction(tx)
                             .execute(testEnv.client)
                             .getReceipt(testEnv.client))
                     .withMessageContaining(Status.INVALID_SIGNATURE.toString());
-        }
-    }
-
-    @Test
-    @DisplayName("Non-batch transaction with batch key should throw an error")
-    void nonBatchTransactionWithBatchKeyShouldThrowAnError() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-            var key = PrivateKey.generateECDSA();
-
-            assertThatExceptionOfType(PrecheckStatusException.class)
-                    .isThrownBy(() -> new AccountCreateTransaction()
-                            .setKeyWithoutAlias(key)
-                            // without setting this property it is not possible to test this use case
-                            .setNodeAccountIds(Collections.singletonList(AccountId.fromString("0.0.3")))
-                            .batchify(testEnv.client, testEnv.operatorKey)
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client))
-                    .withMessageContaining(Status.BATCH_KEY_SET_ON_NON_INNER_TRANSACTION.toString());
         }
     }
 

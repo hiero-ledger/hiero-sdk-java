@@ -23,6 +23,14 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     private List<Transaction> innerTransactions = new ArrayList<>();
 
     /**
+     * List of transaction types that are not allowed in a batch transaction
+     */
+    private static final Set<Class<? extends Transaction<?>>> BLACKLISTED_TRANSACTIONS = Set.of(
+        FreezeTransaction.class,
+        BatchTransaction.class
+    );
+
+    /**
      * Constructor.
      */
     public BatchTransaction() {}
@@ -55,10 +63,15 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      *
      * @param transactions The list of transactions to be executed
      * @return {@code this}
+     * @throws IllegalArgumentException if any of the transactions is blacklisted
      */
     public BatchTransaction setInnerTransactions(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
         requireNotFrozen();
+        
+        // Validate all transactions before setting
+        transactions.forEach(this::validateTransaction);
+        
         this.innerTransactions = new ArrayList<>(transactions);
         return this;
     }
@@ -68,15 +81,35 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      *
      * @param transaction The transaction to be added
      * @return {@code this}
+     * @throws IllegalArgumentException if the transaction is blacklisted
+     * @throws IllegalStateException if the transaction is not frozen
      */
     public BatchTransaction addInnerTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
+        
+        validateTransaction(transaction);
+        
         if (!transaction.isFrozen()) {
             throw new IllegalStateException("Inner transaction should be frozen");
         }
+        
         this.innerTransactions.add(transaction);
         return this;
+    }
+
+    /**
+     * Validates if a transaction is allowed in a batch transaction.
+     *
+     * @param transaction The transaction to validate
+     * @throws IllegalArgumentException if the transaction is blacklisted
+     */
+    private void validateTransaction(Transaction<?> transaction) {
+        if (BLACKLISTED_TRANSACTIONS.contains(transaction.getClass())) {
+            throw new IllegalArgumentException(
+                "Transaction type " + transaction.getClass().getSimpleName() + " is not allowed in a batch transaction"
+            );
+        }
     }
 
     /**
