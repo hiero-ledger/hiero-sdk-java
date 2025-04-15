@@ -12,7 +12,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class BatchTransactionIntegrationTest {
+class BatchTransactionIntegrationTest {
 
     @Test
     @RetryTest(maxAttempts = 5)
@@ -26,8 +26,7 @@ public class BatchTransactionIntegrationTest {
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, testEnv.operatorKey);
 
-            // create new Batch Transaction
-            BatchTransaction batchTransaction = new BatchTransaction().addInnerTransaction(tx);
+            var batchTransaction = new BatchTransaction().addInnerTransaction(tx);
             batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
 
             var accountIdInnerTransaction =
@@ -59,6 +58,13 @@ public class BatchTransactionIntegrationTest {
             }
 
             batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+
+            for (var innerTransactionID : batchTransaction.getInnerTransactionIds()) {
+                var receipt = new TransactionReceiptQuery()
+                        .setTransactionId(innerTransactionID)
+                        .execute(testEnv.client);
+                assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+            }
         }
     }
 
@@ -66,13 +72,9 @@ public class BatchTransactionIntegrationTest {
     @DisplayName("Batch Transaction with empty inner transaction's list should throw an error")
     void batchTransactionWithoutInnerTransactionsShouldThrowAnError() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
-
-            BatchTransaction batchTransaction = new BatchTransaction();
-
-            assertThatExceptionOfType(Exception.class)
-                    .isThrownBy(() -> {
-                        batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
-                    })
+            assertThatExceptionOfType(PrecheckStatusException.class)
+                    .isThrownBy(
+                            () -> new BatchTransaction().execute(testEnv.client).getReceipt(testEnv.client))
                     .withMessageContaining(Status.BATCH_LIST_EMPTY.toString());
         }
     }
@@ -82,22 +84,33 @@ public class BatchTransactionIntegrationTest {
     void batchTransactionWithBlacklistedInnerTransactionShouldThrowAnError() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
 
-            BatchTransaction batchTransaction = new BatchTransaction();
-
-            var tx1 = new FreezeTransaction()
+            var freezeTransaction = new FreezeTransaction()
                     .setFileId(FileId.fromString("4.5.6"))
                     .setFileHash(Hex.decode("1723904587120938954702349857"))
                     .setStartTime(Instant.now())
                     .setFreezeType(FreezeType.FREEZE_ONLY)
                     .batchify(testEnv.client, testEnv.operatorKey);
 
-            assertThatExceptionOfType(Exception.class)
-                    .isThrownBy(() -> {
-                        batchTransaction
-                                .addInnerTransaction(tx1)
-                                .execute(testEnv.client)
-                                .getReceipt(testEnv.client);
-                    })
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new BatchTransaction()
+                            .addInnerTransaction(freezeTransaction)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .withMessageContaining(Status.BATCH_TRANSACTION_IN_BLACKLIST.toString());
+
+            var key = PrivateKey.generateECDSA();
+            var tx = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .batchify(testEnv.client, testEnv.operatorKey);
+
+            var batchTransaction =
+                    new BatchTransaction().addInnerTransaction(tx).batchify(testEnv.client, testEnv.operatorKey);
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new BatchTransaction()
+                            .addInnerTransaction(batchTransaction)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
                     .withMessageContaining(Status.BATCH_TRANSACTION_IN_BLACKLIST.toString());
         }
     }
@@ -112,18 +125,16 @@ public class BatchTransactionIntegrationTest {
             var key = PrivateKey.generateECDSA();
             var invalidKey = PrivateKey.generateECDSA();
 
-            var tx1 = new AccountCreateTransaction()
+            var tx = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, invalidKey.getPublicKey());
 
-            assertThatExceptionOfType(Exception.class)
-                    .isThrownBy(() -> {
-                        batchTransaction
-                                .addInnerTransaction(tx1)
-                                .execute(testEnv.client)
-                                .getReceipt(testEnv.client);
-                    })
+            assertThatExceptionOfType(PrecheckStatusException.class)
+                    .isThrownBy(() -> batchTransaction
+                            .addInnerTransaction(tx)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
                     .withMessageContaining(Status.INVALID_SIGNATURE.toString());
         }
     }
@@ -134,7 +145,7 @@ public class BatchTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateECDSA();
 
-            assertThatExceptionOfType(Exception.class)
+            assertThatExceptionOfType(PrecheckStatusException.class)
                     .isThrownBy(() -> new AccountCreateTransaction()
                             .setKeyWithoutAlias(key)
                             // without setting this property it is not possible to test this use case
@@ -167,10 +178,83 @@ public class BatchTransactionIntegrationTest {
                     .addInnerTransaction(topicMessageSubmitTransaction)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
+
+            var info = new TopicInfoQuery().setTopicId(topicId).execute(testEnv.client);
+
+            assertThat(info.sequenceNumber).isEqualTo(1);
         }
     }
 
     @Test
+    @RetryTest(maxAttempts = 5)
+    @DisplayName("Successful inner transaction should incur fees even though one failed")
+    void canExecuteWithDifferentBatchKeys() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+
+            var batchKey1 = PrivateKey.generateED25519();
+            var batchKey2 = PrivateKey.generateED25519();
+            var batchKey3 = PrivateKey.generateED25519();
+
+            var key1 = PrivateKey.generateECDSA();
+            var account1 = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key1)
+                    .setInitialBalance(new Hbar(1))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+            assertThat(account1).isNotNull();
+            var batchedTransfer1 = new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
+                    .addHbarTransfer(account1, Hbar.from(100).negated())
+                    .setTransactionId(TransactionId.generate(account1))
+                    .setBatchKey(batchKey1);
+
+            var key2 = PrivateKey.generateECDSA();
+            var account2 = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key2)
+                    .setInitialBalance(new Hbar(1))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+            assertThat(account2).isNotNull();
+            var batchedTransfer2 = new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
+                    .addHbarTransfer(account2, Hbar.from(100).negated())
+                    .setTransactionId(TransactionId.generate(account2))
+                    .setBatchKey(batchKey2);
+
+            var key3 = PrivateKey.generateECDSA();
+            var account3 = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key3)
+                    .setReceiverSignatureRequired(true)
+                    .setInitialBalance(new Hbar(1))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+            assertThat(account3).isNotNull();
+            var batchedTransfer3 = new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
+                    .addHbarTransfer(account3, Hbar.from(100).negated())
+                    .setTransactionId(TransactionId.generate(account3))
+                    .setBatchKey(batchKey3);
+
+            var receipt = new BatchTransaction()
+                    .addInnerTransaction(batchedTransfer1)
+                    .addInnerTransaction(batchedTransfer2)
+                    .addInnerTransaction(batchedTransfer3)
+                    .freezeWith(testEnv.client)
+                    .sign(batchKey1)
+                    .sign(batchKey2)
+                    .sign(batchKey3)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+        }
+    }
+
+    @Test
+    @RetryTest(maxAttempts = 5)
     @DisplayName("Successful inner transaction should incur fees even though one failed")
     void successfulInnerTransactionsShouldIncurFeesEvenThoughOneFailed() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
@@ -178,20 +262,21 @@ public class BatchTransactionIntegrationTest {
             var initialBalance =
                     new AccountInfoQuery().setAccountId(testEnv.operatorId).execute(testEnv.client).balance;
 
-            var key = PrivateKey.generateECDSA();
-
+            var key1 = PrivateKey.generateECDSA();
             var tx1 = new AccountCreateTransaction()
-                    .setKeyWithoutAlias(key)
+                    .setKeyWithoutAlias(key1)
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, testEnv.operatorKey);
 
+            var key2 = PrivateKey.generateECDSA();
             var tx2 = new AccountCreateTransaction()
-                    .setKeyWithoutAlias(key)
+                    .setKeyWithoutAlias(key2)
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, testEnv.operatorKey);
 
+            var key3 = PrivateKey.generateECDSA();
             var tx3 = new AccountCreateTransaction()
-                    .setKeyWithoutAlias(key)
+                    .setKeyWithoutAlias(key3)
                     .setReceiverSignatureRequired(true)
                     .setInitialBalance(new Hbar(1))
                     .batchify(testEnv.client, testEnv.operatorKey);
@@ -210,6 +295,22 @@ public class BatchTransactionIntegrationTest {
 
             assertThat(finalBalance.getValue().intValue())
                     .isLessThan(initialBalance.getValue().intValue());
+        }
+    }
+
+    @Test
+    @DisplayName("transaction should fail when batchified but not part of a batch")
+    void transactionShouldFailWhenBatchified() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .isThrownBy(() -> new TopicCreateTransaction()
+                            .setAdminKey(testEnv.operatorKey)
+                            .setTopicMemo("[e2e::TopicCreateTransaction]")
+                            .batchify(testEnv.client, key)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .withMessageContaining("Cannot execute batchified transaction outside of BatchTransaction");
         }
     }
 }

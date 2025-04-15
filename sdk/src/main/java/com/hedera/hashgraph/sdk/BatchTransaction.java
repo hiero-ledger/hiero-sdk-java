@@ -59,8 +59,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     public BatchTransaction setInnerTransactions(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
         requireNotFrozen();
-        this.innerTransactions.clear();
-        this.innerTransactions.addAll(transactions);
+        this.innerTransactions = new ArrayList<>(transactions);
         return this;
     }
 
@@ -73,6 +72,9 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     public BatchTransaction addInnerTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
+        if (!transaction.isFrozen()) {
+            throw new IllegalStateException("Inner transaction should be frozen");
+        }
         this.innerTransactions.add(transaction);
         return this;
     }
@@ -114,9 +116,9 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     void initFromTransactionBody() throws InvalidProtocolBufferException {
         var body = sourceTransactionBody.getAtomicBatch();
 
-        for (var atomicTransaction : body.getTransactionsList()) {
+        for (var atomicTransactionBytes : body.getTransactionsList()) {
             var transaction = com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
-                    .setSignedTransactionBytes(atomicTransaction);
+                    .setSignedTransactionBytes(atomicTransactionBytes);
             innerTransactions.add(Transaction.fromBytes(transaction.build().toByteArray()));
         }
     }

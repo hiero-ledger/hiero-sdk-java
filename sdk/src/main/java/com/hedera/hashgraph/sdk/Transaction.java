@@ -639,6 +639,10 @@ public abstract class Transaction<T extends Transaction<T>>
         return scheduled;
     }
 
+    protected boolean isBatchedAndNotBatchTransaction() {
+        return batchKey != null && !(this instanceof BatchTransaction);
+    }
+
     /**
      * Extract the scheduled transaction.
      *
@@ -760,20 +764,34 @@ public abstract class Transaction<T extends Transaction<T>>
     /**
      * batchify method is used to mark a transaction as part of a batch transaction or make it so-called inner transaction.
      * The Transaction will be frozen and signed by the operator of the client.
-     * @param client
-     * @param batchKey
-     * @return
+     * @param client sdk client
+     * @param batchKey batch key
+     * @return {@code this}
      */
     public final T batchify(Client client, Key batchKey) {
         requireNotFrozen();
         Objects.requireNonNull(batchKey);
         this.batchKey = batchKey;
         signWithOperator(client);
+
+        // noinspection unchecked
         return (T) this;
     }
 
     /**
-     * Get the key that will sign the batch of which this Transaction is a part.
+     * Set the key that will sign the batch of which this Transaction is a part of.
+     */
+    public final T setBatchKey(Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Get the key that will sign the batch of which this Transaction is a part of.
      */
     public Key getBatchKey() {
         return batchKey;
