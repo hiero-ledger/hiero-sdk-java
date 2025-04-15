@@ -187,7 +187,7 @@ class BatchTransactionIntegrationTest {
 
     @Test
     @RetryTest(maxAttempts = 5)
-    @DisplayName("Successful inner transaction should incur fees even though one failed")
+    @DisplayName("Can execute with different batch keys")
     void canExecuteWithDifferentBatchKeys() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
 
@@ -204,10 +204,12 @@ class BatchTransactionIntegrationTest {
                     .accountId;
             assertThat(account1).isNotNull();
             var batchedTransfer1 = new TransferTransaction()
-                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
-                    .addHbarTransfer(account1, Hbar.from(100).negated())
+                    .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(100))
+                    .addHbarTransfer(account1, Hbar.fromTinybars(100).negated())
                     .setTransactionId(TransactionId.generate(account1))
-                    .setBatchKey(batchKey1);
+                    .setBatchKey(batchKey1)
+                    .freezeWith(testEnv.client)
+                    .sign(key1);
 
             var key2 = PrivateKey.generateECDSA();
             var account2 = new AccountCreateTransaction()
@@ -218,25 +220,28 @@ class BatchTransactionIntegrationTest {
                     .accountId;
             assertThat(account2).isNotNull();
             var batchedTransfer2 = new TransferTransaction()
-                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
-                    .addHbarTransfer(account2, Hbar.from(100).negated())
+                    .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(100))
+                    .addHbarTransfer(account2, Hbar.fromTinybars(100).negated())
                     .setTransactionId(TransactionId.generate(account2))
-                    .setBatchKey(batchKey2);
+                    .setBatchKey(batchKey2)
+                    .freezeWith(testEnv.client)
+                    .sign(key2);
 
             var key3 = PrivateKey.generateECDSA();
             var account3 = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key3)
-                    .setReceiverSignatureRequired(true)
                     .setInitialBalance(new Hbar(1))
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
                     .accountId;
             assertThat(account3).isNotNull();
             var batchedTransfer3 = new TransferTransaction()
-                    .addHbarTransfer(testEnv.operatorId, Hbar.from(100))
-                    .addHbarTransfer(account3, Hbar.from(100).negated())
+                    .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(100))
+                    .addHbarTransfer(account3, Hbar.fromTinybars(100).negated())
                     .setTransactionId(TransactionId.generate(account3))
-                    .setBatchKey(batchKey3);
+                    .setBatchKey(batchKey3)
+                    .freezeWith(testEnv.client)
+                    .sign(key3);
 
             var receipt = new BatchTransaction()
                     .addInnerTransaction(batchedTransfer1)
