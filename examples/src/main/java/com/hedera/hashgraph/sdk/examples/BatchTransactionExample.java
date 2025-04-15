@@ -6,7 +6,6 @@ import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
 class BatchTransactionExample {
 
@@ -66,8 +65,7 @@ class BatchTransactionExample {
         System.out.println("Batch Transaction Example Complete!");
     }
 
-    private static void executeBatchWithManualInnerTransactionFreeze(Client client)
-        throws Exception {
+    private static void executeBatchWithManualInnerTransactionFreeze(Client client) throws Exception {
         /*
          * Step 1:
          * Create batch keys
@@ -83,50 +81,50 @@ class BatchTransactionExample {
         System.out.println("Creating three accounts and preparing batched transfers...");
         var aliceKey = PrivateKey.generateECDSA();
         var alice = new AccountCreateTransaction()
-            .setKeyWithoutAlias(aliceKey)
-            .setInitialBalance(new Hbar(2))
-            .execute(client)
-            .getReceipt(client)
-            .accountId;
+                .setKeyWithoutAlias(aliceKey)
+                .setInitialBalance(new Hbar(2))
+                .execute(client)
+                .getReceipt(client)
+                .accountId;
         var aliceBatchedTransfer = new TransferTransaction()
-            .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
-            .addHbarTransfer(alice, Hbar.from(1).negated())
-            .setTransactionId(TransactionId.generate(alice))
-            .setBatchKey(batchKey1)
-            .freezeWith(client)
-            .sign(aliceKey);
+                .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
+                .addHbarTransfer(alice, Hbar.from(1).negated())
+                .setTransactionId(TransactionId.generate(alice))
+                .setBatchKey(batchKey1)
+                .freezeWith(client)
+                .sign(aliceKey);
         System.out.println("Created first account (Alice): " + alice);
 
         var bobKey = PrivateKey.generateECDSA();
         var bob = new AccountCreateTransaction()
-            .setKeyWithoutAlias(bobKey)
-            .setInitialBalance(new Hbar(2))
-            .execute(client)
-            .getReceipt(client)
-            .accountId;
+                .setKeyWithoutAlias(bobKey)
+                .setInitialBalance(new Hbar(2))
+                .execute(client)
+                .getReceipt(client)
+                .accountId;
         var bobBatchedTransfer = new TransferTransaction()
-            .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
-            .addHbarTransfer(bob, Hbar.from(1).negated())
-            .setTransactionId(TransactionId.generate(bob))
-            .setBatchKey(batchKey2)
-            .freezeWith(client)
-            .sign(bobKey);
+                .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
+                .addHbarTransfer(bob, Hbar.from(1).negated())
+                .setTransactionId(TransactionId.generate(bob))
+                .setBatchKey(batchKey2)
+                .freezeWith(client)
+                .sign(bobKey);
         System.out.println("Created second account (Bob): " + bob);
 
         var carolKey = PrivateKey.generateECDSA();
         var carol = new AccountCreateTransaction()
-            .setKeyWithoutAlias(carolKey)
-            .setInitialBalance(new Hbar(2))
-            .execute(client)
-            .getReceipt(client)
-            .accountId;
+                .setKeyWithoutAlias(carolKey)
+                .setInitialBalance(new Hbar(2))
+                .execute(client)
+                .getReceipt(client)
+                .accountId;
         var carolBatchedTransfer = new TransferTransaction()
-            .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
-            .addHbarTransfer(carol, Hbar.from(1).negated())
-            .setTransactionId(TransactionId.generate(carol))
-            .setBatchKey(batchKey3)
-            .freezeWith(client)
-            .sign(carolKey);
+                .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
+                .addHbarTransfer(carol, Hbar.from(1).negated())
+                .setTransactionId(TransactionId.generate(carol))
+                .setBatchKey(batchKey3)
+                .freezeWith(client)
+                .sign(carolKey);
         System.out.println("Created third account (Carol): " + carol);
 
         /*
@@ -136,7 +134,9 @@ class BatchTransactionExample {
         var aliceBalanceBefore = new AccountBalanceQuery().setAccountId(alice).execute(client);
         var bobBalanceBefore = new AccountBalanceQuery().setAccountId(bob).execute(client);
         var carolBalanceBefore = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        var operatorBalanceBefore = new AccountBalanceQuery().setAccountId(client.getOperatorAccountId()).execute(client);
+        var operatorBalanceBefore = new AccountBalanceQuery()
+                .setAccountId(client.getOperatorAccountId())
+                .execute(client);
 
         /*
          * Step 4:
@@ -144,15 +144,15 @@ class BatchTransactionExample {
          */
         System.out.println("Executing batch transaction...");
         var receipt = new BatchTransaction()
-            .addInnerTransaction(aliceBatchedTransfer)
-            .addInnerTransaction(bobBatchedTransfer)
-            .addInnerTransaction(carolBatchedTransfer)
-            .freezeWith(client)
-            .sign(batchKey1)
-            .sign(batchKey2)
-            .sign(batchKey3)
-            .execute(client)
-            .getReceipt(client);
+                .addInnerTransaction(aliceBatchedTransfer)
+                .addInnerTransaction(bobBatchedTransfer)
+                .addInnerTransaction(carolBatchedTransfer)
+                .freezeWith(client)
+                .sign(batchKey1)
+                .sign(batchKey2)
+                .sign(batchKey3)
+                .execute(client)
+                .getReceipt(client);
         System.out.println("Batch transaction executed with status: " + receipt.status);
 
         /*
@@ -163,12 +163,17 @@ class BatchTransactionExample {
         var aliceBalanceAfter = new AccountBalanceQuery().setAccountId(alice).execute(client);
         var bobBalanceAfter = new AccountBalanceQuery().setAccountId(bob).execute(client);
         var carolBalanceAfter = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        var operatorBalanceAfter = new AccountBalanceQuery().setAccountId(client.getOperatorAccountId()).execute(client);
+        var operatorBalanceAfter = new AccountBalanceQuery()
+                .setAccountId(client.getOperatorAccountId())
+                .execute(client);
 
-        System.out.println("Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
+        System.out.println(
+                "Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
         System.out.println("Bob's initial balance: " + bobBalanceBefore.hbars + ", after: " + bobBalanceAfter.hbars);
-        System.out.println("Carol's initial balance: " + carolBalanceBefore.hbars + ", after: " + carolBalanceAfter.hbars);
-        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: " + operatorBalanceAfter.hbars);
+        System.out.println(
+                "Carol's initial balance: " + carolBalanceBefore.hbars + ", after: " + carolBalanceAfter.hbars);
+        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: "
+                + operatorBalanceAfter.hbars);
     }
 
     private static void executeBatchWithBatchify(Client client) throws Exception {
@@ -186,11 +191,11 @@ class BatchTransactionExample {
         System.out.println("Creating three accounts and preparing batched transfers...");
         var aliceKey = PrivateKey.generateECDSA();
         var alice = new AccountCreateTransaction()
-            .setKeyWithoutAlias(aliceKey)
-            .setInitialBalance(new Hbar(2))
-            .execute(client)
-            .getReceipt(client)
-            .accountId;
+                .setKeyWithoutAlias(aliceKey)
+                .setInitialBalance(new Hbar(2))
+                .execute(client)
+                .getReceipt(client)
+                .accountId;
 
         System.out.println("Created Alice: " + alice);
 
@@ -199,15 +204,15 @@ class BatchTransactionExample {
          * Create client for alice
          */
         var aliceClient = ClientHelper.forName(HEDERA_NETWORK);
-            aliceClient.setOperator(alice, aliceKey);
+        aliceClient.setOperator(alice, aliceKey);
 
         /*
          * Step 4:
          * Batchify a transfer transaction
          */
         var aliceBatchedTransfer = new TransferTransaction()
-            .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
-            .addHbarTransfer(alice, Hbar.from(1).negated())
+                .addHbarTransfer(client.getOperatorAccountId(), Hbar.from(1))
+                .addHbarTransfer(alice, Hbar.from(1).negated())
                 .batchify(aliceClient, batchKey);
 
         /*
@@ -215,8 +220,9 @@ class BatchTransactionExample {
          * Get the balances in order to compare after the batch execution
          */
         var aliceBalanceBefore = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var operatorBalanceBefore = new AccountBalanceQuery().setAccountId(client.getOperatorAccountId()).execute(client);
-
+        var operatorBalanceBefore = new AccountBalanceQuery()
+                .setAccountId(client.getOperatorAccountId())
+                .execute(client);
 
         /*
          * Step 6:
@@ -224,11 +230,11 @@ class BatchTransactionExample {
          */
         System.out.println("Executing batch transaction...");
         var receipt = new BatchTransaction()
-            .addInnerTransaction(aliceBatchedTransfer)
-            .freezeWith(client)
-            .sign(batchKey)
-            .execute(client)
-            .getReceipt(client);
+                .addInnerTransaction(aliceBatchedTransfer)
+                .freezeWith(client)
+                .sign(batchKey)
+                .execute(client)
+                .getReceipt(client);
         System.out.println("Batch transaction executed with status: " + receipt.status);
 
         /*
@@ -237,10 +243,13 @@ class BatchTransactionExample {
          */
         System.out.println("Verifying the balances after batch execution...");
         var aliceBalanceAfter = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var operatorBalanceAfter = new AccountBalanceQuery().setAccountId(client.getOperatorAccountId()).execute(client);
+        var operatorBalanceAfter = new AccountBalanceQuery()
+                .setAccountId(client.getOperatorAccountId())
+                .execute(client);
 
-        System.out.println("Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
-        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: " + operatorBalanceAfter.hbars);
+        System.out.println(
+                "Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
+        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: "
+                + operatorBalanceAfter.hbars);
     }
 }
-
