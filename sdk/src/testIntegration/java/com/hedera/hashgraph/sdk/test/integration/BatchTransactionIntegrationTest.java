@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 public class BatchTransactionIntegrationTest {
 
     @Test
+    @RetryTest(maxAttempts = 5)
     @DisplayName("Can create batch transaction")
     void canCreateBatchTransaction() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -27,18 +28,7 @@ public class BatchTransactionIntegrationTest {
 
             // create new Batch Transaction
             BatchTransaction batchTransaction = new BatchTransaction().addInnerTransaction(tx);
-
-            try {
-                batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
-            } catch (ReceiptStatusException receiptStatusException) {
-                Thread.sleep(3000);
-                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
-                    new BatchTransaction()
-                            .addInnerTransaction(tx)
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client);
-                }
-            }
+            batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
 
             var accountIdInnerTransaction =
                     batchTransaction.getInnerTransactionIds().get(0).accountId;
@@ -51,6 +41,7 @@ public class BatchTransactionIntegrationTest {
     }
 
     @Test
+    @RetryTest(maxAttempts = 5)
     @DisplayName("Can execute a large batch transaction up to maximum request size")
     void canExecuteLargeBatchTransactionUpToMaximumRequestSize() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -67,17 +58,7 @@ public class BatchTransactionIntegrationTest {
                 batchTransaction.addInnerTransaction(tx);
             }
 
-            try {
-                batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
-            } catch (ReceiptStatusException receiptStatusException) {
-                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
-                    Thread.sleep(3000);
-                    new BatchTransaction()
-                            .setInnerTransactions(batchTransaction.getInnerTransactions())
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client);
-                }
-            }
+            batchTransaction.execute(testEnv.client).getReceipt(testEnv.client);
         }
     }
 
@@ -154,20 +135,19 @@ public class BatchTransactionIntegrationTest {
             var key = PrivateKey.generateECDSA();
 
             assertThatExceptionOfType(Exception.class)
-                    .isThrownBy(() -> {
-                        new AccountCreateTransaction()
-                                .setKeyWithoutAlias(key)
-                                // without setting this property it is not possible to test this use case
-                                .setNodeAccountIds(Collections.singletonList(AccountId.fromString("0.0.3")))
-                                .batchify(testEnv.client, testEnv.operatorKey)
-                                .execute(testEnv.client)
-                                .getReceipt(testEnv.client);
-                    })
+                    .isThrownBy(() -> new AccountCreateTransaction()
+                            .setKeyWithoutAlias(key)
+                            // without setting this property it is not possible to test this use case
+                            .setNodeAccountIds(Collections.singletonList(AccountId.fromString("0.0.3")))
+                            .batchify(testEnv.client, testEnv.operatorKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
                     .withMessageContaining(Status.BATCH_KEY_SET_ON_NON_INNER_TRANSACTION.toString());
         }
     }
 
     @Test
+    @RetryTest(maxAttempts = 5)
     @DisplayName("Chunked inner transactions should be executed successfully")
     void chunkedInnerTransactionsShouldBeExecutedSuccessfully() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -183,20 +163,10 @@ public class BatchTransactionIntegrationTest {
                     .setMaxChunks(15)
                     .setMessage(Contents.BIG_CONTENTS)
                     .batchify(testEnv.client, testEnv.operatorKey);
-            try {
-                new BatchTransaction()
-                        .addInnerTransaction(topicMessageSubmitTransaction)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-            } catch (ReceiptStatusException receiptStatusException) {
-                Thread.sleep(3000);
-                if (receiptStatusException.receipt.status == Status.INNER_TRANSACTION_FAILED) {
-                    new BatchTransaction()
-                            .addInnerTransaction(topicMessageSubmitTransaction)
-                            .execute(testEnv.client)
-                            .getReceipt(testEnv.client);
-                }
-            }
+            new BatchTransaction()
+                    .addInnerTransaction(topicMessageSubmitTransaction)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
         }
     }
 

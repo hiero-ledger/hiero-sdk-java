@@ -137,8 +137,7 @@ public final class TransactionResponse {
                 return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
             } catch (ReceiptStatusException e) {
                 // Check if the exception status indicates throttling or inner transaction throttling
-                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS
-                        || e.receipt.status == Status.INNER_TRANSACTION_FAILED) {
+                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
                     lastException = e;
                     attempts++;
 
@@ -153,7 +152,7 @@ public final class TransactionResponse {
                             return retryTransaction(client);
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
-                            throw new RuntimeException("Retry interrupted", ie);
+                            throw new RuntimeException("Retry on throttled status interrupted", ie);
                         } catch (ReceiptStatusException retryException) {
                             // Store the exception and continue with the next attempt
                             lastException = retryException;
