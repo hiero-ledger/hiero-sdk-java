@@ -11,28 +11,60 @@ import io.grpc.MethodDescriptor;
 import java.util.*;
 
 /**
- * Execute multiple transactions in a single consensus event.
+ * Execute multiple transactions in a single consensus event. This allows for atomic execution of multiple
+ * transactions, where they either all succeed or all fail together.
  * <p>
- * ### Requirements - All transactions must be signed as required for each individual transaction. The
- * BatchTransaction must be signed by the operator account. Fees are assessed for each inner transaction separately.
+ * Requirements:
+ * <ul>
+ *     <li>All inner transactions must be frozen before being added to the batch</li>
+ *     <li>All inner transactions must have a batch key set</li>
+ *     <li>All inner transactions must be signed as required for each individual transaction</li>
+ *     <li>The BatchTransaction must be signed by all batch keys of the inner transactions</li>
+ *     <li>Certain transaction types (FreezeTransaction, BatchTransaction) are not allowed in a batch</li>
+ * </ul>
  * <p>
+ * Important notes:
+ * <ul>
+ *     <li>Fees are assessed for each inner transaction separately</li>
+ *     <li>The maximum number of inner transactions in a batch is limited to 25</li>
+ *     <li>Inner transactions cannot be scheduled transactions</li>
+ * </ul>
+ * <p>
+ * Example usage:
+ * <pre>
+ * var batchKey = PrivateKey.generateED25519();
+ *
+ * // Create and prepare inner transaction
+ * var transaction = new TransferTransaction()
+ *     .addHbarTransfer(sender, amount.negated())
+ *     .addHbarTransfer(receiver, amount)
+ *     .batchify(client, batchKey);
+ *
+ * // Create and execute batch transaction
+ * var response = new BatchTransaction()
+ *     .addInnerTransaction(transaction)
+ *     .freezeWith(client)
+ *     .sign(batchKey)
+ *     .execute(client);
+ * </pre>
  */
 public final class BatchTransaction extends Transaction<BatchTransaction> {
     private List<Transaction> innerTransactions = new ArrayList<>();
 
     /**
-     * List of transaction types that are not allowed in a batch transaction
+     * List of transaction types that are not allowed in a batch transaction.
+     * These transactions are prohibited due to their special nature or network-level implications.
      */
     private static final Set<Class<? extends Transaction<?>>> BLACKLISTED_TRANSACTIONS =
             Set.of(FreezeTransaction.class, BatchTransaction.class);
 
     /**
-     * Constructor.
+     * Creates a new empty BatchTransaction.
      */
     public BatchTransaction() {}
 
     /**
-     * Constructor.
+     * Constructor for internal use when recreating a transaction from a TransactionBody.
      *
      * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
@@ -45,9 +77,10 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     }
 
     /**
-     * Constructor.
+     * Constructor for internal use when recreating a transaction from a TransactionBody.
      *
      * @param txBody protobuf TransactionBody
+     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     BatchTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) throws InvalidProtocolBufferException {
         super(txBody);
@@ -56,10 +89,22 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     /**
      * Set the list of transactions to be executed as part of this BatchTransaction.
+     * <p>
+     * Requirements for each inner transaction:
+     * <ul>
+     *     <li>Must be frozen (use {@link Transaction#freeze()} or {@link Transaction#freezeWith(Client)})</li>
+     *     <li>Must have a batch key set (use {@link Transaction#setBatchKey(Key)}} or {@link Transaction#batchify(Client, Key)})</li>
+     *     <li>Must not be a blacklisted transaction type</li>
+     * </ul>
+     * <p>
+     * Note: This method creates a defensive copy of the provided list.
      *
      * @param transactions The list of transactions to be executed
      * @return {@code this}
-     * @throws IllegalArgumentException if any of the transactions is blacklisted
+     * @throws NullPointerException if transactions is null
+     * @throws IllegalStateException if this transaction is frozen
+     * @throws IllegalStateException if any inner transaction is not frozen or missing a batch key
+     * @throws IllegalArgumentException if any transaction is of a blacklisted type
      */
     public BatchTransaction setInnerTransactions(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
@@ -74,11 +119,20 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     /**
      * Append a transaction to the list of transactions this BatchTransaction will execute.
+     * <p>
+     * Requirements for the inner transaction:
+     * <ul>
+     *     <li>Must be frozen (use {@link Transaction#freeze()} or {@link Transaction#freezeWith(Client)})</li>
+     *     <li>Must have a batch key set (use {@link Transaction#setBatchKey(Key)}} or {@link Transaction#batchify(Client, Key)})</li>
+     *     <li>Must not be a blacklisted transaction type</li>
+     * </ul>
      *
      * @param transaction The transaction to be added
      * @return {@code this}
-     * @throws IllegalArgumentException if the transaction is blacklisted
-     * @throws IllegalStateException if the transaction is not frozen
+     * @throws NullPointerException if transaction is null
+     * @throws IllegalStateException if this transaction is frozen
+     * @throws IllegalStateException if the inner transaction is not frozen or missing a batch key
+     * @throws IllegalArgumentException if the transaction is of a blacklisted type
      */
     public BatchTransaction addInnerTransaction(Transaction<?> transaction) {
         Objects.requireNonNull(transaction);
@@ -92,9 +146,17 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     /**
      * Validates if a transaction is allowed in a batch transaction.
+     * <p>
+     * A transaction is valid if:
+     * <ul>
+     *     <li>It is not a blacklisted type (FreezeTransaction or BatchTransaction)</li>
+     *     <li>It is frozen</li>
+     *     <li>It has a batch key set</li>
+     * </ul>
      *
      * @param transaction The transaction to validate
      * @throws IllegalArgumentException if the transaction is blacklisted
+     * @throws IllegalStateException if the transaction is not frozen or missing a batch key
      */
     private void validateInnerTransaction(Transaction<?> transaction) {
         if (BLACKLISTED_TRANSACTIONS.contains(transaction.getClass())) {
@@ -113,8 +175,11 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
 
     /**
      * Get the list of transactions this BatchTransaction is currently configured to execute.
+     * <p>
+     * Note: This returns the actual list of transactions. Modifications to this list will affect
+     * the batch transaction if it is not frozen.
      *
-     * @return The list of transactions
+     * @return The list of inner transactions
      */
     public List<Transaction> getInnerTransactions() {
         return innerTransactions;
@@ -123,9 +188,15 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
     /**
      * Get the list of transaction IDs of each inner transaction of this BatchTransaction.
      * <p>
-     * **NOTE**: this will return undefined data until the transaction IDs for each inner transaction actually get
-     * generated/set (i.e. this BatchTransaction has been executed). This is provided to the user as a convenience
-     * feature in case they would like to get the receipts of each individual inner transaction.
+     * This method is particularly useful after execution to:
+     * <ul>
+     *     <li>Track individual transaction results</li>
+     *     <li>Query receipts for specific inner transactions</li>
+     *     <li>Monitor the status of each transaction in the batch</li>
+     * </ul>
+     * <p>
+     * <b>NOTE:</b> Transaction IDs will only be meaningful after the batch transaction has been
+     * executed or the IDs have been explicitly set on the inner transactions.
      *
      * @return The list of inner transaction IDs
      */
