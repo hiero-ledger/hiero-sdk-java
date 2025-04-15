@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,7 @@ class BatchTransactionTest {
                 .setAlias("0x5c562e90feaf0eebd33ea75d21024f249d451417")
                 .setMaxAutomaticTokenAssociations(100)
                 .setMaxTransactionFee(Hbar.fromTinybars(100_000))
+                .setBatchKey(privateKeyECDSA)
                 .freeze()
                 .sign(privateKeyED25519);
     }
@@ -190,5 +192,190 @@ class BatchTransactionTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> batchTransaction.setInnerTransactions(List.of(validTransaction, freezeTransaction)))
                 .withMessageContaining("FreezeTransaction is not allowed in a batch transaction");
+    }
+
+    @Test
+    void shouldRejectNullTransaction() {
+        var batchTransaction = new BatchTransaction();
+
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(null));
+    }
+
+    @Test
+    void shouldRejectNullTransactionList() {
+        var batchTransaction = new BatchTransaction();
+
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> batchTransaction.setInnerTransactions(null));
+    }
+
+    @Test
+    void shouldRejectUnfrozenTransaction() {
+        var batchTransaction = new BatchTransaction();
+        var unfrozenTransaction = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart));
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(unfrozenTransaction))
+                .withMessageContaining("Inner transaction should be frozen");
+    }
+
+    @Test
+    void shouldRejectTransactionAfterFreeze() {
+        var batchTransaction = new BatchTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(spawnTestTransactionAccountCreate()))
+                .withMessageContaining("transaction is immutable");
+    }
+
+    @Test
+    void shouldRejectTransactionListAfterFreeze() {
+        var batchTransaction = new BatchTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.setInnerTransactions(INNER_TRANSACTIONS))
+                .withMessageContaining("transaction is immutable");
+    }
+
+    @Test
+    void shouldAllowEmptyTransactionListBeforeExecution() {
+        var batchTransaction = new BatchTransaction();
+        batchTransaction.setInnerTransactions(Collections.emptyList());
+
+        assertThat(batchTransaction.getInnerTransactions()).isNotNull().isEmpty();
+    }
+
+    @Test
+    void shouldPreserveTransactionOrder() {
+        var batchTransaction = new BatchTransaction();
+        var transaction1 = spawnTestTransactionAccountCreate();
+        var transaction2 = spawnTestTransactionAccountCreate();
+        var transaction3 = spawnTestTransactionAccountCreate();
+
+        List<Transaction> transactions = Arrays.asList(transaction1, transaction2, transaction3);
+        batchTransaction.setInnerTransactions(transactions);
+
+        assertThat(batchTransaction.getInnerTransactions()).containsExactly(transaction1, transaction2, transaction3);
+    }
+
+    @Test
+    void shouldCreateDefensiveCopyOfTransactionList() {
+        var batchTransaction = new BatchTransaction();
+        var mutableList = new ArrayList<>(INNER_TRANSACTIONS);
+
+        batchTransaction.setInnerTransactions(mutableList);
+        mutableList.clear();
+
+        assertThat(batchTransaction.getInnerTransactions())
+                .isNotNull()
+                .hasSize(3)
+                .isEqualTo(INNER_TRANSACTIONS);
+    }
+
+    @Test
+    void shouldRejectTransactionWithoutBatchKey() {
+        var batchTransaction = new BatchTransaction();
+        var transactionWithoutBatchKey = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(transactionWithoutBatchKey))
+                .withMessageContaining("Batch key needs to be set");
+    }
+
+    @Test
+    void shouldValidateAllTransactionsInList() {
+        var batchTransaction = new BatchTransaction();
+        var validTransaction = spawnTestTransactionAccountCreate();
+        var transactionWithoutBatchKey = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() ->
+                        batchTransaction.setInnerTransactions(List.of(validTransaction, transactionWithoutBatchKey)))
+                .withMessageContaining("Batch key needs to be set");
+    }
+
+    @Test
+    void shouldValidateMultipleConditions() {
+        var batchTransaction = new BatchTransaction();
+
+        // Test unfrozen transaction with no batch key
+        var unfrozenTransactionWithoutBatchKey = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart));
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(unfrozenTransactionWithoutBatchKey))
+                .withMessageContaining("Inner transaction should be frozen");
+
+        // Test frozen transaction with no batch key
+        var frozenTransactionWithoutBatchKey = unfrozenTransactionWithoutBatchKey.freeze();
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(frozenTransactionWithoutBatchKey))
+                .withMessageContaining("Batch key needs to be set");
+
+        // Test blacklisted transaction with batch key
+        var blacklistedTransaction = new FreezeTransaction()
+                .setStartTime(Instant.now())
+                .setFreezeType(FreezeType.FREEZE_ONLY)
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setBatchKey(privateKeyECDSA)
+                .freeze();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(blacklistedTransaction))
+                .withMessageContaining("FreezeTransaction is not allowed in a batch transaction");
+    }
+
+    @Test
+    void shouldAcceptValidTransaction() {
+        var batchTransaction = new BatchTransaction();
+        var validTransaction = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setBatchKey(privateKeyECDSA)
+                .freeze();
+
+        batchTransaction.addInnerTransaction(validTransaction);
+
+        assertThat(batchTransaction.getInnerTransactions())
+                .isNotNull()
+                .hasSize(1)
+                .contains(validTransaction);
+    }
+
+    @Test
+    void shouldValidateTransactionStateInOrder() {
+        var batchTransaction = new BatchTransaction();
+        var transaction = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart));
+
+        // First check should be for frozen state
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(transaction))
+                .withMessageContaining("Inner transaction should be frozen");
+
+        // After freezing, next check should be for batch key
+        var frozenTransaction = transaction.freeze();
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> batchTransaction.addInnerTransaction(frozenTransaction))
+                .withMessageContaining("Batch key needs to be set");
     }
 }

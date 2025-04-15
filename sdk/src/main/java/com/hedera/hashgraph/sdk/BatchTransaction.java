@@ -105,6 +105,10 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         if (!transaction.isFrozen()) {
             throw new IllegalStateException("Inner transaction should be frozen");
         }
+
+        if (transaction.getBatchKey() == null) {
+            throw new IllegalStateException("Batch key needs to be set");
+        }
     }
 
     /**

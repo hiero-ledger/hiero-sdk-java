@@ -40,6 +40,33 @@ class BatchTransactionIntegrationTest {
 
     @Test
     @RetryTest(maxAttempts = 5)
+    @DisplayName("Can execute from/toBytes")
+    void canExecuteFromToBytes() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var key = PrivateKey.generateECDSA();
+            var tx = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .batchify(testEnv.client, testEnv.operatorKey);
+
+            var batchTransaction = new BatchTransaction().addInnerTransaction(tx);
+            var batchTransactionBytes = batchTransaction.toBytes();
+            var batchTransactionFromBytes = BatchTransaction.fromBytes(batchTransactionBytes);
+            batchTransactionFromBytes.execute(testEnv.client).getReceipt(testEnv.client);
+
+            var accountIdInnerTransaction =
+                    batchTransaction.getInnerTransactionIds().get(0).accountId;
+
+            var execute = new AccountInfoQuery()
+                    .setAccountId(accountIdInnerTransaction)
+                    .execute(testEnv.client);
+            assertThat(accountIdInnerTransaction).isEqualTo(execute.accountId);
+        }
+    }
+
+    @Test
+    @RetryTest(maxAttempts = 5)
     @DisplayName("Can execute a large batch transaction up to maximum request size")
     void canExecuteLargeBatchTransactionUpToMaximumRequestSize() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -279,7 +306,7 @@ class BatchTransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("transaction should fail when batchified but not part of a batch")
+    @DisplayName("Transaction should fail when batchified but not part of a batch")
     void transactionShouldFailWhenBatchified() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();

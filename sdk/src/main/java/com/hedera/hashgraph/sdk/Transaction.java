@@ -172,7 +172,8 @@ public abstract class Transaction<T extends Transaction<T>>
         LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction> transactionMap =
                 txs.values().iterator().next();
         if (!transactionMap.isEmpty()
-                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)) {
+                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)
+                && this.batchKey != null) {
             // If the first account ID is a dummy account ID, then only the source TransactionBody needs to be copied.
             var signedTransaction = SignedTransaction.parseFrom(
                     transactionMap.values().iterator().next().getSignedTransactionBytes());
