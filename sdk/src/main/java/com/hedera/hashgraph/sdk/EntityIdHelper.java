@@ -244,6 +244,7 @@ public class EntityIdHelper {
      * @param address
      * @return
      */
+    @Deprecated
     static boolean isLongZeroAddress(byte[] address) {
         for (int i = 0; i < 12; i++) {
             if (address[i] != 0) {

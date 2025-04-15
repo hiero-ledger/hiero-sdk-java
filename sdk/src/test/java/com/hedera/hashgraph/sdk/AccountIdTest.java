@@ -52,6 +52,14 @@ class AccountIdTest {
     }
 
     @Test
+    void fromSolidityAddressWhereShardAndRealmDifferentFromNull() {
+        var acId = AccountId.fromString("1.1.123");
+        var string = acId.toSolidityAddress();
+        var accountIdFromSolidityAddress = AccountId.fromSolidityAddress(string);
+        assertThat(acId).isEqualTo(accountIdFromSolidityAddress);
+    }
+
+    @Test
     void fromStringWithChecksumOnPreviewnet() {
         SnapshotMatcher.expect(AccountId.fromString("0.0.123-ogizo").toStringWithChecksum(previewnetClient))
                 .toMatchSnapshot();

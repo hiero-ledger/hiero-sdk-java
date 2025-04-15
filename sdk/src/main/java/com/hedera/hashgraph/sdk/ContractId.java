@@ -117,11 +117,8 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromSolidityAddress(String address) {
-        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
-            return EntityIdHelper.fromSolidityAddress(address, ContractId::new);
-        } else {
-            return fromEvmAddress(0, 0, address);
-        }
+        EntityIdHelper.decodeSolidityAddress(address);
+        return EntityIdHelper.fromSolidityAddress(address, ContractId::new);
     }
 
     /**
