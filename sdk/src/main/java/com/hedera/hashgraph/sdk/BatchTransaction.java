@@ -13,11 +13,9 @@ import java.util.*;
 /**
  * Execute multiple transactions in a single consensus event.
  * <p>
- * ### Requirements - All transactions must be signed as required for each individual transaction. - The
- * BatchTransaction must be signed by the operator account. - Individual transaction failures do not cause the batch to
- * fail. - Fees are assessed for each inner transaction separately.
+ * ### Requirements - All transactions must be signed as required for each individual transaction. The
+ * BatchTransaction must be signed by the operator account. Fees are assessed for each inner transaction separately.
  * <p>
- * ### Block Stream Effects Each inner transaction will appear in the transaction record stream.
  */
 public final class BatchTransaction extends Transaction<BatchTransaction> {
     private List<Transaction> innerTransactions = new ArrayList<>();
@@ -68,7 +66,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         requireNotFrozen();
 
         // Validate all transactions before setting
-        transactions.forEach(this::validateTransaction);
+        transactions.forEach(this::validateInnerTransaction);
 
         this.innerTransactions = new ArrayList<>(transactions);
         return this;
@@ -86,11 +84,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         Objects.requireNonNull(transaction);
         requireNotFrozen();
 
-        validateTransaction(transaction);
-
-        if (!transaction.isFrozen()) {
-            throw new IllegalStateException("Inner transaction should be frozen");
-        }
+        validateInnerTransaction(transaction);
 
         this.innerTransactions.add(transaction);
         return this;
@@ -102,10 +96,14 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @param transaction The transaction to validate
      * @throws IllegalArgumentException if the transaction is blacklisted
      */
-    private void validateTransaction(Transaction<?> transaction) {
+    private void validateInnerTransaction(Transaction<?> transaction) {
         if (BLACKLISTED_TRANSACTIONS.contains(transaction.getClass())) {
             throw new IllegalArgumentException("Transaction type "
                     + transaction.getClass().getSimpleName() + " is not allowed in a batch transaction");
+        }
+
+        if (!transaction.isFrozen()) {
+            throw new IllegalStateException("Inner transaction should be frozen");
         }
     }
 
