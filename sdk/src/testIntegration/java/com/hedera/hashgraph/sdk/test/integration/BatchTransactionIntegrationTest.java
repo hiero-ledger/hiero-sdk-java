@@ -6,7 +6,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.hedera.hashgraph.sdk.*;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Objects;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.DisplayName;
@@ -92,8 +91,7 @@ class BatchTransactionIntegrationTest {
                     .batchify(testEnv.client, testEnv.operatorKey);
 
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> new BatchTransaction()
-                            .addInnerTransaction(freezeTransaction))
+                    .isThrownBy(() -> new BatchTransaction().addInnerTransaction(freezeTransaction))
                     .withMessageContaining("Transaction type FreezeTransaction is not allowed in a batch transaction");
 
             var key = PrivateKey.generateECDSA();
@@ -105,9 +103,8 @@ class BatchTransactionIntegrationTest {
             var batchTransaction =
                     new BatchTransaction().addInnerTransaction(tx).batchify(testEnv.client, testEnv.operatorKey);
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> new BatchTransaction()
-                            .addInnerTransaction(batchTransaction))
-                .withMessageContaining("Transaction type BatchTransaction is not allowed in a batch transaction");
+                    .isThrownBy(() -> new BatchTransaction().addInnerTransaction(batchTransaction))
+                    .withMessageContaining("Transaction type BatchTransaction is not allowed in a batch transaction");
         }
     }
 
