@@ -20,7 +20,7 @@ dependencies {
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:13.1.1") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.2.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
     api("com.google.code.gson:gson:2.12.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
@@ -45,7 +45,7 @@ dependencies.constraints {
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.17.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.3") { because("org.assertj.core") }
-    api("org.junit.jupiter:junit-jupiter-api:5.12.1") { because("org.junit.jupiter.api") }
+    api("org.junit.jupiter:junit-jupiter-api:5.12.2") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
     api("org.mockito:mockito-junit-jupiter:$mockito") { because("org.mockito.junit.jupiter") }
 
