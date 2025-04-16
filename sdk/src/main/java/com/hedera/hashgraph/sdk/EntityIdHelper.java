@@ -255,6 +255,38 @@ public class EntityIdHelper {
     }
 
     /**
+     * Determines if an address likely represents a Hiero account ID converted to solidity address format
+     * rather than a native Ethereum address.
+     *
+     * A Hiero account ID in solidity address format has:
+     * - First 4 bytes (0-3) = shard
+     * - Next 8 bytes (4-11) = realm
+     * - Last 8 bytes (12-19) = account number
+     *
+     * This function uses a heuristic by checking if bytes 4-7 (first half of realm) are all zeros,
+     * which is common for Hiero account IDs but unlikely for Ethereum addresses.
+     *
+     * @param address The 20-byte address to check
+     * @return True if this likely represents a Hiero account ID, false otherwise
+     * @throws IllegalArgumentException if address is null or not 20 bytes
+     */
+    static boolean isHieroAccountAddress(byte[] address) {
+        if (address.length != 20) {
+            throw new IllegalArgumentException("Address must be 20 bytes but was " + address.length);
+        }
+
+        // Check if the first half of realm bytes (4-7) are all zeros
+        for (int i = 4; i < 8; i++) {
+            if (address[i] != 0) {
+                return false;
+            }
+        }
+
+        // If all bytes from 4-7 are zero, this is likely a Hedera account ID
+        return true;
+    }
+
+    /**
      * Get AccountId num from mirror node using evm address.
      *
      * <p>Note: This method requires API level 33 or higher. It will not work on devices running API versions below 33

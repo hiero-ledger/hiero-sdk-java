@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertThrows;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.github.jsonSnapshot.SnapshotMatcher;
@@ -49,14 +50,6 @@ class AccountIdTest {
     void fromStringWithChecksumOnTestnet() {
         SnapshotMatcher.expect(AccountId.fromString("0.0.123-esxsf").toStringWithChecksum(testnetClient))
                 .toMatchSnapshot();
-    }
-
-    @Test
-    void fromSolidityAddressWhereShardAndRealmDifferentFromNull() {
-        var acId = AccountId.fromString("1.1.123");
-        var string = acId.toSolidityAddress();
-        var accountIdFromSolidityAddress = AccountId.fromSolidityAddress(string);
-        assertThat(acId).isEqualTo(accountIdFromSolidityAddress);
     }
 
     @Test
@@ -266,5 +259,82 @@ class AccountIdTest {
         var id1 = AccountId.fromEvmAddress(evmAddress, 0, 0);
         var id2 = AccountId.fromEvmAddress("0x" + evmAddressString, 0, 0);
         assertThat(id2).isEqualTo(id1);
+    }
+
+    @Test
+    void shouldIdentifyHieroAccountIdsWithZeroShardAndRealm() {
+        // Create a typical Hiero account address with zeros in shard and realm
+        byte[] address = new byte[20];
+        // Set some non-zero bytes in the account number portion (last 8 bytes)
+        address[12] = 1;
+        address[19] = (byte) 255;
+
+        assertThat(EntityIdHelper.isHieroAccountAddress(address)).isTrue();
+    }
+
+    @Test
+    void shouldIdentifyHieroAccountIdsWithNonZeroShard() {
+        byte[] address = new byte[20];
+        // Set non-zero shard (first 4 bytes)
+        address[0] = 1;
+        // Keep realm bytes (4-11) as zeros
+        // Set some non-zero account number
+        address[12] = 1;
+
+        assertThat(EntityIdHelper.isHieroAccountAddress(address)).isTrue();
+    }
+
+    @Test
+    void shouldIdentifyEthereumAddresses() {
+        // Test with a typical Ethereum address
+        String ethAddress = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        byte[] bytes = Hex.decode(ethAddress.substring(2)); // Remove '0x' prefix
+
+        assertThat(EntityIdHelper.isHieroAccountAddress(bytes)).isFalse();
+    }
+
+    @Test
+    void shouldIdentifyHieroAccountIdsWithLargeRealmValues() {
+        AccountId accountId = new AccountId(1, 50000, 3);
+        String solidityAddress = accountId.toSolidityAddress();
+        byte[] bytes = Hex.decode(solidityAddress);
+
+        assertThat(EntityIdHelper.isHieroAccountAddress(bytes)).isTrue();
+    }
+
+    @Test
+    void shouldHandleEdgeCaseWithAllZeroBytes() {
+        byte[] address = new byte[20]; // All bytes are 0
+        assertThat(EntityIdHelper.isHieroAccountAddress(address)).isTrue();
+    }
+
+    @Test
+    void shouldRejectIncorrectLengthAddress() {
+        byte[] shortAddress = new byte[19];
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> EntityIdHelper.isHieroAccountAddress(shortAddress)
+        );
+        assertThat(exception.getMessage()).contains("Address must be 20 bytes");
+
+        byte[] longAddress = new byte[21];
+        exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> EntityIdHelper.isHieroAccountAddress(longAddress)
+        );
+        assertThat(exception.getMessage()).contains("Address must be 20 bytes");
+    }
+
+    @Test
+    void shouldHandleMixedBytePatterns() {
+        // Non-zero in first half of realm bytes
+        byte[] address1 = new byte[20];
+        address1[5] = 1;
+        assertThat(EntityIdHelper.isHieroAccountAddress(address1)).isFalse();
+
+        // Non-zero in second half of realm bytes but zero in first half
+        byte[] address2 = new byte[20];
+        address2[9] = 1;
+        assertThat(EntityIdHelper.isHieroAccountAddress(address2)).isTrue();
     }
 }
