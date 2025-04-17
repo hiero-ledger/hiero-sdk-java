@@ -21,6 +21,7 @@ dependencies.constraints {
     implementation("io.github.cdimascio:dotenv-java:3.0.2")
     implementation("com.hedera.hashgraph:sdk:2.53.0")
     implementation("com.hedera.hashgraph:sdk-full:2.53.0")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
 }
 
 tasks.register<RunAllExample>("runAllExamples") {
