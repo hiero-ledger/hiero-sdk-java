@@ -116,6 +116,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @param address                   the address string
      * @return                          the contract id object
      */
+    @Deprecated
     public static ContractId fromSolidityAddress(String address) {
         if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, ContractId::new);
@@ -133,8 +134,13 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
-        return new ContractId(
-                shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
+        var decodedEvmAddress = Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress);
+        if (EntityIdHelper.isHieroAccountAddress(decodedEvmAddress)) {
+            return EntityIdHelper.fromSolidityAddress(evmAddress, ContractId::new);
+        } else {
+            return new ContractId(
+                shard, realm, decodedEvmAddress);
+        }
     }
 
     /**
