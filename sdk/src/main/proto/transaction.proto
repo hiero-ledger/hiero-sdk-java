@@ -664,7 +664,7 @@ message TransactionBody {
  * A transaction body for handling a set of transactions atomically.
  */
 message AtomicBatchTransactionBody {
-  // <<<pbj.java_package = "com.hedera.hapi.node.util">>> This comment is special code for setting PBJ Compiler java package
+    // <<<pbj.java_package = "com.hedera.hapi.node.util">>> This comment is special code for setting PBJ Compiler java package
     /**
      * A list of signed bytes that represent the batch transactions.
      */

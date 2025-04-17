@@ -228,5 +228,6 @@ public class ClientIntegrationTest {
         assertThat(mirrorNetwork.get(0)).isEqualTo(mirrorNetworkString);
         assertThat(client.getNetwork()).isNotNull();
         assertThat(client.getNetwork()).isNotEmpty();
+        client.close();
     }
 }

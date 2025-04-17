@@ -5,12 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.esaulpaugh.headlong.rlp.RLPEncoder;
 import com.esaulpaugh.headlong.util.Integers;
-import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.EthereumFlow;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.PrivateKeyECDSA;
+import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.DisplayName;
@@ -25,21 +24,18 @@ public class EthereumFlowIntegrationTest {
     @DisplayName("Can create large contract")
     void canCreateLargeContract() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
-            PrivateKeyECDSA operatorPrivateKey = (PrivateKeyECDSA)
-                    PrivateKey.fromStringECDSA("7f109a9e3b0d8ecfba9cc23a3614433ce0fa7ddcc80f2a8f10b222179a5a80d6");
-            var operatorId = AccountId.fromString("0.0.1002");
-            testEnv.client.setOperator(operatorId, operatorPrivateKey);
+            var privateKey = PrivateKey.generateECDSA();
+            var newAccountAliasId = privateKey.toAccountId(0, 0);
 
-            // Create an alias for this key in order to execute ethereum transactions
-            new AccountCreateTransaction()
-                    .setKeyWithAlias(operatorPrivateKey)
-                    .setInitialBalance(new Hbar(100))
+            new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, new Hbar(1).negated())
+                    .addHbarTransfer(newAccountAliasId, new Hbar(1))
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
             var record = new EthereumFlow()
                     .setEthereumData(getCallData(
-                            operatorPrivateKey,
+                            (PrivateKeyECDSA) privateKey,
                             0,
                             new byte[] {}, // the to address
                             SMART_CONTRACT_BYTECODE,
@@ -53,7 +49,7 @@ public class EthereumFlowIntegrationTest {
 
             record = new EthereumFlow()
                     .setEthereumData(getCallData(
-                            operatorPrivateKey,
+                            (PrivateKeyECDSA) privateKey,
                             1,
                             new byte[] {}, // the to address
                             SMART_CONTRACT_BYTECODE,
