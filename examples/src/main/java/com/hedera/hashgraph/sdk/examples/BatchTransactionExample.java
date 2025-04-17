@@ -70,9 +70,9 @@ class BatchTransactionExample {
          * Step 1:
          * Create batch keys
          */
-        var batchKey1 = PrivateKey.generateED25519();
-        var batchKey2 = PrivateKey.generateED25519();
-        var batchKey3 = PrivateKey.generateED25519();
+        var batchKey1 = PrivateKey.generateECDSA();
+        var batchKey2 = PrivateKey.generateECDSA();
+        var batchKey3 = PrivateKey.generateECDSA();
 
         /*
          * Step 2:
@@ -182,7 +182,7 @@ class BatchTransactionExample {
          * Step 1:
          * Create batch key
          */
-        var batchKey = PrivateKey.generateED25519();
+        var batchKey = PrivateKey.generateECDSA();
 
         /*
          * Step 2:
