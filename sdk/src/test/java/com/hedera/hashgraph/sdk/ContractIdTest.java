@@ -168,20 +168,17 @@ class ContractIdTest {
     }
 
     @Test
-    @Disabled
-
-    //TODO should be handled I guess?
     void shouldHandleNegativeShardRealmValues() {
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
 
         // Test negative shard
-        IllegalArgumentException exception = assertThrows(
+        assertThrows(
             IllegalArgumentException.class,
             () -> ContractId.fromEvmAddress(-1, 0, evmAddress)
         );
 
         // Test negative realm
-        exception = assertThrows(
+        assertThrows(
             IllegalArgumentException.class,
             () -> ContractId.fromEvmAddress(0, -1, evmAddress)
         );

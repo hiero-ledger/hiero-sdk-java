@@ -13,6 +13,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * The ID for a smart contract instance on Hedera.
  */
@@ -134,6 +136,8 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
+        checkArgument(shard >= 0, "Shard value cannot be negative: %s", shard);
+        checkArgument(realm >= 0, "Realm value cannot be negative: %s", realm);
         var decodedEvmAddress = Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress);
         if (EntityIdHelper.isHieroAccountAddress(decodedEvmAddress)) {
             return EntityIdHelper.fromSolidityAddress(evmAddress, ContractId::new);

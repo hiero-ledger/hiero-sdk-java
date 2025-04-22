@@ -13,6 +13,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * The ID for a cryptocurrency account on Hedera.
  */
@@ -203,6 +205,8 @@ public final class AccountId implements Comparable<AccountId> {
      * In case shard and realm are unknown, they should be set to zero
      */
     public static AccountId fromEvmAddress(EvmAddress evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
+        checkArgument(shard >= 0, "Shard value cannot be negative: %s", shard);
+        checkArgument(realm >= 0, "Realm value cannot be negative: %s", realm);
         if (EntityIdHelper.isHieroAccountAddress(evmAddress.toBytes())) {
             return EntityIdHelper.fromSolidityAddress(evmAddress.toString(), AccountId::new);
         } else {

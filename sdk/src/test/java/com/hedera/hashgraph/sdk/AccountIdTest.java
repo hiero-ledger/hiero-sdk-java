@@ -337,4 +337,21 @@ class AccountIdTest {
         address2[9] = 1;
         assertThat(EntityIdHelper.isHieroAccountAddress(address2)).isTrue();
     }
+
+    @Test
+    void shouldHandleNegativeShardRealmValues() {
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+
+        // Test negative shard
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> AccountId.fromEvmAddress(evmAddress, -1, 0)
+        );
+
+        // Test negative realm
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> AccountId.fromEvmAddress(evmAddress, 0, -1)
+        );
+    }
 }
