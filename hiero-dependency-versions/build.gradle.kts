@@ -12,11 +12,11 @@ val bouncycastle = "1.80"
 val grpc = "1.71.0"
 val protobuf = "4.30.2"
 val slf4j = "2.0.17"
-val mockito = "5.16.1"
+val mockito = "5.17.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
-    api(platform("io.netty:netty-bom:4.1.119.Final"))
+    api(platform("io.netty:netty-bom:4.2.0.Final"))
 }
 
 dependencies.constraints {

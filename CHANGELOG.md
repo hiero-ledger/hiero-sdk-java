@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.54.0
+
+### Added
+
+- Support for HIP-1021: Improve Assignment of Auto-Renew Account ID for Topics (https://hips.hedera.com/hip/hip-1021). The autoRenewAccountId will automatically be set to the payer_account_id of the transaction
+  if an Admin Key is not provided during topic creation [#2301](https://github.com/hiero-ledger/hiero-sdk-java/pull/2301)
+
+### Fixed
+
+- Upon `TopicUpdateTransaction` you are not able to clear the custom fees, feeExemptKey and feeScheduleKey [#2284](https://github.com/hiero-ledger/hiero-sdk-java/pull/2284)
+  The logic is updated as follows:
+  - If we have null list (that is the default value) → Do nothing (don’t send a request).
+  - If we have empty list → Send a request to clear the list.
+  - For Non-empty list → Send a request with the provided list.
+  - `clearFeeScheduleKey` sets the key to empty KeyList.
+
 ## 2.53.0
 
 ### Added
