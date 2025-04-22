@@ -9,7 +9,6 @@ import io.github.jsonSnapshot.SnapshotMatcher;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ContractIdTest {
@@ -172,16 +171,10 @@ class ContractIdTest {
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
 
         // Test negative shard
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> ContractId.fromEvmAddress(-1, 0, evmAddress)
-        );
+        assertThrows(IllegalArgumentException.class, () -> ContractId.fromEvmAddress(-1, 0, evmAddress));
 
         // Test negative realm
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> ContractId.fromEvmAddress(0, -1, evmAddress)
-        );
+        assertThrows(IllegalArgumentException.class, () -> ContractId.fromEvmAddress(0, -1, evmAddress));
     }
 
     @Test

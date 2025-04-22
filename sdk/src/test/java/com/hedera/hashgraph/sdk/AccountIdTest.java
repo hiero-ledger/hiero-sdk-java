@@ -311,17 +311,13 @@ class AccountIdTest {
     @Test
     void shouldRejectIncorrectLengthAddress() {
         byte[] shortAddress = new byte[19];
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> EntityIdHelper.isHieroAccountAddress(shortAddress)
-        );
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> EntityIdHelper.isHieroAccountAddress(shortAddress));
         assertThat(exception.getMessage()).contains("Address must be 20 bytes");
 
         byte[] longAddress = new byte[21];
-        exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> EntityIdHelper.isHieroAccountAddress(longAddress)
-        );
+        exception =
+                assertThrows(IllegalArgumentException.class, () -> EntityIdHelper.isHieroAccountAddress(longAddress));
         assertThat(exception.getMessage()).contains("Address must be 20 bytes");
     }
 
@@ -343,15 +339,9 @@ class AccountIdTest {
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
 
         // Test negative shard
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> AccountId.fromEvmAddress(evmAddress, -1, 0)
-        );
+        assertThrows(IllegalArgumentException.class, () -> AccountId.fromEvmAddress(evmAddress, -1, 0));
 
         // Test negative realm
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> AccountId.fromEvmAddress(evmAddress, 0, -1)
-        );
+        assertThrows(IllegalArgumentException.class, () -> AccountId.fromEvmAddress(evmAddress, 0, -1));
     }
 }

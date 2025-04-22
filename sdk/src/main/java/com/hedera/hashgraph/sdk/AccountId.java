@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AccountID;
@@ -12,8 +14,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * The ID for a cryptocurrency account on Hedera.
