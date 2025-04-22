@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.ContractID;
@@ -136,14 +134,8 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
-        checkArgument(shard >= 0, "Shard value cannot be negative: %s", shard);
-        checkArgument(realm >= 0, "Realm value cannot be negative: %s", realm);
-        var decodedEvmAddress = Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress);
-        if (EntityIdHelper.isHieroAccountAddress(decodedEvmAddress)) {
-            return EntityIdHelper.fromSolidityAddress(evmAddress, ContractId::new);
-        } else {
-            return new ContractId(shard, realm, decodedEvmAddress);
-        }
+        return new ContractId(
+                shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
     }
 
     /**
