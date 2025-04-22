@@ -2,7 +2,6 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.github.jsonSnapshot.SnapshotMatcher;
