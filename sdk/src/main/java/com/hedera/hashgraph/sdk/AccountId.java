@@ -222,7 +222,7 @@ public final class AccountId implements Comparable<AccountId> {
      */
     @Deprecated
     public static AccountId fromSolidityAddress(String address) {
-        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
+        if (EntityIdHelper.isHieroAccountAddress(EntityIdHelper.decodeSolidityAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, AccountId::new);
         } else {
             return fromEvmAddress(address, 0, 0);
