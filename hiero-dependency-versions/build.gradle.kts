@@ -12,10 +12,11 @@ val bouncycastle = "1.80"
 val grpc = "1.71.0"
 val protobuf = "4.30.0"
 val slf4j = "2.0.17"
+val mockito = "5.16.1"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
-    api(platform("io.netty:netty-bom:4.1.119.Final"))
+    api(platform("io.netty:netty-bom:4.2.0.Final"))
 }
 
 dependencies.constraints {
@@ -45,7 +46,8 @@ dependencies.constraints {
     api("org.apache.commons:commons-lang3:3.17.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.3") { because("org.assertj.core") }
     api("org.junit.jupiter:junit-jupiter-api:5.12.2") { because("org.junit.jupiter.api") }
-    api("org.mockito:mockito-core:5.15.2") { because("org.mockito") }
+    api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
+    api("org.mockito:mockito-junit-jupiter:$mockito") { because("org.mockito.junit.jupiter") }
 
     api("com.google.protobuf:protoc:$protobuf")
     api("io.grpc:protoc-gen-grpc-java:$grpc")
