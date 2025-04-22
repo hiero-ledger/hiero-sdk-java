@@ -344,22 +344,16 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
     }
 
     /**
-     * Extract the user agent. This information is used to gather usage metrics.
-     * If the version is not available, the user agent will be set to "hiero-sdk-java/DEV".
+     * Metadata interceptor for the client.
+     * This interceptor adds the user agent header to the request.
      */
-    private String getUserAgent() {
-        var thePackage = getClass().getPackage();
-        var implementationVersion = thePackage != null ? thePackage.getImplementationVersion() : null;
-        return "hiero-sdk-java/" + ((implementationVersion != null) ? (implementationVersion) : "DEV");
-    }
-
-    class MetadataInterceptor implements ClientInterceptor {
+    static class MetadataInterceptor implements ClientInterceptor {
         private final Metadata metadata;
 
         public MetadataInterceptor() {
             metadata = new Metadata();
             Metadata.Key<String> authKey = Metadata.Key.of("x-user-agent", Metadata.ASCII_STRING_MARSHALLER);
-            metadata.put(authKey, getUserAgent()); // TODO optimise this to be called only once
+            metadata.put(authKey, getUserAgent());
         }
 
         @Override
@@ -373,6 +367,16 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
                     super.start(responseListener, headers);
                 }
             };
+        }
+
+        /**
+         * Extract the user agent. This information is used to gather usage metrics.
+         * If the version is not available, the user agent will be set to "hiero-sdk-java/DEV".
+         */
+        private String getUserAgent() {
+            var thePackage = getClass().getPackage();
+            var implementationVersion = thePackage != null ? thePackage.getImplementationVersion() : null;
+            return "hiero-sdk-java/" + ((implementationVersion != null) ? (implementationVersion) : "DEV");
         }
     }
 }
