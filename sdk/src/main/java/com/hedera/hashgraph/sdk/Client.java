@@ -178,6 +178,7 @@ public final class Client implements AutoCloseable {
 
     /**
      * Set up the client from selected mirror network.
+     * Using default `0` values for realm and shard for retrieving addressBookFileId
      *
      * @param mirrorNetworkList
      * @return
@@ -188,7 +189,30 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, new HashMap<>());
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
         var client = new Client(executor, network, mirrorNetwork, null, true, null);
-        var addressBook = new AddressBookQuery().setFileId(FileId.ADDRESS_BOOK).execute(client);
+        var addressBook = new AddressBookQuery()
+                .setFileId(FileId.getAddressBookFileIdFor(0, 0))
+                .execute(client);
+        client.setNetworkFromAddressBook(addressBook);
+        return client;
+    }
+
+    /**
+     * Set up the client from selected mirror network and given realm and shard
+     *
+     * @param mirrorNetworkList
+     * @param realm
+     * @param shard
+     * @return
+     */
+    public static Client forMirrorNetwork(List<String> mirrorNetworkList, int realm, int shard)
+            throws InterruptedException, TimeoutException {
+        var executor = createExecutor();
+        var network = Network.forNetwork(executor, new HashMap<>());
+        var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
+        var client = new Client(executor, network, mirrorNetwork, null, true, null);
+        var addressBook = new AddressBookQuery()
+                .setFileId(FileId.getAddressBookFileIdFor(realm, shard))
+                .execute(client);
         client.setNetworkFromAddressBook(addressBook);
         return client;
     }
