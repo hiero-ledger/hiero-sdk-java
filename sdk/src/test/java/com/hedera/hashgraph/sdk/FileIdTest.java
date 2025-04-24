@@ -60,8 +60,8 @@ class FileIdTest {
         assertEquals(0, defaultAddressBook.realm);
         assertEquals(102, defaultAddressBook.num);
 
-        int testShard = 5;
-        int testRealm = 10;
+        long testShard = 5;
+        long testRealm = 10;
         FileId customAddressBook = FileId.getAddressBookFileIdFor(testShard, testRealm);
         assertNotNull(customAddressBook);
         assertEquals(testShard, customAddressBook.shard);
@@ -81,8 +81,8 @@ class FileIdTest {
         assertEquals(0, defaultFeeSchedule.realm);
         assertEquals(111, defaultFeeSchedule.num);
 
-        int testShard = 7;
-        int testRealm = 12;
+        long testShard = 7;
+        long testRealm = 12;
         FileId customFeeSchedule = FileId.getFeeScheduleFileIdFor(testShard, testRealm);
         assertNotNull(customFeeSchedule);
         assertEquals(testShard, customFeeSchedule.shard);
@@ -102,8 +102,8 @@ class FileIdTest {
         assertEquals(0, defaultExchangeRates.realm);
         assertEquals(112, defaultExchangeRates.num);
 
-        int testShard = 3;
-        int testRealm = 9;
+        long testShard = 3;
+        long testRealm = 9;
         FileId customExchangeRates = FileId.getExchangeRatesFileIdFor(testShard, testRealm);
         assertNotNull(customExchangeRates);
         assertEquals(testShard, customExchangeRates.shard);

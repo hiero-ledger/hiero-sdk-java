@@ -89,7 +89,7 @@ public final class FileId implements Comparable<FileId> {
      * @param shard
      * @return FileId
      */
-    public static FileId getAddressBookFileIdFor(int shard, int realm) {
+    public static FileId getAddressBookFileIdFor(long shard, long realm) {
         return new FileId(shard, realm, 102);
     }
 
@@ -99,7 +99,7 @@ public final class FileId implements Comparable<FileId> {
      * @param shard
      * @return FileId
      */
-    public static FileId getFeeScheduleFileIdFor(int shard, int realm) {
+    public static FileId getFeeScheduleFileIdFor(long shard, long realm) {
         return new FileId(shard, realm, 111);
     }
 
@@ -109,7 +109,7 @@ public final class FileId implements Comparable<FileId> {
      * @param shard
      * @return FileId
      */
-    public static FileId getExchangeRatesFileIdFor(int shard, int realm) {
+    public static FileId getExchangeRatesFileIdFor(long shard, long realm) {
         return new FileId(shard, realm, 112);
     }
 
