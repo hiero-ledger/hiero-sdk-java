@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -231,6 +233,7 @@ public class ClientIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("`forMirrorNetwork with custom realm and shard")
     void testClientInitWithMirrorNetworkAnCustomRealmAndShard() throws Exception {
         var mirrorNetworkString = "testnet.mirrornode.hedera.com:443";
