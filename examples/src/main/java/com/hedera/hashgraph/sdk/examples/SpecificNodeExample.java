@@ -120,7 +120,11 @@ class SpecificNodeExample {
 
         /*
          * Step 4:
-         * Set max node attempts to 1 to ensure only this node is used
+         * Set max node attempts to 1 to limit retries
+         *
+         * Note: This limits how many times the SDK will retry this node if it returns
+         * a bad gRPC status. The SDK will only use this one node because we've configured
+         * only one node in our network map above.
          */
         client.setMaxNodeAttempts(1);
 
