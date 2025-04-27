@@ -174,8 +174,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@35efe2334bffb73298716402a5c688321ec29260 # v0.6
+        with:
+          installMirrorNode: true
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -183,14 +186,11 @@ jobs:
       - name: Code Quality Checks
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
-      - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.60.0-alpha.0
-
       - name: Run Unit and Integration Tests
         env:
-          OPERATOR_KEY: "0xa608e2130a0a3cb34f86e757303c862bee353d9ab77ba4387ec084f881d420d4"
-          OPERATOR_ID: "0.0.1022"
-          HEDERA_NETWORK: "localhost"
+          OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
+          OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
+          HEDERA_NETWORK: solo
         run: |
           ./gradlew -POPERATOR_ID=$OPERATOR_ID -POPERATOR_KEY=$OPERATOR_KEY -PHEDERA_NETWORK=$HEDERA_NETWORK :aggregation:testCodeCoverageReport
 
@@ -199,9 +199,6 @@ jobs:
         uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
 
   run-examples:
     name: Run Examples
@@ -234,8 +231,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@35efe2334bffb73298716402a5c688321ec29260 # v0.6
+        with:
+          installMirrorNode: true
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -243,20 +243,18 @@ jobs:
       - name: Build Android Example
         run: ./gradlew -p example-android assemble
 
-      - name: Start the local node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.60.0-alpha.0
-
       - name: Prepare .env for Examples
         run: |
-          echo "OPERATOR_KEY=0xa608e2130a0a3cb34f86e757303c862bee353d9ab77ba4387ec084f881d420d4" > examples/.env
-          echo "OPERATOR_ID=0.0.1022" >> examples/.env
-          echo "HEDERA_NETWORK=localhost" >> examples/.env
+          echo "OPERATOR_KEY=${{ steps.solo.outputs.privateKey }}" > examples/.env
+          echo "OPERATOR_ID=${{ steps.solo.outputs.accountId }}" >> examples/.env
+          echo "HEDERA_NETWORK=solo" >> examples/.env
 
       - name: Run Examples
+        env:
+          OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
+          OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
+          HEDERA_NETWORK: solo
         run: ./gradlew :examples:runAllExamples
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
 
   test-tck:
     name: TCK Tests
@@ -288,17 +286,18 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@35efe2334bffb73298716402a5c688321ec29260 # v0.6
+        with:
+          installMirrorNode: true
 
       - name: Build TCK
         run: ./gradlew assemble
 
-      - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local
-
       - name: Run TCK Unit Tests
-        run: ./gradlew :tck:test
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
+        env:
+          OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
+          OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
+          HEDERA_NETWORK: solo
+        run: ./gradlew -POPERATOR_ID=$OPERATOR_ID -POPERATOR_KEY=$OPERATOR_KEY -PHEDERA_NETWORK=$HEDERA_NETWORK :tck:test
