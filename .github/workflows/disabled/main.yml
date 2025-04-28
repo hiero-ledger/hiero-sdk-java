@@ -59,14 +59,19 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           path: hedera-sdk-java
+
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@35efe2334bffb73298716402a5c688321ec29260 # v0.6
+        with:
+          installMirrorNode: true
+
       - name: Run Hedera SDK Tests
         timeout-minutes: 30
         env:
-          OPERATOR_KEY: "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
-          OPERATOR_ID: "0.0.2"
-          HEDERA_NETWORK: "localhost"
+          OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
+          OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
+          HEDERA_NETWORK: solo
         run: |
-          cd hedera-services
-          docker-compose up &
-          cd ../hedera-sdk-java
+          cd hedera-sdk-java
           ./gradlew -PHEDERA_NETWORK=$HEDERA_NETWORK -POPERATOR_KEY=$OPERATOR_KEY -POPERATOR_ID=$OPERATOR_ID testIntegration
