@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * How to communicate with specific nodes in the Hedera network.
  * <p>
- * This example demonstrates three different methods to target specific nodes
+ * This example demonstrates two different methods to target specific nodes
  * for operations on the Hedera network. This can be useful for:
  * <ul>
  *   <li>Testing connectivity to specific nodes</li>
@@ -61,14 +61,21 @@ class SpecificNodeExample {
      */
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
+    /**
+     * Flag to determine if TLS should be used.
+     * Note: TLS is not supported on localhost nodes.
+     */
+    private static final boolean USE_TLS = !"localhost".equalsIgnoreCase(HEDERA_NETWORK);
+
     public static void main(String[] args) throws Exception {
         System.out.println("Specific Node Communication Example Start!");
 
         /*
          * Method 1: Direct node specification
          * Directly specify the node you want to communicate with.
+         * Optionally use TLS if supported by the network.
          */
-        System.out.println("\nExample 1: Direct node specification");
+        System.out.println("\nExample 1: Direct node specification" + (USE_TLS ? " with TLS" : ""));
         communicateWithSpecificNodeDirect();
 
         /*
@@ -78,48 +85,60 @@ class SpecificNodeExample {
         System.out.println("\nExample 2: Extract from network map");
         communicateWithSpecificNodeFromNetworkMap();
 
-        /*
-         * Method 3: TLS with specific node
-         * Communicate with a specific node using TLS.
-         */
-        System.out.println("\nExample 3: TLS with specific node");
-        communicateWithSpecificNodeUsingTLS();
-
         System.out.println("\nSpecific Node Communication Example Complete!");
     }
 
     /**
-     * Method 1: Directly specify the node you want to communicate with.
+     * Method 1: Directly specify the node you want to communicate with and configure TLS.
      * <p>
-     * This approach creates a Client with a custom network map containing
-     * only the specific node you want to target.
+     * This approach first loads the address book from the network,
+     * configures TLS if the network supports it, then overrides the network
+     * with a specific node.
      */
-    private static void communicateWithSpecificNodeDirect() throws PrecheckStatusException, TimeoutException {
+    private static void communicateWithSpecificNodeDirect()
+        throws PrecheckStatusException, TimeoutException, InterruptedException {
         /*
          * Step 1:
-         * Create a network map with only one specific node
+         * First create a client with the standard network to get the address book
+         * which is needed for TLS
          */
-        Map<String, AccountId> networkMap = new HashMap<>();
-        networkMap.put("0.testnet.hedera.com:50211", new AccountId(3));
+        Client client = ClientHelper.forName(HEDERA_NETWORK);
 
         /*
          * Step 2:
-         * Create client with the custom network map
+         * Configure TLS if supported by the network
          */
-        Client client = Client.forNetwork(networkMap);
+        if (USE_TLS) {
+            try {
+                client.setTransportSecurity(true)
+                    .setVerifyCertificates(true);
+                System.out.println("TLS security enabled for this connection");
+            } catch (InterruptedException e) {
+                System.out.println("TLS setup was interrupted: " + e.getMessage());
+                Thread.currentThread().interrupt(); // Restore the interrupted status
+                throw e; // Re-throw the exception to be handled by the caller
+            }
+        } else {
+            System.out.println("TLS security not enabled (not supported on localhost)");
+        }
+
+        /*
+         * Step 3:
+         * Set basic client configuration
+         */
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
         client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
 
         /*
-         * Step 3:
-         * Get the node from the network
+         * Step 4:
+         * Create a network map with only one specific node and update the client
          */
-        var network = client.getNetwork();
-        var nodes = new ArrayList<>(network.values());
-        var node = nodes.get(0);
+        Map<String, AccountId> networkMap = new HashMap<>();
+        networkMap.put("0.testnet.hedera.com:50211", new AccountId(3));
+        client.setNetwork(networkMap);
 
         /*
-         * Step 4:
+         * Step 5:
          * Set max node attempts to 1 to limit retries
          *
          * Note: This limits how many times the SDK will retry this node if it returns
@@ -129,7 +148,15 @@ class SpecificNodeExample {
         client.setMaxNodeAttempts(1);
 
         /*
-         * Step 5:
+         * Step 6:
+         * Get the node from the network for the ping operation
+         */
+        var network = client.getNetwork();
+        var nodes = new ArrayList<>(network.values());
+        var node = nodes.get(0);
+
+        /*
+         * Step 7:
          * Ping the node to test connectivity
          */
         System.out.println("Pinging node: " + node);
@@ -187,59 +214,6 @@ class SpecificNodeExample {
          */
         client.pingAll();
         System.out.println("Ping to specific node successful");
-
-        /*
-         * Clean up:
-         */
-        client.close();
-    }
-
-    /**
-     * Method 3: Communicate with a specific node using TLS.
-     * <p>
-     * This approach demonstrates how to properly use TLS when communicating
-     * with specific nodes. Note that we extract the node from the network map
-     * rather than creating it directly, ensuring TLS certificates are properly loaded.
-     */
-    private static void communicateWithSpecificNodeUsingTLS()
-        throws PrecheckStatusException, TimeoutException, InterruptedException {
-        /*
-         * Step 1:
-         * Initialize client with TLS enabled
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK)
-            .setTransportSecurity(true)
-            .setVerifyCertificates(true);
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        /*
-         * Step 2:
-         * Get the network map and extract a specific node
-         */
-        var network = client.getNetwork();
-        var firstNode = network.entrySet().iterator().next();
-
-        System.out.println("Selected node with TLS: " + firstNode.getKey());
-
-        /*
-         * Step 3:
-         * Create a new map with only the selected node
-         */
-        Map<String, AccountId> specificNode = Map.of(firstNode.getKey(), firstNode.getValue());
-
-        /*
-         * Step 4:
-         * Set the client to use only the specific node
-         */
-        client.setNetwork(specificNode);
-
-        /*
-         * Step 5:
-         * Ping the node to test TLS-secured connectivity
-         */
-        client.pingAll();
-        System.out.println("TLS-secured ping to specific node successful");
 
         /*
          * Clean up:
