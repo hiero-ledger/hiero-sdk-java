@@ -9,8 +9,6 @@
 * [Get exchange rates](../examples/src/main/java/org/hiero/sdk/java/examples/GetExchangeRatesExample.java)
 * [Logger](../examples/src/main/java/org/hiero/sdk/java/examples/LoggerFunctionalitiesExample.java)
 
-* [Communicate with specific nodes](../examples/src/main/java/org/hiero/sdk/java/examples/SpecificNodeExample.java)
-
 ### Transactions
 
 * [Sign a transaction](../examples/src/main/java/org/hiero/sdk/java/examples/SignTransactionExample.java)
