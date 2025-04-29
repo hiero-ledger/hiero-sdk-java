@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import io.grpc.CallOptions;
+import io.grpc.Channel;
 import io.grpc.ChannelCredentials;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.ConnectivityState;
+import io.grpc.ForwardingClientCall;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.TlsChannelCredentials;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import java.time.Duration;
@@ -263,8 +270,8 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
         channel = channelBuilder
                 .keepAliveTimeout(10, TimeUnit.SECONDS)
                 .keepAliveWithoutCalls(true)
+                .intercept(new MetadataInterceptor())
                 .enableRetry()
-                .userAgent(getUserAgent())
                 .executor(executor)
                 .build();
 
@@ -337,13 +344,39 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
     }
 
     /**
-     * Extract the user agent string.
-     *
-     * @return                          the user agent string
+     * Metadata interceptor for the client.
+     * This interceptor adds the user agent header to the request.
      */
-    private String getUserAgent() {
-        var thePackage = getClass().getPackage();
-        var implementationVersion = thePackage != null ? thePackage.getImplementationVersion() : null;
-        return "hedera-sdk-java/" + ((implementationVersion != null) ? ("v" + implementationVersion) : "DEV");
+    static class MetadataInterceptor implements ClientInterceptor {
+        private final Metadata metadata;
+
+        public MetadataInterceptor() {
+            metadata = new Metadata();
+            Metadata.Key<String> authKey = Metadata.Key.of("x-user-agent", Metadata.ASCII_STRING_MARSHALLER);
+            metadata.put(authKey, getUserAgent());
+        }
+
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
+            return new ForwardingClientCall.SimpleForwardingClientCall<>(call) {
+                @Override
+                public void start(Listener<RespT> responseListener, Metadata headers) {
+                    headers.merge(metadata);
+                    super.start(responseListener, headers);
+                }
+            };
+        }
+
+        /**
+         * Extract the user agent. This information is used to gather usage metrics.
+         * If the version is not available, the user agent will be set to "hiero-sdk-java/DEV".
+         */
+        private String getUserAgent() {
+            var thePackage = getClass().getPackage();
+            var implementationVersion = thePackage != null ? thePackage.getImplementationVersion() : null;
+            return "hiero-sdk-java/" + ((implementationVersion != null) ? (implementationVersion) : "DEV");
+        }
     }
 }
