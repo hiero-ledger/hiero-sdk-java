@@ -38,13 +38,13 @@ class SpecificNodeExample {
      * Used to sign and pay for operations on Hedera.
      */
     private static final AccountId OPERATOR_ID =
-        AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
+            AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
 
     /**
      * Operator's private key.
      */
     private static final PrivateKey OPERATOR_KEY =
-        PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+            PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
 
     /**
      * HEDERA_NETWORK defaults to testnet if not specified in dotenv file.
@@ -96,7 +96,7 @@ class SpecificNodeExample {
      * with a specific node.
      */
     private static void communicateWithSpecificNodeDirect()
-        throws PrecheckStatusException, TimeoutException, InterruptedException {
+            throws PrecheckStatusException, TimeoutException, InterruptedException {
         /*
          * Step 1:
          * First create a client with the standard network to get the address book
@@ -110,8 +110,7 @@ class SpecificNodeExample {
          */
         if (USE_TLS) {
             try {
-                client.setTransportSecurity(true)
-                    .setVerifyCertificates(true);
+                client.setTransportSecurity(true).setVerifyCertificates(true);
                 System.out.println("TLS security enabled for this connection");
             } catch (InterruptedException e) {
                 System.out.println("TLS setup was interrupted: " + e.getMessage());
@@ -176,7 +175,7 @@ class SpecificNodeExample {
      * from the network map and creates a client with only that node.
      */
     private static void communicateWithSpecificNodeFromNetworkMap()
-        throws PrecheckStatusException, TimeoutException, InterruptedException {
+            throws PrecheckStatusException, TimeoutException, InterruptedException {
         /*
          * Step 1:
          * Initialize a standard client
@@ -190,7 +189,8 @@ class SpecificNodeExample {
          * Get the full network map and extract a specific node
          */
         var network = client.getNetwork();
-        Map.Entry<String, AccountId> firstNodeEntry = network.entrySet().iterator().next();
+        Map.Entry<String, AccountId> firstNodeEntry =
+                network.entrySet().iterator().next();
         String nodeAddress = firstNodeEntry.getKey();
         AccountId nodeAccountId = firstNodeEntry.getValue();
 
