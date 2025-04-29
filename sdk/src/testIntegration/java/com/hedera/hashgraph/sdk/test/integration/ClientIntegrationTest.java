@@ -229,4 +229,17 @@ public class ClientIntegrationTest {
         assertThat(client.getNetwork()).isNotNull();
         assertThat(client.getNetwork()).isNotEmpty();
     }
+
+    @Test
+    @DisplayName("`forMirrorNetwork with custom realm and shard")
+    void testClientInitWithMirrorNetworkAnCustomRealmAndShard() throws Exception {
+        var mirrorNetworkString = "testnet.mirrornode.hedera.com:443";
+        var client = Client.forMirrorNetwork(List.of(mirrorNetworkString), 0, 0);
+        var mirrorNetwork = client.getMirrorNetwork();
+
+        assertThat(mirrorNetwork).hasSize(1);
+        assertThat(mirrorNetwork.get(0)).isEqualTo(mirrorNetworkString);
+        assertThat(client.getNetwork()).isNotNull();
+        assertThat(client.getNetwork()).isNotEmpty();
+    }
 }

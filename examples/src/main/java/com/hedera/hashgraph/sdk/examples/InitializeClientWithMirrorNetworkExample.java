@@ -44,7 +44,7 @@ public class InitializeClientWithMirrorNetworkExample {
          * Step 0:
          * Create and configure the SDK Client.
          */
-        Client client = Client.forMirrorNetwork(List.of("testnet.mirrornode.hedera.com:443"));
+        Client client = Client.forMirrorNetwork(List.of("testnet.mirrornode.hedera.com:443"), 0, 0);
         // All generated transactions will be paid by this account and signed by this key.
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
         // Attach logger to the SDK Client.

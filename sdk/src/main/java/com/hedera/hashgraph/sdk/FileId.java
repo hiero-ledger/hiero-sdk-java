@@ -84,6 +84,36 @@ public final class FileId implements Comparable<FileId> {
     }
 
     /**
+     * Get the `FileId` of the Hedera address book for the given realm and shard.
+     * @param realm
+     * @param shard
+     * @return FileId
+     */
+    public static FileId getAddressBookFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 102);
+    }
+
+    /**
+     * Get the `FileId` of the Hedera fee schedule for the given realm and shard.
+     * @param realm
+     * @param shard
+     * @return FileId
+     */
+    public static FileId getFeeScheduleFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 111);
+    }
+
+    /**
+     * Get the `FileId` of the Hedera exchange rates for the given realm and shard.
+     * @param realm
+     * @param shard
+     * @return FileId
+     */
+    public static FileId getExchangeRatesFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 112);
+    }
+
+    /**
      * Assign the file id from a string.
      *
      * @param id                        the string representation of a file id
