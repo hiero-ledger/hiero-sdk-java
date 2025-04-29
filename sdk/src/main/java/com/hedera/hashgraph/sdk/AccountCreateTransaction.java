@@ -116,20 +116,14 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * {@link AccountCreateTransaction#setKey(Key)} +
      * {@link AccountCreateTransaction#setAlias(EvmAddress)}
      *
-     * @param privateKeyECDSA
+     * @param key
      * @return this
      */
-    public AccountCreateTransaction setKeyWithAlias(PrivateKey privateKeyECDSA) {
-        Objects.requireNonNull(privateKeyECDSA);
+    public AccountCreateTransaction setKeyWithAlias(Key key) {
+        Objects.requireNonNull(key);
         requireNotFrozen();
-        if (privateKeyECDSA.isECDSA()) {
-            this.key = privateKeyECDSA;
-            EvmAddress evmAddress = privateKeyECDSA.getPublicKey().toEvmAddress();
-            Objects.requireNonNull(evmAddress);
-            this.alias = evmAddress;
-        } else {
-            throw new BadKeyException("Private key is not ECDSA");
-        }
+        this.key = key;
+        this.alias = extractAlias(key);
         return this;
     }
 
@@ -138,20 +132,14 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * A user must sign the transaction with both keys for this flow to be successful.
      *
      * @param key
-     * @param privateKeyECDSA
+     * @param ecdsaKey
      * @return this
      */
-    public AccountCreateTransaction setKeyWithAlias(Key key, PrivateKey privateKeyECDSA) {
+    public AccountCreateTransaction setKeyWithAlias(Key key, Key ecdsaKey) {
         Objects.requireNonNull(key);
         requireNotFrozen();
         this.key = key;
-        if (privateKeyECDSA.isECDSA()) {
-            EvmAddress evmAddress = privateKeyECDSA.getPublicKey().toEvmAddress();
-            Objects.requireNonNull(evmAddress);
-            this.alias = evmAddress;
-        } else {
-            throw new BadKeyException("Private key is not ECDSA");
-        }
+        this.alias = extractAlias(ecdsaKey);
         return this;
     }
 
@@ -543,6 +531,18 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         }
 
         alias = EvmAddress.fromAliasBytes(body.getAlias());
+    }
+
+    private EvmAddress extractAlias(Key key) {
+        var isPrivateEcdsaKey = key instanceof PrivateKeyECDSA;
+        var isPublicEcdsaKey = key instanceof PublicKeyECDSA;
+        if (isPrivateEcdsaKey) {
+            return ((PrivateKeyECDSA) key).getPublicKey().toEvmAddress();
+        } else if (isPublicEcdsaKey) {
+            return ((PublicKeyECDSA) key).toEvmAddress();
+        } else {
+            throw new BadKeyException("Private key is not ECDSA");
+        }
     }
 
     @Override
