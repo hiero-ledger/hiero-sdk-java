@@ -14,7 +14,7 @@ import org.bouncycastle.util.encoders.Hex;
  * Demonstrates different methods of creating Hedera accounts with various key configurations.
  * Shows how to create accounts with and without aliases using different key types.
  * <p>
- * Reference: HIP-583 Expand alias support in CryptoCreate & CryptoTransfer Transactions
+ * Reference: HIP-583 Expand alias support in CryptoCreate and CryptoTransfer Transactions
  * https://hips.hedera.com/hip/hip-583
  */
 public class CreateAccountWithAliasExample {
