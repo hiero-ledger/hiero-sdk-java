@@ -185,15 +185,7 @@ public final class Client implements AutoCloseable {
      */
     public static Client forMirrorNetwork(List<String> mirrorNetworkList)
             throws InterruptedException, TimeoutException {
-        var executor = createExecutor();
-        var network = Network.forNetwork(executor, new HashMap<>());
-        var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
-        var client = new Client(executor, network, mirrorNetwork, null, true, null);
-        var addressBook = new AddressBookQuery()
-                .setFileId(FileId.getAddressBookFileIdFor(0, 0))
-                .execute(client);
-        client.setNetworkFromAddressBook(addressBook);
-        return client;
+        return forMirrorNetwork(mirrorNetworkList, 0, 0);
     }
 
     /**
