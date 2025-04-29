@@ -45,7 +45,7 @@ public class ContractExecuteIntegrationTest {
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)
