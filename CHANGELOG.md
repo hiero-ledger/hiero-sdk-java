@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     If preset → indication that this transaction is part of a batch and setting nodeAccountId to 0.0.0
 - New TCK method that handles TokenAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2280
 - Handling of non-zero shard and realms for static files https://github.com/hiero-ledger/hiero-sdk-java/pull/2308
-  -
 
 ### Fixed
 
