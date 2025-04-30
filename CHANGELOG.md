@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for HIP-551 Batch Transaction https://hips.hedera.com/hip/hip-551
   It defines a mechanism to execute batch transactions such that a series of transactions (HAPI calls) depending on each other can be rolled into one transaction that passes the ACID test (atomicity, consistency, isolation, and durability).
+  https://github.com/hiero-ledger/hiero-sdk-java/pull/2285
   - New BatchTransaction class that consists of List<Transaction> innerTransactions and List<TransactionId> innerTransactionIds.
   - batchKey field in Transaction class that must sign the BatchTransaction
   - new batchify method that sets the batch key and marks a transaction as part of a batch transaction (inner transaction). The transaction is signed by the client of the operator and frozen.
@@ -18,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     If not present → indication that this transaction is not meant to be inside a batch
     If preset → indication that this transaction is part of a batch and setting nodeAccountId to 0.0.0
 - New TCK method that handles TokenAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2280
-- Handling of non-zero shard and realms for static files
+- Handling of non-zero shard and realms for static files https://github.com/hiero-ledger/hiero-sdk-java/pull/2308
 
 ## 2.54.0
 
