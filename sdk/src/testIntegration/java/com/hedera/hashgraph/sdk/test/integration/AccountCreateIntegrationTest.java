@@ -436,11 +436,12 @@ class AccountCreateIntegrationTest {
     }
 
     @Test
-    @DisplayName("Can create account using setKeyWithoutAlias, account should have key as key and no alias")
-    void createAccountUsingSetKeyWithoutAliasAccountShouldHaveKeyAsKeyAndNoAlias() throws Exception {
+    @DisplayName("Can create account using setKeyWithoutAlias, account should have key as key and expected alias")
+    void createAccountUsingSetKeyWithoutAliasAccountShouldHaveKeyAsKeyAndExpectedAlias() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
 
             var key = PrivateKey.generateECDSA();
+            var evmAddress = key.getPublicKey().toEvmAddress();
 
             var accountId = new AccountCreateTransaction()
                     .setReceiverSignatureRequired(true)
@@ -457,7 +458,7 @@ class AccountCreateIntegrationTest {
 
             assertThat(info.accountId).isNotNull();
             assertThat(info.key).isEqualTo(key.getPublicKey());
-            assertTrue(isLongZeroAddress(Hex.decode(info.contractAccountId)));
+            assertThat(info.contractAccountId).hasToString(evmAddress.toString());
         }
     }
 
