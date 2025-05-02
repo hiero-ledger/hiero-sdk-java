@@ -83,7 +83,7 @@ public class IntegrationTestEnv implements AutoCloseable {
             return Client.forPreviewnet();
         } else if (System.getProperty("HEDERA_NETWORK").equals("testnet")) {
             return Client.forTestnet();
-        } else if (System.getProperty("HEDERA_NETWORK").equals("localhost")) {
+        } else if (System.getProperty("HEDERA_NETWORK").equals("solo")) {
             var network = new HashMap<String, AccountId>();
             network.put(LOCAL_CONSENSUS_NODE_ENDPOINT, LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
 
