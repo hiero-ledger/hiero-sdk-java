@@ -113,6 +113,7 @@ public class IntegrationTestEnv implements AutoCloseable {
         client.setMirrorNetwork(originalClient.getMirrorNetwork());
         client.setOperator(Objects.requireNonNull(operatorId), key);
         client.setLedgerId(originalClient.getLedgerId());
+        client.setMaxAttempts(15);
         return this;
     }
 

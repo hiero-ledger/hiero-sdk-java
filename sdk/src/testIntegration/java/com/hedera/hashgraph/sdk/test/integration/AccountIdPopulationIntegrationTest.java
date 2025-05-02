@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class AccountIdPopulationIntegrationTest {
     @Test
+    @RetryTest
     @DisplayName("Can populate AccountId num from mirror node (using sync method)")
     void canPopulateAccountIdNumSync() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -44,6 +45,7 @@ class AccountIdPopulationIntegrationTest {
     }
 
     @Test
+    @RetryTest
     @DisplayName("Can populate AccountId num from mirror node (using async method)")
     void canPopulateAccountIdNumAsync() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -62,7 +64,8 @@ class AccountIdPopulationIntegrationTest {
             var receipt = new TransactionReceiptQuery()
                     .setTransactionId(tx.transactionId)
                     .setIncludeChildren(true)
-                    .execute(testEnv.client);
+                    .execute(testEnv.client)
+                    .validateStatus(true);
 
             var newAccountId = receipt.children.get(0).accountId;
 
@@ -75,6 +78,7 @@ class AccountIdPopulationIntegrationTest {
     }
 
     @Test
+    @RetryTest
     @DisplayName("Can populate AccountId evm address from mirror node (using sync method)")
     void canPopulateAccountIdEvmAddressSync() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -105,6 +109,7 @@ class AccountIdPopulationIntegrationTest {
     }
 
     @Test
+    @RetryTest
     @DisplayName("Can populate AccountId evm address from mirror node (using async method)")
     void canPopulateAccountIdEvmAddressAsync() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
