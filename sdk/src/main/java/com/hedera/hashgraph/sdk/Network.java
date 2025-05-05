@@ -234,6 +234,12 @@ class Network extends BaseNetwork<Network, AccountId, Node> {
 
     @Override
     protected Node createNodeFromNetworkEntry(Map.Entry<String, AccountId> entry) {
+        if (addressBook != null && !addressBook.isEmpty()) {
+            return new Node(entry.getValue(), entry.getKey(), executor)
+                    .setVerifyCertificates(verifyCertificates)
+                    .setAddressBookEntry(addressBook.get(entry.getValue()));
+        }
+
         return new Node(entry.getValue(), entry.getKey(), executor).setVerifyCertificates(verifyCertificates);
     }
 
