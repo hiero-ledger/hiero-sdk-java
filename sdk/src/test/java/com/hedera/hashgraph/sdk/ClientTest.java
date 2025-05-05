@@ -453,9 +453,9 @@ class ClientTest {
         var client = Client.forTestnet();
         client.setNetwork(Map.of("1.2.3.4:50211", AccountId.fromString("0.0.3")));
 
-        assertThat(client.network.nodes.getFirst().getChannelCredentials()).isNotNull();
+        assertThat(client.network.nodes.get(0).getChannelCredentials()).isNotNull();
 
-        var addressBookEntry = client.network.nodes.getFirst().getAddressBookEntry();
+        var addressBookEntry = client.network.nodes.get(0).getAddressBookEntry();
 
         assertThat(addressBookEntry).isNotNull();
         assertThat(addressBookEntry.certHash).isNotNull();
