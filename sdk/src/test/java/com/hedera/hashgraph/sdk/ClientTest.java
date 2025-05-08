@@ -445,4 +445,23 @@ class ClientTest {
             assertThat(nodeAddress.apply(10002).publicKey).isEqualTo("810002");
         }
     }
+
+    @Test
+    @DisplayName("Is TLS present when node is created by network entry")
+    void assignAddressBookOnNodeCreationWhenAddressBookPresentShouldHaveTLSParametersPresent()
+            throws TimeoutException, InterruptedException {
+        var client = Client.forTestnet();
+        client.setNetwork(Map.of("1.2.3.4:50211", AccountId.fromString("0.0.3")));
+
+        assertThat(client.network.nodes.get(0).getChannelCredentials()).isNotNull();
+
+        var addressBookEntry = client.network.nodes.get(0).getAddressBookEntry();
+
+        assertThat(addressBookEntry).isNotNull();
+        assertThat(addressBookEntry.certHash).isNotNull();
+        assertThat(addressBookEntry.addresses).isNotNull();
+        assertThat(addressBookEntry.accountId).isNotNull();
+        assertThat(addressBookEntry.description).isNotNull();
+        client.close();
+    }
 }
