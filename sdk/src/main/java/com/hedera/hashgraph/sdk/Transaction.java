@@ -390,110 +390,143 @@ public abstract class Transaction<T extends Transaction<T>>
                 .setTransactionFee(scheduled.getTransactionFee());
 
         return switch (scheduled.getDataCase()) {
-            case CONTRACTCALL -> new ContractExecuteTransaction(
-                    body.setContractCall(scheduled.getContractCall()).build());
-            case CONTRACTCREATEINSTANCE -> new ContractCreateTransaction(
-                    body.setContractCreateInstance(scheduled.getContractCreateInstance())
-                            .build());
-            case CONTRACTUPDATEINSTANCE -> new ContractUpdateTransaction(
-                    body.setContractUpdateInstance(scheduled.getContractUpdateInstance())
-                            .build());
-            case CONTRACTDELETEINSTANCE -> new ContractDeleteTransaction(
-                    body.setContractDeleteInstance(scheduled.getContractDeleteInstance())
-                            .build());
-            case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(
-                    body.setCryptoApproveAllowance(scheduled.getCryptoApproveAllowance())
-                            .build());
-            case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(
-                    body.setCryptoDeleteAllowance(scheduled.getCryptoDeleteAllowance())
-                            .build());
-            case CRYPTOCREATEACCOUNT -> new AccountCreateTransaction(
-                    body.setCryptoCreateAccount(scheduled.getCryptoCreateAccount())
-                            .build());
-            case CRYPTODELETE -> new AccountDeleteTransaction(
-                    body.setCryptoDelete(scheduled.getCryptoDelete()).build());
-            case CRYPTOTRANSFER -> new TransferTransaction(
-                    body.setCryptoTransfer(scheduled.getCryptoTransfer()).build());
-            case CRYPTOUPDATEACCOUNT -> new AccountUpdateTransaction(
-                    body.setCryptoUpdateAccount(scheduled.getCryptoUpdateAccount())
-                            .build());
-            case FILEAPPEND -> new FileAppendTransaction(
-                    body.setFileAppend(scheduled.getFileAppend()).build());
-            case FILECREATE -> new FileCreateTransaction(
-                    body.setFileCreate(scheduled.getFileCreate()).build());
-            case FILEDELETE -> new FileDeleteTransaction(
-                    body.setFileDelete(scheduled.getFileDelete()).build());
-            case FILEUPDATE -> new FileUpdateTransaction(
-                    body.setFileUpdate(scheduled.getFileUpdate()).build());
-            case NODECREATE -> new NodeCreateTransaction(
-                    body.setNodeCreate(scheduled.getNodeCreate()).build());
-            case NODEUPDATE -> new NodeUpdateTransaction(
-                    body.setNodeUpdate(scheduled.getNodeUpdate()).build());
-            case NODEDELETE -> new NodeDeleteTransaction(
-                    body.setNodeDelete(scheduled.getNodeDelete()).build());
-            case SYSTEMDELETE -> new SystemDeleteTransaction(
-                    body.setSystemDelete(scheduled.getSystemDelete()).build());
-            case SYSTEMUNDELETE -> new SystemUndeleteTransaction(
-                    body.setSystemUndelete(scheduled.getSystemUndelete()).build());
-            case FREEZE -> new FreezeTransaction(
-                    body.setFreeze(scheduled.getFreeze()).build());
-            case CONSENSUSCREATETOPIC -> new TopicCreateTransaction(
-                    body.setConsensusCreateTopic(scheduled.getConsensusCreateTopic())
-                            .build());
-            case CONSENSUSUPDATETOPIC -> new TopicUpdateTransaction(
-                    body.setConsensusUpdateTopic(scheduled.getConsensusUpdateTopic())
-                            .build());
-            case CONSENSUSDELETETOPIC -> new TopicDeleteTransaction(
-                    body.setConsensusDeleteTopic(scheduled.getConsensusDeleteTopic())
-                            .build());
-            case CONSENSUSSUBMITMESSAGE -> new TopicMessageSubmitTransaction(
-                    body.setConsensusSubmitMessage(scheduled.getConsensusSubmitMessage())
-                            .build());
-            case TOKENCREATION -> new TokenCreateTransaction(
-                    body.setTokenCreation(scheduled.getTokenCreation()).build());
-            case TOKENFREEZE -> new TokenFreezeTransaction(
-                    body.setTokenFreeze(scheduled.getTokenFreeze()).build());
-            case TOKENUNFREEZE -> new TokenUnfreezeTransaction(
-                    body.setTokenUnfreeze(scheduled.getTokenUnfreeze()).build());
-            case TOKENGRANTKYC -> new TokenGrantKycTransaction(
-                    body.setTokenGrantKyc(scheduled.getTokenGrantKyc()).build());
-            case TOKENREVOKEKYC -> new TokenRevokeKycTransaction(
-                    body.setTokenRevokeKyc(scheduled.getTokenRevokeKyc()).build());
-            case TOKENDELETION -> new TokenDeleteTransaction(
-                    body.setTokenDeletion(scheduled.getTokenDeletion()).build());
-            case TOKENUPDATE -> new TokenUpdateTransaction(
-                    body.setTokenUpdate(scheduled.getTokenUpdate()).build());
-            case TOKEN_UPDATE_NFTS -> new TokenUpdateNftsTransaction(
-                    body.setTokenUpdateNfts(scheduled.getTokenUpdateNfts()).build());
-            case TOKENMINT -> new TokenMintTransaction(
-                    body.setTokenMint(scheduled.getTokenMint()).build());
-            case TOKENBURN -> new TokenBurnTransaction(
-                    body.setTokenBurn(scheduled.getTokenBurn()).build());
-            case TOKENWIPE -> new TokenWipeTransaction(
-                    body.setTokenWipe(scheduled.getTokenWipe()).build());
-            case TOKENASSOCIATE -> new TokenAssociateTransaction(
-                    body.setTokenAssociate(scheduled.getTokenAssociate()).build());
-            case TOKENDISSOCIATE -> new TokenDissociateTransaction(
-                    body.setTokenDissociate(scheduled.getTokenDissociate()).build());
-            case TOKEN_FEE_SCHEDULE_UPDATE -> new TokenFeeScheduleUpdateTransaction(
-                    body.setTokenFeeScheduleUpdate(scheduled.getTokenFeeScheduleUpdate())
-                            .build());
-            case TOKEN_PAUSE -> new TokenPauseTransaction(
-                    body.setTokenPause(scheduled.getTokenPause()).build());
-            case TOKEN_UNPAUSE -> new TokenUnpauseTransaction(
-                    body.setTokenUnpause(scheduled.getTokenUnpause()).build());
-            case TOKENREJECT -> new TokenRejectTransaction(
-                    body.setTokenReject(scheduled.getTokenReject()).build());
-            case TOKENAIRDROP -> new TokenAirdropTransaction(
-                    body.setTokenAirdrop(scheduled.getTokenAirdrop()).build());
-            case TOKENCANCELAIRDROP -> new TokenCancelAirdropTransaction(
-                    body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
-                            .build());
-            case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(
-                    body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
-                            .build());
-            case SCHEDULEDELETE -> new ScheduleDeleteTransaction(
-                    body.setScheduleDelete(scheduled.getScheduleDelete()).build());
+            case CONTRACTCALL ->
+                new ContractExecuteTransaction(
+                        body.setContractCall(scheduled.getContractCall()).build());
+            case CONTRACTCREATEINSTANCE ->
+                new ContractCreateTransaction(body.setContractCreateInstance(scheduled.getContractCreateInstance())
+                        .build());
+            case CONTRACTUPDATEINSTANCE ->
+                new ContractUpdateTransaction(body.setContractUpdateInstance(scheduled.getContractUpdateInstance())
+                        .build());
+            case CONTRACTDELETEINSTANCE ->
+                new ContractDeleteTransaction(body.setContractDeleteInstance(scheduled.getContractDeleteInstance())
+                        .build());
+            case CRYPTOAPPROVEALLOWANCE ->
+                new AccountAllowanceApproveTransaction(
+                        body.setCryptoApproveAllowance(scheduled.getCryptoApproveAllowance())
+                                .build());
+            case CRYPTODELETEALLOWANCE ->
+                new AccountAllowanceDeleteTransaction(
+                        body.setCryptoDeleteAllowance(scheduled.getCryptoDeleteAllowance())
+                                .build());
+            case CRYPTOCREATEACCOUNT ->
+                new AccountCreateTransaction(body.setCryptoCreateAccount(scheduled.getCryptoCreateAccount())
+                        .build());
+            case CRYPTODELETE ->
+                new AccountDeleteTransaction(
+                        body.setCryptoDelete(scheduled.getCryptoDelete()).build());
+            case CRYPTOTRANSFER ->
+                new TransferTransaction(
+                        body.setCryptoTransfer(scheduled.getCryptoTransfer()).build());
+            case CRYPTOUPDATEACCOUNT ->
+                new AccountUpdateTransaction(body.setCryptoUpdateAccount(scheduled.getCryptoUpdateAccount())
+                        .build());
+            case FILEAPPEND ->
+                new FileAppendTransaction(
+                        body.setFileAppend(scheduled.getFileAppend()).build());
+            case FILECREATE ->
+                new FileCreateTransaction(
+                        body.setFileCreate(scheduled.getFileCreate()).build());
+            case FILEDELETE ->
+                new FileDeleteTransaction(
+                        body.setFileDelete(scheduled.getFileDelete()).build());
+            case FILEUPDATE ->
+                new FileUpdateTransaction(
+                        body.setFileUpdate(scheduled.getFileUpdate()).build());
+            case NODECREATE ->
+                new NodeCreateTransaction(
+                        body.setNodeCreate(scheduled.getNodeCreate()).build());
+            case NODEUPDATE ->
+                new NodeUpdateTransaction(
+                        body.setNodeUpdate(scheduled.getNodeUpdate()).build());
+            case NODEDELETE ->
+                new NodeDeleteTransaction(
+                        body.setNodeDelete(scheduled.getNodeDelete()).build());
+            case SYSTEMDELETE ->
+                new SystemDeleteTransaction(
+                        body.setSystemDelete(scheduled.getSystemDelete()).build());
+            case SYSTEMUNDELETE ->
+                new SystemUndeleteTransaction(
+                        body.setSystemUndelete(scheduled.getSystemUndelete()).build());
+            case FREEZE ->
+                new FreezeTransaction(body.setFreeze(scheduled.getFreeze()).build());
+            case CONSENSUSCREATETOPIC ->
+                new TopicCreateTransaction(body.setConsensusCreateTopic(scheduled.getConsensusCreateTopic())
+                        .build());
+            case CONSENSUSUPDATETOPIC ->
+                new TopicUpdateTransaction(body.setConsensusUpdateTopic(scheduled.getConsensusUpdateTopic())
+                        .build());
+            case CONSENSUSDELETETOPIC ->
+                new TopicDeleteTransaction(body.setConsensusDeleteTopic(scheduled.getConsensusDeleteTopic())
+                        .build());
+            case CONSENSUSSUBMITMESSAGE ->
+                new TopicMessageSubmitTransaction(body.setConsensusSubmitMessage(scheduled.getConsensusSubmitMessage())
+                        .build());
+            case TOKENCREATION ->
+                new TokenCreateTransaction(
+                        body.setTokenCreation(scheduled.getTokenCreation()).build());
+            case TOKENFREEZE ->
+                new TokenFreezeTransaction(
+                        body.setTokenFreeze(scheduled.getTokenFreeze()).build());
+            case TOKENUNFREEZE ->
+                new TokenUnfreezeTransaction(
+                        body.setTokenUnfreeze(scheduled.getTokenUnfreeze()).build());
+            case TOKENGRANTKYC ->
+                new TokenGrantKycTransaction(
+                        body.setTokenGrantKyc(scheduled.getTokenGrantKyc()).build());
+            case TOKENREVOKEKYC ->
+                new TokenRevokeKycTransaction(
+                        body.setTokenRevokeKyc(scheduled.getTokenRevokeKyc()).build());
+            case TOKENDELETION ->
+                new TokenDeleteTransaction(
+                        body.setTokenDeletion(scheduled.getTokenDeletion()).build());
+            case TOKENUPDATE ->
+                new TokenUpdateTransaction(
+                        body.setTokenUpdate(scheduled.getTokenUpdate()).build());
+            case TOKEN_UPDATE_NFTS ->
+                new TokenUpdateNftsTransaction(
+                        body.setTokenUpdateNfts(scheduled.getTokenUpdateNfts()).build());
+            case TOKENMINT ->
+                new TokenMintTransaction(
+                        body.setTokenMint(scheduled.getTokenMint()).build());
+            case TOKENBURN ->
+                new TokenBurnTransaction(
+                        body.setTokenBurn(scheduled.getTokenBurn()).build());
+            case TOKENWIPE ->
+                new TokenWipeTransaction(
+                        body.setTokenWipe(scheduled.getTokenWipe()).build());
+            case TOKENASSOCIATE ->
+                new TokenAssociateTransaction(
+                        body.setTokenAssociate(scheduled.getTokenAssociate()).build());
+            case TOKENDISSOCIATE ->
+                new TokenDissociateTransaction(
+                        body.setTokenDissociate(scheduled.getTokenDissociate()).build());
+            case TOKEN_FEE_SCHEDULE_UPDATE ->
+                new TokenFeeScheduleUpdateTransaction(
+                        body.setTokenFeeScheduleUpdate(scheduled.getTokenFeeScheduleUpdate())
+                                .build());
+            case TOKEN_PAUSE ->
+                new TokenPauseTransaction(
+                        body.setTokenPause(scheduled.getTokenPause()).build());
+            case TOKEN_UNPAUSE ->
+                new TokenUnpauseTransaction(
+                        body.setTokenUnpause(scheduled.getTokenUnpause()).build());
+            case TOKENREJECT ->
+                new TokenRejectTransaction(
+                        body.setTokenReject(scheduled.getTokenReject()).build());
+            case TOKENAIRDROP ->
+                new TokenAirdropTransaction(
+                        body.setTokenAirdrop(scheduled.getTokenAirdrop()).build());
+            case TOKENCANCELAIRDROP ->
+                new TokenCancelAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                        .build());
+            case TOKENCLAIMAIRDROP ->
+                new TokenClaimAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                        .build());
+            case SCHEDULEDELETE ->
+                new ScheduleDeleteTransaction(
+                        body.setScheduleDelete(scheduled.getScheduleDelete()).build());
             default -> throw new IllegalStateException("schedulable transaction did not have a transaction set");
         };
     }
@@ -1465,5 +1498,27 @@ public abstract class Transaction<T extends Transaction<T>>
         onFreeze(body);
 
         return body.buildPartial().toString().replaceAll("@[A-Za-z0-9]+", "");
+    }
+
+    public int getTransactionSize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+        }
+
+        return makeRequest().getSerializedSize();
+    }
+
+    public int getTransactionBodySize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+        }
+
+        if (frozenBodyBuilder != null) {
+            return frozenBodyBuilder.build().getSerializedSize();
+        }
+
+        return 0;
     }
 }
