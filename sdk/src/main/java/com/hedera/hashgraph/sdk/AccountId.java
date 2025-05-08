@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AccountID;
@@ -203,7 +205,13 @@ public final class AccountId implements Comparable<AccountId> {
      * In case shard and realm are unknown, they should be set to zero
      */
     public static AccountId fromEvmAddress(EvmAddress evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
-        return new AccountId(shard, realm, 0, null, null, evmAddress);
+        checkArgument(shard >= 0, "Shard value cannot be negative: %s", shard);
+        checkArgument(realm >= 0, "Realm value cannot be negative: %s", realm);
+        if (EntityIdHelper.isHieroAccountAddress(evmAddress.toBytes())) {
+            return EntityIdHelper.fromSolidityAddress(evmAddress.toString(), AccountId::new);
+        } else {
+            return new AccountId(shard, realm, 0, null, null, evmAddress);
+        }
     }
 
     /**
@@ -212,8 +220,9 @@ public final class AccountId implements Comparable<AccountId> {
      * @param address                   a string representing the address
      * @return                          the account id object
      */
+    @Deprecated
     public static AccountId fromSolidityAddress(String address) {
-        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
+        if (EntityIdHelper.isHieroAccountAddress(EntityIdHelper.decodeSolidityAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, AccountId::new);
         } else {
             return fromEvmAddress(address, 0, 0);
