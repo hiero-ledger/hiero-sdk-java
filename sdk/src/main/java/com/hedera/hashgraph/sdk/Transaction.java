@@ -1504,7 +1504,6 @@ public abstract class Transaction<T extends Transaction<T>>
      * This method retrieves the size of the transaction
      * @return
      */
-
     public int getTransactionSize() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
