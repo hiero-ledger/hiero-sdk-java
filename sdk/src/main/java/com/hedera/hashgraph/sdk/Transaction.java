@@ -1500,6 +1500,11 @@ public abstract class Transaction<T extends Transaction<T>>
         return body.buildPartial().toString().replaceAll("@[A-Za-z0-9]+", "");
     }
 
+    /**
+     * This method retrieves the size of the transaction
+     * @return
+     */
+
     public int getTransactionSize() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
@@ -1509,10 +1514,14 @@ public abstract class Transaction<T extends Transaction<T>>
         return makeRequest().getSerializedSize();
     }
 
+    /**
+     * This method retrieves the transaction body size
+     * @return
+     */
     public int getTransactionBodySize() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
-                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+                    "transaction must have been frozen before getting it's body size, try calling `freeze`");
         }
 
         if (frozenBodyBuilder != null) {
