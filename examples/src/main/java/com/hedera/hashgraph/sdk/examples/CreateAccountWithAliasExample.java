@@ -256,7 +256,7 @@ public class CreateAccountWithAliasExample {
 
         /*
          * Step 3:
-         * Create an account creation transaction with the public key as an alias.
+         * Create an account with the public key as an alias.
          * The transaction must be signed with the corresponding private key.
          */
         AccountId accountId = new AccountCreateTransaction()
@@ -306,7 +306,7 @@ public class CreateAccountWithAliasExample {
 
         /*
          * Step 3:
-         * Create an account creation transaction with separate keys.
+         * Create an account with separate keys.
          * The transaction must be signed with both the account key and the alias key.
          */
         AccountId accountId = new AccountCreateTransaction()
