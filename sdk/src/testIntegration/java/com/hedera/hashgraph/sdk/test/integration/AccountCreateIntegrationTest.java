@@ -491,6 +491,63 @@ class AccountCreateIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName(
+            "Can create account with ECDSA public key using setKeyWithAlias, account should have public key as key and derived alias")
+    void createAccountUsingSetKeyWithAliasWithPublicKeyShouldHavePublicKeyAndDerivedAlias() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var privateKey = PrivateKey.generateECDSA();
+            var publicKey = privateKey.getPublicKey();
+            var evmAddress = publicKey.toEvmAddress();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithAlias(publicKey)
+                    .freezeWith(testEnv.client)
+                    .sign(privateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            assertThat(accountId).isNotNull();
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isNotNull();
+            assertThat(info.key).isEqualTo(publicKey);
+            assertThat(info.contractAccountId).hasToString(evmAddress.toString());
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Can create account with ED25519 key and ECDSA public key for alias, account should have ED25519 key and derived alias")
+    void createAccountUsingSetKeyWithAliasWithED25519KeyAndPublicECDSAKeyShouldHaveED25519KeyAndDerivedAlias()
+            throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var accountKey = PrivateKey.generateED25519();
+            var aliasPrivateKey = PrivateKey.generateECDSA();
+            var aliasPublicKey = aliasPrivateKey.getPublicKey();
+            var evmAddress = aliasPublicKey.toEvmAddress();
+
+            var accountId = new AccountCreateTransaction()
+                    .setKeyWithAlias(accountKey, aliasPublicKey)
+                    .freezeWith(testEnv.client)
+                    .sign(accountKey)
+                    .sign(aliasPrivateKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            assertThat(accountId).isNotNull();
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isNotNull();
+            assertThat(info.key).isEqualTo(accountKey.getPublicKey());
+            assertThat(info.contractAccountId).hasToString(evmAddress.toString());
+        }
+    }
+
     private boolean isLongZeroAddress(byte[] address) {
         for (int i = 0; i < 12; i++) {
             if (address[i] != 0) {
