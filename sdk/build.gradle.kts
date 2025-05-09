@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 plugins {
     id("org.hiero.gradle.module.library")
-    id("org.hiero.gradle.feature.protobuf")
     id("org.hiero.gradle.feature.test-integration")
+    id("org.hiero.gradle.feature.protobuf")
     id("org.hiero.gradle.feature.publish-dependency-constraints")
 }
 
