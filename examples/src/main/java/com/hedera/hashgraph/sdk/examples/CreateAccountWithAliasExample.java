@@ -50,45 +50,6 @@ public class CreateAccountWithAliasExample {
      * for example via VM options: -Dorg.slf4j.simpleLogger.log.org.hiero=trace
      */
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
-
-    /**
-     * Creates a basic Hedera account with an ED25519 key without alias.
-     *
-     * @param client The Hedera network client used to execute the transaction
-     * @throws Exception If there's an error during account creation
-     */
-    public static void createBasicAccountWithED25519Key(Client client) throws Exception {
-        /*
-         * Step 1:
-         * Generate ED25519 private and public key pair for the account.
-         */
-        PrivateKey privateKey = PrivateKey.generateED25519();
-        PublicKey publicKey = privateKey.getPublicKey();
-        System.out.println("\n--- Creating basic account with ED25519 key ---");
-        System.out.println("ED25519 private key: " + privateKey);
-        System.out.println("ED25519 public key: " + publicKey);
-
-        /*
-         * Step 2:
-         * Create the account with the generated key.
-         */
-        AccountId accountId = new AccountCreateTransaction()
-                .setKeyWithoutAlias(publicKey)
-                .setInitialBalance(Hbar.from(1))
-                .execute(client)
-                .getReceipt(client)
-                .accountId;
-
-        /*
-         * Step 3:
-         * Query the account information and verify details.
-         */
-        AccountInfo info = new AccountInfoQuery().setAccountId(accountId).execute(client);
-        System.out.println("Created account ID: " + accountId);
-        System.out.println("Account key: " + info.key);
-        System.out.println("Account has no alias: " + isZeroAddress(Hex.decode(info.contractAccountId)));
-    }
-
     /**
      * Creates a Hedera account with an alias using an ECDSA key.
      * This demonstrates creating an account where both the account key and alias
@@ -362,7 +323,6 @@ public class CreateAccountWithAliasExample {
          * Step 1:
          * Demonstrate different account creation methods.
          */
-        createBasicAccountWithED25519Key(client);
         createAccountWithAlias(client);
         createAccountWithBothKeys(client);
         createAccountWithoutAlias(client);
