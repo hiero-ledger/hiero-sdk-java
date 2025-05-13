@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Implementation regarding key setting https://github.com/hiero-ledger/hiero-sdk-java/issues/2319
+- Improve `setECDSAKeyWithAlias` and `setKeyWithAlias` for `AccountCreateTransaction` https://github.com/hiero-ledger/hiero-sdk-java/issues/2319
   - Update and unify the method signatures to accept a more flexible input type, such as Key, which can represent either an ECDSA PrivateKey or a PublicKey. The updated behavior should support both scenarios:
     - If a PrivateKey is provided: use it to set the key and internally derive the alias from its corresponding public key.
     - If a PublicKey is provided: use it directly to set the key and derive the alias from that public key.
