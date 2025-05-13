@@ -12,6 +12,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -246,8 +247,8 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
         scheduled.setFileAppend(build().setContents(data));
     }
 
-    public ArrayList<Object> bodySizeAllChunks() {
-        var list = new ArrayList<>();
+    public List<Integer> bodySizeAllChunks() {
+        List<Integer> list = new ArrayList<>();
 
         int originalIndex = this.transactionIds.getIndex();
 
