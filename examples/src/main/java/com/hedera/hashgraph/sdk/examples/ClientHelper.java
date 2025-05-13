@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ClientHelper {
 
-    public static final String LOCAL_NETWORK_NAME = "localhost";
+    public static final String LOCAL_NETWORK_NAME = "solo";
 
     private static final String LOCAL_CONSENSUS_NODE_ENDPOINT = "127.0.0.1:50211";
 

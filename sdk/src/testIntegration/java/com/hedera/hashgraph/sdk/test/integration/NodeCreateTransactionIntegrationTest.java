@@ -26,9 +26,9 @@ class NodeCreateTransactionIntegrationTest {
     void canCreateNewNetworkNode() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
+        network.put("solo", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
 
-        try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
+        try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("solo"))) {
 
             // Set the operator to be account 0.0.2
             var originalOperatorKey = PrivateKey.fromString(
