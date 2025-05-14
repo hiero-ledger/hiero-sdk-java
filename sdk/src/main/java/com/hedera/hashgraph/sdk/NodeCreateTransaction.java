@@ -59,6 +59,9 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     @Nullable
     private Key adminKey = null;
 
+    @Nullable
+    private Boolean declineReward = null;
+
     /**
      * Constructor.
      */
@@ -308,6 +311,29 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
+     * Gets whether this node declines rewards.
+     * If null, the default behavior is to decline rewards.
+     *
+     * @return true if rewards are declined; false if accepted; null if unset.
+     */
+    @Nullable
+    public Boolean getDeclineReward() {
+        return declineReward;
+    }
+
+    /**
+     * Sets whether this node should decline rewards.
+     *
+     * @param decline true to decline rewards, false to accept.
+     * @return {@code this}
+     */
+    public NodeCreateTransaction setDeclineReward(boolean decline) {
+        requireNotFrozen();
+        this.declineReward = decline;
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.NodeCreateTransactionBody}
@@ -339,6 +365,10 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
+        }
+
+        if (declineReward != null) {
+            builder.setDeclineReward(declineReward);
         }
 
         return builder;
@@ -373,6 +403,8 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
         if (body.hasAdminKey()) {
             adminKey = Key.fromProtobufKey(body.getAdminKey());
         }
+
+        declineReward = body.getDeclineReward();
     }
 
     @Override

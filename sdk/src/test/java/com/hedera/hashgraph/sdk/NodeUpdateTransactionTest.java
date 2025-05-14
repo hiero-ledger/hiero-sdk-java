@@ -4,6 +4,7 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.google.protobuf.BoolValue;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -83,6 +84,7 @@ public class NodeUpdateTransactionTest {
                 .setGrpcCertificateHash(TEST_GRPC_CERTIFICATE_HASH)
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setMaxTransactionFee(new Hbar(1))
+                .setDeclineReward(true)
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -163,6 +165,7 @@ public class NodeUpdateTransactionTest {
         transactionBodyBuilder.setGossipCaCertificate(BytesValue.of(ByteString.copyFrom(TEST_GOSSIP_CA_CERTIFICATE)));
         transactionBodyBuilder.setGrpcCertificateHash(BytesValue.of(ByteString.copyFrom(TEST_GRPC_CERTIFICATE_HASH)));
         transactionBodyBuilder.setAdminKey(TEST_ADMIN_KEY.toProtobufKey());
+        transactionBodyBuilder.setDeclineReward(BoolValue.of(true));
 
         var tx = TransactionBody.newBuilder()
                 .setNodeUpdate(transactionBodyBuilder.build())
@@ -177,6 +180,7 @@ public class NodeUpdateTransactionTest {
         assertThat(nodeUpdateTransaction.getGossipCaCertificate()).isEqualTo(TEST_GOSSIP_CA_CERTIFICATE);
         assertThat(nodeUpdateTransaction.getGrpcCertificateHash()).isEqualTo(TEST_GRPC_CERTIFICATE_HASH);
         assertThat(nodeUpdateTransaction.getAdminKey()).isEqualTo(TEST_ADMIN_KEY);
+        assertThat(nodeUpdateTransaction.getDeclineReward()).isEqualTo(true);
     }
 
     @Test
@@ -273,5 +277,17 @@ public class NodeUpdateTransactionTest {
     void getSetAdminKeyFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setAdminKey(TEST_ADMIN_KEY));
+    }
+
+    @Test
+    void getSetDeclineReward() {
+        var tx = new NodeUpdateTransaction().setDeclineReward(true);
+        assertThat(tx.getDeclineReward()).isEqualTo(true);
+    }
+
+    @Test
+    void getSetDeclineRewardFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
     }
 }

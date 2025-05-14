@@ -78,6 +78,7 @@ public class NodeCreateTransactionTest {
                 .setGrpcCertificateHash(TEST_GRPC_CERTIFICATE_HASH)
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setMaxTransactionFee(new Hbar(1))
+                .setDeclineReward(false) // accepts the reward
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -146,6 +147,8 @@ public class NodeCreateTransactionTest {
         transactionBodyBuilder.setGossipCaCertificate(ByteString.copyFrom(TEST_GOSSIP_CA_CERTIFICATE));
         transactionBodyBuilder.setGrpcCertificateHash(ByteString.copyFrom(TEST_GRPC_CERTIFICATE_HASH));
         transactionBodyBuilder.setAdminKey(TEST_ADMIN_KEY.toProtobufKey());
+
+        transactionBodyBuilder.setDeclineReward(true);
 
         var tx = TransactionBody.newBuilder()
                 .setNodeCreate(transactionBodyBuilder.build())
@@ -243,5 +246,17 @@ public class NodeCreateTransactionTest {
     void getSetAdminKeyFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setAdminKey(TEST_ADMIN_KEY));
+    }
+
+    @Test
+    void getSetDeclineReward() {
+        var nodeCreateTransaction = new NodeCreateTransaction().setDeclineReward(true);
+        assertThat(nodeCreateTransaction.getDeclineReward()).isTrue();
+    }
+
+    @Test
+    void getSetDeclineRewardFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
     }
 }
