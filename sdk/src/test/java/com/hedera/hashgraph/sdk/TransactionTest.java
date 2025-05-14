@@ -224,8 +224,8 @@ public class TransactionTest {
     }
 
     @Test
-    @DisplayName("Should return empty array for transaction with no content")
-    void transactionWithNoContentShouldReturnEmptyArray() {
+    @DisplayName("Should return single body chunk for transaction with no content")
+    void transactionWithNoContentShouldReturnSingleBodyChunk() {
         var fileAppendTx = new FileAppendTransaction()
                 .setFileId(new FileId(1))
                 .setTransactionId(new TransactionId(testAccountId, validStart))
@@ -235,7 +235,7 @@ public class TransactionTest {
         var bodySizes = fileAppendTx.bodySizeAllChunks();
 
         assertThat(bodySizes).isNotNull();
-        assertThat(bodySizes).isEmpty();
+        assertThat(bodySizes).hasSize(1); //Contains one empty chunk
     }
 
     @Test
