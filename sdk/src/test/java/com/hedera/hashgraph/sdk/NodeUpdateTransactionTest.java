@@ -290,6 +290,4 @@ public class NodeUpdateTransactionTest {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
     }
-
-
 }

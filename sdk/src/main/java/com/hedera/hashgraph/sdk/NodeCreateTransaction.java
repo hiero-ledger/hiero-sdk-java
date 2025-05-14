@@ -62,7 +62,6 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     @Nullable
     private Boolean declineReward = null;
 
-
     /**
      * Constructor.
      */
@@ -406,7 +405,6 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
         }
 
         declineReward = body.getDeclineReward();
-
     }
 
     @Override
