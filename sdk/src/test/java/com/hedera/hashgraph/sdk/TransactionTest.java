@@ -235,7 +235,7 @@ public class TransactionTest {
         var bodySizes = fileAppendTx.bodySizeAllChunks();
 
         assertThat(bodySizes).isNotNull();
-        assertThat(bodySizes).hasSize(1); //Contains one empty chunk
+        assertThat(bodySizes).hasSize(1); // Contains one empty chunk
     }
 
     @Test
