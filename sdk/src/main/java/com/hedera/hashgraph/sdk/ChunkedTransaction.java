@@ -525,4 +525,30 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
     boolean shouldGetReceipt() {
         return false;
     }
+
+    /**
+     * Get the body sizes for all chunks in a FileAppendTransaction.
+     * For transactions with multiple chunks (like large file appends),
+     * this returns an array containing the size of each chunk's transaction body.
+     * The size is calculated by encoding the transaction body to protobuf format.
+     *
+     * @return List of integers that represent the size of each chunk
+     */
+    public List<Integer> bodySizeAllChunks() {
+        List<Integer> list = new ArrayList<>();
+
+        int originalIndex = this.transactionIds.getIndex();
+
+        try {
+            // Calculate size for each chunk
+            for (int i = 0; i < getRequiredChunks(); i++) {
+                this.transactionIds.setIndex(i);
+                list.add(getTransactionBodySize());
+            }
+        } finally {
+            this.transactionIds.setIndex(originalIndex);
+        }
+
+        return list;
+    }
 }

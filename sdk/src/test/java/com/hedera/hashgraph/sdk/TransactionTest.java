@@ -8,10 +8,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
 import com.hedera.hashgraph.sdk.proto.TokenAssociateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TransactionTest {
@@ -99,5 +101,176 @@ public class TransactionTest {
                 .setTransactionId(TransactionId.withValidStart(testAccountId, validStart))
                 .freeze()
                 .sign(unusedPrivateKey);
+    }
+
+    @Test
+    @DisplayName("two identical transactions should have the same size")
+    void sameSizeForIdenticalTransactions() {
+
+        var accountCreateTransaction = new AccountCreateTransaction()
+                .setInitialBalance(new Hbar(2))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        var accountCreateTransaction2 = new AccountCreateTransaction()
+                .setInitialBalance(new Hbar(2))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        assertThat(accountCreateTransaction.getTransactionSize())
+                .isEqualTo(accountCreateTransaction2.getTransactionSize());
+    }
+
+    @Test
+    @DisplayName("signed Transaction should have larger size")
+    void signedTransactionShouldHaveLargerSize() {
+
+        var accountCreateTransaction = new AccountCreateTransaction()
+                .setInitialBalance(new Hbar(2))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze()
+                .sign(PrivateKey.generateECDSA());
+
+        var accountCreateTransaction2 = new AccountCreateTransaction()
+                .setInitialBalance(new Hbar(2))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        assertThat(accountCreateTransaction.getTransactionSize())
+                .isGreaterThan(accountCreateTransaction2.getTransactionSize());
+    }
+
+    @Test
+    @DisplayName("Transaction with larger content should have larger transactionBody")
+    void transactionWithLargerContentShouldHaveLargerTransactionBody() {
+        var fileCreateTransactionSmallContent = new FileCreateTransaction()
+                .setContents("smallBody")
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+        var fileCreateTransactionLargeContent = new FileCreateTransaction()
+                .setContents("largeLargeBody")
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        assertThat(fileCreateTransactionSmallContent.getTransactionBodySize())
+                .isLessThan(fileCreateTransactionLargeContent.getTransactionBodySize());
+    }
+
+    @Test
+    @DisplayName("Transaction with without optional fields should have smaller transactionBody")
+    void transactionWithoutOptionalFieldsShouldHaveSmallerTransactionBody() {
+        var noOptionalFieldsTransaction = new AccountCreateTransaction()
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        var fullOptionalFieldsTransaction = new AccountCreateTransaction()
+                .setInitialBalance(new Hbar(2))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .setMaxTransactionFee(new Hbar(1))
+                .setTransactionValidDuration(Duration.ofHours(1))
+                .freeze();
+
+        assertThat(noOptionalFieldsTransaction.getTransactionBodySize())
+                .isLessThan(fullOptionalFieldsTransaction.getTransactionBodySize());
+    }
+
+    @Test
+    @DisplayName("Should return array of body sizes for multi-chunk transaction")
+    void multiChunkTransactionShouldReturnArrayOfBodySizes() {
+
+        var chunkSize = 1024;
+        byte[] content = new byte[chunkSize * 3];
+        Arrays.fill(content, (byte) 'a');
+
+        var fileAppentTx = new FileAppendTransaction()
+                .setFileId(new FileId(1))
+                .setChunkSize(chunkSize)
+                .setContents(content)
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        var objects = fileAppentTx.bodySizeAllChunks();
+        assertThat(objects).isNotNull();
+        assertThat(objects).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("Should return array of one size for single-chunk transaction")
+    void singleChunkTransactionShouldReturnArrayOfOneSize() {
+        // Small enough for one chunk
+        byte[] smallContent = new byte[500];
+        Arrays.fill(smallContent, (byte) 'a');
+
+        var fileAppendTx = new FileAppendTransaction()
+                .setFileId(new FileId(1))
+                .setContents(smallContent)
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        var bodySizes = fileAppendTx.bodySizeAllChunks();
+
+        assertThat(bodySizes).isNotNull();
+        assertThat(bodySizes).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Should return single body chunk for transaction with no content")
+    void transactionWithNoContentShouldReturnSingleBodyChunk() {
+        var fileAppendTx = new FileAppendTransaction()
+                .setFileId(new FileId(1))
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        var bodySizes = fileAppendTx.bodySizeAllChunks();
+
+        assertThat(bodySizes).isNotNull();
+        assertThat(bodySizes).hasSize(1); // Contains one empty chunk
+    }
+
+    @Test
+    @DisplayName("Should return proper sizes for FileAppend transactions when chunking occurs")
+    void chunkedFileAppendTransactionShouldReturnProperSizes() {
+        byte[] largeContent = new byte[2048];
+        Arrays.fill(largeContent, (byte) 'a');
+
+        var largeFileAppendTx = new FileAppendTransaction()
+                .setFileId(new FileId(1))
+                .setContents(largeContent)
+                .setChunkSize(1024)
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        long largeSize = largeFileAppendTx.getTransactionSize();
+
+        byte[] smallContent = new byte[512];
+        Arrays.fill(smallContent, (byte) 'a');
+
+        var smallFileAppendTx = new FileAppendTransaction()
+                .setFileId(new FileId(1))
+                .setContents(smallContent)
+                .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        long smallSize = smallFileAppendTx.getTransactionSize();
+
+        // Since large content is 2KB and chunk size is 1KB, this should create 2 chunks
+        // Size should be greater than single chunk size
+        assertThat(largeSize).isGreaterThan(1024);
+
+        // The larger chunked transaction should be bigger than the small single-chunk transaction
+        assertThat(largeSize).isGreaterThan(smallSize);
     }
 }
