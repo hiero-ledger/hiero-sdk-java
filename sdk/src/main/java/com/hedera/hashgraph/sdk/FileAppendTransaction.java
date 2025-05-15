@@ -10,9 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionID;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -245,23 +243,5 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setFileAppend(build().setContents(data));
-    }
-
-    public List<Integer> bodySizeAllChunks() {
-        List<Integer> list = new ArrayList<>();
-
-        int originalIndex = this.transactionIds.getIndex();
-
-        try {
-            // Calculate size for each chunk
-            for (int i = 0; i < getRequiredChunks(); i++) {
-                this.transactionIds.setIndex(i);
-                list.add(super.getTransactionBodySize());
-            }
-        } finally {
-            this.transactionIds.setIndex(originalIndex);
-        }
-
-        return list;
     }
 }
