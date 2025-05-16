@@ -373,7 +373,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
     /**
      * Sets whether this node should decline rewards.
-     * @param decline true to decline rewards; false to accept them.
+     * @param decline true to decline rewards; false to accept them. If left null no change will be made.
      * @return {@code this}
      */
     public NodeUpdateTransaction setDeclineReward(boolean decline) {
