@@ -385,13 +385,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
         return this;
     }
 
-    //TODO add docs
+    // TODO add docs
     @Nullable
     public Endpoint getGrpcWebProxyEndpoint() {
         return grpcWebProxyEndpoint;
     }
 
-    //TODO add docs
+    // TODO add docs
     public NodeUpdateTransaction setGrpcWebProxyEndpoint(@Nullable Endpoint grpcWebProxyEndpoint) {
         requireNotFrozen();
         this.grpcWebProxyEndpoint = grpcWebProxyEndpoint;
@@ -440,10 +440,10 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
             builder.setDeclineReward(BoolValue.of(declineReward));
         }
 
-        //TODO
-//        if (grpcWebProxyEndpoint != null) {
-//
-//        }
+        // TODO
+        //        if (grpcWebProxyEndpoint != null) {
+        //
+        //        }
 
         return builder;
     }
@@ -488,8 +488,8 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
             declineReward = body.getDeclineReward().getValue();
         }
 
-        //TODO
-        //grpcWebProxyEndpoint = Endpoint.fromProtobuf(grpcWebProxyEndpoint);
+        // TODO
+        // grpcWebProxyEndpoint = Endpoint.fromProtobuf(grpcWebProxyEndpoint);
     }
 
     @Override
