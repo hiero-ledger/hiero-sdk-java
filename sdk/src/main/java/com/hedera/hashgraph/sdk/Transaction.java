@@ -263,7 +263,6 @@ public abstract class Transaction<T extends Transaction<T>>
         TransactionBody.DataCase dataCase = TransactionBody.DataCase.DATA_NOT_SET;
 
         var list = TransactionList.parseFrom(bytes);
-
         if (list.getTransactionListList().isEmpty()) {
             var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes).toBuilder();
 
@@ -296,10 +295,10 @@ public abstract class Transaction<T extends Transaction<T>>
             linked.put(account, transaction.build());
             txs.put(transactionId, linked);
         } else {
+            verifyTransactionsIntegrity(list.getTransactionListList());
             for (var transaction : list.getTransactionListList()) {
                 var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
                 var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-
                 if (dataCase.getNumber() == TransactionBody.DataCase.DATA_NOT_SET.getNumber()) {
                     dataCase = txBody.getDataCase();
                 }
@@ -375,6 +374,43 @@ public abstract class Transaction<T extends Transaction<T>>
             case ATOMIC_BATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
+    }
+
+    private static void verifyTransactionsIntegrity(
+        List<com.hedera.hashgraph.sdk.proto.Transaction> transactionList)
+        throws InvalidProtocolBufferException {
+
+        var referenceTransaction = SignedTransaction.parseFrom(
+            transactionList.get(0).getSignedTransactionBytes());
+        var referenceTxBody = TransactionBody.parseFrom(referenceTransaction.getBodyBytes());
+
+        var referenceSize = referenceTxBody.getSerializedSize();
+        var referenceValidStart = referenceTxBody.getTransactionID().getTransactionValidStart();
+        var referenceTransactionFee = referenceTxBody.getTransactionFee();
+        var referenceMemo = referenceTxBody.getMemo();
+
+        // Compare each transaction
+        for (int i = 1; i < transactionList.size(); i++) {
+            var currentTransaction = SignedTransaction.parseFrom(
+                transactionList.get(i).getSignedTransactionBytes());
+            var currentTxBody = TransactionBody.parseFrom(currentTransaction.getBodyBytes());
+
+            if (currentTxBody.getSerializedSize() != referenceSize) {
+                throw new TransactionIntegrityException("Transaction at index " + i + " has different serializedSize");
+            }
+
+            if (!currentTxBody.getTransactionID().getTransactionValidStart().equals(referenceValidStart)) {
+                throw new TransactionIntegrityException("Transaction at index " + i + " has different transactionValidStart");
+            }
+
+            if (!currentTxBody.getMemo().equals(referenceMemo)) {
+                throw new TransactionIntegrityException("Transaction at index " + i + " has different memo");
+            }
+
+            if (currentTxBody.getTransactionFee() != (referenceTransactionFee)) {
+                throw new TransactionIntegrityException("Transaction at index " + i + " has different transaction Fee");
+            }
+        }
     }
 
     /**
