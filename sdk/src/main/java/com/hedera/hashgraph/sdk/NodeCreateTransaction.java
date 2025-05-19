@@ -312,7 +312,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
     /**
      * Gets whether this node declines rewards.
-     * If null, the default behavior is to decline rewards.
+     * If null, the default behavior is to accept rewards.
      *
      * @return true if rewards are declined; false if accepted; null if unset.
      */
