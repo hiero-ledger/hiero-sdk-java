@@ -3,12 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SignatureMap;
-import com.hedera.hashgraph.sdk.proto.SignaturePair;
-import com.hedera.hashgraph.sdk.proto.SignedTransaction;
-import com.hedera.hashgraph.sdk.proto.TransactionBody;
-import com.hedera.hashgraph.sdk.proto.TransactionList;
+import com.hedera.hashgraph.sdk.proto.*;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
@@ -258,67 +253,207 @@ public abstract class Transaction<T extends Transaction<T>>
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static Transaction<?> fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        var txs = new LinkedHashMap<
-                TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>>();
-        TransactionBody.DataCase dataCase = TransactionBody.DataCase.DATA_NOT_SET;
-
         var list = TransactionList.parseFrom(bytes);
-        if (list.getTransactionListList().isEmpty()) {
-            var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes).toBuilder();
 
-            TransactionBody txBody;
-            if (transaction.getSignedTransactionBytes().isEmpty()) {
-                txBody = TransactionBody.parseFrom(transaction.getBodyBytes());
+        var txsMap = new LinkedHashMap<
+                TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>>();
+        var dataCaseHolder = new DataCaseHolder();
 
-                transaction
-                        .setSignedTransactionBytes(SignedTransaction.newBuilder()
-                                .setBodyBytes(transaction.getBodyBytes())
-                                .setSigMap(transaction.getSigMap())
-                                .build()
-                                .toByteString())
-                        .clearBodyBytes()
-                        .clearSigMap();
-            } else {
-                var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-                txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-            }
-
-            dataCase = txBody.getDataCase();
-
-            var account =
-                    txBody.hasNodeAccountID() ? AccountId.fromProtobuf(txBody.getNodeAccountID()) : DUMMY_ACCOUNT_ID;
-            var transactionId = txBody.hasTransactionID()
-                    ? TransactionId.fromProtobuf(txBody.getTransactionID())
-                    : DUMMY_TRANSACTION_ID;
-
-            var linked = new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
-            linked.put(account, transaction.build());
-            txs.put(transactionId, linked);
+        if (!list.getTransactionListList().isEmpty()) {
+            processTransactionList(list.getTransactionListList(), txsMap, dataCaseHolder);
         } else {
-            verifyTransactionsIntegrity(list.getTransactionListList());
-            for (var transaction : list.getTransactionListList()) {
-                var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-                var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-                if (dataCase.getNumber() == TransactionBody.DataCase.DATA_NOT_SET.getNumber()) {
-                    dataCase = txBody.getDataCase();
-                }
+            processSingleTransaction(bytes, txsMap, dataCaseHolder);
+        }
 
-                var account = txBody.hasNodeAccountID()
-                        ? AccountId.fromProtobuf(txBody.getNodeAccountID())
-                        : DUMMY_ACCOUNT_ID;
-                var transactionId = txBody.hasTransactionID()
-                        ? TransactionId.fromProtobuf(txBody.getTransactionID())
-                        : DUMMY_TRANSACTION_ID;
+        return createTransactionFromDataCase(dataCaseHolder.getDataCase(), txsMap);
+    }
 
-                var linked = txs.containsKey(transactionId)
-                        ? Objects.requireNonNull(txs.get(transactionId))
-                        : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
+    /**
+     * Simple container for holding and updating the data case
+     */
+    private static class DataCaseHolder {
+        private TransactionBody.DataCase dataCase = TransactionBody.DataCase.DATA_NOT_SET;
 
-                linked.put(account, transaction);
-
-                txs.put(transactionId, linked);
+        public void setDataCase(TransactionBody.DataCase newDataCase) {
+            if (dataCase == TransactionBody.DataCase.DATA_NOT_SET) {
+                dataCase = newDataCase;
             }
         }
+
+        public TransactionBody.DataCase getDataCase() {
+            return dataCase;
+        }
+    }
+
+    /**
+     * Process a single transaction
+     */
+    private static void processSingleTransaction(
+            byte[] bytes,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap,
+            DataCaseHolder dataCaseHolder)
+            throws InvalidProtocolBufferException {
+
+        var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes);
+        var builtTransaction = prepareSingleTransaction(transaction);
+
+        var signedTransaction = SignedTransaction.parseFrom(builtTransaction.getSignedTransactionBytes());
+        var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+        dataCaseHolder.setDataCase(txBody.getDataCase());
+
+        addTransactionToMap(builtTransaction, txBody, txsMap);
+    }
+
+    /**
+     * Prepare a single transaction by ensuring it has SignedTransactionBytes
+     */
+    private static com.hedera.hashgraph.sdk.proto.Transaction prepareSingleTransaction(
+            com.hedera.hashgraph.sdk.proto.Transaction transaction) {
+
+        if (transaction.getSignedTransactionBytes().isEmpty()) {
+            var txBuilder = transaction.toBuilder();
+            var bodyBytes = txBuilder.getBodyBytes();
+            var sigMap = txBuilder.getSigMap();
+
+            txBuilder
+                    .setSignedTransactionBytes(SignedTransaction.newBuilder()
+                            .setBodyBytes(bodyBytes)
+                            .setSigMap(sigMap)
+                            .build()
+                            .toByteString())
+                    .clearBodyBytes()
+                    .clearSigMap();
+
+            return txBuilder.build();
+        }
+
+        return transaction;
+    }
+
+    /**
+     * Process a list of transactions with integrity verification
+     */
+    private static void processTransactionList(
+            List<com.hedera.hashgraph.sdk.proto.Transaction> transactionList,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap,
+            DataCaseHolder dataCaseHolder)
+            throws InvalidProtocolBufferException {
+
+        if (transactionList.isEmpty()) {
+            return;
+        }
+
+        var firstTransaction = transactionList.get(0);
+        var firstSignedTransaction = SignedTransaction.parseFrom(firstTransaction.getSignedTransactionBytes());
+        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
+        var referenceData = extractReferenceData(firstTransaction);
+
+        TransactionBody.DataCase initialDataCase = firstTxBody.getDataCase();
+        dataCaseHolder.setDataCase(initialDataCase);
+
+        addTransactionToMap(firstTransaction, firstTxBody, txsMap);
+
+        for (int i = 1; i < transactionList.size(); i++) {
+            var transaction = transactionList.get(i);
+            var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
+            var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+            verifyTransactionIntegrity(txBody, referenceData, i);
+
+            if (txBody.getDataCase() != initialDataCase) {
+                throw new TransactionIntegrityException("Transaction at index " + i + " has different data case: "
+                        + txBody.getDataCase() + " vs expected " + initialDataCase);
+            }
+
+            addTransactionToMap(transaction, txBody, txsMap);
+        }
+    }
+
+    /**
+     * Extract reference data for integrity verification
+     */
+    private static ReferenceData extractReferenceData(com.hedera.hashgraph.sdk.proto.Transaction transaction)
+            throws InvalidProtocolBufferException {
+
+        var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
+        var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+        return new ReferenceData(
+                txBody.getSerializedSize(),
+                txBody.getTransactionID().getTransactionValidStart(),
+                txBody.getTransactionFee(),
+                txBody.getMemo());
+    }
+
+    /**
+     * Container for reference transaction data used for integrity verification
+     */
+    private static class ReferenceData {
+        final int serializedSize;
+        final Timestamp validStart;
+        final long transactionFee;
+        final String memo;
+
+        public ReferenceData(int serializedSize, Timestamp validStart, long transactionFee, String memo) {
+            this.serializedSize = serializedSize;
+            this.validStart = validStart;
+            this.transactionFee = transactionFee;
+            this.memo = memo;
+        }
+    }
+
+    /**
+     * Verify that a transaction matches the reference data
+     */
+    private static void verifyTransactionIntegrity(TransactionBody txBody, ReferenceData reference, int index) {
+
+        if (txBody.getSerializedSize() != reference.serializedSize) {
+            throw new TransactionIntegrityException("Transaction at index " + index + " has different serializedSize");
+        }
+
+        if (!txBody.getTransactionID().getTransactionValidStart().equals(reference.validStart)) {
+            throw new TransactionIntegrityException(
+                    "Transaction at index " + index + " has different transactionValidStart");
+        }
+
+        if (!txBody.getMemo().equals(reference.memo)) {
+            throw new TransactionIntegrityException("Transaction at index " + index + " has different memo");
+        }
+
+        if (txBody.getTransactionFee() != reference.transactionFee) {
+            throw new TransactionIntegrityException("Transaction at index " + index + " has different transaction Fee");
+        }
+    }
+
+    /**
+     * Add a transaction to the transaction map
+     */
+    private static void addTransactionToMap(
+            com.hedera.hashgraph.sdk.proto.Transaction transaction,
+            TransactionBody txBody,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap) {
+
+        var account = txBody.hasNodeAccountID() ? AccountId.fromProtobuf(txBody.getNodeAccountID()) : DUMMY_ACCOUNT_ID;
+        var transactionId = txBody.hasTransactionID()
+                ? TransactionId.fromProtobuf(txBody.getTransactionID())
+                : DUMMY_TRANSACTION_ID;
+
+        var linked = txsMap.containsKey(transactionId)
+                ? Objects.requireNonNull(txsMap.get(transactionId))
+                : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
+
+        linked.put(account, transaction);
+        txsMap.put(transactionId, linked);
+    }
+
+    /**
+     * Creates the appropriate transaction type based on the data case.
+     */
+    private static Transaction<?> createTransactionFromDataCase(
+            TransactionBody.DataCase dataCase,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txs)
+            throws InvalidProtocolBufferException {
 
         return switch (dataCase) {
             case CONTRACTCALL -> new ContractExecuteTransaction(txs);
@@ -374,43 +509,6 @@ public abstract class Transaction<T extends Transaction<T>>
             case ATOMIC_BATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
-    }
-
-    private static void verifyTransactionsIntegrity(
-        List<com.hedera.hashgraph.sdk.proto.Transaction> transactionList)
-        throws InvalidProtocolBufferException {
-
-        var referenceTransaction = SignedTransaction.parseFrom(
-            transactionList.get(0).getSignedTransactionBytes());
-        var referenceTxBody = TransactionBody.parseFrom(referenceTransaction.getBodyBytes());
-
-        var referenceSize = referenceTxBody.getSerializedSize();
-        var referenceValidStart = referenceTxBody.getTransactionID().getTransactionValidStart();
-        var referenceTransactionFee = referenceTxBody.getTransactionFee();
-        var referenceMemo = referenceTxBody.getMemo();
-
-        // Compare each transaction
-        for (int i = 1; i < transactionList.size(); i++) {
-            var currentTransaction = SignedTransaction.parseFrom(
-                transactionList.get(i).getSignedTransactionBytes());
-            var currentTxBody = TransactionBody.parseFrom(currentTransaction.getBodyBytes());
-
-            if (currentTxBody.getSerializedSize() != referenceSize) {
-                throw new TransactionIntegrityException("Transaction at index " + i + " has different serializedSize");
-            }
-
-            if (!currentTxBody.getTransactionID().getTransactionValidStart().equals(referenceValidStart)) {
-                throw new TransactionIntegrityException("Transaction at index " + i + " has different transactionValidStart");
-            }
-
-            if (!currentTxBody.getMemo().equals(referenceMemo)) {
-                throw new TransactionIntegrityException("Transaction at index " + i + " has different memo");
-            }
-
-            if (currentTxBody.getTransactionFee() != (referenceTransactionFee)) {
-                throw new TransactionIntegrityException("Transaction at index " + i + " has different transaction Fee");
-            }
-        }
     }
 
     /**

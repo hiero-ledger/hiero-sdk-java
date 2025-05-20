@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.proto.CryptoTransferTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
-import com.hedera.hashgraph.sdk.proto.TransactionList;
+import com.hedera.hashgraph.sdk.proto.*;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
@@ -161,7 +159,7 @@ public class CryptoTransferTransactionTest {
                 .getTransactionList(1);
         var brokenTxList = TransactionList.newBuilder().addTransactionList(tx1).addTransactionList(tx2);
         var brokenTxBytes = brokenTxList.build().toByteArray();
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
+        assertThatExceptionOfType(TransactionIntegrityException.class).isThrownBy(() -> {
             Transaction.fromBytes(brokenTxBytes);
         });
     }
