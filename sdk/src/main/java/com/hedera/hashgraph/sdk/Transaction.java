@@ -408,7 +408,8 @@ public abstract class Transaction<T extends Transaction<T>>
      */
     private static void verifyTransactionIntegrity(TransactionBody txBody, ReferenceData reference, int index) {
 
-        if (txBody.getSerializedSize() != reference.serializedSize && txBody.getDataCase() != TransactionBody.DataCase.FILEAPPEND) {
+        if (txBody.getSerializedSize() != reference.serializedSize
+                && txBody.getDataCase() != TransactionBody.DataCase.FILEAPPEND) {
             throw new TransactionIntegrityException("Transaction at index " + index + " has different serializedSize");
         }
 
