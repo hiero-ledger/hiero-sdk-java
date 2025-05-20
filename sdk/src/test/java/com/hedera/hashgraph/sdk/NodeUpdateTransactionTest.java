@@ -301,7 +301,7 @@ public class NodeUpdateTransactionTest {
     }
 
     @Test
-    void getSetGrpcWebProxyEndpoint() {
+    void setGrpcWebProxyEndpointRequiresFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
     }
