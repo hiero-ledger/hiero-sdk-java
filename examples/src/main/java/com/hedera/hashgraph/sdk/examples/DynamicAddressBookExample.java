@@ -48,6 +48,10 @@ public class DynamicAddressBookExample {
         Endpoint serviceEndpoint = new Endpoint();
         serviceEndpoint.setAddress(new byte[] {0x00, 0x01, 0x02, 0x03});
 
+        // Set up grpcWebProxyEndpoint address
+        Endpoint grpcWebProxyEndpoint = new Endpoint();
+        grpcWebProxyEndpoint.setAddress(new byte[] {0x00, 0x01, 0x02, 0x03});
+
         // Generate admin key
         PrivateKey adminKey = PrivateKey.generateED25519();
 
@@ -58,6 +62,7 @@ public class DynamicAddressBookExample {
                 .setGossipCaCertificate("gossipCaCertificate".getBytes())
                 .setServiceEndpoints(Collections.singletonList(serviceEndpoint))
                 .setGossipEndpoints(Collections.singletonList(gossipEndpoint))
+                .setGrpcWebProxyEndpoint(grpcWebProxyEndpoint)
                 .setAdminKey(adminKey.getPublicKey());
 
         try {
@@ -73,6 +78,7 @@ public class DynamicAddressBookExample {
                 .setGossipCaCertificate("gossipCaCertificate".getBytes())
                 .setServiceEndpoints(Collections.singletonList(serviceEndpoint))
                 .setGossipEndpoints(Collections.singletonList(gossipEndpoint))
+                .setGrpcWebProxyEndpoint(grpcWebProxyEndpoint)
                 .setAdminKey(adminKey.getPublicKey());
 
         try {
