@@ -83,7 +83,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * except pointing to different nodes. When retrying a transaction after a network error or retry-able status
      * response, we try a different transaction and thus a different node.
      */
-    protected List<com.hedera.hashgraph.sdk.proto.SignedTransaction.Builder> innerSignedTransactions =
+    public List<com.hedera.hashgraph.sdk.proto.SignedTransaction.Builder> innerSignedTransactions =
             Collections.emptyList();
 
     /**
@@ -345,81 +345,24 @@ public abstract class Transaction<T extends Transaction<T>>
         }
 
         var firstTransaction = transactionList.get(0);
-        var firstSignedTransaction = SignedTransaction.parseFrom(firstTransaction.getSignedTransactionBytes());
-        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
-        var referenceData = extractReferenceData(firstTransaction);
+        setDataCase(firstTransaction, dataCaseHolder);
 
-        TransactionBody.DataCase initialDataCase = firstTxBody.getDataCase();
-        dataCaseHolder.setDataCase(initialDataCase);
-
-        addTransactionToMap(firstTransaction, firstTxBody, txsMap);
-
-        for (int i = 1; i < transactionList.size(); i++) {
-            var transaction = transactionList.get(i);
+        for (com.hedera.hashgraph.sdk.proto.Transaction transaction : transactionList) {
             var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
             var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-
-            verifyTransactionIntegrity(txBody, referenceData, i);
-
-            if (txBody.getDataCase() != initialDataCase) {
-                throw new TransactionIntegrityException("Transaction at index " + i + " has different data case: "
-                        + txBody.getDataCase() + " vs expected " + initialDataCase);
-            }
 
             addTransactionToMap(transaction, txBody, txsMap);
         }
     }
 
-    /**
-     * Extract reference data for integrity verification
-     */
-    private static ReferenceData extractReferenceData(com.hedera.hashgraph.sdk.proto.Transaction transaction)
+    private static void setDataCase(
+            com.hedera.hashgraph.sdk.proto.Transaction transaction, DataCaseHolder dataCaseHolder)
             throws InvalidProtocolBufferException {
+        var firstSignedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
+        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
 
-        var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-        var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-
-        return new ReferenceData(
-                txBody.getSerializedSize(),
-                txBody.getTransactionID().getTransactionValidStart(),
-                txBody.getTransactionFee(),
-                txBody.getMemo());
-    }
-
-    /**
-     * Container for reference transaction data used for integrity verification
-     */
-    private static class ReferenceData {
-        final int serializedSize;
-        final Timestamp validStart;
-        final long transactionFee;
-        final String memo;
-
-        public ReferenceData(int serializedSize, Timestamp validStart, long transactionFee, String memo) {
-            this.serializedSize = serializedSize;
-            this.validStart = validStart;
-            this.transactionFee = transactionFee;
-            this.memo = memo;
-        }
-    }
-
-    /**
-     * Verify that a transaction matches the reference data
-     */
-    private static void verifyTransactionIntegrity(TransactionBody txBody, ReferenceData reference, int index) {
-
-        if (txBody.getSerializedSize() != reference.serializedSize
-                && txBody.getDataCase() != TransactionBody.DataCase.FILEAPPEND) {
-            throw new TransactionIntegrityException("Transaction at index " + index + " has different serializedSize");
-        }
-
-        if (!txBody.getMemo().equals(reference.memo)) {
-            throw new TransactionIntegrityException("Transaction at index " + index + " has different memo");
-        }
-
-        if (txBody.getTransactionFee() != reference.transactionFee) {
-            throw new TransactionIntegrityException("Transaction at index " + index + " has different transaction Fee");
-        }
+        TransactionBody.DataCase initialDataCase = firstTxBody.getDataCase();
+        dataCaseHolder.setDataCase(initialDataCase);
     }
 
     /**

@@ -159,7 +159,7 @@ public class CryptoTransferTransactionTest {
                 .getTransactionList(1);
         var brokenTxList = TransactionList.newBuilder().addTransactionList(tx1).addTransactionList(tx2);
         var brokenTxBytes = brokenTxList.build().toByteArray();
-        assertThatExceptionOfType(TransactionIntegrityException.class).isThrownBy(() -> {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             Transaction.fromBytes(brokenTxBytes);
         });
     }
