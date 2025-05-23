@@ -89,7 +89,7 @@ jobs:
             ) &&
             !cancelled()
           }}
-        run: ${CG_EXEC} snyk test --all-projects --severity-threshold=high --policy-path=.snyk --json-file-output=snyk-test.json --org=hiero-client-sdks
+        run: ${CG_EXEC} snyk test --all-projects '--configuration-matching=^(?!_internal-).*' --severity-threshold=high --policy-path=.snyk --json-file-output=snyk-test.json --org=hiero-client-sdks
 
       - name: Snyk Code
         id: snyk-code
