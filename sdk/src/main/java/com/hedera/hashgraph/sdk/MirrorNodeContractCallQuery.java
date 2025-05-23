@@ -18,6 +18,6 @@ public class MirrorNodeContractCallQuery extends MirrorNodeContractQuery<MirrorN
 
     @Override
     public String toString() {
-        return "MirrorNodeContractCallQuery" + super.toString();
+        return "MirrorNosdeContractCallQuery" + super.toString();
     }
 }
