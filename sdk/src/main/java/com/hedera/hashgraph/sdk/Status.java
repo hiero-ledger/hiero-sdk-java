@@ -1891,7 +1891,24 @@ public enum Status {
     /**
      * The network just started at genesis and is creating system entities.
      */
-    CREATING_SYSTEM_ENTITIES(ResponseCodeEnum.CREATING_SYSTEM_ENTITIES);
+    CREATING_SYSTEM_ENTITIES(ResponseCodeEnum.CREATING_SYSTEM_ENTITIES),
+
+    /**
+     * The least common multiple of the throttle group's milliOpsPerSec is
+     * too large and it's overflowing.
+     */
+    THROTTLE_GROUP_LCM_OVERFLOW(ResponseCodeEnum.THROTTLE_GROUP_LCM_OVERFLOW),
+
+    /**
+     * Token airdrop transactions can not contain multiple senders for a single token.
+     */
+    AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN(ResponseCodeEnum.AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN),
+
+    /**
+     * The GRPC proxy endpoint is set in the NodeCreate or NodeUpdate transaction,
+     * which the network does not support.
+     */
+    GRPC_WEB_PROXY_NOT_SUPPORTED(ResponseCodeEnum.GRPC_WEB_PROXY_NOT_SUPPORTED);
 
     final ResponseCodeEnum code;
 
@@ -2256,6 +2273,9 @@ public enum Status {
             case INVALID_BATCH_KEY -> INVALID_BATCH_KEY;
             case SCHEDULE_EXPIRY_NOT_CONFIGURABLE -> SCHEDULE_EXPIRY_NOT_CONFIGURABLE;
             case CREATING_SYSTEM_ENTITIES -> CREATING_SYSTEM_ENTITIES;
+            case THROTTLE_GROUP_LCM_OVERFLOW -> THROTTLE_GROUP_LCM_OVERFLOW;
+            case AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN -> AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN;
+            case GRPC_WEB_PROXY_NOT_SUPPORTED -> GRPC_WEB_PROXY_NOT_SUPPORTED;
             case UNRECOGNIZED ->
             // NOTE: Protobuf deserialization will not give us the code on the wire
             throw new IllegalArgumentException(
