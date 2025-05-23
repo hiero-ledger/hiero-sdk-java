@@ -7,6 +7,7 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Endpoint;
 import com.hedera.hashgraph.sdk.NodeCreateTransaction;
+import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.PrivateKeyECDSA;
 import java.util.HashMap;
@@ -46,8 +47,9 @@ class NodeCreateTransactionIntegrationTest {
             var endpoint2 = new Endpoint().setDomainName("test.com").setPort(123);
 
             // Set up grpcWebProxyEndpoint address
-            Endpoint grpcWebProxyEndpoint = new Endpoint();
-            grpcWebProxyEndpoint.setAddress(new byte[] {0x00, 0x01, 0x02, 0x03});
+            var grpcWebProxyEndpoint = new Endpoint()
+                    .setAddress(new byte[] {0x00, 0x01, 0x02, 0x05})
+                    .setPort(12345);
 
             // Convert hex string to byte array
             var validGossipCert = Hex.decode(validGossipCertDER.getBytes());
@@ -62,7 +64,21 @@ class NodeCreateTransactionIntegrationTest {
                     .setGossipCaCertificate(validGossipCert)
                     .setGossipEndpoints(List.of(endpoint, endpoint2))
                     .setServiceEndpoints(List.of(endpoint, endpoint2))
+                    .setDeclineReward(true)
                     .setGrpcWebProxyEndpoint(grpcWebProxyEndpoint)
+                    .freezeWith(client)
+                    .sign(adminKey)
+                    .execute(client)
+                    .getReceipt(client);
+
+            var grpcWebProxyEndpointUpdated = new Endpoint()
+                    .setAddress(new byte[] {0x00, 0x01, 0x02, 0x06})
+                    .setPort(123456);
+
+            new NodeUpdateTransaction()
+                    .setAccountId(accountID)
+                    .setDeclineReward(false)
+                    .setGrpcWebProxyEndpoint(grpcWebProxyEndpointUpdated)
                     .freezeWith(client)
                     .sign(adminKey)
                     .execute(client)
