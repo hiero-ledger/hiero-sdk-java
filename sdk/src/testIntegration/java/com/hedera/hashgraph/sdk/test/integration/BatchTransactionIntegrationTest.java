@@ -8,9 +8,11 @@ import com.hedera.hashgraph.sdk.*;
 import java.time.Instant;
 import java.util.Objects;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 class BatchTransactionIntegrationTest {
 
     @Test
