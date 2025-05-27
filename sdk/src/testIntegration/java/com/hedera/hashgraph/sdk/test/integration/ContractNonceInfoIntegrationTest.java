@@ -31,7 +31,7 @@ public class ContractNonceInfoIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(100000)
+                    .setGas(300000)
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractADeploysContractBInConstructor]")
                     .execute(testEnv.client);
