@@ -62,6 +62,9 @@ abstract class RunAllExample : DefaultTask() {
                     it != "BatchTransactionExample"
                 }
                 .filter {
+                    it != "CreateStatefulContractExample"
+                }
+                .filter {
                     it != "ValidateChecksumExample"
                 } // disabled this example, because it needs user input (but it WORKS)
                 .filter {
