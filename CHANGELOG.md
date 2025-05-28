@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for HIP-1064. https://github.com/hiero-ledger/hiero-sdk-java/issues/2329
-  - Added decline reward fields in node create and node update transaction.
-    https://github.com/hiero-ledger/hiero-sdk-java/pull/2333
-- Support for HIP-1046. https://github.com/hiero-ledger/hiero-sdk-java/issues/2332
-  - introduced new grpc web proxy field in the address book schema, making node operators manage their web proxies.
-    https://github.com/hiero-ledger/hiero-sdk-java/pull/2337
+- Support for HIP-1046. https://hips.hedera.com/hip/hip-1046
+  - Introduced new grpc web proxy field in the address book schema, making node operators manage their web proxies. https://github.com/hiero-ledger/hiero-sdk-java/pull/2337
+  - NodeCreateTransaction
+    - Endpoint grpcWebProxyEndpoint - A web proxy for gRPC from non-gRPC clients.
+    - Endpoint getGrpcWebProxyEndpoint()
+    - NodeCreateTransaction setGrpcWebProxyEndpoint(Endpoint)
+  - NodeUpdateTransaction
+    - Endpoint grpcWebProxyEndpoint - A web proxy for gRPC from non-gRPC clients.
+    - Endpoint getGrpcWebProxyEndpoint()
+    - NodeUpdateTransaction setGrpcWebProxyEndpoint(Endpoint)
 - Support transaction size calculation before submission. This is useful for fee estimation, transaction validation, and batching logic. https://github.com/hiero-ledger/hiero-sdk-java/issues/2330
   - Following APIs were implemented: https://github.com/hiero-ledger/hiero-sdk-java/pull/2324
     - Transaction.size: uint
