@@ -7,7 +7,7 @@ To get started with an Android project, you'll need to add the following **two**
 1. **Hedera™ Java SDK:**
 
 ```groovy
-implementation 'com.hedera.hashgraph:sdk:2.56.1'
+implementation 'com.hedera.hashgraph:sdk:2.57.0'
 ```
 
 2. **gRPC implementation:**
