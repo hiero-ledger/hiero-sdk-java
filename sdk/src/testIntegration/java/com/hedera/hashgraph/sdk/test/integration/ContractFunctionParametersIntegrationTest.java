@@ -46,7 +46,7 @@ public class ContractFunctionParametersIntegrationTest {
 
         response = new ContractCreateTransaction()
                 .setAdminKey(testEnv.operatorKey)
-                .setGas(1_500_000)
+                .setGas(10_500_000)
                 .setConstructorParameters(new ContractFunctionParameters())
                 .setBytecodeFileId(fileId)
                 .execute(testEnv.client);

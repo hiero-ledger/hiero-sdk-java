@@ -87,7 +87,7 @@ class CreateStatefulContractExample {
          */
         TransactionResponse contractCreateTxResponse = new ContractCreateTransaction()
                 // Set an Admin Key, so we can delete the contract later.
-                .setGas(150_000)
+                .setGas(350_000)
                 .setBytecodeFileId(newFileId)
                 .setAdminKey(operatorPublicKey)
                 .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera!"))
@@ -105,7 +105,7 @@ class CreateStatefulContractExample {
         System.out.println("Calling contract function \"get_message\"...");
         ContractFunctionResult contractCallResult_BeforeSetMessage = new ContractCallQuery()
                 .setContractId(newContractId)
-                .setGas(100_000)
+                .setGas(300_000)
                 .setFunction("get_message")
                 .setMaxQueryPayment(Hbar.from(1))
                 .execute(client);
@@ -122,7 +122,7 @@ class CreateStatefulContractExample {
         System.out.println("Calling contract function \"set_message\"...");
         TransactionResponse contractExecuteTxResponse = new ContractExecuteTransaction()
                 .setContractId(newContractId)
-                .setGas(100_000)
+                .setGas(300_000)
                 .setFunction("set_message", new ContractFunctionParameters().addString("Hello from hedera again!"))
                 .execute(client);
 
@@ -135,7 +135,7 @@ class CreateStatefulContractExample {
          */
         System.out.println("Calling contract function \"get_message\"...");
         ContractFunctionResult contractCallResult_AfterSetMessage = new ContractCallQuery()
-                .setGas(100_000)
+                .setGas(300_000)
                 .setContractId(newContractId)
                 .setFunction("get_message")
                 .setMaxQueryPayment(Hbar.from(1))

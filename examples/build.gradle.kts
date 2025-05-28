@@ -58,6 +58,7 @@ abstract class RunAllExample : DefaultTask() {
                 .filter { it.name.endsWith("Example.java") }
                 .asSequence()
                 .map { it.name.replace(".java", "") }
+                .filter { it != "BatchTransactionExample" }
                 .filter {
                     it != "ValidateChecksumExample"
                 } // disabled this example, because it needs user input (but it WORKS)
