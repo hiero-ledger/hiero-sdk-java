@@ -40,7 +40,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
@@ -133,7 +133,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
@@ -179,7 +179,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
@@ -223,7 +223,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
