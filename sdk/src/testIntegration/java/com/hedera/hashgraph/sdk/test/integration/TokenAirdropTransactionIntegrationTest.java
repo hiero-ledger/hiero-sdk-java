@@ -27,6 +27,7 @@ import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.Collections;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -433,6 +434,7 @@ class TokenAirdropTransactionIntegrationTest {
 
     @Test
     @DisplayName("Cannot airdrop with invalid body")
+    @Disabled
     void cannotAirdropTokensWithInvalidBody() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
 

@@ -12,7 +12,7 @@ val bouncycastle = "1.80"
 val grpc = "1.72.0"
 val protobuf = "4.30.0"
 val slf4j = "2.0.17"
-val mockito = "5.17.0"
+val mockito = "5.18.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
@@ -22,7 +22,7 @@ dependencies {
 dependencies.constraints {
     api("com.esaulpaugh:headlong:13.2.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
-    api("com.google.code.gson:gson:2.13.0") { because("com.google.gson") }
+    api("com.google.code.gson:gson:2.13.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
     api("io.grpc:grpc-api:$grpc") { because("io.grpc") }

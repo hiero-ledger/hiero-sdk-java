@@ -54,7 +54,7 @@ jobs:
           java-version: "17.0.13"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
         with:
           cache-read-only: false
 
@@ -89,7 +89,7 @@ jobs:
             ) &&
             !cancelled()
           }}
-        run: ${CG_EXEC} snyk test --all-projects --severity-threshold=high --policy-path=.snyk --json-file-output=snyk-test.json --org=hiero-client-sdks
+        run: ${CG_EXEC} snyk test --all-projects '--configuration-matching=^(?!_internal-).*' --severity-threshold=high --policy-path=.snyk --json-file-output=snyk-test.json --org=hiero-client-sdks
 
       - name: Snyk Code
         id: snyk-code
@@ -172,7 +172,7 @@ jobs:
           java-version: "17.0.13"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
       - name: Install Local Node
         run: npm install -g @hashgraph/hedera-local
@@ -184,7 +184,7 @@ jobs:
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
       - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.1
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.62.3
 
       - name: Run Unit and Integration Tests
         env:
@@ -232,7 +232,7 @@ jobs:
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
       - name: Install Local Node
         run: npm install -g @hashgraph/hedera-local
@@ -244,7 +244,7 @@ jobs:
         run: ./gradlew -p example-android assemble
 
       - name: Start the local node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.61.1
+        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.62.3
 
       - name: Prepare .env for Examples
         run: |
@@ -286,7 +286,7 @@ jobs:
           java-version: "17.0.13"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
       - name: Install Local Node
         run: npm install -g @hashgraph/hedera-local

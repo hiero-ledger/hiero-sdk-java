@@ -19,4 +19,6 @@ module com.hedera.hashgraph.sdk {
     exports com.hedera.hashgraph.sdk.logger;
 
     opens com.hedera.hashgraph.sdk;
+    // for reflective access e.g. by com.fasterxml.jackson.databind
+    opens com.hedera.hashgraph.sdk.proto;
 }

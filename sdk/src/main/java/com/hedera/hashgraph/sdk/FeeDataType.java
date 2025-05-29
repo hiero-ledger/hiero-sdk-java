@@ -46,7 +46,13 @@ public enum FeeDataType {
      * The resource cost for the transaction type includes a TopicCreate
      * with custom fees.
      */
-    TOPIC_CREATE_WITH_CUSTOM_FEES(SubType.TOPIC_CREATE_WITH_CUSTOM_FEES);
+    TOPIC_CREATE_WITH_CUSTOM_FEES(SubType.TOPIC_CREATE_WITH_CUSTOM_FEES),
+
+    /**
+     * The resource cost for the transaction type includes a ConsensusSubmitMessage
+     * for a topic with custom fees.
+     */
+    SUBMIT_MESSAGE_WITH_CUSTOM_FEES(SubType.SUBMIT_MESSAGE_WITH_CUSTOM_FEES);
 
     final SubType code;
 
@@ -63,6 +69,7 @@ public enum FeeDataType {
             case TOKEN_NON_FUNGIBLE_UNIQUE_WITH_CUSTOM_FEES -> TOKEN_NON_FUNGIBLE_UNIQUE_WITH_CUSTOM_FEES;
             case SCHEDULE_CREATE_CONTRACT_CALL -> SCHEDULE_CREATE_CONTRACT_CALL;
             case TOPIC_CREATE_WITH_CUSTOM_FEES -> TOPIC_CREATE_WITH_CUSTOM_FEES;
+            case SUBMIT_MESSAGE_WITH_CUSTOM_FEES -> SUBMIT_MESSAGE_WITH_CUSTOM_FEES;
             default -> throw new IllegalStateException("(BUG) unhandled SubType (FeeDataType)");
         };
     }
@@ -77,6 +84,7 @@ public enum FeeDataType {
             case TOKEN_NON_FUNGIBLE_UNIQUE_WITH_CUSTOM_FEES -> "TOKEN_NON_FUNGIBLE_UNIQUE_WITH_CUSTOM_FEES";
             case SCHEDULE_CREATE_CONTRACT_CALL -> "SCHEDULE_CREATE_CONTRACT_CALL";
             case TOPIC_CREATE_WITH_CUSTOM_FEES -> "TOPIC_CREATE_WITH_CUSTOM_FEES";
+            case SUBMIT_MESSAGE_WITH_CUSTOM_FEES -> "SUBMIT_MESSAGE_WITH_CUSTOM_FEES";
         };
     }
 }

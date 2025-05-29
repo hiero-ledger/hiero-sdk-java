@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.57.0
+
+### Added
+
+- Support for HIP-1046. https://hips.hedera.com/hip/hip-1046
+  - Introduced new grpc web proxy field in the address book schema, making node operators manage their web proxies. https://github.com/hiero-ledger/hiero-sdk-java/pull/2337
+  - NodeCreateTransaction
+    - Endpoint grpcWebProxyEndpoint - A web proxy for gRPC from non-gRPC clients.
+    - Endpoint getGrpcWebProxyEndpoint()
+    - NodeCreateTransaction setGrpcWebProxyEndpoint(Endpoint)
+  - NodeUpdateTransaction
+    - Endpoint grpcWebProxyEndpoint - A web proxy for gRPC from non-gRPC clients.
+    - Endpoint getGrpcWebProxyEndpoint()
+    - NodeUpdateTransaction setGrpcWebProxyEndpoint(Endpoint)
+- Support transaction size calculation before submission. This is useful for fee estimation, transaction validation, and batching logic. https://github.com/hiero-ledger/hiero-sdk-java/issues/2330
+  - Following APIs were implemented: https://github.com/hiero-ledger/hiero-sdk-java/pull/2324
+    - Transaction.size: uint
+      Returns the total size (in bytes) of the protobuf-encoded transaction, including signatures and metadata.
+
+    - Transaction.bodySize: uint
+      Returns the protobuf-encoded transaction body size (excluding signatures), using a placeholder node account ID.
+
+    - ChunkTransaction.bodySizeAllChunks: uint[]
+      For chunked transactions (e.g. FileAppendTransaction, TopicMessageSubmitTransaction), returns an array of body sizes for each chunk.
+
+## 2.56.1
+
+### Added
+
+- support for decline reward in node create and node update transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2329
+
+  https://github.com/hiero-ledger/hiero-sdk-java/pull/2333
+
+## 2.56.0
+
+### Changed
+
+- Improve `setECDSAKeyWithAlias` and `setKeyWithAlias` for `AccountCreateTransaction` https://github.com/hiero-ledger/hiero-sdk-java/issues/2319
+  - Update and unify the method signatures to accept a more flexible input type, such as Key, which can represent either an ECDSA PrivateKey or a PublicKey. The updated behavior should support both scenarios:
+    - If a PrivateKey is provided: use it to set the key and internally derive the alias from its corresponding public key.
+    - If a PublicKey is provided: use it directly to set the key and derive the alias from that public key.
+
+    This ensures that both PrivateKey and PublicKey inputs result in the same outcome: https://github.com/hiero-ledger/hiero-sdk-java/pull/2318
+
+### Fixed
+
+- Client.setNetwork() does not propagate address book https://github.com/hiero-ledger/hiero-sdk-java/issues/2317
+  - Now, on Node creation (after Client.setNetwork() call) we attach the corresponding address book if one is present https://github.com/hiero-ledger/hiero-sdk-java/pull/2322
+
 ## 2.55.0
 
 ### Added
