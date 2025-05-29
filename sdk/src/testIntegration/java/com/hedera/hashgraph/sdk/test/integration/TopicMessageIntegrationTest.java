@@ -57,7 +57,7 @@ public class TopicMessageIntegrationTest {
                     throw new Exception("TopicMessage was not received in 60 seconds or less");
                 }
 
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             }
 
             new TopicDeleteTransaction()

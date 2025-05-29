@@ -37,7 +37,7 @@ public class ContractCallIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -46,7 +46,7 @@ public class ContractCallIntegrationTest {
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)
@@ -90,7 +90,7 @@ public class ContractCallIntegrationTest {
 
             var contractId = Objects.requireNonNull(new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -134,7 +134,7 @@ public class ContractCallIntegrationTest {
 
             var contractId = Objects.requireNonNull(new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -178,7 +178,7 @@ public class ContractCallIntegrationTest {
 
             var contractId = Objects.requireNonNull(new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -222,7 +222,7 @@ public class ContractCallIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -231,7 +231,7 @@ public class ContractCallIntegrationTest {
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             long gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)
@@ -275,7 +275,7 @@ public class ContractCallIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -284,7 +284,7 @@ public class ContractCallIntegrationTest {
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)
@@ -328,7 +328,7 @@ public class ContractCallIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -337,7 +337,7 @@ public class ContractCallIntegrationTest {
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)

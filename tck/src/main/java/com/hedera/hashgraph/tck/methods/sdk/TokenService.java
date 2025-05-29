@@ -5,9 +5,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
+import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2ParamsException;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
+import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
+import com.hedera.hashgraph.tck.util.AirdropUtils;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -518,6 +521,38 @@ public class TokenService extends AbstractJSONRPC2Service {
 
         TransactionReceipt receipt =
                 tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("airdropToken")
+    public Map<String, String> airdropToken(final TokenAirdropParams params) throws Exception {
+        TokenAirdropTransaction tokenAirdropTransaction = new TokenAirdropTransaction();
+
+        // Set a 3-second gRPC deadline
+        Duration threeSecondsDuration = Duration.ofSeconds(3);
+        tokenAirdropTransaction.setGrpcDeadline(threeSecondsDuration);
+
+        if (params.getTokenTransfers().isEmpty()) {
+            throw new InvalidJSONRPC2ParamsException("transferParams is required");
+        }
+
+        List<TransferParams> transferParams = params.getTokenTransfers().get();
+
+        for (TransferParams transferParam : transferParams) {
+            try {
+                AirdropUtils.handleAirdropParam(tokenAirdropTransaction, transferParam);
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenAirdropTransaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = tokenAirdropTransaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
 
         return Map.of("status", receipt.status.toString());
     }

@@ -50,9 +50,9 @@ dependencies {
     implementation(platform("org.hiero:hiero-dependency-versions"))
     // ---------------------------------------------
 
-    implementation("com.hedera.hashgraph:sdk:2.54.0")
+    implementation("com.hedera.hashgraph:sdk:2.57.0")
 
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.appcompat:appcompat")
     implementation("androidx.constraintlayout:constraintlayout")
@@ -67,5 +67,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
     runtimeOnly("io.grpc:grpc-okhttp")
-    runtimeOnly("org.slf4j:slf4j-simple:2.0.12")
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
 }

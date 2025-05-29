@@ -40,14 +40,14 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var gas = new MirrorNodeContractEstimateGasQuery()
                     .setContractId(contractId)
@@ -133,14 +133,14 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             assertThatExceptionOfType(ExecutionException.class)
                     .isThrownBy(() -> {
@@ -179,14 +179,14 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
             var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             assertThatExceptionOfType(ExecutionException.class)
                     .isThrownBy(() -> {
@@ -223,7 +223,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(400000)
                     .setBytecodeFileId(fileId)
                     .execute(testEnv.client);
 
@@ -236,7 +236,7 @@ class MirrorNodeContractQueryIntegrationTest {
                     .accountId;
 
             // Wait for mirror node to import data
-            Thread.sleep(2000);
+            Thread.sleep(5000);
 
             var receiverEvmAddress = receiverAccountId.toSolidityAddress();
 

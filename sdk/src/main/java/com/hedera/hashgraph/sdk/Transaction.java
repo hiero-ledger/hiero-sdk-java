@@ -61,6 +61,8 @@ public abstract class Transaction<T extends Transaction<T>>
      */
     private static final Duration DEFAULT_TRANSACTION_VALID_DURATION = Duration.ofSeconds(120);
 
+    private static final String ATOMIC_BATCH_NODE_ACCOUNT_ID = "0.0.0";
+
     /**
      * Transaction constructors end their work by setting sourceTransactionBody. The expectation is that the Transaction
      * subclass constructor will pick up where the Transaction superclass constructor left off, and will unpack the data
@@ -131,6 +133,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
+    private Key batchKey = null;
+
     /**
      * Constructor.
      */
@@ -168,7 +172,8 @@ public abstract class Transaction<T extends Transaction<T>>
         LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction> transactionMap =
                 txs.values().iterator().next();
         if (!transactionMap.isEmpty()
-                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)) {
+                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)
+                && this.batchKey != null) {
             // If the first account ID is a dummy account ID, then only the source TransactionBody needs to be copied.
             var signedTransaction = SignedTransaction.parseFrom(
                     transactionMap.values().iterator().next().getSignedTransactionBytes());
@@ -237,6 +242,7 @@ public abstract class Transaction<T extends Transaction<T>>
         this.customFeeLimits = sourceTransactionBody.getMaxCustomFeesList().stream()
                 .map(CustomFeeLimit::fromProtobuf)
                 .toList();
+        this.batchKey = Key.fromProtobufKey(sourceTransactionBody.getBatchKey());
 
         // The presence of signatures implies the Transaction should be frozen.
         if (!publicKeys.isEmpty()) {
@@ -366,6 +372,7 @@ public abstract class Transaction<T extends Transaction<T>>
             case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(txs);
             case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(txs);
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
+            case ATOMIC_BATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }
@@ -633,6 +640,10 @@ public abstract class Transaction<T extends Transaction<T>>
         return scheduled;
     }
 
+    protected boolean isBatchedAndNotBatchTransaction() {
+        return batchKey != null && !(this instanceof BatchTransaction);
+    }
+
     /**
      * Extract the scheduled transaction.
      *
@@ -749,6 +760,42 @@ public abstract class Transaction<T extends Transaction<T>>
         this.memo = memo;
         // noinspection unchecked
         return (T) this;
+    }
+
+    /**
+     * batchify method is used to mark a transaction as part of a batch transaction or make it so-called inner transaction.
+     * The Transaction will be frozen and signed by the operator of the client.
+     * @param client sdk client
+     * @param batchKey batch key
+     * @return {@code this}
+     */
+    public final T batchify(Client client, Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+        signWithOperator(client);
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Set the key that will sign the batch of which this Transaction is a part of.
+     */
+    public final T setBatchKey(Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Get the key that will sign the batch of which this Transaction is a part of.
+     */
+    public Key getBatchKey() {
+        return batchKey;
     }
     /**
      * Extract a byte array representation.
@@ -1086,12 +1133,16 @@ public abstract class Transaction<T extends Transaction<T>>
 
         var feeHbars = maxTransactionFee != null ? maxTransactionFee : defaultFee;
 
-        return TransactionBody.newBuilder()
+        var builder = TransactionBody.newBuilder()
                 .setTransactionFee(feeHbars.toTinybars())
                 .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
                 .addAllMaxCustomFees(
                         customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
                 .setMemo(memo);
+        if (batchKey != null) {
+            builder.setBatchKey(batchKey.toProtobufKey());
+        }
+        return builder;
     }
 
     /**
@@ -1143,7 +1194,12 @@ public abstract class Transaction<T extends Transaction<T>>
             }
 
             try {
-                nodeAccountIds.setList(client.network.getNodeAccountIdsForExecute());
+                if (batchKey == null) {
+                    nodeAccountIds.setList(client.network.getNodeAccountIdsForExecute());
+                } else {
+                    nodeAccountIds.setList(
+                            Collections.singletonList(AccountId.fromString(ATOMIC_BATCH_NODE_ACCOUNT_ID)));
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -1409,5 +1465,35 @@ public abstract class Transaction<T extends Transaction<T>>
         onFreeze(body);
 
         return body.buildPartial().toString().replaceAll("@[A-Za-z0-9]+", "");
+    }
+
+    /**
+     * This method retrieves the size of the transaction
+     * @return
+     */
+    public int getTransactionSize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+        }
+
+        return makeRequest().getSerializedSize();
+    }
+
+    /**
+     * This method retrieves the transaction body size
+     * @return
+     */
+    public int getTransactionBodySize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's body size, try calling `freeze`");
+        }
+
+        if (frozenBodyBuilder != null) {
+            return frozenBodyBuilder.build().getSerializedSize();
+        }
+
+        return 0;
     }
 }
