@@ -125,7 +125,7 @@ public final class EntityHelper {
 
         return new ContractCreateFlow()
                 .setAdminKey(contractKey)
-                .setGas(200_000)
+                .setGas(400_000)
                 .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                 .setBytecode(SMART_CONTRACT_BYTECODE)
                 .setContractMemo("[e2e::ContractMemo]")
