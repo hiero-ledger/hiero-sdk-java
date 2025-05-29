@@ -16,13 +16,13 @@ val mockito = "5.18.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.5.0"))
-    api(platform("io.netty:netty-bom:4.2.0.Final"))
+    api(platform("io.netty:netty-bom:4.2.1.Final"))
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:13.2.1") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.2.2") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
-    api("com.google.code.gson:gson:2.13.0") { because("com.google.gson") }
+    api("com.google.code.gson:gson:2.13.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
     api("io.grpc:grpc-api:$grpc") { because("io.grpc") }
@@ -40,7 +40,7 @@ dependencies.constraints {
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.18.3") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.4.7-android") { because("com.google.common") }
+    api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.17.0") { because("org.apache.commons.lang3") }
@@ -55,5 +55,5 @@ dependencies.constraints {
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
     // Examples
-    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.20") { because("kotlin.stdlib") }
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.21") { because("kotlin.stdlib") }
 }
