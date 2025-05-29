@@ -39,6 +39,8 @@ public class NodeUpdateTransactionTest {
             spawnTestEndpoint((byte) 5),
             spawnTestEndpoint((byte) 6));
 
+    private static final Endpoint TEST_GRPC_WEB_PROXY_ENDPOINT = spawnTestEndpoint((byte) 3);
+
     private static final byte[] TEST_GOSSIP_CA_CERTIFICATE = new byte[] {0, 1, 2, 3, 4};
 
     private static final byte[] TEST_GRPC_CERTIFICATE_HASH = new byte[] {5, 6, 7, 8, 9};
@@ -85,6 +87,7 @@ public class NodeUpdateTransactionTest {
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setMaxTransactionFee(new Hbar(1))
                 .setDeclineReward(true)
+                .setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT)
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -289,5 +292,17 @@ public class NodeUpdateTransactionTest {
     void getSetDeclineRewardFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
+    }
+
+    @Test
+    void getGrpcWebProxyEndpoint() {
+        var nodeUpdateTransaction = new NodeUpdateTransaction().setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT);
+        assertThat(nodeUpdateTransaction.getGrpcWebProxyEndpoint()).isEqualTo(TEST_GRPC_WEB_PROXY_ENDPOINT);
+    }
+
+    @Test
+    void setGrpcWebProxyEndpointRequiresFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
     }
 }

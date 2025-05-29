@@ -69,7 +69,7 @@ public class MirrorNodeContractQueriesExample {
          * Create the contract
          */
         var response = new ContractCreateTransaction()
-                .setGas(200_000)
+                .setGas(300_000)
                 .setBytecode(Hex.decode(SMART_CONTRACT_BYTECODE))
                 .setContractMemo("Simple contract with string field")
                 .execute(client);
