@@ -30,13 +30,13 @@ public class HsmSigningExample {
      * Used to sign and pay for operations on Hedera.
      */
     private static final AccountId OPERATOR_ID =
-        AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
+            AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
 
     /**
      * Operator's private key.
      */
     private static final PrivateKey OPERATOR_KEY =
-        PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+            PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
 
     /**
      * HEDERA_NETWORK defaults to testnet if not specified in dotenv file.
@@ -129,18 +129,18 @@ public class HsmSigningExample {
 
         // Create sender account
         TransactionResponse senderAccountResponse = new AccountCreateTransaction()
-            .setKeyWithoutAlias(senderKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .execute(client);
+                .setKeyWithoutAlias(senderKey.getPublicKey())
+                .setInitialBalance(Hbar.from(10))
+                .execute(client);
 
         TransactionReceipt senderAccountReceipt = senderAccountResponse.getReceipt(client);
         AccountId senderId = Objects.requireNonNull(senderAccountReceipt.accountId);
 
         // Create receiver account
         TransactionResponse receiverAccountResponse = new AccountCreateTransaction()
-            .setKeyWithoutAlias(receiverKey.getPublicKey())
-            .setInitialBalance(Hbar.from(1))
-            .execute(client);
+                .setKeyWithoutAlias(receiverKey.getPublicKey())
+                .setInitialBalance(Hbar.from(1))
+                .execute(client);
 
         TransactionReceipt receiverAccountReceipt = receiverAccountResponse.getReceipt(client);
         AccountId receiverId = Objects.requireNonNull(receiverAccountReceipt.accountId);
@@ -160,8 +160,8 @@ public class HsmSigningExample {
      * @param senderKey  The sender's private key (for HSM simulation)
      * @throws Exception If the transaction fails
      */
-    private static void singleNodeTransactionExample(Client client, AccountId senderId,
-                                                     AccountId receiverId, PrivateKey senderKey) throws Exception {
+    private static void singleNodeTransactionExample(
+            Client client, AccountId senderId, AccountId receiverId, PrivateKey senderKey) throws Exception {
         System.out.println("\n--- Single Node Transaction Example ---");
 
         // Step 1 - Create and prepare transfer transaction
@@ -171,11 +171,11 @@ public class HsmSigningExample {
 
         // Create transfer transaction
         TransferTransaction transferTx = new TransferTransaction()
-            .addHbarTransfer(senderId, Hbar.from(-1))
-            .addHbarTransfer(receiverId, Hbar.from(1))
-            .setNodeAccountIds(Arrays.asList(nodeAccountId))
-            .setTransactionId(TransactionId.generate(senderId))
-            .freezeWith(client);
+                .addHbarTransfer(senderId, Hbar.from(-1))
+                .addHbarTransfer(receiverId, Hbar.from(1))
+                .setNodeAccountIds(Arrays.asList(nodeAccountId))
+                .setTransactionId(TransactionId.generate(senderId))
+                .freezeWith(client);
 
         System.out.println("Transaction frozen. Node IDs: " + transferTx.getNodeAccountIds());
 
@@ -186,12 +186,12 @@ public class HsmSigningExample {
         // Sign with HSM for each entry
         for (int i = 0; i < signableList.size(); i++) {
             Transaction.SignableNodeTransactionBodyBytes signable = signableList.get(i);
-            System.out.println("Signing entry " + i + " for node " + signable.getNodeID() +
-                " and transaction " + signable.getTransactionID());
+            System.out.println("Signing entry " + i + " for node " + signable.getNodeID() + " and transaction "
+                    + signable.getTransactionID());
 
             byte[] signature = hsmSign(senderKey, signable.getBody());
-            transferTx = transferTx.addSignatureV2(senderKey.getPublicKey(), signature,
-                signable.getTransactionID(), signable.getNodeID());
+            transferTx = transferTx.addSignatureV2(
+                    senderKey.getPublicKey(), signature, signable.getTransactionID(), signable.getNodeID());
         }
 
         // Step 3 - Execute transaction and get receipt
@@ -211,8 +211,8 @@ public class HsmSigningExample {
      * @param senderKey The sender's private key (for HSM simulation)
      * @throws Exception If the transaction fails
      */
-    private static void multiNodeFileTransactionExample(Client client, AccountId senderId,
-                                                        PrivateKey senderKey) throws Exception {
+    private static void multiNodeFileTransactionExample(Client client, AccountId senderId, PrivateKey senderKey)
+            throws Exception {
         System.out.println("\n--- Multi-Node File Transaction Example ---");
 
         // Step 1 - Create initial file
@@ -221,11 +221,11 @@ public class HsmSigningExample {
 
         // Create file transaction
         FileCreateTransaction fileCreateTx = new FileCreateTransaction()
-            .setKeys(senderKey.getPublicKey())
-            .setContents(smallContents.getBytes())
-            .setMaxTransactionFee(Hbar.from(5))
-            .freezeWith(client)
-            .sign(senderKey);
+                .setKeys(senderKey.getPublicKey())
+                .setContents(smallContents.getBytes())
+                .setMaxTransactionFee(Hbar.from(5))
+                .freezeWith(client)
+                .sign(senderKey);
 
         TransactionResponse fileCreateResponse = fileCreateTx.execute(client);
         TransactionReceipt fileCreateReceipt = fileCreateResponse.getReceipt(client);
@@ -237,29 +237,29 @@ public class HsmSigningExample {
         String appendContent = "Additional content added via HSM signing.";
 
         FileAppendTransaction fileAppendTx = new FileAppendTransaction()
-            .setFileId(fileId)
-            .setContents(appendContent.getBytes())
-            .setMaxTransactionFee(Hbar.from(5))
-            .setTransactionId(TransactionId.generate(senderId))
-            .freezeWith(client);
+                .setFileId(fileId)
+                .setContents(appendContent.getBytes())
+                .setMaxTransactionFee(Hbar.from(5))
+                .setTransactionId(TransactionId.generate(senderId))
+                .freezeWith(client);
 
         System.out.println("File append transaction frozen. Node IDs: " + fileAppendTx.getNodeAccountIds());
 
         // Step 3 - Get signable bytes and sign with HSM for each node
         List<Transaction.SignableNodeTransactionBodyBytes> multiNodeSignableList =
-            fileAppendTx.getSignableNodeBodyBytesList();
+                fileAppendTx.getSignableNodeBodyBytesList();
 
         System.out.println("Got " + multiNodeSignableList.size() + " signable entries for file append");
 
         // Sign with HSM for each entry
         for (int i = 0; i < multiNodeSignableList.size(); i++) {
             Transaction.SignableNodeTransactionBodyBytes signable = multiNodeSignableList.get(i);
-            System.out.println("Signing entry " + i + " for node " + signable.getNodeID() +
-                " and transaction " + signable.getTransactionID());
+            System.out.println("Signing entry " + i + " for node " + signable.getNodeID() + " and transaction "
+                    + signable.getTransactionID());
 
             byte[] signature = hsmSign(senderKey, signable.getBody());
-            fileAppendTx = fileAppendTx.addSignatureV2(senderKey.getPublicKey(), signature,
-                signable.getTransactionID(), signable.getNodeID());
+            fileAppendTx = fileAppendTx.addSignatureV2(
+                    senderKey.getPublicKey(), signature, signable.getTransactionID(), signable.getNodeID());
         }
 
         // Step 4 - Execute transaction and verify results
@@ -270,9 +270,8 @@ public class HsmSigningExample {
         System.out.println("Multi-node file append transaction status: " + fileAppendReceipt.status);
 
         // Step 5 - Verify file contents
-        byte[] contents = new FileContentsQuery()
-            .setFileId(fileId)
-            .execute(client).toByteArray();
+        byte[] contents =
+                new FileContentsQuery().setFileId(fileId).execute(client).toByteArray();
 
         System.out.println("File content length according to FileContentsQuery: " + contents.length);
         System.out.println("File contents: " + new String(contents));
