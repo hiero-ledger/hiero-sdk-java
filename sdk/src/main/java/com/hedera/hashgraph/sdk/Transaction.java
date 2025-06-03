@@ -12,15 +12,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionList;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -390,110 +382,143 @@ public abstract class Transaction<T extends Transaction<T>>
                 .setTransactionFee(scheduled.getTransactionFee());
 
         return switch (scheduled.getDataCase()) {
-            case CONTRACTCALL -> new ContractExecuteTransaction(
-                    body.setContractCall(scheduled.getContractCall()).build());
-            case CONTRACTCREATEINSTANCE -> new ContractCreateTransaction(
-                    body.setContractCreateInstance(scheduled.getContractCreateInstance())
-                            .build());
-            case CONTRACTUPDATEINSTANCE -> new ContractUpdateTransaction(
-                    body.setContractUpdateInstance(scheduled.getContractUpdateInstance())
-                            .build());
-            case CONTRACTDELETEINSTANCE -> new ContractDeleteTransaction(
-                    body.setContractDeleteInstance(scheduled.getContractDeleteInstance())
-                            .build());
-            case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(
-                    body.setCryptoApproveAllowance(scheduled.getCryptoApproveAllowance())
-                            .build());
-            case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(
-                    body.setCryptoDeleteAllowance(scheduled.getCryptoDeleteAllowance())
-                            .build());
-            case CRYPTOCREATEACCOUNT -> new AccountCreateTransaction(
-                    body.setCryptoCreateAccount(scheduled.getCryptoCreateAccount())
-                            .build());
-            case CRYPTODELETE -> new AccountDeleteTransaction(
-                    body.setCryptoDelete(scheduled.getCryptoDelete()).build());
-            case CRYPTOTRANSFER -> new TransferTransaction(
-                    body.setCryptoTransfer(scheduled.getCryptoTransfer()).build());
-            case CRYPTOUPDATEACCOUNT -> new AccountUpdateTransaction(
-                    body.setCryptoUpdateAccount(scheduled.getCryptoUpdateAccount())
-                            .build());
-            case FILEAPPEND -> new FileAppendTransaction(
-                    body.setFileAppend(scheduled.getFileAppend()).build());
-            case FILECREATE -> new FileCreateTransaction(
-                    body.setFileCreate(scheduled.getFileCreate()).build());
-            case FILEDELETE -> new FileDeleteTransaction(
-                    body.setFileDelete(scheduled.getFileDelete()).build());
-            case FILEUPDATE -> new FileUpdateTransaction(
-                    body.setFileUpdate(scheduled.getFileUpdate()).build());
-            case NODECREATE -> new NodeCreateTransaction(
-                    body.setNodeCreate(scheduled.getNodeCreate()).build());
-            case NODEUPDATE -> new NodeUpdateTransaction(
-                    body.setNodeUpdate(scheduled.getNodeUpdate()).build());
-            case NODEDELETE -> new NodeDeleteTransaction(
-                    body.setNodeDelete(scheduled.getNodeDelete()).build());
-            case SYSTEMDELETE -> new SystemDeleteTransaction(
-                    body.setSystemDelete(scheduled.getSystemDelete()).build());
-            case SYSTEMUNDELETE -> new SystemUndeleteTransaction(
-                    body.setSystemUndelete(scheduled.getSystemUndelete()).build());
-            case FREEZE -> new FreezeTransaction(
-                    body.setFreeze(scheduled.getFreeze()).build());
-            case CONSENSUSCREATETOPIC -> new TopicCreateTransaction(
-                    body.setConsensusCreateTopic(scheduled.getConsensusCreateTopic())
-                            .build());
-            case CONSENSUSUPDATETOPIC -> new TopicUpdateTransaction(
-                    body.setConsensusUpdateTopic(scheduled.getConsensusUpdateTopic())
-                            .build());
-            case CONSENSUSDELETETOPIC -> new TopicDeleteTransaction(
-                    body.setConsensusDeleteTopic(scheduled.getConsensusDeleteTopic())
-                            .build());
-            case CONSENSUSSUBMITMESSAGE -> new TopicMessageSubmitTransaction(
-                    body.setConsensusSubmitMessage(scheduled.getConsensusSubmitMessage())
-                            .build());
-            case TOKENCREATION -> new TokenCreateTransaction(
-                    body.setTokenCreation(scheduled.getTokenCreation()).build());
-            case TOKENFREEZE -> new TokenFreezeTransaction(
-                    body.setTokenFreeze(scheduled.getTokenFreeze()).build());
-            case TOKENUNFREEZE -> new TokenUnfreezeTransaction(
-                    body.setTokenUnfreeze(scheduled.getTokenUnfreeze()).build());
-            case TOKENGRANTKYC -> new TokenGrantKycTransaction(
-                    body.setTokenGrantKyc(scheduled.getTokenGrantKyc()).build());
-            case TOKENREVOKEKYC -> new TokenRevokeKycTransaction(
-                    body.setTokenRevokeKyc(scheduled.getTokenRevokeKyc()).build());
-            case TOKENDELETION -> new TokenDeleteTransaction(
-                    body.setTokenDeletion(scheduled.getTokenDeletion()).build());
-            case TOKENUPDATE -> new TokenUpdateTransaction(
-                    body.setTokenUpdate(scheduled.getTokenUpdate()).build());
-            case TOKEN_UPDATE_NFTS -> new TokenUpdateNftsTransaction(
-                    body.setTokenUpdateNfts(scheduled.getTokenUpdateNfts()).build());
-            case TOKENMINT -> new TokenMintTransaction(
-                    body.setTokenMint(scheduled.getTokenMint()).build());
-            case TOKENBURN -> new TokenBurnTransaction(
-                    body.setTokenBurn(scheduled.getTokenBurn()).build());
-            case TOKENWIPE -> new TokenWipeTransaction(
-                    body.setTokenWipe(scheduled.getTokenWipe()).build());
-            case TOKENASSOCIATE -> new TokenAssociateTransaction(
-                    body.setTokenAssociate(scheduled.getTokenAssociate()).build());
-            case TOKENDISSOCIATE -> new TokenDissociateTransaction(
-                    body.setTokenDissociate(scheduled.getTokenDissociate()).build());
-            case TOKEN_FEE_SCHEDULE_UPDATE -> new TokenFeeScheduleUpdateTransaction(
-                    body.setTokenFeeScheduleUpdate(scheduled.getTokenFeeScheduleUpdate())
-                            .build());
-            case TOKEN_PAUSE -> new TokenPauseTransaction(
-                    body.setTokenPause(scheduled.getTokenPause()).build());
-            case TOKEN_UNPAUSE -> new TokenUnpauseTransaction(
-                    body.setTokenUnpause(scheduled.getTokenUnpause()).build());
-            case TOKENREJECT -> new TokenRejectTransaction(
-                    body.setTokenReject(scheduled.getTokenReject()).build());
-            case TOKENAIRDROP -> new TokenAirdropTransaction(
-                    body.setTokenAirdrop(scheduled.getTokenAirdrop()).build());
-            case TOKENCANCELAIRDROP -> new TokenCancelAirdropTransaction(
-                    body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
-                            .build());
-            case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(
-                    body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
-                            .build());
-            case SCHEDULEDELETE -> new ScheduleDeleteTransaction(
-                    body.setScheduleDelete(scheduled.getScheduleDelete()).build());
+            case CONTRACTCALL ->
+                new ContractExecuteTransaction(
+                        body.setContractCall(scheduled.getContractCall()).build());
+            case CONTRACTCREATEINSTANCE ->
+                new ContractCreateTransaction(body.setContractCreateInstance(scheduled.getContractCreateInstance())
+                        .build());
+            case CONTRACTUPDATEINSTANCE ->
+                new ContractUpdateTransaction(body.setContractUpdateInstance(scheduled.getContractUpdateInstance())
+                        .build());
+            case CONTRACTDELETEINSTANCE ->
+                new ContractDeleteTransaction(body.setContractDeleteInstance(scheduled.getContractDeleteInstance())
+                        .build());
+            case CRYPTOAPPROVEALLOWANCE ->
+                new AccountAllowanceApproveTransaction(
+                        body.setCryptoApproveAllowance(scheduled.getCryptoApproveAllowance())
+                                .build());
+            case CRYPTODELETEALLOWANCE ->
+                new AccountAllowanceDeleteTransaction(
+                        body.setCryptoDeleteAllowance(scheduled.getCryptoDeleteAllowance())
+                                .build());
+            case CRYPTOCREATEACCOUNT ->
+                new AccountCreateTransaction(body.setCryptoCreateAccount(scheduled.getCryptoCreateAccount())
+                        .build());
+            case CRYPTODELETE ->
+                new AccountDeleteTransaction(
+                        body.setCryptoDelete(scheduled.getCryptoDelete()).build());
+            case CRYPTOTRANSFER ->
+                new TransferTransaction(
+                        body.setCryptoTransfer(scheduled.getCryptoTransfer()).build());
+            case CRYPTOUPDATEACCOUNT ->
+                new AccountUpdateTransaction(body.setCryptoUpdateAccount(scheduled.getCryptoUpdateAccount())
+                        .build());
+            case FILEAPPEND ->
+                new FileAppendTransaction(
+                        body.setFileAppend(scheduled.getFileAppend()).build());
+            case FILECREATE ->
+                new FileCreateTransaction(
+                        body.setFileCreate(scheduled.getFileCreate()).build());
+            case FILEDELETE ->
+                new FileDeleteTransaction(
+                        body.setFileDelete(scheduled.getFileDelete()).build());
+            case FILEUPDATE ->
+                new FileUpdateTransaction(
+                        body.setFileUpdate(scheduled.getFileUpdate()).build());
+            case NODECREATE ->
+                new NodeCreateTransaction(
+                        body.setNodeCreate(scheduled.getNodeCreate()).build());
+            case NODEUPDATE ->
+                new NodeUpdateTransaction(
+                        body.setNodeUpdate(scheduled.getNodeUpdate()).build());
+            case NODEDELETE ->
+                new NodeDeleteTransaction(
+                        body.setNodeDelete(scheduled.getNodeDelete()).build());
+            case SYSTEMDELETE ->
+                new SystemDeleteTransaction(
+                        body.setSystemDelete(scheduled.getSystemDelete()).build());
+            case SYSTEMUNDELETE ->
+                new SystemUndeleteTransaction(
+                        body.setSystemUndelete(scheduled.getSystemUndelete()).build());
+            case FREEZE ->
+                new FreezeTransaction(body.setFreeze(scheduled.getFreeze()).build());
+            case CONSENSUSCREATETOPIC ->
+                new TopicCreateTransaction(body.setConsensusCreateTopic(scheduled.getConsensusCreateTopic())
+                        .build());
+            case CONSENSUSUPDATETOPIC ->
+                new TopicUpdateTransaction(body.setConsensusUpdateTopic(scheduled.getConsensusUpdateTopic())
+                        .build());
+            case CONSENSUSDELETETOPIC ->
+                new TopicDeleteTransaction(body.setConsensusDeleteTopic(scheduled.getConsensusDeleteTopic())
+                        .build());
+            case CONSENSUSSUBMITMESSAGE ->
+                new TopicMessageSubmitTransaction(body.setConsensusSubmitMessage(scheduled.getConsensusSubmitMessage())
+                        .build());
+            case TOKENCREATION ->
+                new TokenCreateTransaction(
+                        body.setTokenCreation(scheduled.getTokenCreation()).build());
+            case TOKENFREEZE ->
+                new TokenFreezeTransaction(
+                        body.setTokenFreeze(scheduled.getTokenFreeze()).build());
+            case TOKENUNFREEZE ->
+                new TokenUnfreezeTransaction(
+                        body.setTokenUnfreeze(scheduled.getTokenUnfreeze()).build());
+            case TOKENGRANTKYC ->
+                new TokenGrantKycTransaction(
+                        body.setTokenGrantKyc(scheduled.getTokenGrantKyc()).build());
+            case TOKENREVOKEKYC ->
+                new TokenRevokeKycTransaction(
+                        body.setTokenRevokeKyc(scheduled.getTokenRevokeKyc()).build());
+            case TOKENDELETION ->
+                new TokenDeleteTransaction(
+                        body.setTokenDeletion(scheduled.getTokenDeletion()).build());
+            case TOKENUPDATE ->
+                new TokenUpdateTransaction(
+                        body.setTokenUpdate(scheduled.getTokenUpdate()).build());
+            case TOKEN_UPDATE_NFTS ->
+                new TokenUpdateNftsTransaction(
+                        body.setTokenUpdateNfts(scheduled.getTokenUpdateNfts()).build());
+            case TOKENMINT ->
+                new TokenMintTransaction(
+                        body.setTokenMint(scheduled.getTokenMint()).build());
+            case TOKENBURN ->
+                new TokenBurnTransaction(
+                        body.setTokenBurn(scheduled.getTokenBurn()).build());
+            case TOKENWIPE ->
+                new TokenWipeTransaction(
+                        body.setTokenWipe(scheduled.getTokenWipe()).build());
+            case TOKENASSOCIATE ->
+                new TokenAssociateTransaction(
+                        body.setTokenAssociate(scheduled.getTokenAssociate()).build());
+            case TOKENDISSOCIATE ->
+                new TokenDissociateTransaction(
+                        body.setTokenDissociate(scheduled.getTokenDissociate()).build());
+            case TOKEN_FEE_SCHEDULE_UPDATE ->
+                new TokenFeeScheduleUpdateTransaction(
+                        body.setTokenFeeScheduleUpdate(scheduled.getTokenFeeScheduleUpdate())
+                                .build());
+            case TOKEN_PAUSE ->
+                new TokenPauseTransaction(
+                        body.setTokenPause(scheduled.getTokenPause()).build());
+            case TOKEN_UNPAUSE ->
+                new TokenUnpauseTransaction(
+                        body.setTokenUnpause(scheduled.getTokenUnpause()).build());
+            case TOKENREJECT ->
+                new TokenRejectTransaction(
+                        body.setTokenReject(scheduled.getTokenReject()).build());
+            case TOKENAIRDROP ->
+                new TokenAirdropTransaction(
+                        body.setTokenAirdrop(scheduled.getTokenAirdrop()).build());
+            case TOKENCANCELAIRDROP ->
+                new TokenCancelAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                        .build());
+            case TOKENCLAIMAIRDROP ->
+                new TokenClaimAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                        .build());
+            case SCHEDULEDELETE ->
+                new ScheduleDeleteTransaction(
+                        body.setScheduleDelete(scheduled.getScheduleDelete()).build());
             default -> throw new IllegalStateException("schedulable transaction did not have a transaction set");
         };
     }
@@ -1495,5 +1520,133 @@ public abstract class Transaction<T extends Transaction<T>>
         }
 
         return 0;
+    }
+
+    public static class SignableNodeTransactionBodyBytes {
+        private AccountId nodeID;
+        private TransactionId transactionID;
+        private byte[] body;
+
+        public SignableNodeTransactionBodyBytes(AccountId nodeID, TransactionId transactionID, byte[] body) {
+            this.nodeID = nodeID;
+            this.transactionID = transactionID;
+            this.body = body;
+        }
+
+        public AccountId getNodeID() {
+            return nodeID;
+        }
+
+        public TransactionId getTransactionID() {
+            return transactionID;
+        }
+
+        public byte[] getBody() {
+            return body;
+        }
+    }
+
+    /**
+     * Returns a list of SignableNodeTransactionBodyBytes objects for each signed transaction in the transaction list.
+     * The NodeID represents the node that this transaction is signed for.
+     * The TransactionID is useful for signing chunked transactions like FileAppendTransaction,
+     * since they can have multiple transaction ids.
+     *
+     * @return List of SignableNodeTransactionBodyBytes
+     * @throws RuntimeException if transaction is not frozen or protobuf parsing fails
+     */
+    public List<SignableNodeTransactionBodyBytes> getSignableNodeBodyBytesList() {
+        if (!this.isFrozen()) {
+            throw new RuntimeException("Transaction is not frozen");
+        }
+
+        List<SignableNodeTransactionBodyBytes> signableNodeTransactionBodyBytesList = new ArrayList<>();
+
+        for (int i = 0; i < innerSignedTransactions.size(); i++) {
+            SignedTransaction signableNodeTransactionBodyBytes =
+                    innerSignedTransactions.get(i).build();
+
+            TransactionBody body;
+
+            try {
+                body = TransactionBody.parseFrom(signableNodeTransactionBodyBytes.getBodyBytes());
+            } catch (InvalidProtocolBufferException e) {
+                throw new RuntimeException("Failed to parse transaction body", e);
+            }
+
+            AccountId nodeID = AccountId.fromProtobuf(body.getNodeAccountID());
+            TransactionId transactionID = TransactionId.fromProtobuf(body.getTransactionID());
+
+            signableNodeTransactionBodyBytesList.add(new SignableNodeTransactionBodyBytes(
+                    nodeID,
+                    transactionID,
+                    signableNodeTransactionBodyBytes.getBodyBytes().toByteArray()));
+        }
+
+        return signableNodeTransactionBodyBytesList;
+    }
+
+    /**
+     * Adds a signature to the transaction for a specific transaction id and node id.
+     * This is useful for signing chunked transactions like FileAppendTransaction,
+     * since they can have multiple transaction ids.
+     *
+     * @param publicKey The public key to add signature for
+     * @param signature The signature bytes
+     * @param transactionID The specific transaction ID to match
+     * @param nodeID The specific node ID to match
+     * @return The child transaction (this)
+     * @throws RuntimeException if unmarshaling fails or invalid signed transaction
+     */
+    public T addSignatureV2(PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
+
+        if (innerSignedTransactions.isEmpty()) {
+            return (T) this;
+        }
+
+        transactionIds.setLocked(true);
+
+        for (int index = 0; index < innerSignedTransactions.size(); index++) {
+            SignedTransaction.Builder temp = innerSignedTransactions.get(index);
+
+            TransactionBody body;
+            try {
+                body = TransactionBody.parseFrom(temp.getBodyBytes());
+            } catch (InvalidProtocolBufferException e) {
+                throw new RuntimeException("Failed to parse transaction body", e);
+            }
+
+            TransactionId bodyTxID = TransactionId.fromProtobuf(body.getTransactionID());
+            AccountId bodyNodeID = AccountId.fromProtobuf(body.getNodeAccountID());
+
+            // Check if the transaction id and node id match the input
+            if (bodyTxID.toString().equals(transactionID.toString())
+                    && bodyNodeID.toString().equals(nodeID.toString())) {
+
+                // Check if the signature is already in the signature map
+                boolean found = false;
+                SignatureMap.Builder sigMapBuilder = sigPairLists.get(index);
+
+                for (SignaturePair sig : sigMapBuilder.getSigPairList()) {
+                    if (Arrays.equals(sig.getPubKeyPrefix().toByteArray(), publicKey.toBytesRaw())) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    continue;
+                }
+
+                SignaturePair newSigPair = publicKey.toSignaturePairProtobuf(signature);
+                sigMapBuilder.addSigPair(newSigPair);
+
+                outerTransactions = new ArrayList<>(Collections.nCopies(nodeAccountIds.size(), null));
+                publicKeys.add(publicKey);
+                signers.add(null);
+            }
+        }
+
+        return (T) this;
     }
 }
