@@ -1688,8 +1688,6 @@ public abstract class Transaction<T extends Transaction<T>>
      * @param publicKey The public key that was added
      */
     private void updateTransactionState(PublicKey publicKey) {
-        // Update internal state
-        outerTransactions = new ArrayList<>(Collections.nCopies(nodeAccountIds.size(), null));
         publicKeys.add(publicKey);
         signers.add(null);
     }
