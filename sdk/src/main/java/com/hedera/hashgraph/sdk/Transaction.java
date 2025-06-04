@@ -1533,9 +1533,7 @@ public abstract class Transaction<T extends Transaction<T>>
             SignedTransaction signableNodeTransactionBodyBytes =
                     innerSignedTransactions.get(i).build();
 
-            TransactionBody body;
-
-            body = parseTransactionBody(signableNodeTransactionBodyBytes.getBodyBytes());
+            TransactionBody body = parseTransactionBody(signableNodeTransactionBodyBytes.getBodyBytes());
 
             AccountId nodeID = AccountId.fromProtobuf(body.getNodeAccountID());
             TransactionId transactionID = TransactionId.fromProtobuf(body.getTransactionID());
@@ -1561,7 +1559,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * @return The child transaction (this)
      * @throws RuntimeException if unmarshaling fails or invalid signed transaction
      */
-    public T addSignatureV2(PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
+    public T addSignature(PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
 
         if (innerSignedTransactions.isEmpty()) {
             // noinspection unchecked
@@ -1571,7 +1569,7 @@ public abstract class Transaction<T extends Transaction<T>>
         transactionIds.setLocked(true);
 
         for (int index = 0; index < innerSignedTransactions.size(); index++) {
-            if (processSignatureForTransaction(index, publicKey, signature, transactionID, nodeID)) {
+            if (processedSignatureForTransaction(index, publicKey, signature, transactionID, nodeID)) {
                 updateTransactionState(publicKey);
             }
         }
@@ -1590,7 +1588,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * @param nodeID The specific node ID to match
      * @return true if signature was added, false otherwise
      */
-    private boolean processSignatureForTransaction(
+    private boolean processedSignatureForTransaction(
             int index, PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
         SignedTransaction.Builder temp = innerSignedTransactions.get(index);
 

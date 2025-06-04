@@ -312,7 +312,7 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
@@ -336,9 +336,9 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID2);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
@@ -370,9 +370,9 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID2);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
@@ -404,7 +404,7 @@ public class TransactionTest {
                 .freezeWith(client);
 
         AccountId invalidNodeID = AccountId.fromString("0.0.999");
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, invalidNodeID);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
@@ -425,7 +425,7 @@ public class TransactionTest {
         TransactionId invalidTxID = TransactionId.withValidStart(AccountId.fromString("0.0.999"), Instant.now());
 
         transaction =
-                transaction.addSignatureV2(mockPrivateKey.getPublicKey(), mockSignature, invalidTxID, nodeAccountID1);
+                transaction.addSignature(mockPrivateKey.getPublicKey(), mockSignature, invalidTxID, nodeAccountID1);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
         if (signatures.containsKey(nodeAccountID1)) {
@@ -444,10 +444,10 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
 
-        transaction = transaction.addSignatureV2(
+        transaction = transaction.addSignature(
                 mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
@@ -473,7 +473,7 @@ public class TransactionTest {
         AccountId nodeID = AccountId.fromString("0.0.3");
         TransactionId testTxID = TransactionId.withValidStart(AccountId.fromString("0.0.5"), Instant.now());
 
-        var result = tx.addSignatureV2(key.getPublicKey(), mockSig, testTxID, nodeID);
+        var result = tx.addSignature(key.getPublicKey(), mockSig, testTxID, nodeID);
 
         assertThat(result).isSameAs(tx);
     }

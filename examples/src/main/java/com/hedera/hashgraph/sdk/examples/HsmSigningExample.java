@@ -190,7 +190,7 @@ public class HsmSigningExample {
                     + signable.getTransactionID());
 
             byte[] signature = hsmSign(senderKey, signable.getBody());
-            transferTx = transferTx.addSignatureV2(
+            transferTx = transferTx.addSignature(
                     senderKey.getPublicKey(), signature, signable.getTransactionID(), signable.getNodeID());
         }
 
@@ -258,7 +258,7 @@ public class HsmSigningExample {
                     + signable.getTransactionID());
 
             byte[] signature = hsmSign(senderKey, signable.getBody());
-            fileAppendTx = fileAppendTx.addSignatureV2(
+            fileAppendTx = fileAppendTx.addSignature(
                     senderKey.getPublicKey(), signature, signable.getTransactionID(), signable.getNodeID());
         }
 
