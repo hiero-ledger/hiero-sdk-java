@@ -83,7 +83,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * except pointing to different nodes. When retrying a transaction after a network error or retry-able status
      * response, we try a different transaction and thus a different node.
      */
-    public List<com.hedera.hashgraph.sdk.proto.SignedTransaction.Builder> innerSignedTransactions =
+    protected List<com.hedera.hashgraph.sdk.proto.SignedTransaction.Builder> innerSignedTransactions =
             Collections.emptyList();
 
     /**
@@ -257,41 +257,24 @@ public abstract class Transaction<T extends Transaction<T>>
 
         var txsMap = new LinkedHashMap<
                 TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>>();
-        var dataCaseHolder = new DataCaseHolder();
+
+        TransactionBody.DataCase dataCase;
 
         if (!list.getTransactionListList().isEmpty()) {
-            processTransactionList(list.getTransactionListList(), txsMap, dataCaseHolder);
+            dataCase = processTransactionList(list.getTransactionListList(), txsMap);
         } else {
-            processSingleTransaction(bytes, txsMap, dataCaseHolder);
+            dataCase = processSingleTransaction(bytes, txsMap);
         }
 
-        return createTransactionFromDataCase(dataCaseHolder.getDataCase(), txsMap);
-    }
-
-    /**
-     * Simple container for holding and updating the data case
-     */
-    private static class DataCaseHolder {
-        private TransactionBody.DataCase dataCase = TransactionBody.DataCase.DATA_NOT_SET;
-
-        public void setDataCase(TransactionBody.DataCase newDataCase) {
-            if (dataCase == TransactionBody.DataCase.DATA_NOT_SET) {
-                dataCase = newDataCase;
-            }
-        }
-
-        public TransactionBody.DataCase getDataCase() {
-            return dataCase;
-        }
+        return createTransactionFromDataCase(dataCase, txsMap);
     }
 
     /**
      * Process a single transaction
      */
-    private static void processSingleTransaction(
+    private static TransactionBody.DataCase processSingleTransaction(
             byte[] bytes,
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap,
-            DataCaseHolder dataCaseHolder)
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap)
             throws InvalidProtocolBufferException {
 
         var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes);
@@ -300,9 +283,9 @@ public abstract class Transaction<T extends Transaction<T>>
         var signedTransaction = SignedTransaction.parseFrom(builtTransaction.getSignedTransactionBytes());
         var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
 
-        dataCaseHolder.setDataCase(txBody.getDataCase());
-
         addTransactionToMap(builtTransaction, txBody, txsMap);
+
+        return txBody.getDataCase();
     }
 
     /**
@@ -334,18 +317,19 @@ public abstract class Transaction<T extends Transaction<T>>
     /**
      * Process a list of transactions with integrity verification
      */
-    private static void processTransactionList(
+    private static TransactionBody.DataCase processTransactionList(
             List<com.hedera.hashgraph.sdk.proto.Transaction> transactionList,
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap,
-            DataCaseHolder dataCaseHolder)
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap)
             throws InvalidProtocolBufferException {
 
         if (transactionList.isEmpty()) {
-            return;
+            return TransactionBody.DataCase.DATA_NOT_SET;
         }
 
         var firstTransaction = transactionList.get(0);
-        setDataCase(firstTransaction, dataCaseHolder);
+        var firstSignedTransaction = SignedTransaction.parseFrom(firstTransaction.getSignedTransactionBytes());
+        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
+        var dataCase = firstTxBody.getDataCase();
 
         for (com.hedera.hashgraph.sdk.proto.Transaction transaction : transactionList) {
             var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
@@ -353,16 +337,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
             addTransactionToMap(transaction, txBody, txsMap);
         }
-    }
 
-    private static void setDataCase(
-            com.hedera.hashgraph.sdk.proto.Transaction transaction, DataCaseHolder dataCaseHolder)
-            throws InvalidProtocolBufferException {
-        var firstSignedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
-
-        TransactionBody.DataCase initialDataCase = firstTxBody.getDataCase();
-        dataCaseHolder.setDataCase(initialDataCase);
+        return dataCase;
     }
 
     /**
