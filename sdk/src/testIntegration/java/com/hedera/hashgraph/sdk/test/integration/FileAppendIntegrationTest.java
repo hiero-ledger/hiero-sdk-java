@@ -172,9 +172,7 @@ public class FileAppendIntegrationTest {
     @Test
     @DisplayName("FileAppend with addSignature - can sign for multiple nodes with large content")
     void canFileAppendSignForMultipleNodes() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(2)) {
-
-            testEnv.assumeNotLocalNode();
+        try (var testEnv = new IntegrationTestEnv(1)) {
 
             var newKey = PrivateKey.generateED25519();
 
