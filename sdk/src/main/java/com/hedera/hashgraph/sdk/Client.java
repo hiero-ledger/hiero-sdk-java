@@ -354,7 +354,6 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        // TODO introduce different builders rather than constructors
         return new Client(
                 executor,
                 network,
