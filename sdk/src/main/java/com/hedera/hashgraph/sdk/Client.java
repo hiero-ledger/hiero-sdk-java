@@ -232,10 +232,10 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, new HashMap<>());
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
         var client = new Client(executor, network, mirrorNetwork, null, true, null, realm, shard);
-                var addressBook = new AddressBookQuery()
-                        .setFileId(FileId.getAddressBookFileIdFor(realm, shard))
-                        .execute(client);
-                client.setNetworkFromAddressBook(addressBook);
+        var addressBook = new AddressBookQuery()
+                .setFileId(FileId.getAddressBookFileIdFor(realm, shard))
+                .execute(client);
+        client.setNetworkFromAddressBook(addressBook);
         return client;
     }
 
