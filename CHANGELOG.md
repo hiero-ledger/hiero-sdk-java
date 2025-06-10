@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.58.0
+
+### Added
+
+- Manual Signature Injection Support for HSM-based Transaction Signing https://github.com/hiero-ledger/hiero-sdk-java/issues/2350
+  - new APIs added
+    - SignableNodeTransactionBodyBytes - class that represents a transaction body ready for external signing, explicitly associated with a node account ID and transaction ID.
+    - Transaction.signableNodeBodyBytesList() - array of SignableNodeTransactionBodyBytes containing the canonical bodyBytes paired explicitly with their respective nodeAccountId and transactionId for signing.
+      https://github.com/hiero-ledger/hiero-sdk-java/pull/2356
+
+### Changed
+
+- Refactor of "fromBytes" method inside Transaction class https://github.com/hiero-ledger/hiero-sdk-java/issues/2357
+  - Introduced smaller private methods that improve readability and follow single responsibility principle https://github.com/hiero-ledger/hiero-sdk-java/pull/2338
+
 ## 2.57.0
 
 ### Added
