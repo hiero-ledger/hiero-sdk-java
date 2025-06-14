@@ -129,4 +129,4 @@ jobs:
         env:
           NEXUS_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        run: ./gradlew releaseMavenCentral -PpublishingPackageGroup=com.hedera.hashgraph -PpublishSigningEnabled=true --scan --no-configuration-cache
+        run: ./gradlew publishAggregationToCentralPortal -PpublishSigningEnabled=true
