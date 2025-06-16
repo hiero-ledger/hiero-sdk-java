@@ -39,7 +39,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.19.0") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.19.1") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
