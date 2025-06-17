@@ -122,7 +122,7 @@ public final class Client implements AutoCloseable {
         // Use default values
         this.realm = defaultRealm;
         this.shard = defaultShard;
-        scheduleNetworkUpdate(networkUpdateInitialDelay, this.realm, this.shard);
+        scheduleNetworkUpdate(networkUpdateInitialDelay, this.shard, this.realm);
     }
 
     @VisibleForTesting
@@ -140,8 +140,8 @@ public final class Client implements AutoCloseable {
         this.mirrorNetwork = mirrorNetwork;
         this.shouldShutdownExecutor = shouldShutdownExecutor;
         this.networkUpdatePeriod = networkUpdatePeriod;
-        this.realm = realm;
         this.shard = shard;
+        this.realm = realm;
         scheduleNetworkUpdate(networkUpdateInitialDelay, realm, shard);
     }
 
@@ -226,7 +226,7 @@ public final class Client implements AutoCloseable {
      * @param shard
      * @return
      */
-    public static Client forMirrorNetwork(List<String> mirrorNetworkList, int realm, int shard)
+    public static Client forMirrorNetwork(List<String> mirrorNetworkList, int shard, int realm)
             throws InterruptedException, TimeoutException {
         var executor = createExecutor();
         var network = Network.forNetwork(executor, new HashMap<>());
@@ -272,8 +272,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 false,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -294,8 +294,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 false,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -317,8 +317,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 false,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -339,8 +339,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 true,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -361,8 +361,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 true,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -384,8 +384,8 @@ public final class Client implements AutoCloseable {
                 NETWORK_UPDATE_INITIAL_DELAY,
                 true,
                 DEFAULT_NETWORK_UPDATE_PERIOD,
-                defaultRealm,
-                defaultShard);
+                defaultShard,
+                defaultRealm);
     }
 
     /**
@@ -468,100 +468,7 @@ public final class Client implements AutoCloseable {
         return this;
     }
 
-    /**
-     * Create a new ClientBuilder for more flexible client construction.
-     *
-     * @return a new ClientBuilder instance
-     */
-    public static ClientBuilder newBuilder() {
-        return new ClientBuilder();
-    }
-
-    /**
-     * Builder class for creating Client instances with custom realm and shard values.
-     */
-    public static class ClientBuilder {
-        private int realm = defaultRealm;
-        private int shard = defaultShard;
-        private ExecutorService executor;
-        private boolean shouldShutdownExecutor = true;
-
-        private ClientBuilder() {}
-
-        public ClientBuilder withRealm(int realm) {
-            this.realm = realm;
-            return this;
-        }
-
-        public ClientBuilder withShard(int shard) {
-            this.shard = shard;
-            return this;
-        }
-
-        public ClientBuilder withExecutor(ExecutorService executor) {
-            this.executor = executor;
-            this.shouldShutdownExecutor = false;
-            return this;
-        }
-
-        public Client forMainnet() {
-            var exec = executor != null ? executor : createExecutor();
-            var network = Network.forMainnet(exec);
-            var mirrorNetwork = MirrorNetwork.forMainnet(exec);
-
-            return new Client(
-                    exec,
-                    network,
-                    mirrorNetwork,
-                    NETWORK_UPDATE_INITIAL_DELAY,
-                    shouldShutdownExecutor,
-                    DEFAULT_NETWORK_UPDATE_PERIOD,
-                    realm,
-                    shard);
-        }
-
-        public Client forTestnet() {
-            var exec = executor != null ? executor : createExecutor();
-            var network = Network.forTestnet(exec);
-            var mirrorNetwork = MirrorNetwork.forTestnet(exec);
-
-            return new Client(
-                    exec,
-                    network,
-                    mirrorNetwork,
-                    NETWORK_UPDATE_INITIAL_DELAY,
-                    shouldShutdownExecutor,
-                    DEFAULT_NETWORK_UPDATE_PERIOD,
-                    realm,
-                    shard);
-        }
-
-        public Client forPreviewnet() {
-            var exec = executor != null ? executor : createExecutor();
-            var network = Network.forPreviewnet(exec);
-            var mirrorNetwork = MirrorNetwork.forPreviewnet(exec);
-
-            return new Client(
-                    exec,
-                    network,
-                    mirrorNetwork,
-                    NETWORK_UPDATE_INITIAL_DELAY,
-                    shouldShutdownExecutor,
-                    DEFAULT_NETWORK_UPDATE_PERIOD,
-                    realm,
-                    shard);
-        }
-
-        public Client forNetwork(Map<String, AccountId> networkMap) {
-            var exec = executor != null ? executor : createExecutor();
-            var network = Network.forNetwork(exec, networkMap);
-            var mirrorNetwork = MirrorNetwork.forNetwork(exec, new ArrayList<>());
-
-            return new Client(exec, network, mirrorNetwork, null, shouldShutdownExecutor, null, realm, shard);
-        }
-    }
-
-    private synchronized void scheduleNetworkUpdate(@Nullable Duration delay, Integer realm, Integer shard) {
+    private synchronized void scheduleNetworkUpdate(@Nullable Duration delay, Integer shard, Integer realm) {
         if (delay == null) {
             networkUpdateFuture = null;
             return;
