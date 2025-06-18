@@ -407,11 +407,11 @@ class MockingTest {
 
         if (sync.equals("sync")) {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .execute(server.client);
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .get();
         }
@@ -440,13 +440,13 @@ class MockingTest {
             Assertions.assertThrows(MaxAttemptsExceededException.class, () -> {
                 new AccountCreateTransaction()
                         .setMaxAttempts(maxAttempts)
-                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                         .execute(server.client);
             });
         } else {
             new AccountCreateTransaction()
                     .setMaxAttempts(maxAttempts)
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .handle((response, error) -> {
                         Assertions.assertNotNull(error);
@@ -493,11 +493,11 @@ class MockingTest {
 
         if (sync.equals("sync")) {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .execute(server.client);
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .get();
         }
@@ -530,12 +530,12 @@ class MockingTest {
         if (sync.equals("sync")) {
             Assertions.assertThrows(MaxAttemptsExceededException.class, () -> {
                 new AccountCreateTransaction()
-                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                         .execute(server.client);
             });
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .handle((response, error) -> {
                         Assertions.assertNotNull(error);
