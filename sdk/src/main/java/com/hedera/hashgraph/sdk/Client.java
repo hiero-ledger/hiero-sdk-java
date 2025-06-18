@@ -201,7 +201,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, false, null, realm, shard);
+        return new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
     }
 
     /**
@@ -231,7 +231,7 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
         var client = new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
         var addressBook = new AddressBookQuery()
-                .setFileId(FileId.getAddressBookFileIdFor(realm, shard))
+                .setFileId(FileId.getAddressBookFileIdFor(shard, realm))
                 .execute(client);
         client.setNetworkFromAddressBook(addressBook);
         return client;
