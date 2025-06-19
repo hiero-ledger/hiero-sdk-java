@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -35,22 +36,24 @@ public class EthereumFlow {
     public EthereumFlow() {}
 
     private static FileId createFile(byte[] callData, Client client, Duration timeoutPerTransaction)
-            throws PrecheckStatusException, TimeoutException {
+        throws PrecheckStatusException, TimeoutException {
         try {
             var transaction = new FileCreateTransaction()
-                    .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
-                    .setContents(Arrays.copyOfRange(
-                            callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
-                    .execute(client, timeoutPerTransaction);
+                .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
+                .setContents(Arrays.copyOfRange(
+                    callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
+                .execute(client, timeoutPerTransaction);
             var fileId = transaction.getReceipt(client, timeoutPerTransaction).fileId;
+            var nodeId = transaction.nodeId;
 
             if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
                 new FileAppendTransaction()
-                        .setFileId(fileId)
-                        .setContents(
-                                Arrays.copyOfRange(callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
-                        .execute(client, timeoutPerTransaction)
-                        .getReceipt(client);
+                    .setFileId(fileId)
+                    .setNodeAccountIds(Collections.singletonList(nodeId))
+                    .setContents(
+                        Arrays.copyOfRange(callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
+                    .execute(client, timeoutPerTransaction)
+                    .getReceipt(client);
             }
             return fileId;
         } catch (ReceiptStatusException e) {
@@ -59,26 +62,30 @@ public class EthereumFlow {
     }
 
     private static CompletableFuture<FileId> createFileAsync(
-            byte[] callData, Client client, Duration timeoutPerTransaction) {
+        byte[] callData, Client client, Duration timeoutPerTransaction) {
         return new FileCreateTransaction()
-                .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
-                .setContents(Arrays.copyOfRange(
-                        callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
-                .executeAsync(client, timeoutPerTransaction)
-                .thenCompose((response) -> response.getReceiptAsync(client, timeoutPerTransaction))
-                .thenCompose((receipt) -> {
-                    if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
-                        return new FileAppendTransaction()
+            .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
+            .setContents(Arrays.copyOfRange(
+                callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
+            .executeAsync(client, timeoutPerTransaction)
+            .thenCompose((response) -> {
+                var nodeId = response.nodeId;
+                return response.getReceiptAsync(client, timeoutPerTransaction)
+                    .thenCompose((receipt) -> {
+                        if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
+                            return new FileAppendTransaction()
                                 .setFileId(receipt.fileId)
+                                .setNodeAccountIds(Collections.singletonList(nodeId))
                                 .setContents(Arrays.copyOfRange(
-                                        callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
+                                    callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
                                 .executeAsync(client, timeoutPerTransaction)
-                                .thenCompose((response) -> response.getReceiptAsync(client, timeoutPerTransaction))
+                                .thenCompose((appendResponse) -> appendResponse.getReceiptAsync(client, timeoutPerTransaction))
                                 .thenApply((r) -> receipt.fileId);
-                    } else {
-                        return CompletableFuture.completedFuture(receipt.fileId);
-                    }
-                });
+                        } else {
+                            return CompletableFuture.completedFuture(receipt.fileId);
+                        }
+                    });
+            });
     }
 
     /**
@@ -158,7 +165,7 @@ public class EthereumFlow {
      * @throws TimeoutException        when the transaction times out
      */
     public TransactionResponse execute(Client client, Duration timeoutPerTransaction)
-            throws PrecheckStatusException, TimeoutException {
+        throws PrecheckStatusException, TimeoutException {
         if (ethereumData == null) {
             throw new IllegalStateException("Cannot execute a ethereum flow when ethereum data was not provided");
         }
@@ -206,7 +213,7 @@ public class EthereumFlow {
     public CompletableFuture<TransactionResponse> executeAsync(Client client, Duration timeoutPerTransaction) {
         if (ethereumData == null) {
             return CompletableFuture.failedFuture(
-                    new IllegalStateException("Cannot execute a ethereum flow when ethereum data was not provided"));
+                new IllegalStateException("Cannot execute a ethereum flow when ethereum data was not provided"));
         }
 
         var ethereumTransaction = new EthereumTransaction();
@@ -220,10 +227,10 @@ public class EthereumFlow {
             return ethereumTransaction.setEthereumData(ethereumDataBytes).executeAsync(client);
         } else {
             return createFileAsync(ethereumData.callData, client, timeoutPerTransaction)
-                    .thenCompose((callDataFileId) -> ethereumTransaction
-                            .setEthereumData(ethereumData.toBytes())
-                            .setCallDataFileId(callDataFileId)
-                            .executeAsync(client, timeoutPerTransaction));
+                .thenCompose((callDataFileId) -> ethereumTransaction
+                    .setEthereumData(ethereumData.toBytes())
+                    .setCallDataFileId(callDataFileId)
+                    .executeAsync(client, timeoutPerTransaction));
         }
     }
 
@@ -245,7 +252,7 @@ public class EthereumFlow {
      * @param callback              a BiConsumer which handles the result or error.
      */
     public void executeAsync(
-            Client client, Duration timeoutPerTransaction, BiConsumer<TransactionResponse, Throwable> callback) {
+        Client client, Duration timeoutPerTransaction, BiConsumer<TransactionResponse, Throwable> callback) {
         ConsumerHelper.biConsumer(executeAsync(client, timeoutPerTransaction), callback);
     }
 
@@ -269,10 +276,11 @@ public class EthereumFlow {
      * @param onFailure             a Consumer which consumes the error on failure.
      */
     public void executeAsync(
-            Client client,
-            Duration timeoutPerTransaction,
-            Consumer<TransactionResponse> onSuccess,
-            Consumer<Throwable> onFailure) {
+        Client client,
+        Duration timeoutPerTransaction,
+        Consumer<TransactionResponse> onSuccess,
+        Consumer<Throwable> onFailure) {
         ConsumerHelper.twoConsumers(executeAsync(client, timeoutPerTransaction), onSuccess, onFailure);
     }
 }
+
