@@ -8,7 +8,7 @@ plugins {
 
 group = "org.hiero"
 
-val bouncycastle = "1.80"
+val bouncycastle = "1.81"
 val grpc = "1.72.0"
 val protobuf = "4.30.0"
 val slf4j = "2.0.17"
