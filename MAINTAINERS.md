@@ -6,8 +6,8 @@ The general handling of Maintainer rights and all groups in this GitHub org is d
 
 Maintainers are assigned the following scopes in this repository:
 
-| Scope               | Definition                     | GitHub Role | GitHub Team                  |
-| ------------------- | ------------------------------ | ----------- | ---------------------------- |
+|        Scope        |           Definition           | GitHub Role |         GitHub Team          |
+|---------------------|--------------------------------|-------------|------------------------------|
 | project-maintainers | The Maintainers of the project | Maintain    | `hiero-sdk-java-maintainers` |
 | tsc                 | The Hiero TSC                  | Maintain    | `tsc`                        |
 | github-maintainers  | The Maintainers of the project | Maintain    | `github-maintainers`         |
@@ -16,17 +16,16 @@ Maintainers are assigned the following scopes in this repository:
 
 <!-- Please keep this sorted alphabetically by github -->
 
-| Name                | GitHub ID  | Scope | LFID | Discord ID | Email      | Company Affiliation |
-|-------------------- | ---------- | ----- | ---- | ---------- | ---------- | ------------------- |
-| Simi Hunjan         | SimiHunjan |       |      |            |            | Hashgraph           |
-| Ivan Ivanov         | 0xivanov   |       |      |            |            | LimeChain           |
-| Alexander Gadzhalov | agadzhalov |       |      |            |            | LimeChain           |
-
+|        Name         | GitHub ID  | Scope | LFID | Discord ID | Email | Company Affiliation |
+|---------------------|------------|-------|------|------------|-------|---------------------|
+| Simi Hunjan         | SimiHunjan |       |      |            |       | Hashgraph           |
+| Ivan Ivanov         | 0xivanov   |       |      |            |       | LimeChain           |
+| Alexander Gadzhalov | agadzhalov |       |      |            |       | LimeChain           |
 
 ## Emeritus Maintainers
 
 | Name | GitHub ID | Scope | LFID | Discord ID | Email | Company Affiliation |
-|----- | --------- | ----- | ---- | ---------- | ----- | ------------------- |
+|------|-----------|-------|------|------------|-------|---------------------|
 |      |           |       |      |            |       |                     |
 
 ## The Duties of a Maintainer
