@@ -28,7 +28,7 @@ public class TestServer {
 
         var network = new HashMap<String, AccountId>();
         network.put("in-process:" + name + "[0]", AccountId.fromString("1.1.1"));
-        network.put("in-process:" + name + "[1]", AccountId.fromString("2.2.2"));
+        network.put("in-process:" + name + "[1]", AccountId.fromString("1.1.2"));
         client = Client.forNetwork(network)
                 .setNodeMinBackoff(Duration.ofMillis(500))
                 .setNodeMaxBackoff(Duration.ofMillis(500))
