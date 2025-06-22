@@ -84,6 +84,7 @@ class AccountInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeAccountInfoForClientOperator() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

@@ -68,6 +68,18 @@ abstract class RunAllExample : DefaultTask() {
                 .filter {
                     it != "InitializeClientWithMirrorNetworkExample"
                 } // disabled - cannot run on localnode
+                .filter {
+                    it != "LongTermScheduledTransactionExample"
+                } // disabled - cannot run on solo action
+                .filter {
+                    it != "DynamicAddressBookExample"
+                } // disabled - cannot run on solo action
+                .filter {
+                    it != "SolidityPrecompileExample"
+                } // disabled - cannot run on solo action
+                .filter {
+                    it != "ZeroTokenOperationsExample"
+                } // disabled - cannot run on solo action
                 .toList()
 
         exampleClasses.forEach { className ->

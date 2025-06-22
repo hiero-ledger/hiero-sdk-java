@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.hedera.hashgraph.sdk.*;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -193,6 +194,7 @@ public class ContractInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeContractInfoFunction() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

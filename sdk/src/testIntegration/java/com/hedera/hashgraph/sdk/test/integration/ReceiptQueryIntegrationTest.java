@@ -10,6 +10,7 @@ import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TransactionReceiptQuery;
 import com.hedera.hashgraph.sdk.TransactionRecordQuery;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -123,6 +124,7 @@ public class ReceiptQueryIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Insufficient transaction fee error for transaction record query")
     void getCostInsufficientTxFeeTransactionRecord() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

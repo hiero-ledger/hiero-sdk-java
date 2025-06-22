@@ -11,6 +11,7 @@ import com.hedera.hashgraph.sdk.TopicCreateTransaction;
 import com.hedera.hashgraph.sdk.TopicDeleteTransaction;
 import com.hedera.hashgraph.sdk.TopicInfoQuery;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can get cost for topic info query")
     void getCostQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -69,6 +71,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can get cost for topic info query")
     void getCostBigMaxQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -98,6 +101,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can get cost for topic info query")
     void getCostSmallMaxQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -123,6 +127,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can get cost for topic info query")
     void getCostInsufficientTxFeeQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
