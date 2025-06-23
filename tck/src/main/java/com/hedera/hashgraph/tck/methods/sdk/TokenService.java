@@ -556,4 +556,57 @@ public class TokenService extends AbstractJSONRPC2Service {
 
         return Map.of("status", receipt.status.toString());
     }
+
+    @JSONRPC2Method("cancelAirdrop")
+    public Map<String, String> cancelAirdrop(final TokenAirdropCancelParams params) throws Exception {
+        TokenCancelAirdropTransaction tokenCancelAirdropTransaction = new TokenCancelAirdropTransaction();
+
+        Duration threeSecondsDuration = Duration.ofSeconds(3);
+        tokenCancelAirdropTransaction.setGrpcDeadline(threeSecondsDuration);
+
+        if (params.getPendingAirdrops().isEmpty()) {
+            throw new InvalidJSONRPC2ParamsException("pendingAirdrops is required");
+        }
+
+        List<PendingAirdropParams> pendingAirdrops = params.getPendingAirdrops().get();
+
+        for (PendingAirdropParams pendingAirdrop : pendingAirdrops) {
+            String tokenId = pendingAirdrop
+                    .getTokenId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("tokenId is required"));
+            String senderAccountId = pendingAirdrop
+                    .getSenderAccountId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("senderAccountId is required"));
+            String receiverAccountId = pendingAirdrop
+                    .getReceiverAccountId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("receiverAccountId is required"));
+
+            if (pendingAirdrop.getSerialNumbers().isPresent()
+                    && !pendingAirdrop.getSerialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = pendingAirdrop.getSerialNumbers().get();
+                for (String serialNumber : serialNumbers) {
+                    PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                            AccountId.fromString(senderAccountId),
+                            AccountId.fromString(receiverAccountId),
+                            new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber)));
+                    tokenCancelAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+                }
+            } else {
+                PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                        AccountId.fromString(senderAccountId),
+                        AccountId.fromString(receiverAccountId),
+                        TokenId.fromString(tokenId));
+                tokenCancelAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+            }
+        }
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
+                        tokenCancelAirdropTransaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = tokenCancelAirdropTransaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
+    }
 }
