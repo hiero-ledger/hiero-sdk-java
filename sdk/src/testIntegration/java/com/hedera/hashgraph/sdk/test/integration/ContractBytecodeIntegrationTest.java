@@ -149,7 +149,7 @@ public class ContractBytecodeIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeQueryContractBytecode() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

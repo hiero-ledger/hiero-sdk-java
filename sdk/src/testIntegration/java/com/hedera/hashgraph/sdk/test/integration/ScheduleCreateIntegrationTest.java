@@ -380,7 +380,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can sign schedule")
     void canSignSchedule() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -434,7 +434,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Cannot schedule one year into the future")
     void cannotScheduleTransactionOneYearIntoTheFuture() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -465,7 +465,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Cannot schedule in the past")
     void cannotScheduleTransactionInThePast() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -497,7 +497,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can sign schedule and wait for expiry")
     void canSignScheduleAndWaitForExpiry() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -552,7 +552,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can sign with multisig and update signing requirements")
     void canSignWithMultiSigAndUpdateSigningRequirements() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -639,7 +639,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can sign with multisig")
     void canSignWithMultiSig() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -724,7 +724,7 @@ class ScheduleCreateIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can execute with short expiration time")
     void canExecuteWithShortExpirationTime() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

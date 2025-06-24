@@ -41,7 +41,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can get cost for topic info query")
     void getCostQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -71,7 +71,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can get cost for topic info query")
     void getCostBigMaxQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -101,7 +101,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can get cost for topic info query")
     void getCostSmallMaxQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -127,7 +127,7 @@ public class TopicInfoIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Can get cost for topic info query")
     void getCostInsufficientTxFeeQueryTopicInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

@@ -124,7 +124,7 @@ public class ReceiptQueryIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient transaction fee error for transaction record query")
     void getCostInsufficientTxFeeTransactionRecord() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

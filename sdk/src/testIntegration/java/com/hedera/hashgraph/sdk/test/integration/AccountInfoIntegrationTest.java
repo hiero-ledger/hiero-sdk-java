@@ -84,7 +84,7 @@ class AccountInfoIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeAccountInfoForClientOperator() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

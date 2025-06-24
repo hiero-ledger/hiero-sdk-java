@@ -126,7 +126,7 @@ public class FileContentsIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeQueryFileContents() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
