@@ -12,6 +12,7 @@ import com.hedera.hashgraph.sdk.KeyList;
 import com.hedera.hashgraph.sdk.MaxQueryPaymentExceededException;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -114,6 +115,7 @@ public class FileInfoIntegrationTest {
     }
 
     @Test
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeQueryFileInfo() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
