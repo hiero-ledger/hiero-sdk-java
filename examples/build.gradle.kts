@@ -77,10 +77,7 @@ abstract class RunAllExample : DefaultTask() {
                 .filter {
                     it != "SolidityPrecompileExample"
                 } // disabled - cannot run on solo action
-                .filter {
-                    it != "ZeroTokenOperationsExample" &&
-                        it != "ScheduleExample"
-                } // disabled - cannot run on solo action
+                .filter { it != "ZeroTokenOperationsExample" && it != "ScheduleExample" }
                 .toList()
 
         exampleClasses.forEach { className ->
