@@ -80,6 +80,9 @@ abstract class RunAllExample : DefaultTask() {
                 .filter {
                     it != "ZeroTokenOperationsExample"
                 } // disabled - cannot run on solo action
+                .filter {
+                    it != "ScheduleExample"
+                } // disabled - cannot run on solo action
                 .toList()
 
         exampleClasses.forEach { className ->
