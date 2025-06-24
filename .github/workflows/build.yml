@@ -201,9 +201,6 @@ jobs:
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
-
   run-examples:
     name: Run Examples
     runs-on: hiero-client-sdk-linux-medium
@@ -257,9 +254,6 @@ jobs:
       - name: Run Examples
         run: ./gradlew :examples:runAllExamples
 
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
-
   test-tck:
     name: TCK Tests
     runs-on: hiero-client-sdk-linux-medium
@@ -290,18 +284,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
 
-      - name: Prepare Hiero Solo
-        id: solo
-        uses: hiero-ledger/hiero-solo-action@71219540ac7f578e6ea4fc3c17575c0295e56163 # v0.9
-        with:
-          installMirrorNode: true
-          hieroVersion: v0.62.3
-
       - name: Build TCK
         run: ./gradlew assemble
 
       - name: Run TCK Unit Tests
         run: ./gradlew :tck:test
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
