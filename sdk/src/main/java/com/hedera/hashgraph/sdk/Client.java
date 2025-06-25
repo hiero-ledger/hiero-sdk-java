@@ -1511,6 +1511,12 @@ public final class Client implements AutoCloseable {
         @Nullable
         private JsonElement mirrorNetwork;
 
+        @Nullable
+        private JsonElement shard;
+
+        @Nullable
+        private JsonElement realm;
+
         private static class ConfigOperator {
             @Nullable
             private String accountId;
