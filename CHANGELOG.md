@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 2.59.0
 
-### Added
-
-- JSON-RPC method endpoint for TokenClaimAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2369
-- JSON-RPC method endpoint for TokenCancelAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2370
-
 ### Fixed
 
 - EthereumFlow transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2358
