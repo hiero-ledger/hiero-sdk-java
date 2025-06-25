@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.59.0
+
+### Added
+
+- JSON-RPC method endpoint for TokenClaimAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2369
+- JSON-RPC method endpoint for TokenCancelAirdropTransaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2370
+
+### Fixed
+
+- EthereumFlow transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2358
+  - Introduced changes to the flow where a single node handles all the transactions inside so pre-check errors are avoided https://github.com/hiero-ledger/hiero-sdk-java/pull/2379/files
+
 ## 2.58.0
 
 ### Added
