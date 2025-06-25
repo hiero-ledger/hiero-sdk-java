@@ -1556,15 +1556,17 @@ public final class Client implements AutoCloseable {
         }
 
         private Client clientFromNetworkJson() {
-            return new Client(
-                    createExecutor(),
-                    clientFromNetworkString().network,
-                    clientFromNetworkString().mirrorNetwork,
-                    null,
-                    true,
-                    null,
-                    shard.getAsLong(),
-                    realm.getAsLong());
+            Client client;
+            var networkJson = network.getAsJsonObject();
+            Map<String, AccountId> nodes = Client.getNetworkNodes(networkJson);
+            var executor = createExecutor();
+            var network = Network.forNetwork(executor, nodes);
+            var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
+            var shardValue = shard != null ? shard.getAsLong() : 0;
+            var realmValue = realm != null ? realm.getAsLong() : 0;
+            client = new Client(executor, network, mirrorNetwork, null, true, null, shardValue, realmValue);
+            setNetworkNameOn(client);
+            return client;
         }
 
         private void setNetworkNameOn(Client client) {
