@@ -168,7 +168,7 @@ class ClientTest {
         // Copied content of `client-config-with-operator.json`
         var client = Client.fromConfig("{\n" + "    \"network\":\"mainnet\",\n"
                 + " \"shard\": 3,\n"
-                +  "\"realm\": 5,\n"
+                + "\"realm\": 5,\n"
                 + "    \"operator\": {\n"
                 + "        \"accountId\": \"0.0.36\",\n"
                 + "        \"privateKey\": \"302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10\"\n"
