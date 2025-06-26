@@ -10,7 +10,6 @@ dependencies {
     published(project(":sdk"))
     published(project(":sdk-full"))
 
-    implementation(project(":sdk"))
     implementation(project(":tck"))
     implementation("io.grpc:grpc-protobuf")
 }
