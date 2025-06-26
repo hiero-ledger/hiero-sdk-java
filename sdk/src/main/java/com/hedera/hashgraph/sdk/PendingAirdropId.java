@@ -24,14 +24,14 @@ public class PendingAirdropId {
 
     public PendingAirdropId() {}
 
-    PendingAirdropId(AccountId sender, AccountId receiver, TokenId tokenId) {
+    public PendingAirdropId(AccountId sender, AccountId receiver, TokenId tokenId) {
         this.sender = sender;
         this.receiver = receiver;
         this.tokenId = tokenId;
         this.nftId = null;
     }
 
-    PendingAirdropId(AccountId sender, AccountId receiver, NftId nftId) {
+    public PendingAirdropId(AccountId sender, AccountId receiver, NftId nftId) {
         this.sender = sender;
         this.receiver = receiver;
         this.nftId = nftId;

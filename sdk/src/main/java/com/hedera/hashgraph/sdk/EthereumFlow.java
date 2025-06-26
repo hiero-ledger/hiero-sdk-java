@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +35,8 @@ public class EthereumFlow {
      */
     public EthereumFlow() {}
 
-    private static FileId createFile(byte[] callData, Client client, Duration timeoutPerTransaction)
+    private static FileId createFile(
+            byte[] callData, Client client, Duration timeoutPerTransaction, Transaction<?> ethereumTransaction)
             throws PrecheckStatusException, TimeoutException {
         try {
             var transaction = new FileCreateTransaction()
@@ -43,15 +45,19 @@ public class EthereumFlow {
                             callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
                     .execute(client, timeoutPerTransaction);
             var fileId = transaction.getReceipt(client, timeoutPerTransaction).fileId;
-
+            var nodeId = transaction.nodeId;
             if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
                 new FileAppendTransaction()
                         .setFileId(fileId)
+                        .setNodeAccountIds(Collections.singletonList(nodeId))
                         .setContents(
                                 Arrays.copyOfRange(callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
                         .execute(client, timeoutPerTransaction)
                         .getReceipt(client);
             }
+
+            ethereumTransaction.setNodeAccountIds(Collections.singletonList(nodeId));
+
             return fileId;
         } catch (ReceiptStatusException e) {
             throw new RuntimeException(e);
@@ -59,25 +65,34 @@ public class EthereumFlow {
     }
 
     private static CompletableFuture<FileId> createFileAsync(
-            byte[] callData, Client client, Duration timeoutPerTransaction) {
+            byte[] callData, Client client, Duration timeoutPerTransaction, Transaction<?> ethereumTransaction) {
         return new FileCreateTransaction()
                 .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
                 .setContents(Arrays.copyOfRange(
                         callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
                 .executeAsync(client, timeoutPerTransaction)
-                .thenCompose((response) -> response.getReceiptAsync(client, timeoutPerTransaction))
-                .thenCompose((receipt) -> {
-                    if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
-                        return new FileAppendTransaction()
-                                .setFileId(receipt.fileId)
-                                .setContents(Arrays.copyOfRange(
-                                        callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
-                                .executeAsync(client, timeoutPerTransaction)
-                                .thenCompose((response) -> response.getReceiptAsync(client, timeoutPerTransaction))
-                                .thenApply((r) -> receipt.fileId);
-                    } else {
-                        return CompletableFuture.completedFuture(receipt.fileId);
-                    }
+                .thenCompose((response) -> {
+                    var nodeId = response.nodeId;
+                    ethereumTransaction.setNodeAccountIds(Collections.singletonList(nodeId));
+
+                    return response.getReceiptAsync(client, timeoutPerTransaction)
+                            .thenCompose((receipt) -> {
+                                if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
+                                    return new FileAppendTransaction()
+                                            .setFileId(receipt.fileId)
+                                            .setNodeAccountIds(Collections.singletonList(nodeId))
+                                            .setContents(Arrays.copyOfRange(
+                                                    callData,
+                                                    FileAppendTransaction.DEFAULT_CHUNK_SIZE,
+                                                    callData.length))
+                                            .executeAsync(client, timeoutPerTransaction)
+                                            .thenCompose((appendResponse) ->
+                                                    appendResponse.getReceiptAsync(client, timeoutPerTransaction))
+                                            .thenApply((r) -> receipt.fileId);
+                                } else {
+                                    return CompletableFuture.completedFuture(receipt.fileId);
+                                }
+                            });
                 });
     }
 
@@ -173,7 +188,7 @@ public class EthereumFlow {
         if (ethereumDataBytes.length <= MAX_ETHEREUM_DATA_SIZE) {
             ethereumTransaction.setEthereumData(ethereumDataBytes);
         } else {
-            var callDataFileId = createFile(ethereumData.callData, client, timeoutPerTransaction);
+            var callDataFileId = createFile(ethereumData.callData, client, timeoutPerTransaction, ethereumTransaction);
             ethereumTransaction.setEthereumData(ethereumData.toBytes()).setCallDataFileId(callDataFileId);
         }
 
@@ -219,7 +234,7 @@ public class EthereumFlow {
         if (ethereumDataBytes.length <= MAX_ETHEREUM_DATA_SIZE) {
             return ethereumTransaction.setEthereumData(ethereumDataBytes).executeAsync(client);
         } else {
-            return createFileAsync(ethereumData.callData, client, timeoutPerTransaction)
+            return createFileAsync(ethereumData.callData, client, timeoutPerTransaction, ethereumTransaction)
                     .thenCompose((callDataFileId) -> ethereumTransaction
                             .setEthereumData(ethereumData.toBytes())
                             .setCallDataFileId(callDataFileId)
