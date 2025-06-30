@@ -15,6 +15,7 @@ import com.hedera.hashgraph.sdk.MaxQueryPaymentExceededException;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -148,6 +149,7 @@ public class ContractBytecodeIntegrationTest {
     }
 
     @Test
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeQueryContractBytecode() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

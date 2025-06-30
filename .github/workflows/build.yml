@@ -174,8 +174,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@71219540ac7f578e6ea4fc3c17575c0295e56163 # v0.9
+        with:
+          installMirrorNode: true
+          hieroVersion: v0.62.3
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -183,13 +187,10 @@ jobs:
       - name: Code Quality Checks
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
-      - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.62.3
-
       - name: Run Unit and Integration Tests
         env:
-          OPERATOR_KEY: "0xa608e2130a0a3cb34f86e757303c862bee353d9ab77ba4387ec084f881d420d4"
-          OPERATOR_ID: "0.0.1022"
+          OPERATOR_KEY: "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
+          OPERATOR_ID: "0.0.2"
           HEDERA_NETWORK: "localhost"
         run: |
           ./gradlew -POPERATOR_ID=$OPERATOR_ID -POPERATOR_KEY=$OPERATOR_KEY -PHEDERA_NETWORK=$HEDERA_NETWORK :aggregation:testCodeCoverageReport
@@ -199,9 +200,6 @@ jobs:
         uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
 
   run-examples:
     name: Run Examples
@@ -234,8 +232,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
+      - name: Prepare Hiero Solo
+        id: solo
+        uses: hiero-ledger/hiero-solo-action@71219540ac7f578e6ea4fc3c17575c0295e56163 # v0.9
+        with:
+          installMirrorNode: true
+          hieroVersion: v0.62.3
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -243,20 +245,14 @@ jobs:
       - name: Build Android Example
         run: ./gradlew -p example-android assemble
 
-      - name: Start the local node
-        run: npx @hashgraph/hedera-local start -d --network local --network-tag=0.62.3
-
       - name: Prepare .env for Examples
         run: |
-          echo "OPERATOR_KEY=0xa608e2130a0a3cb34f86e757303c862bee353d9ab77ba4387ec084f881d420d4" > examples/.env
-          echo "OPERATOR_ID=0.0.1022" >> examples/.env
+          echo "OPERATOR_KEY=302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137" > examples/.env
+          echo "OPERATOR_ID=0.0.2" >> examples/.env
           echo "HEDERA_NETWORK=localhost" >> examples/.env
 
       - name: Run Examples
         run: ./gradlew :examples:runAllExamples
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
 
   test-tck:
     name: TCK Tests
@@ -288,17 +284,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local
-
       - name: Build TCK
         run: ./gradlew assemble
 
-      - name: Start Local Node
-        run: npx @hashgraph/hedera-local start -d --network local
-
       - name: Run TCK Unit Tests
         run: ./gradlew :tck:test
-
-      - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop

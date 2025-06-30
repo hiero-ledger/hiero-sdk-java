@@ -127,6 +127,6 @@ jobs:
       - name: Nexus Release
         if: ${{ github.event_name == 'push' }}
         env:
-          NEXUS_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        run: ./gradlew releaseMavenCentral -PpublishingPackageGroup=com.hedera.hashgraph -PpublishSigningEnabled=true --scan --no-configuration-cache
+          NEXUS_USERNAME: ${{ secrets.CENTRAL_PUBLISHING_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.CENTRAL_PUBLISHING_PASSWORD }}
+        run: ./gradlew publishAggregationToCentralPortal -PpublishSigningEnabled=true
