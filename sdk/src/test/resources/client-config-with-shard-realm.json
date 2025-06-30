@@ -2,14 +2,11 @@
     "network": {
         "0.0.21": "0.testnet.hedera.com:50211"
     },
-    "mirrorNetwork": [
-        "testnet.mirrornode.hedera.com:443"
-    ],
-    "networkName": "testnet",
     "operator": {
         "accountId": "0.0.21",
         "privateKey": "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10"
     },
-    "shard": "0",
-    "realm": "0"
+    "shard": "2",
+    "realm": "2",
+    "mirrorNetwork": "mainnet"
 }
