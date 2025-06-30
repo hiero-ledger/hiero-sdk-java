@@ -163,12 +163,19 @@ class ClientTest {
     }
 
     @Test
+    @DisplayName("fromJsonFile() functions correctly with shard & realm")
+    void fromJsonFileWithShardAndRealm() throws Exception {
+        var client = Client.fromConfigFile(new File("./src/test/resources/client-config-with-shard-realm.json"));
+        assertThat(client.getShard()).isEqualTo(2L);
+        assertThat(client.getRealm()).isEqualTo(2L);
+        client.close();
+    }
+
+    @Test
     @DisplayName("fromJson() functions correctly")
     void testFromJson() throws Exception {
         // Copied content of `client-config-with-operator.json`
         var client = Client.fromConfig("{\n" + "    \"network\":\"mainnet\",\n"
-                + " \"shard\": 3,\n"
-                + "\"realm\": 5,\n"
                 + "    \"operator\": {\n"
                 + "        \"accountId\": \"0.0.36\",\n"
                 + "        \"privateKey\": \"302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10\"\n"
@@ -190,6 +197,27 @@ class ClientTest {
         assertThat(clientConfigWithOperator).isNotNull();
 
         client.close();
+    }
+
+    @Test
+    @DisplayName("fromJson() functions correctly with shard and realm")
+    void testFromJsonWithShardAndRealm() throws Exception {
+        // Copied content of `client-config-with-operator.json`
+        var client = Client.fromConfig("{\n"
+                + "    \"network\": {\n"
+                + "        \"0.0.21\": \"0.testnet.hedera.com:50211\"\n"
+                + "    },\n"
+                + "    \"operator\": {\n"
+                + "        \"accountId\": \"0.0.21\",\n"
+                + "        \"privateKey\": \"302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10\"\n"
+                + "    },\n"
+                + "    \"shard\": \"2\",\n"
+                + "    \"realm\": \"2\",\n"
+                + "    \"mirrorNetwork\": \"mainnet\"\n"
+                + "}\n");
+
+        assertThat(client.getShard()).isEqualTo(2);
+        assertThat(client.getRealm()).isEqualTo(2);
     }
 
     @Test

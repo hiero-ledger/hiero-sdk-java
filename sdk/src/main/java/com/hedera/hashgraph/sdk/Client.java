@@ -1549,7 +1549,6 @@ public final class Client implements AutoCloseable {
             if (network.isJsonObject()) {
                 client = clientFromNetworkJson();
             } else {
-                ;
                 client = clientFromNetworkString();
             }
             return client;
