@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static com.hedera.hashgraph.sdk.BaseNodeAddress.PORT_NODE_PLAIN;
+import static com.hedera.hashgraph.sdk.Client.createExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +163,15 @@ class ClientTest {
     }
 
     @Test
+    @DisplayName("fromJsonFile() functions correctly with shard & realm")
+    void fromJsonFileWithShardAndRealm() throws Exception {
+        var client = Client.fromConfigFile(new File("./src/test/resources/client-config-with-shard-realm.json"));
+        assertThat(client.getShard()).isEqualTo(2L);
+        assertThat(client.getRealm()).isEqualTo(2L);
+        client.close();
+    }
+
+    @Test
     @DisplayName("fromJson() functions correctly")
     void testFromJson() throws Exception {
         // Copied content of `client-config-with-operator.json`
@@ -186,6 +197,27 @@ class ClientTest {
         assertThat(clientConfigWithOperator).isNotNull();
 
         client.close();
+    }
+
+    @Test
+    @DisplayName("fromJson() functions correctly with shard and realm")
+    void testFromJsonWithShardAndRealm() throws Exception {
+        // Copied content of `client-config-with-operator.json`
+        var client = Client.fromConfig("{\n"
+                + "    \"network\": {\n"
+                + "        \"0.0.21\": \"0.testnet.hedera.com:50211\"\n"
+                + "    },\n"
+                + "    \"operator\": {\n"
+                + "        \"accountId\": \"0.0.21\",\n"
+                + "        \"privateKey\": \"302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10\"\n"
+                + "    },\n"
+                + "    \"shard\": \"2\",\n"
+                + "    \"realm\": \"2\",\n"
+                + "    \"mirrorNetwork\": \"mainnet\"\n"
+                + "}\n");
+
+        assertThat(client.getShard()).isEqualTo(2);
+        assertThat(client.getRealm()).isEqualTo(2);
     }
 
     @Test
@@ -462,6 +494,130 @@ class ClientTest {
         assertThat(addressBookEntry.addresses).isNotNull();
         assertThat(addressBookEntry.accountId).isNotNull();
         assertThat(addressBookEntry.description).isNotNull();
+        client.close();
+    }
+
+    @Test
+    @DisplayName("Client persists shard and realm")
+    void clientPersistsShardAndRealm() throws TimeoutException {
+        var network = Network.forNetwork(createExecutor(), new HashMap<>());
+        var mirrorNetwork = MirrorNetwork.forNetwork(createExecutor(), new ArrayList<>());
+        var client = new Client(createExecutor(), network, mirrorNetwork, null, true, null, 2, 1);
+
+        assertThat(client.getShard()).isEqualTo(2);
+        assertThat(client.getRealm()).isEqualTo(1);
+
+        client.close();
+    }
+
+    @Test
+    @DisplayName("forNetwork() validates network with same shard and realm")
+    void forNetworkValidatesSameShardAndRealm() throws TimeoutException {
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(1, 2, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        var client = Client.forNetwork(network);
+
+        assertThat(client.getShard()).isEqualTo(1);
+        assertThat(client.getRealm()).isEqualTo(2);
+
+        client.close();
+    }
+
+    @Test
+    @DisplayName("forNetwork() throws exception when nodes have different shards")
+    void forNetworkThrowsExceptionForDifferentShards() {
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(2, 2, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        assertThatThrownBy(() -> Client.forNetwork(network))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
+    }
+
+    @Test
+    @DisplayName("forNetwork() throws exception when nodes have different realms")
+    void forNetworkThrowsExceptionForDifferentRealms() {
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(1, 1, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        assertThatThrownBy(() -> Client.forNetwork(network))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
+    }
+
+    @Test
+    @DisplayName("forNetwork() with executor validates network with same shard and realm")
+    void forNetworkWithExecutorValidatesSameShardAndRealm() throws TimeoutException {
+
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(1, 2, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        var client = Client.forNetwork(network);
+
+        assertThat(client.getShard()).isEqualTo(1);
+        assertThat(client.getRealm()).isEqualTo(2);
+
+        client.close();
+    }
+
+    @Test
+    @DisplayName("forNetwork() with executor throws exception when nodes have different shards")
+    void forNetworkWithExecutorThrowsExceptionForDifferentShards() {
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(2, 2, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        assertThatThrownBy(() -> Client.forNetwork(network))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
+    }
+
+    @Test
+    @DisplayName("forNetwork() with executor throws exception when nodes have different realms")
+    void forNetworkWithExecutorThrowsExceptionForDifferentRealms() {
+        var network = Map.of(
+                "127.0.0.1:50211", new AccountId(1, 1, 3),
+                "127.0.0.1:50212", new AccountId(1, 2, 4),
+                "127.0.0.1:50213", new AccountId(1, 2, 5));
+
+        assertThatThrownBy(() -> Client.forNetwork(network))
+                .hasMessageEndingWith("Network is not valid, all nodes must be in the same shard and realm");
+    }
+
+    @Test
+    @DisplayName("forNetwork() handles empty network map")
+    void forNetworkHandlesEmptyNetworkMap() throws TimeoutException {
+        var network = Map.<String, AccountId>of();
+
+        var client = Client.forNetwork(network);
+
+        // When network is empty, should use default values
+        assertThat(client.getShard()).isEqualTo(0);
+        assertThat(client.getRealm()).isEqualTo(0);
+
+        client.close();
+    }
+
+    @Test
+    @DisplayName("forNetwork() handles single node network")
+    void forNetworkHandlesSingleNodeNetwork() throws TimeoutException {
+        var network = Map.of("127.0.0.1:50211", new AccountId(3, 4, 5));
+
+        var client = Client.forNetwork(network);
+
+        assertThat(client.getShard()).isEqualTo(3);
+        assertThat(client.getRealm()).isEqualTo(4);
+
         client.close();
     }
 }
