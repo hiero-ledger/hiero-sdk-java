@@ -4,7 +4,9 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.ContractID;
 import java.util.Objects;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * The ID for a smart contract instance on Hedera.
@@ -46,6 +48,10 @@ public final class DelegateContractId extends ContractId {
         super(shard, realm, num, checksum);
     }
 
+    public DelegateContractId(long shard, long realm, byte[] evmAddress) {
+        super(shard, realm, evmAddress);
+    }
+
     /**
      * Create a delegate contract id from a string.
      *
@@ -62,8 +68,24 @@ public final class DelegateContractId extends ContractId {
      * @param address                   the contract id solidity address
      * @return                          the delegate contract id object
      */
+    @Deprecated
     public static DelegateContractId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, DelegateContractId::new);
+    }
+
+    /**
+     * Parse DelegateContract id from an ethereum address.
+     *
+     * @param shard                     the desired shard
+     * @param realm                     the desired realm
+     * @param evmAddress                the evm address
+     * @return                          the contract id object
+     */
+    public static DelegateContractId fromEvmAddress(
+            @Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
+        EntityIdHelper.decodeEvmAddress(evmAddress);
+        return new DelegateContractId(
+                shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
     }
 
     /**

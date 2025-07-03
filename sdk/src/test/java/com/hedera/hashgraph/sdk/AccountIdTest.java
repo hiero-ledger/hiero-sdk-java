@@ -259,4 +259,105 @@ class AccountIdTest {
         var id2 = AccountId.fromEvmAddress("0x" + evmAddressString, 0, 0);
         assertThat(id2).isEqualTo(id1);
     }
+
+    @Test
+    void fromEvmAddressNormalAddress() {
+        // Test with a normal EVM address
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 0, 0);
+
+        assertThat(id.shard).isEqualTo(0);
+        assertThat(id.realm).isEqualTo(0);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressWithDifferentShardAndRealm() {
+        // Test with a different shard and realm
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 1, 1);
+
+        assertThat(id.shard).isEqualTo(1);
+        assertThat(id.realm).isEqualTo(1);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressLongZeroAddress() {
+        // Test with a long zero address
+        String evmAddress = "00000000000000000000000000000000000004d2";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 0, 0);
+
+        assertThat(id.shard).isEqualTo(0);
+        assertThat(id.realm).isEqualTo(0);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressLongZeroAddressWithShardAndRealm() {
+        // Test with a long zero address and different shard and realm
+        String evmAddress = "00000000000000000000000000000000000004d2";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 1, 1);
+
+        assertThat(id.shard).isEqualTo(1);
+        assertThat(id.realm).isEqualTo(1);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void toEvmAddressNormalAccountId() {
+        // Test with a normal account ID
+        AccountId id = new AccountId(0, 0, 123);
+
+        assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
+    }
+
+    @Test
+    void toEvmAddressWithDifferentShardAndRealm() {
+        // Test with a different shard and realm
+        AccountId id = new AccountId(1, 1, 123);
+
+        assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
+    }
+
+    @Test
+    void toEvmAddressLongZeroAddress() {
+        // Test with a long zero address
+        String longZeroAddress = "00000000000000000000000000000000000004d2";
+        AccountId id = AccountId.fromEvmAddress(longZeroAddress, 1, 1);
+
+        assertThat(id.toEvmAddress()).isEqualTo(longZeroAddress.toLowerCase());
+    }
+
+    @Test
+    void toEvmAddressNormalEvmAddress() {
+        // Test with a normal EVM address
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 0, 0);
+        String expected = evmAddress.toLowerCase();
+
+        assertThat(id.toEvmAddress()).isEqualTo(expected);
+    }
+
+    @Test
+    void toEvmAddressNormalEvmAddressWithShardAndRealm() {
+        // Test with normal EVM address and different shard and realm
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        AccountId id = AccountId.fromEvmAddress(evmAddress, 1, 1);
+        String expected = evmAddress.toLowerCase();
+
+        assertThat(id.toEvmAddress()).isEqualTo(expected);
+    }
 }

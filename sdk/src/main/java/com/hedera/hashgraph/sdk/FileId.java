@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.FileID;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
@@ -151,6 +152,7 @@ public final class FileId implements Comparable<FileId> {
      * @param address                   the solidity address
      * @return                          the file id object
      */
+    @Deprecated
     public static FileId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, FileId::new);
     }
@@ -160,8 +162,44 @@ public final class FileId implements Comparable<FileId> {
      *
      * @return                          the string representation of file id
      */
+    @Deprecated
     public String toSolidityAddress() {
         return EntityIdHelper.toSolidityAddress(shard, realm, num);
+    }
+
+    /**
+     * Constructs a FileId from shard, realm, and EVM address.
+     * The EVM address must be a "long zero address" (first 12 bytes are zero).
+     *
+     * @param shard      the shard number
+     * @param realm      the realm number
+     * @param evmAddress the EVM address as a hex string
+     * @return           the FileId object
+     * @throws IllegalArgumentException if the EVM address is not a valid long zero address
+     */
+    public static FileId fromEvmAddress(long shard, long realm, String evmAddress) {
+        byte[] addressBytes = EntityIdHelper.decodeEvmAddress(evmAddress);
+
+        if (!EntityIdHelper.isLongZeroAddress(addressBytes)) {
+            throw new IllegalArgumentException("EVM address is not a correct long zero address");
+        }
+
+        ByteBuffer buf = ByteBuffer.wrap(addressBytes);
+        buf.getInt();
+        buf.getLong();
+        long fileNum = buf.getLong();
+
+        return new FileId(shard, realm, fileNum);
+    }
+
+    /**
+     * Converts this FileId to an EVM address string.
+     * Creates a solidity address using shard=0, realm=0, and the file number.
+     *
+     * @return the EVM address as a hex string
+     */
+    public String toEvmAddress() {
+        return EntityIdHelper.toSolidityAddress(0, 0, this.num);
     }
 
     /**

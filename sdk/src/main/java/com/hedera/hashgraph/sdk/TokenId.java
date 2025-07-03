@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.TokenID;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
@@ -113,8 +114,44 @@ public class TokenId implements Comparable<TokenId> {
      * @param address                   the solidity address as a string
      * @return                          the new token id
      */
+    @Deprecated
     public static TokenId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, TokenId::new);
+    }
+
+    /**
+     * Constructs a TokenID from shard, realm, and EVM address.
+     * The EVM address must be a "long zero address" (first 12 bytes are zero).
+     *
+     * @param shard      the shard number
+     * @param realm      the realm number
+     * @param evmAddress the EVM address as a hex string
+     * @return           the TokenID object
+     * @throws IllegalArgumentException if the EVM address is not a valid long zero address
+     */
+    public static TokenId fromEvmAddress(long shard, long realm, String evmAddress) {
+        byte[] addressBytes = EntityIdHelper.decodeEvmAddress(evmAddress);
+
+        if (!EntityIdHelper.isLongZeroAddress(addressBytes)) {
+            throw new IllegalArgumentException("EVM address is not a correct long zero address");
+        }
+
+        ByteBuffer buf = ByteBuffer.wrap(addressBytes);
+        buf.getInt();
+        buf.getLong();
+        long tokenNum = buf.getLong();
+
+        return new TokenId(shard, realm, tokenNum);
+    }
+
+    /**
+     * Converts this TokenId to an EVM address string.
+     * Creates a solidity address using shard=0, realm=0, and the file number.
+     *
+     * @return the EVM address as a hex string
+     */
+    public String toEvmAddress() {
+        return EntityIdHelper.toSolidityAddress(0, 0, this.num);
     }
 
     /**
@@ -132,6 +169,7 @@ public class TokenId implements Comparable<TokenId> {
      *
      * @return                         the solidity address as a string
      */
+    @Deprecated
     public String toSolidityAddress() {
         return EntityIdHelper.toSolidityAddress(shard, realm, num);
     }
