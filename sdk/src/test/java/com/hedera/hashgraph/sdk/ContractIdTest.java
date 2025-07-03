@@ -97,7 +97,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressIncorrectSizeTooShort() {
-        // Test with an EVM address that's too short
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> {
                     ContractId.fromEvmAddress(0, 0, "abc123");
@@ -107,7 +106,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressIncorrectSizeTooLong() {
-        // Test with an EVM address that's too long
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> {
                     ContractId.fromEvmAddress(0, 0, "0123456789abcdef0123456789abcdef0123456789abcdef");
@@ -117,7 +115,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressIncorrectSizeWith0xPrefix() {
-        // Test with a 0x prefix that gets removed but then is too short
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> {
                     ContractId.fromEvmAddress(0, 0, "0xabc123");
@@ -127,7 +124,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressCorrectSize() {
-        // Verify a correct length works
         String correctAddress = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
         ContractId id = ContractId.fromEvmAddress(0, 0, correctAddress);
 
@@ -137,7 +133,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressNormalAddress() {
-        // Test with a normal EVM address
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
         byte[] expectedBytes = Hex.decode(evmAddress);
 
@@ -151,7 +146,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressWithDifferentShardAndRealm() {
-        // Test with a different shard and realm
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
         byte[] expectedBytes = Hex.decode(evmAddress);
 
@@ -165,7 +159,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressLongZeroAddress() {
-        // Test with a long zero address
         String evmAddress = "00000000000000000000000000000000000004d2";
         byte[] expectedBytes = Hex.decode(evmAddress);
 
@@ -179,7 +172,6 @@ class ContractIdTest {
 
     @Test
     void fromEvmAddressLongZeroAddressWithShardAndRealm() {
-        // Test with a long zero address and different shard and realm
         String evmAddress = "00000000000000000000000000000000000004d2";
         byte[] expectedBytes = Hex.decode(evmAddress);
 
@@ -193,7 +185,6 @@ class ContractIdTest {
 
     @Test
     void toEvmAddressNormalContractId() {
-        // Test with a normal contract ID
         ContractId id = new ContractId(0, 0, 123);
 
         assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
@@ -201,7 +192,6 @@ class ContractIdTest {
 
     @Test
     void toEvmAddressWithDifferentShardAndRealm() {
-        // Test with a different shard and realm
         ContractId id = new ContractId(1, 1, 123);
 
         assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
@@ -209,7 +199,6 @@ class ContractIdTest {
 
     @Test
     void toEvmAddressLongZeroAddress() {
-        // Test with a long zero address
         String longZeroAddress = "00000000000000000000000000000000000004d2";
         ContractId id = ContractId.fromEvmAddress(1, 1, longZeroAddress);
 
@@ -218,7 +207,6 @@ class ContractIdTest {
 
     @Test
     void toEvmAddressNormalEvmAddress() {
-        // Test with a normal EVM address
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
         ContractId id = ContractId.fromEvmAddress(0, 0, evmAddress);
         String expected = evmAddress.toLowerCase();
@@ -228,7 +216,6 @@ class ContractIdTest {
 
     @Test
     void toEvmAddressNormalEvmAddressWithShardAndRealm() {
-        // Test with normal EVM address and different shard and realm
         String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
         ContractId id = ContractId.fromEvmAddress(1, 1, evmAddress);
         String expected = evmAddress.toLowerCase();

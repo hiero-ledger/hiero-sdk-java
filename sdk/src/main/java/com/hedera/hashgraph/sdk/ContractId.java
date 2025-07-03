@@ -134,7 +134,6 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
-        // TODO ask if it's used as validation/should new method be introduced if this one is confusing
         EntityIdHelper.decodeEvmAddress(evmAddress);
         return new ContractId(
                 shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
