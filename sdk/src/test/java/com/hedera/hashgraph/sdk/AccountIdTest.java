@@ -238,7 +238,7 @@ class AccountIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new AccountId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new AccountId(0, 0, 5005).toEvmAddress()).toMatchSnapshot();
     }
 
     @Test

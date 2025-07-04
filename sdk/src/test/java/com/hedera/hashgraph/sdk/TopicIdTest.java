@@ -41,7 +41,7 @@ class TopicIdTest {
 
     @Test
     void fromSolidityAddress() {
-        SnapshotMatcher.expect(TokenId.fromSolidityAddress("000000000000000000000000000000000000138D")
+        SnapshotMatcher.expect(TopicId.fromSolidityAddress("000000000000000000000000000000000000138D")
                         .toString())
                 .toMatchSnapshot();
     }

@@ -57,7 +57,7 @@ class DelegateContractIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new DelegateContractId(0, 0, 5005).toSolidityAddress())
+        SnapshotMatcher.expect(new DelegateContractId(0, 0, 5005).toEvmAddress())
                 .toMatchSnapshot();
     }
 

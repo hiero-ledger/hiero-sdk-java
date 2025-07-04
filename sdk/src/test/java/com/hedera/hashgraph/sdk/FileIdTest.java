@@ -48,7 +48,7 @@ class FileIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new FileId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new FileId(0, 0, 5005).toEvmAddress()).toMatchSnapshot();
     }
 
     @Test

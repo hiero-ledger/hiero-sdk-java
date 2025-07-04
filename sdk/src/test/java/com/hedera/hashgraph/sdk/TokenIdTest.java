@@ -65,7 +65,7 @@ class TokenIdTest {
 
         tokenId.toStringWithChecksum(client);
         String sol = tokenId.toSolidityAddress();
-        TokenId.fromSolidityAddress(sol);
+        TokenId.fromEvmAddress(0,0, sol);
         tokenId.validate(client);
 
         // Test protobuf conversion
