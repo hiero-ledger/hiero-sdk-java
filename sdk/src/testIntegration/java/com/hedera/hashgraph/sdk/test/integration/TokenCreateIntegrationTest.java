@@ -445,8 +445,8 @@ class TokenCreateIntegrationTest {
     }
 
     @Test
-    @DisplayName("AutoRenewAccountId should be equal to TransactionId AccountId")
-    void whenTransactionIdIsSetAutoRenewAccountIdShouldBeEqualToTransactionIdAccountId() throws Exception {
+    @DisplayName("AutoRenewAccountId should be equal to AccountId")
+    void whenTransactionIdIsSetAutoRenewAccountIdShouldBeEqualToAccountId() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var privateKey = PrivateKey.generateECDSA();
             var publicKey = privateKey.getPublicKey();
@@ -472,6 +472,89 @@ class TokenCreateIntegrationTest {
             var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
 
             assertThat(tokenInfo.autoRenewAccount).isEqualTo(accountId);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create token with decimal adjustment for supply values")
+    void canCreateTokenWithDecimalAdjustmentForSupplyValues() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+            int decimals = 3;
+            long userInputInitialSupply = 1000;
+            long userInputMaxSupply = 10000;
+            long expectedInitialSupply = userInputInitialSupply * 1000;
+            long expectedMaxSupply = userInputMaxSupply * 1000;
+
+            var response = new TokenCreateTransaction()
+                .setTokenName("DecimalTest")
+                .setTokenSymbol("DT")
+                .setDecimals(decimals)
+                .setInitialSupply(expectedInitialSupply)
+                .setMaxSupply(expectedMaxSupply)
+                .setSupplyType(TokenSupplyType.FINITE)
+                .setTreasuryAccountId(testEnv.operatorId)
+                .setAdminKey(testEnv.operatorKey)
+                .setSupplyKey(testEnv.operatorKey)
+                .execute(testEnv.client);
+
+            var tokenId = response.getReceipt(testEnv.client).tokenId;
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.decimals).isEqualTo(decimals);
+            assertThat(tokenInfo.totalSupply).isEqualTo(expectedInitialSupply);
+            assertThat(tokenInfo.maxSupply).isEqualTo(expectedMaxSupply);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create NFT with zero decimals and zero initial supply")
+    void canCreateNftWithZeroDecimalsAndZeroInitialSupply() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+            var response = new TokenCreateTransaction()
+                .setTokenName("NFTTest")
+                .setTokenSymbol("NFT")
+                .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
+                .setDecimals(0)
+                .setInitialSupply(0)
+                .setTreasuryAccountId(testEnv.operatorId)
+                .setAdminKey(testEnv.operatorKey)
+                .setSupplyKey(testEnv.operatorKey)
+                .execute(testEnv.client);
+
+            var tokenId = response.getReceipt(testEnv.client).tokenId;
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+            assertThat(tokenInfo.tokenType).isEqualTo(TokenType.NON_FUNGIBLE_UNIQUE);
+            assertThat(tokenInfo.decimals).isEqualTo(0);
+            assertThat(tokenInfo.totalSupply).isEqualTo(0);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create token with different decimal precision values")
+    void canCreateTokenWithDifferentDecimalPrecisionValues() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+            int[] decimalValues = {0, 1, 2, 6, 8, 18};
+
+            for (int decimals : decimalValues) {
+                long userInputSupply = 100;
+                long expectedSupply = userInputSupply * (long) Math.pow(10, decimals);
+
+                var response = new TokenCreateTransaction()
+                    .setTokenName("DecimalTest" + decimals)
+                    .setTokenSymbol("DT" + decimals)
+                    .setDecimals(decimals)
+                    .setInitialSupply(expectedSupply)
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .setAdminKey(testEnv.operatorKey)
+                    .execute(testEnv.client);
+
+                var tokenId = response.getReceipt(testEnv.client).tokenId;
+                var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+
+                assertThat(tokenInfo.decimals).isEqualTo(decimals);
+                assertThat(tokenInfo.totalSupply).isEqualTo(expectedSupply);
+            }
         }
     }
 }
