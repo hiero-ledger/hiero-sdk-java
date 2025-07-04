@@ -90,7 +90,8 @@ class ContractIdTest {
 
     @Test
     void toSolidityAddress2() {
-        SnapshotMatcher.expect(ContractId.fromEvmAddress(1, 2, "0x98329e006610472e6B372C080833f6D79ED833cf").toEvmAddress())
+        SnapshotMatcher.expect(ContractId.fromEvmAddress(1, 2, "0x98329e006610472e6B372C080833f6D79ED833cf")
+                        .toEvmAddress())
                 .toMatchSnapshot();
     }
 
