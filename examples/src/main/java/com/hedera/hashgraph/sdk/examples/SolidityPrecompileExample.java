@@ -90,7 +90,7 @@ public class SolidityPrecompileExample {
         Consumer<String> additionalLogic = tokenAddress -> {
             try {
                 var tokenUpdateTransactionReceipt = new TokenUpdateTransaction()
-                        .setTokenId(TokenId.fromEvmAddress(0,0,tokenAddress))
+                        .setTokenId(TokenId.fromEvmAddress(0, 0, tokenAddress))
                         .setAdminKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)
                                 .setThreshold(1))
                         .setSupplyKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)
