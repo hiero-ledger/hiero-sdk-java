@@ -85,11 +85,13 @@ public final class TopicId implements Comparable<TopicId> {
     }
 
     /**
-     * Create a topic id from a solidity address.
+     * Retrieve the topic id from a solidity address.
      *
-     * @param address                   the solidity address
-     * @return                          the new topic id
+     * @param address                   a string representing the address
+     * @return                          the topic id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
+    @Deprecated
     public static TopicId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, TopicId::new);
     }
@@ -100,7 +102,6 @@ public final class TopicId implements Comparable<TopicId> {
      * @param topicId                   the protobuf
      * @return                          the new topic id
      */
-    @Deprecated
     static TopicId fromProtobuf(TopicID topicId) {
         Objects.requireNonNull(topicId);
 
@@ -119,9 +120,10 @@ public final class TopicId implements Comparable<TopicId> {
     }
 
     /**
-     * Extract the solidity address representation.
+     * Extract the solidity address.
      *
-     * @return                          the solidity address representation
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
     @Deprecated
     public String toSolidityAddress() {

@@ -212,6 +212,7 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @param address                   a string representing the address
      * @return                          the account id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(EvmAddress, long, long)} instead.
      */
     @Deprecated
     public static AccountId fromSolidityAddress(String address) {
@@ -264,6 +265,7 @@ public final class AccountId implements Comparable<AccountId> {
      * Extract the solidity address.
      *
      * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
     @Deprecated
     public String toSolidityAddress() {

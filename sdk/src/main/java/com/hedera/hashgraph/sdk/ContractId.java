@@ -111,10 +111,11 @@ public class ContractId extends Key implements Comparable<ContractId> {
     }
 
     /**
-     * Parse contract id from a solidity address string.
+     * Retrieve the contract id from a solidity address.
      *
-     * @param address                   the address string
+     * @param address                   a string representing the address
      * @return                          the contract id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
     @Deprecated
     public static ContractId fromSolidityAddress(String address) {
@@ -169,9 +170,10 @@ public class ContractId extends Key implements Comparable<ContractId> {
     }
 
     /**
-     * Extract the representation of solidity address.
+     * Extract the solidity address.
      *
-     * @return                          string representation of solidity address
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
     @Deprecated
     public String toSolidityAddress() {

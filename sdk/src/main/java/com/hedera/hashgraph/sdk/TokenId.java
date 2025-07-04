@@ -109,10 +109,11 @@ public class TokenId implements Comparable<TokenId> {
     }
 
     /**
-     * Create a token id from a solidity address.
+     * Retrieve the token id from a solidity address.
      *
-     * @param address                   the solidity address as a string
-     * @return                          the new token id
+     * @param address                   a string representing the address
+     * @return                          the token id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
     @Deprecated
     public static TokenId fromSolidityAddress(String address) {
@@ -165,9 +166,10 @@ public class TokenId implements Comparable<TokenId> {
     }
 
     /**
-     * Extract the solidity address as a string.
+     * Extract the solidity address.
      *
-     * @return                         the solidity address as a string
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
     @Deprecated
     public String toSolidityAddress() {

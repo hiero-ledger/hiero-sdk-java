@@ -147,10 +147,11 @@ public final class FileId implements Comparable<FileId> {
     }
 
     /**
-     * Create a file id object from a solidity address.
+     * Retrieve the file id from a solidity address.
      *
-     * @param address                   the solidity address
+     * @param address                   a string representing the address
      * @return                          the file id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
     @Deprecated
     public static FileId fromSolidityAddress(String address) {
@@ -158,9 +159,10 @@ public final class FileId implements Comparable<FileId> {
     }
 
     /**
-     * Extract the string representation of file id.
+     * Extract the solidity address.
      *
-     * @return                          the string representation of file id
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
     @Deprecated
     public String toSolidityAddress() {
