@@ -68,7 +68,7 @@ public class EthereumTransactionIntegrationTest {
             byte[] chainId = Hex.decode("012a");
             byte[] maxPriorityGas = Hex.decode("00");
             byte[] maxGas = Hex.decode("d1385c7bf0");
-            byte[] to = Hex.decode(contractId.toSolidityAddress());
+            byte[] to = Hex.decode(contractId.toEvmAddress());
             byte[] callData = new ContractExecuteTransaction()
                     .setFunction("setMessage", new ContractFunctionParameters().addString("new message"))
                     .getFunctionParameters()

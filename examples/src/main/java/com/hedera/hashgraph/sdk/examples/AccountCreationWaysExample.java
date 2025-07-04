@@ -27,7 +27,7 @@ class AccountCreationWaysExample {
          */
         AccountId hederaFormat = AccountId.fromString("0.0.10");
         System.out.println("Account ID: " + hederaFormat);
-        System.out.println("Account \"0.0.10\" corresponding long-zero address: " + hederaFormat.toSolidityAddress());
+        System.out.println("Account \"0.0.10\" corresponding long-zero address: " + hederaFormat.toEvmAddress());
 
         /*
          * Hedera Long-Form Account ID:

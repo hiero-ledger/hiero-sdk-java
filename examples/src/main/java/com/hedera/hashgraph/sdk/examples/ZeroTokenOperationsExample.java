@@ -94,8 +94,8 @@ class ZeroTokenOperationsExample {
         ContractHelper contractHelper = new ContractHelper(
                 "contracts/precompile/ZeroTokenOperations.json",
                 new ContractFunctionParameters()
-                        .addAddress(OPERATOR_ID.toSolidityAddress())
-                        .addAddress(aliceAccountId.toSolidityAddress()),
+                        .addAddress(OPERATOR_ID.toEvmAddress())
+                        .addAddress(aliceAccountId.toEvmAddress()),
                 client);
 
         /*

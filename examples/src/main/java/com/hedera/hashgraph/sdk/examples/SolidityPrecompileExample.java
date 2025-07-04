@@ -66,8 +66,8 @@ public class SolidityPrecompileExample {
         ContractHelper contractHelper = new ContractHelper(
                 "contracts/precompile/PrecompileExample.json",
                 new ContractFunctionParameters()
-                        .addAddress(OPERATOR_ID.toSolidityAddress())
-                        .addAddress(aliceAccountId.toSolidityAddress()),
+                        .addAddress(OPERATOR_ID.toEvmAddress())
+                        .addAddress(aliceAccountId.toEvmAddress()),
                 client);
 
         // Update the signer to have contractId KeyList (this is by security requirement)
@@ -90,7 +90,7 @@ public class SolidityPrecompileExample {
         Consumer<String> additionalLogic = tokenAddress -> {
             try {
                 var tokenUpdateTransactionReceipt = new TokenUpdateTransaction()
-                        .setTokenId(TokenId.fromSolidityAddress(tokenAddress))
+                        .setTokenId(TokenId.fromEvmAddress(0, 0, tokenAddress))
                         .setAdminKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)
                                 .setThreshold(1))
                         .setSupplyKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)

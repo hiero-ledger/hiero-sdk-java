@@ -247,11 +247,11 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
     private void fillEvmAddresses() {
         if (this.contractEvmAddress == null) {
             Objects.requireNonNull(this.contractId);
-            this.contractEvmAddress = contractId.toSolidityAddress();
+            this.contractEvmAddress = contractId.toEvmAddress();
         }
 
         if (this.senderEvmAddress == null && this.sender != null) {
-            this.senderEvmAddress = sender.toSolidityAddress();
+            this.senderEvmAddress = sender.toEvmAddress();
         }
     }
 
