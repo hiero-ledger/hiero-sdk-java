@@ -486,16 +486,16 @@ class TokenCreateIntegrationTest {
             long expectedMaxSupply = userInputMaxSupply * 1000;
 
             var response = new TokenCreateTransaction()
-                .setTokenName("DecimalTest")
-                .setTokenSymbol("DT")
-                .setDecimals(decimals)
-                .setInitialSupply(expectedInitialSupply)
-                .setMaxSupply(expectedMaxSupply)
-                .setSupplyType(TokenSupplyType.FINITE)
-                .setTreasuryAccountId(testEnv.operatorId)
-                .setAdminKey(testEnv.operatorKey)
-                .setSupplyKey(testEnv.operatorKey)
-                .execute(testEnv.client);
+                    .setTokenName("DecimalTest")
+                    .setTokenSymbol("DT")
+                    .setDecimals(decimals)
+                    .setInitialSupply(expectedInitialSupply)
+                    .setMaxSupply(expectedMaxSupply)
+                    .setSupplyType(TokenSupplyType.FINITE)
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setSupplyKey(testEnv.operatorKey)
+                    .execute(testEnv.client);
 
             var tokenId = response.getReceipt(testEnv.client).tokenId;
             var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
@@ -511,15 +511,15 @@ class TokenCreateIntegrationTest {
     void canCreateNftWithZeroDecimalsAndZeroInitialSupply() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
             var response = new TokenCreateTransaction()
-                .setTokenName("NFTTest")
-                .setTokenSymbol("NFT")
-                .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
-                .setDecimals(0)
-                .setInitialSupply(0)
-                .setTreasuryAccountId(testEnv.operatorId)
-                .setAdminKey(testEnv.operatorKey)
-                .setSupplyKey(testEnv.operatorKey)
-                .execute(testEnv.client);
+                    .setTokenName("NFTTest")
+                    .setTokenSymbol("NFT")
+                    .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
+                    .setDecimals(0)
+                    .setInitialSupply(0)
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setSupplyKey(testEnv.operatorKey)
+                    .execute(testEnv.client);
 
             var tokenId = response.getReceipt(testEnv.client).tokenId;
             var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
@@ -541,13 +541,13 @@ class TokenCreateIntegrationTest {
                 long expectedSupply = userInputSupply * (long) Math.pow(10, decimals);
 
                 var response = new TokenCreateTransaction()
-                    .setTokenName("DecimalTest" + decimals)
-                    .setTokenSymbol("DT" + decimals)
-                    .setDecimals(decimals)
-                    .setInitialSupply(expectedSupply)
-                    .setTreasuryAccountId(testEnv.operatorId)
-                    .setAdminKey(testEnv.operatorKey)
-                    .execute(testEnv.client);
+                        .setTokenName("DecimalTest" + decimals)
+                        .setTokenSymbol("DT" + decimals)
+                        .setDecimals(decimals)
+                        .setInitialSupply(expectedSupply)
+                        .setTreasuryAccountId(testEnv.operatorId)
+                        .setAdminKey(testEnv.operatorKey)
+                        .execute(testEnv.client);
 
                 var tokenId = response.getReceipt(testEnv.client).tokenId;
                 var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
