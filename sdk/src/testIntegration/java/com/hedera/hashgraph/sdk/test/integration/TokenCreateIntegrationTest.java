@@ -557,4 +557,42 @@ class TokenCreateIntegrationTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Can create token when autoRenewPeriod is null")
+    void canCreateTokenWhenAutoRenewPeriodIsNull() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount()) {
+            // Calculate expiration time 90 days from now
+            var expirationTime = Instant.now().plusSeconds(90 * 24 * 60 * 60);
+
+            var response = new TokenCreateTransaction()
+                    .setTokenName("TEST")
+                    .setTokenSymbol("TEST")
+                    .setTokenType(TokenType.FUNGIBLE_COMMON)
+                    .setSupplyType(TokenSupplyType.INFINITE)
+                    .setAutoRenewAccountId(testEnv.operatorId)
+                    .setInitialSupply(1)
+                    .setMaxTransactionFee(new Hbar(100))
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .setExpirationTime(expirationTime)
+                    .setDecimals(0)
+                    // Note: autoRenewPeriod is intentionally NOT set (null)
+                    .execute(testEnv.client);
+
+            var receipt = response.getReceipt(testEnv.client);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+
+            var tokenId = receipt.tokenId;
+            assertThat(tokenId).isNotNull();
+
+            var tokenInfo = new TokenInfoQuery().setTokenId(tokenId).execute(testEnv.client);
+            assertThat(tokenInfo.name).isEqualTo("TEST");
+            assertThat(tokenInfo.symbol).isEqualTo("TEST");
+            assertThat(tokenInfo.tokenType).isEqualTo(TokenType.FUNGIBLE_COMMON);
+            assertThat(tokenInfo.supplyType).isEqualTo(TokenSupplyType.INFINITE);
+            assertThat(tokenInfo.autoRenewAccount).isEqualTo(testEnv.operatorId);
+            assertThat(tokenInfo.expirationTime.getEpochSecond()).isEqualTo(expirationTime.getEpochSecond());
+        }
+    }
 }
