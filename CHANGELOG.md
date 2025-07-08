@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.60.0
+
+### Added
+
+- Persistent shard and realm support for Client https://github.com/hiero-ledger/hiero-sdk-java/issues/2376
+  - This PR adds persistent realm and shard support to the Client configuration, ensuring consistent address book queries across lifecycle events.
+    https://github.com/hiero-ledger/hiero-sdk-java/pull/2362
+- New fromEvmAddress and toEvmAddress APIs https://github.com/hiero-ledger/hiero-sdk-java/pull/2396
+
+### Removed
+
+- Shard and realm encoding from evm address https://github.com/hiero-ledger/hiero-sdk-java/issues/2368
+  - deprecated unnecessary fromSolidityAddress & toSolidityAddress methods
+
 ## 2.59.0
 
 ### Fixed
