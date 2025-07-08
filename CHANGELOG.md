@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     https://github.com/hiero-ledger/hiero-sdk-java/pull/2362
 - New fromEvmAddress and toEvmAddress APIs https://github.com/hiero-ledger/hiero-sdk-java/pull/2396
 
-### Removed
+### Deprecated
 
 - Shard and realm encoding from evm address https://github.com/hiero-ledger/hiero-sdk-java/issues/2368
   - deprecated unnecessary fromSolidityAddress & toSolidityAddress methods
