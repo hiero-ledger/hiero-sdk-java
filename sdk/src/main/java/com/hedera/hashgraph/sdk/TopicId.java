@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.TopicID;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
@@ -84,11 +85,13 @@ public final class TopicId implements Comparable<TopicId> {
     }
 
     /**
-     * Create a topic id from a solidity address.
+     * Retrieve the topic id from a solidity address.
      *
-     * @param address                   the solidity address
-     * @return                          the new topic id
+     * @param address                   a string representing the address
+     * @return                          the topic id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
+    @Deprecated
     public static TopicId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, TopicId::new);
     }
@@ -117,14 +120,50 @@ public final class TopicId implements Comparable<TopicId> {
     }
 
     /**
-     * Extract the solidity address representation.
+     * Extract the solidity address.
      *
-     * @return                          the solidity address representation
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
+    @Deprecated
     public String toSolidityAddress() {
         return EntityIdHelper.toSolidityAddress(shard, realm, num);
     }
 
+    /**
+     * Constructs a TopicId from shard, realm, and EVM address.
+     * The EVM address must be a "long zero address" (first 12 bytes are zero).
+     *
+     * @param shard      the shard number
+     * @param realm      the realm number
+     * @param evmAddress the EVM address as a hex string
+     * @return           the TopicId object
+     * @throws IllegalArgumentException if the EVM address is not a valid long zero address
+     */
+    public static TopicId fromEvmAddress(long shard, long realm, String evmAddress) {
+        byte[] addressBytes = EntityIdHelper.decodeEvmAddress(evmAddress);
+
+        if (!EntityIdHelper.isLongZeroAddress(addressBytes)) {
+            throw new IllegalArgumentException("EVM address is not a correct long zero address");
+        }
+
+        ByteBuffer buf = ByteBuffer.wrap(addressBytes);
+        buf.getInt();
+        buf.getLong();
+        long tokenNum = buf.getLong();
+
+        return new TopicId(shard, realm, tokenNum);
+    }
+
+    /**
+     * Converts this TopicId to an EVM address string.
+     * Creates a solidity address using shard=0, realm=0, and the file number.
+     *
+     * @return the EVM address as a hex string
+     */
+    public String toEvmAddress() {
+        return EntityIdHelper.toSolidityAddress(0, 0, this.num);
+    }
     /**
      * Extracts a protobuf representing the token id.
      *
