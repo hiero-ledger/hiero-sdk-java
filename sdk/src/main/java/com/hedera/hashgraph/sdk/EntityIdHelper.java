@@ -74,7 +74,7 @@ public class EntityIdHelper {
      * @return the R type object
      */
     static <R> R fromSolidityAddress(String address, WithIdNums<R> withAddress) {
-        return fromSolidityAddress(decodeSolidityAddress(address), withAddress);
+        return fromSolidityAddress(decodeEvmAddress(address), withAddress);
     }
 
     private static <R> R fromSolidityAddress(byte[] address, WithIdNums<R> withAddress) {
@@ -92,7 +92,7 @@ public class EntityIdHelper {
      * @param address the string representation
      * @return the decoded address
      */
-    static byte[] decodeSolidityAddress(String address) {
+    static byte[] decodeEvmAddress(String address) {
         address = address.startsWith("0x") ? address.substring(2) : address;
 
         if (address.length() != SOLIDITY_ADDRESS_LEN_HEX) {

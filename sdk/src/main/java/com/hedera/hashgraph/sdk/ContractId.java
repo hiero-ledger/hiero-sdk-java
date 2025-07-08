@@ -111,13 +111,15 @@ public class ContractId extends Key implements Comparable<ContractId> {
     }
 
     /**
-     * Parse contract id from a solidity address string.
+     * Retrieve the contract id from a solidity address.
      *
-     * @param address                   the address string
+     * @param address                   a string representing the address
      * @return                          the contract id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
+    @Deprecated
     public static ContractId fromSolidityAddress(String address) {
-        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
+        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeEvmAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, ContractId::new);
         } else {
             return fromEvmAddress(0, 0, address);
@@ -133,6 +135,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
      * @return                          the contract id object
      */
     public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
+        EntityIdHelper.decodeEvmAddress(evmAddress);
         return new ContractId(
                 shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
     }
@@ -167,15 +170,29 @@ public class ContractId extends Key implements Comparable<ContractId> {
     }
 
     /**
-     * Extract the representation of solidity address.
+     * Extract the solidity address.
      *
-     * @return                          string representation of solidity address
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
+    @Deprecated
     public String toSolidityAddress() {
         if (evmAddress != null) {
             return Hex.toHexString(evmAddress);
         } else {
             return EntityIdHelper.toSolidityAddress(shard, realm, num);
+        }
+    }
+
+    /**
+     * toEvmAddress returns EVM-compatible address representation of the entity
+     * @return
+     */
+    public String toEvmAddress() {
+        if (evmAddress != null) {
+            return Hex.toHexString(evmAddress);
+        } else {
+            return EntityIdHelper.toSolidityAddress(0, 0, num);
         }
     }
 
