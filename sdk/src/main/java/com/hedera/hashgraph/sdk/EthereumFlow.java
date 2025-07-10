@@ -10,16 +10,17 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Execute an Ethereum transaction on Hedera
  */
 public class EthereumFlow {
     /**
-     * 5KiB in Bytes
+     * 128,000 bytes - jumbo transaction limit
      * Indicates when we should splice out the call data from an ethereum transaction data
      */
-    static int MAX_ETHEREUM_DATA_SIZE = 5120;
+    static int MAX_ETHEREUM_DATA_SIZE = 128_000;
 
     @Nullable
     private EthereumTransactionData ethereumData;
@@ -39,19 +40,23 @@ public class EthereumFlow {
             byte[] callData, Client client, Duration timeoutPerTransaction, Transaction<?> ethereumTransaction)
             throws PrecheckStatusException, TimeoutException {
         try {
+            // Hex encode the call data
+            byte[] callDataHex = Hex.encode(callData);
+
             var transaction = new FileCreateTransaction()
                     .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
                     .setContents(Arrays.copyOfRange(
-                            callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
+                            callDataHex, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callDataHex.length)))
                     .execute(client, timeoutPerTransaction);
             var fileId = transaction.getReceipt(client, timeoutPerTransaction).fileId;
             var nodeId = transaction.nodeId;
-            if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
+            if (callDataHex.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
                 new FileAppendTransaction()
                         .setFileId(fileId)
+                        .setMaxChunks(1000)
                         .setNodeAccountIds(Collections.singletonList(nodeId))
-                        .setContents(
-                                Arrays.copyOfRange(callData, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length))
+                        .setContents(Arrays.copyOfRange(
+                                callDataHex, FileAppendTransaction.DEFAULT_CHUNK_SIZE, callDataHex.length))
                         .execute(client, timeoutPerTransaction)
                         .getReceipt(client);
             }
@@ -66,10 +71,13 @@ public class EthereumFlow {
 
     private static CompletableFuture<FileId> createFileAsync(
             byte[] callData, Client client, Duration timeoutPerTransaction, Transaction<?> ethereumTransaction) {
+        // Hex encode the call data
+        byte[] callDataHex = Hex.encode(callData);
+
         return new FileCreateTransaction()
                 .setKeys(Objects.requireNonNull(client.getOperatorPublicKey()))
                 .setContents(Arrays.copyOfRange(
-                        callData, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callData.length)))
+                        callDataHex, 0, Math.min(FileAppendTransaction.DEFAULT_CHUNK_SIZE, callDataHex.length)))
                 .executeAsync(client, timeoutPerTransaction)
                 .thenCompose((response) -> {
                     var nodeId = response.nodeId;
@@ -77,14 +85,14 @@ public class EthereumFlow {
 
                     return response.getReceiptAsync(client, timeoutPerTransaction)
                             .thenCompose((receipt) -> {
-                                if (callData.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
+                                if (callDataHex.length > FileAppendTransaction.DEFAULT_CHUNK_SIZE) {
                                     return new FileAppendTransaction()
                                             .setFileId(receipt.fileId)
                                             .setNodeAccountIds(Collections.singletonList(nodeId))
                                             .setContents(Arrays.copyOfRange(
-                                                    callData,
+                                                    callDataHex,
                                                     FileAppendTransaction.DEFAULT_CHUNK_SIZE,
-                                                    callData.length))
+                                                    callDataHex.length))
                                             .executeAsync(client, timeoutPerTransaction)
                                             .thenCompose((appendResponse) ->
                                                     appendResponse.getReceiptAsync(client, timeoutPerTransaction))
@@ -189,9 +197,11 @@ public class EthereumFlow {
             ethereumTransaction.setEthereumData(ethereumDataBytes);
         } else {
             var callDataFileId = createFile(ethereumData.callData, client, timeoutPerTransaction, ethereumTransaction);
+            ethereumData.callData = new byte[] {};
             ethereumTransaction.setEthereumData(ethereumData.toBytes()).setCallDataFileId(callDataFileId);
         }
-
+        System.out.println(ethereumData.toString());
+        System.out.println("executing ethereum transaction");
         return ethereumTransaction.execute(client, timeoutPerTransaction);
     }
 

@@ -2549,7 +2549,7 @@ public final class ContractFunctionParameters {
      *
      * @return the Solidity encoding of the call parameters in the order they were added.
      */
-    ByteString toBytes(@Nullable String funcName) {
+    public ByteString toBytes(@Nullable String funcName) {
         // offset for dynamic-length data, immediately after value arguments
         var dynamicOffset = args.size() * 32;
 
