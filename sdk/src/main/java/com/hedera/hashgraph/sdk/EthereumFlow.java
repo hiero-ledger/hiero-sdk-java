@@ -89,6 +89,7 @@ public class EthereumFlow {
                                     return new FileAppendTransaction()
                                             .setFileId(receipt.fileId)
                                             .setNodeAccountIds(Collections.singletonList(nodeId))
+                                            .setMaxChunks(1000)
                                             .setContents(Arrays.copyOfRange(
                                                     callDataHex,
                                                     FileAppendTransaction.DEFAULT_CHUNK_SIZE,
