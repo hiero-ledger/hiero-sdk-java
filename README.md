@@ -4,8 +4,9 @@
 ![](https://img.shields.io/badge/android-26%2B-blue?style=flat-square)
 [![](https://img.shields.io/github/actions/workflow/status/hiero-ledger/hiero-sdk-java/build.yml?style=flat-square)](https://github.com/hiero-ledger/hiero-sdk-java/actions)
 [![](https://img.shields.io/maven-central/v/com.hedera.hashgraph/sdk/2?label=maven&style=flat-square)](https://search.maven.org/artifact/com.hedera.hashgraph/sdk)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/hiero-ledger/hiero-sdk-java/badge)](https://api.scorecard.dev/projects/github.com/hiero-ledger/hiero-sdk-java)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/hiero-ledger/hiero-sdk-java/badge)](https://scorecard.dev/viewer/?uri=github.com/hiero-ledger/hiero-sdk-java)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/10697/badge)](https://bestpractices.coreinfrastructure.org/projects/10697)
+[![License](https://img.shields.io/badge/license-apache2-blue.svg)](LICENSE)
 
 > The Java SDK for interacting a Hiero based network:: the official distributed
 > consensus platform built using the hashgraph consensus algorithm for fast,
