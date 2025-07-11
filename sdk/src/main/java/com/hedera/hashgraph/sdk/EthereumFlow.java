@@ -15,6 +15,9 @@ import org.bouncycastle.util.encoders.Hex;
 /**
  * Execute an Ethereum transaction on Hedera
  */
+@Deprecated
+// With the introduction of jumbo transactions, it should always be less cost and more efficient to use
+// EthereumTransaction instead.
 public class EthereumFlow {
     /**
      * 128,000 bytes - jumbo transaction limit
@@ -201,8 +204,6 @@ public class EthereumFlow {
             ethereumData.callData = new byte[] {};
             ethereumTransaction.setEthereumData(ethereumData.toBytes()).setCallDataFileId(callDataFileId);
         }
-        System.out.println(ethereumData.toString());
-        System.out.println("executing ethereum transaction");
         return ethereumTransaction.execute(client, timeoutPerTransaction);
     }
 
