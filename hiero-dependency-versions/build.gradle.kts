@@ -37,6 +37,10 @@ dependencies.constraints {
     api("org.bouncycastle:bcprov-jdk18on:$bouncycastle") { because("org.bouncycastle.provider") }
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
+    // Temporary workaround, remove when a new version of spring-boot-dependencies is released
+    api("org.apache.tomcat.embed:tomcat-embed-core:10.1.43") {
+        because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-10674391")
+    }
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.19.1") { because("com.fasterxml.jackson.core") }

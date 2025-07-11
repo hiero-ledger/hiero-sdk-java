@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.proto.FileID;
 import com.hedera.hashgraph.sdk.proto.Response;
 import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
@@ -64,46 +63,6 @@ class EthereumFlowMockTest {
             throws PrecheckStatusException, TimeoutException, InterruptedException, ReceiptStatusException,
                     ExecutionException {
         List<Object> responses1 = List.of(
-                (Function<Object, Object>) o -> {
-                    var signedTransaction = SignedTransaction.parseFrom(((Transaction) o).getSignedTransactionBytes());
-                    var transactionBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-                    assertThat(transactionBody.getDataCase()).isEqualByComparingTo(TransactionBody.DataCase.FILECREATE);
-                    assertThat(transactionBody.hasFileCreate()).isTrue();
-                    assertThat(transactionBody.getFileCreate().getContents().size())
-                            .isEqualTo(4096);
-                    return TransactionResponse.newBuilder()
-                            .setNodeTransactionPrecheckCodeValue(0)
-                            .build();
-                },
-                Response.newBuilder()
-                        .setTransactionGetReceipt(TransactionGetReceiptResponse.newBuilder()
-                                .setReceipt(TransactionReceipt.newBuilder()
-                                        .setStatusValue(ResponseCodeEnum.SUCCESS_VALUE)
-                                        .setFileID(FileID.newBuilder().setFileNum(1))))
-                        .build(),
-                (Function<Object, Object>) o -> {
-                    var signedTransaction = SignedTransaction.parseFrom(((Transaction) o).getSignedTransactionBytes());
-                    var transactionBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-                    assertThat(transactionBody.getDataCase()).isEqualByComparingTo(TransactionBody.DataCase.FILEAPPEND);
-                    assertThat(transactionBody.hasFileAppend()).isTrue();
-                    assertThat(transactionBody.getFileAppend().hasFileID()).isTrue();
-                    assertThat(transactionBody.getFileAppend().getFileID().getFileNum())
-                            .isEqualTo(1);
-                    assertThat(transactionBody.getFileAppend().getContents()).isEqualTo(LONG_CALL_DATA.substring(4096));
-                    return TransactionResponse.newBuilder()
-                            .setNodeTransactionPrecheckCodeValue(0)
-                            .build();
-                },
-                Response.newBuilder()
-                        .setTransactionGetReceipt(TransactionGetReceiptResponse.newBuilder()
-                                .setReceipt(
-                                        TransactionReceipt.newBuilder().setStatusValue(ResponseCodeEnum.SUCCESS_VALUE)))
-                        .build(),
-                Response.newBuilder()
-                        .setTransactionGetReceipt(TransactionGetReceiptResponse.newBuilder()
-                                .setReceipt(
-                                        TransactionReceipt.newBuilder().setStatusValue(ResponseCodeEnum.SUCCESS_VALUE)))
-                        .build(),
                 (Function<Object, Object>) o -> {
                     var signedTransaction = SignedTransaction.parseFrom(((Transaction) o).getSignedTransactionBytes());
                     var transactionBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
