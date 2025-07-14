@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  */
 public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
-    private long nodeId = 0;
+    private Long nodeId;
 
     @Nullable
     private AccountId accountId = null;
@@ -419,7 +419,9 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     NodeUpdateTransactionBody.Builder build() {
         var builder = NodeUpdateTransactionBody.newBuilder();
 
-        builder.setNodeId(nodeId);
+        if (nodeId != null) {
+            builder.setNodeId(nodeId);
+        }
 
         if (accountId != null) {
             builder.setAccountId(accountId.toProtobuf());
@@ -536,7 +538,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      */
     @Override
     public NodeUpdateTransaction freezeWith(@Nullable Client client) {
-        if (nodeId == 0) {
+        if (nodeId == null) {
             throw new IllegalStateException(
                     "NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
         }

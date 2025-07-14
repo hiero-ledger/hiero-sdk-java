@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  */
 public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
 
-    private long nodeId = 0;
+    private Long nodeId;
 
     /**
      * Constructor.
@@ -92,7 +92,9 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
      */
     NodeDeleteTransactionBody.Builder build() {
         var builder = NodeDeleteTransactionBody.newBuilder();
-        builder.setNodeId(nodeId);
+        if (nodeId != null) {
+            builder.setNodeId(nodeId);
+        }
         return builder;
     }
 
@@ -133,7 +135,7 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
      */
     @Override
     public NodeDeleteTransaction freezeWith(@Nullable Client client) {
-        if (nodeId == 0) {
+        if (nodeId == null) {
             throw new IllegalStateException(
                     "NodeDeleteTransaction: 'nodeId' must be explicitly set before calling freeze().");
         }

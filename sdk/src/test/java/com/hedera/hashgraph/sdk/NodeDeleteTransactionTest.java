@@ -132,15 +132,14 @@ public class NodeDeleteTransactionTest {
     }
 
     @Test
-    @DisplayName("should throw error when freezing with zero nodeId")
+    @DisplayName("should throw error when freezing with nodeId null")
     void shouldThrowErrorWhenFreezingWithZeroNodeId() {
         final Instant VALID_START = Instant.ofEpochSecond(1596210382);
         final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
 
         var transaction = new NodeDeleteTransaction()
                 .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
-                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START))
-                .setNodeId(0);
+                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
 
         var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
         assertThat(exception.getMessage())

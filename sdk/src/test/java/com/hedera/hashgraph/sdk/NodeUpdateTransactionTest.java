@@ -123,7 +123,8 @@ public class NodeUpdateTransactionTest {
     void testEmptyCertificates() throws Exception {
         var tx = new NodeUpdateTransaction()
                 .setGossipCaCertificate(new byte[] {})
-                .setGrpcCertificateHash(new byte[] {});
+                .setGrpcCertificateHash(new byte[] {})
+                .setNodeId(0l);
         var tx2Bytes = tx.toBytes();
         NodeUpdateTransaction deserializedTx = (NodeUpdateTransaction) Transaction.fromBytes(tx2Bytes);
         assertThat(deserializedTx.getGossipCaCertificate()).isEqualTo(new byte[] {});
@@ -333,12 +334,11 @@ public class NodeUpdateTransactionTest {
     }
 
     @Test
-    @DisplayName("should throw error when freezing with zero nodeId")
+    @DisplayName("should throw error when freezing with nodeId null")
     void shouldThrowErrorWhenFreezingWithZeroNodeId() {
         var transaction = new NodeUpdateTransaction()
                 .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
-                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
-                .setNodeId(0);
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START));
 
         var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
         assertThat(exception.getMessage())
