@@ -526,4 +526,20 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setNodeUpdate(build());
     }
+
+    /**
+     * Freeze this transaction with the given client.
+     *
+     * @param client the client to freeze with
+     * @return this transaction
+     * @throws IllegalStateException if nodeId is not set
+     */
+    @Override
+    public NodeUpdateTransaction freezeWith(@Nullable Client client) {
+        if (nodeId == 0) {
+            throw new IllegalStateException(
+                    "NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+        }
+        return super.freezeWith(client);
+    }
 }

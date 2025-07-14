@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
+import javax.annotation.Nullable;
 
 /**
  * A transaction to delete a node from the network address book.
@@ -121,5 +122,21 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setNodeDelete(build());
+    }
+
+    /**
+     * Freeze this transaction with the given client.
+     *
+     * @param client the client to freeze with
+     * @return this transaction
+     * @throws IllegalStateException if nodeId is not set
+     */
+    @Override
+    public NodeDeleteTransaction freezeWith(@Nullable Client client) {
+        if (nodeId == 0) {
+            throw new IllegalStateException(
+                    "NodeDeleteTransaction: 'nodeId' must be explicitly set before calling freeze().");
+        }
+        return super.freezeWith(client);
     }
 }
