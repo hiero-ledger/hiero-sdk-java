@@ -169,7 +169,6 @@ public class NodeDeleteTransactionTest {
         var transaction = new NodeDeleteTransaction();
 
         var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
-        assertThat(exception.getMessage())
-            .isEqualTo("NodeDeleteTransaction: 'nodeId' has not been set");
+        assertThat(exception.getMessage()).isEqualTo("NodeDeleteTransaction: 'nodeId' has not been set");
     }
 }
