@@ -94,8 +94,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     /**
      * Extract the consensus node identifier in the network state.
      * @return the consensus node identifier in the network state.
+     * @throws IllegalStateException when node is not being set
      */
     public long getNodeId() {
+        if (nodeId == null) {
+            throw new IllegalStateException("NodeUpdateTransaction: 'nodeId' has not been set");
+        }
         return nodeId;
     }
 

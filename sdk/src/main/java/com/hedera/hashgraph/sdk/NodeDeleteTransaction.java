@@ -64,8 +64,12 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
     /**
      * Extract the consensus node identifier in the network state.
      * @return the consensus node identifier in the network state.
+     * @throws IllegalStateException when node is not being set
      */
     public long getNodeId() {
+        if (nodeId == null) {
+            throw new IllegalStateException("NodeDeleteTransaction: 'nodeId' has not been set");
+        }
         return nodeId;
     }
 

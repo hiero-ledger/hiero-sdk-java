@@ -162,4 +162,14 @@ public class NodeDeleteTransactionTest {
         assertThatCode(() -> transaction.freezeWith(mockClient)).doesNotThrowAnyException();
         assertThat(transaction.getNodeId()).isEqualTo(420);
     }
+
+    @Test
+    @DisplayName("should throw error when getting nodeId without setting it")
+    void shouldThrowErrorWhenGettingNodeIdWithoutSettingIt() {
+        var transaction = new NodeDeleteTransaction();
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
+        assertThat(exception.getMessage())
+            .isEqualTo("NodeDeleteTransaction: 'nodeId' has not been set");
+    }
 }

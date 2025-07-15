@@ -376,4 +376,14 @@ public class NodeUpdateTransactionTest {
         assertThat(transaction.getAccountId()).isEqualTo(TEST_ACCOUNT_ID);
         assertThat(transaction.getDeclineReward()).isEqualTo(false);
     }
+
+    @Test
+    @DisplayName("should throw error when getting nodeId without setting it")
+    void shouldThrowErrorWhenGettingNodeIdWithoutSettingIt() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
+        assertThat(exception.getMessage())
+            .isEqualTo("NodeUpdateTransaction: 'nodeId' has not been set");
+    }
 }
