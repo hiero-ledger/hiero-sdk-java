@@ -49,6 +49,8 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     @Nullable
     private Instant expirationTime = null;
 
+    private Duration expirationTimeDuration = null;
+
     @Nullable
     private Duration autoRenewPeriod = null;
 
@@ -236,6 +238,14 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         Objects.requireNonNull(expirationTime);
         requireNotFrozen();
         this.expirationTime = expirationTime;
+        return this;
+    }
+
+    public AccountUpdateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -559,6 +569,9 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         if (autoRenewPeriod != null) {
             builder.setAutoRenewPeriod(DurationConverter.toProtobuf(autoRenewPeriod));

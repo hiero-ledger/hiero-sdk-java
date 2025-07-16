@@ -11,6 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +54,8 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
 
     @Nullable
     private Instant expirationTime = null;
+
+    private Duration expirationTimeDuration = null;
 
     private byte[] contents = {};
 
@@ -169,6 +172,14 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
         Objects.requireNonNull(expirationTime);
         requireNotFrozen();
         this.expirationTime = expirationTime;
+        return this;
+    }
+
+    public FileUpdateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -309,6 +320,9 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         builder.setContents(ByteString.copyFrom(contents));
         if (fileMemo != null) {
