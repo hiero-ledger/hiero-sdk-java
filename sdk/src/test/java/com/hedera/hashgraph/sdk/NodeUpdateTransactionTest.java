@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.BoolValue;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class NodeUpdateTransactionTest {
@@ -121,7 +123,8 @@ public class NodeUpdateTransactionTest {
     void testEmptyCertificates() throws Exception {
         var tx = new NodeUpdateTransaction()
                 .setGossipCaCertificate(new byte[] {})
-                .setGrpcCertificateHash(new byte[] {});
+                .setGrpcCertificateHash(new byte[] {})
+                .setNodeId(0l);
         var tx2Bytes = tx.toBytes();
         NodeUpdateTransaction deserializedTx = (NodeUpdateTransaction) Transaction.fromBytes(tx2Bytes);
         assertThat(deserializedTx.getGossipCaCertificate()).isEqualTo(new byte[] {});
@@ -304,5 +307,82 @@ public class NodeUpdateTransactionTest {
     void setGrpcWebProxyEndpointRequiresFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
+    }
+
+    @Test
+    @DisplayName("should freeze successfully when nodeId is set")
+    void shouldFreezeSuccessfullyWhenNodeIdIsSet() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID);
+
+        assertThatCode(() -> transaction.freezeWith(null)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing without setting nodeId")
+    void shouldThrowErrorWhenFreezingWithoutSettingNodeId() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing with nodeId null")
+    void shouldThrowErrorWhenFreezingWithZeroNodeId() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should freeze successfully with actual client when nodeId is set")
+    void shouldFreezeSuccessfullyWithActualClientWhenNodeIdIsSet() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID);
+
+        var mockClient = Client.forTestnet();
+
+        assertThatCode(() -> transaction.freezeWith(mockClient)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+    }
+
+    @Test
+    @DisplayName("should freeze successfully when nodeId is set with additional fields")
+    void shouldFreezeSuccessfullyWhenNodeIdIsSetWithAdditionalFields() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID)
+                .setDescription(TEST_DESCRIPTION)
+                .setAccountId(TEST_ACCOUNT_ID)
+                .setDeclineReward(false);
+
+        assertThatCode(() -> transaction.freezeWith(null)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+        assertThat(transaction.getDescription()).isEqualTo(TEST_DESCRIPTION);
+        assertThat(transaction.getAccountId()).isEqualTo(TEST_ACCOUNT_ID);
+        assertThat(transaction.getDeclineReward()).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("should throw error when getting nodeId without setting it")
+    void shouldThrowErrorWhenGettingNodeIdWithoutSettingIt() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
+        assertThat(exception.getMessage()).isEqualTo("NodeUpdateTransaction: 'nodeId' has not been set");
     }
 }

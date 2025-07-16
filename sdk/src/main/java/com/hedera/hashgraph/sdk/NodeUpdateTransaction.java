@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  */
 public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
-    private long nodeId = 0;
+    private Long nodeId;
 
     @Nullable
     private AccountId accountId = null;
@@ -94,8 +94,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     /**
      * Extract the consensus node identifier in the network state.
      * @return the consensus node identifier in the network state.
+     * @throws IllegalStateException when node is not being set
      */
     public long getNodeId() {
+        if (nodeId == null) {
+            throw new IllegalStateException("NodeUpdateTransaction: 'nodeId' has not been set");
+        }
         return nodeId;
     }
 
@@ -419,7 +423,9 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     NodeUpdateTransactionBody.Builder build() {
         var builder = NodeUpdateTransactionBody.newBuilder();
 
-        builder.setNodeId(nodeId);
+        if (nodeId != null) {
+            builder.setNodeId(nodeId);
+        }
 
         if (accountId != null) {
             builder.setAccountId(accountId.toProtobuf());
@@ -525,5 +531,21 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setNodeUpdate(build());
+    }
+
+    /**
+     * Freeze this transaction with the given client.
+     *
+     * @param client the client to freeze with
+     * @return this transaction
+     * @throws IllegalStateException if nodeId is not set
+     */
+    @Override
+    public NodeUpdateTransaction freezeWith(@Nullable Client client) {
+        if (nodeId == null) {
+            throw new IllegalStateException(
+                    "NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+        }
+        return super.freezeWith(client);
     }
 }
