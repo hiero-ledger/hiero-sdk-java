@@ -10,6 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +64,8 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
 
     @Nullable
     private Instant expirationTime = null;
+
+    private Duration expirationTimeDuration = null;
 
     @Nullable
     private KeyList keys = null;
@@ -128,6 +131,14 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
         requireNotFrozen();
         Objects.requireNonNull(expirationTime);
         this.expirationTime = expirationTime;
+        return this;
+    }
+
+    public FileCreateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -277,6 +288,9 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
 
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         if (keys != null) {
             builder.setKeys(keys.toProtobuf());
