@@ -18,6 +18,7 @@ The functionality, API, features, and codebase remain exactly the same - only th
 ### 1. Update Gradle Dependencies
 
 **Before:**
+
 ```gradle
 dependencies {
     implementation 'com.hedera.hashgraph:sdk:2.67.0'
@@ -25,6 +26,7 @@ dependencies {
 ```
 
 **After:**
+
 ```gradle
 dependencies {
     implementation 'com.hiero:sdk:2.67.0'
@@ -34,6 +36,7 @@ dependencies {
 ### 2. Update Maven Dependencies
 
 **Before:**
+
 ```xml
 <dependency>
     <groupId>com.hedera.hashgraph</groupId>
@@ -43,6 +46,7 @@ dependencies {
 ```
 
 **After:**
+
 ```xml
 <dependency>
     <groupId>com.hiero</groupId>
@@ -54,6 +58,7 @@ dependencies {
 ### 3. Update Import Statements
 
 **Before:**
+
 ```java
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -65,6 +70,7 @@ import com.hedera.hashgraph.sdk.Hbar;
 ```
 
 **After:**
+
 ```java
 import com.hiero.sdk.Client;
 import com.hiero.sdk.AccountId;
@@ -78,6 +84,7 @@ import com.hiero.sdk.Hbar;
 ### 4. Update Exception Handling
 
 **Before:**
+
 ```java
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
@@ -93,6 +100,7 @@ try {
 ```
 
 **After:**
+
 ```java
 import com.hiero.sdk.PrecheckStatusException;
 import com.hiero.sdk.ReceiptStatusException;
@@ -110,9 +118,11 @@ try {
 ### 5. Update Configuration Files
 
 #### Gradle Build Files
+
 Update all `build.gradle` or `build.gradle.kts` files:
 
 **Before:**
+
 ```gradle
 plugins {
     id 'java'
@@ -126,6 +136,7 @@ dependencies {
 ```
 
 **After:**
+
 ```gradle
 plugins {
     id 'java'
@@ -139,9 +150,11 @@ dependencies {
 ```
 
 #### Maven POM Files
+
 Update `pom.xml` files:
 
 **Before:**
+
 ```xml
 <dependencies>
     <dependency>
@@ -153,6 +166,7 @@ Update `pom.xml` files:
 ```
 
 **After:**
+
 ```xml
 <dependencies>
     <dependency>
@@ -166,24 +180,28 @@ Update `pom.xml` files:
 ## Files That Need Updates
 
 ### 1. Build Configuration Files
+
 - `build.gradle` / `build.gradle.kts` files
 - `pom.xml` files
 - `gradle.properties` files (if they reference the old group ID)
 - `settings.gradle` files (if they have specific configurations)
 
 ### 2. Source Code Files
+
 - All Java files with import statements
 - Test files
 - Configuration classes
 - Utility classes
 
 ### 3. Documentation Files
+
 - README files
 - API documentation
 - Code examples in documentation
 - Tutorial files
 
 ### 4. CI/CD Configuration Files
+
 - GitHub Actions workflows
 - Jenkins pipelines
 - GitLab CI files
@@ -194,6 +212,7 @@ Update `pom.xml` files:
 ### Basic Client Setup
 
 **Before:**
+
 ```java
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -212,6 +231,7 @@ public class Example {
 ```
 
 **After:**
+
 ```java
 import com.hiero.sdk.Client;
 import com.hiero.sdk.AccountId;
@@ -232,6 +252,7 @@ public class Example {
 ### Account Creation
 
 **Before:**
+
 ```java
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
@@ -244,6 +265,7 @@ AccountCreateTransaction transaction = new AccountCreateTransaction()
 ```
 
 **After:**
+
 ```java
 import com.hiero.sdk.AccountCreateTransaction;
 import com.hiero.sdk.PrivateKey;
@@ -258,6 +280,7 @@ AccountCreateTransaction transaction = new AccountCreateTransaction()
 ### Transfer Transaction
 
 **Before:**
+
 ```java
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -269,6 +292,7 @@ TransferTransaction transferTx = new TransferTransaction()
 ```
 
 **After:**
+
 ```java
 import com.hiero.sdk.TransferTransaction;
 import com.hiero.sdk.AccountId;
@@ -296,28 +320,34 @@ The new `com.hiero:sdk` artifact maintains full compatibility with the previous 
 ## IDE Configuration
 
 ### IntelliJ IDEA
+
 1. After updating dependencies, refresh your Gradle/Maven project
 2. Use "Optimize Imports" (Ctrl+Alt+O) to clean up unused imports
 3. Use "Find and Replace in Path" (Ctrl+Shift+R) for bulk import updates
 
 ### Eclipse
+
 1. Refresh your project after updating build files
 2. Use "Organize Imports" (Ctrl+Shift+O) to clean up imports
 3. Use "Search > File Search" for bulk text replacements
 
 ### VS Code
+
 1. Use the Java extension's "Clean Workspace" command
 2. Use "Find and Replace" across files for bulk updates
 
 ## Common Issues and Solutions
 
 ### Issue: Compilation errors after migration
+
 **Solution:** Ensure all import statements have been updated and dependencies are correctly specified in your build files.
 
 ### Issue: Tests failing after migration
+
 **Solution:** Check that test files have also been updated with the new imports and that test dependencies are correctly configured.
 
 ### Issue: IDE not recognizing new imports
+
 **Solution:** Refresh/reimport your project and clear any caches.
 
 ## Support
