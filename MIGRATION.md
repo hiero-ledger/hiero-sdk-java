@@ -7,9 +7,9 @@ This document provides a comprehensive guide for migrating from the Hedera Java 
 ## What's Changing
 
 The Maven group ID and artifact ID are being updated to reflect the new organization ownership:
-- **Group ID**: `org.hedera.hashgraph` → `org.hiero`
+- **Group ID**: `com.hedera.hashgraph` → `org.hiero`
 - **Artifact ID**: `sdk` → `sdk-java`
-- **Package namespace**: `org.hedera.hashgraph.sdk` → `org.hiero.sdk`
+- **Package namespace**: `com.hedera.hashgraph.sdk` → `org.hiero.sdk`
 
 The functionality, API, features, and codebase remain exactly the same - only the dependency coordinates and import statements need to be updated.
 
@@ -21,7 +21,7 @@ The functionality, API, features, and codebase remain exactly the same - only th
 
 ```gradle
 dependencies {
-    implementation 'org.hedera.hashgraph:sdk:2.67.0'
+    implementation 'com.hedera.hashgraph:sdk:2.67.0'
 }
 ```
 
@@ -39,7 +39,7 @@ dependencies {
 
 ```xml
 <dependency>
-    <groupId>org.hedera.hashgraph</groupId>
+    <groupId>com.hedera.hashgraph</groupId>
     <artifactId>sdk</artifactId>
     <version>2.67.0</version>
 </dependency>
@@ -60,13 +60,13 @@ dependencies {
 **Before:**
 
 ```java
-import org.hedera.hashgraph.sdk.Client;
-import org.hedera.hashgraph.sdk.AccountId;
-import org.hedera.hashgraph.sdk.PrivateKey;
-import org.hedera.hashgraph.sdk.AccountBalanceQuery;
-import org.hedera.hashgraph.sdk.AccountCreateTransaction;
-import org.hedera.hashgraph.sdk.TransferTransaction;
-import org.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.AccountBalanceQuery;
+import com.hedera.hashgraph.sdk.AccountCreateTransaction;
+import com.hedera.hashgraph.sdk.TransferTransaction;
+import com.hedera.hashgraph.sdk.Hbar;
 ```
 
 **After:**
@@ -86,9 +86,9 @@ import org.hiero.sdk.Hbar;
 **Before:**
 
 ```java
-import org.hedera.hashgraph.sdk.PrecheckStatusException;
-import org.hedera.hashgraph.sdk.ReceiptStatusException;
-import org.hedera.hashgraph.sdk.MaxQueryPaymentExceededException;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
+import com.hedera.hashgraph.sdk.ReceiptStatusException;
+import com.hedera.hashgraph.sdk.MaxQueryPaymentExceededException;
 
 try {
     // SDK operations
@@ -130,7 +130,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'org.hedera.hashgraph:sdk:2.67.0'
+    implementation 'com.hedera.hashgraph:sdk:2.67.0'
     testImplementation 'junit:junit:4.13.2'
 }
 ```
@@ -158,7 +158,7 @@ Update `pom.xml` files:
 ```xml
 <dependencies>
     <dependency>
-        <groupId>org.hedera.hashgraph</groupId>
+        <groupId>com.hedera.hashgraph</groupId>
         <artifactId>sdk</artifactId>
         <version>2.67.0</version>
     </dependency>
@@ -214,9 +214,9 @@ Update `pom.xml` files:
 **Before:**
 
 ```java
-import org.hedera.hashgraph.sdk.Client;
-import org.hedera.hashgraph.sdk.AccountId;
-import org.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.PrivateKey;
 
 public class Example {
     public static void main(String[] args) {
@@ -254,9 +254,9 @@ public class Example {
 **Before:**
 
 ```java
-import org.hedera.hashgraph.sdk.AccountCreateTransaction;
-import org.hedera.hashgraph.sdk.PrivateKey;
-import org.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.AccountCreateTransaction;
+import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.Hbar;
 
 AccountCreateTransaction transaction = new AccountCreateTransaction()
     .setKey(PrivateKey.generate().getPublicKey())
@@ -282,9 +282,9 @@ AccountCreateTransaction transaction = new AccountCreateTransaction()
 **Before:**
 
 ```java
-import org.hedera.hashgraph.sdk.TransferTransaction;
-import org.hedera.hashgraph.sdk.AccountId;
-import org.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.TransferTransaction;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.Hbar;
 
 TransferTransaction transferTx = new TransferTransaction()
     .addHbarTransfer(AccountId.fromString("0.0.1234"), Hbar.fromTinybars(-1000))
@@ -315,7 +315,7 @@ TransferTransaction transferTx = new TransferTransaction()
 
 ## Version Compatibility
 
-The new `org.hiero:sdk` artifact maintains full compatibility with the previous `org.hedera.hashgraph:sdk` versions. You can directly replace the dependency coordinates without any code changes beyond the import statements.
+The new `org.hiero:sdk` artifact maintains full compatibility with the previous `com.hedera.hashgraph:sdk` versions. You can directly replace the dependency coordinates without any code changes beyond the import statements.
 
 ## IDE Configuration
 
@@ -363,7 +363,7 @@ For additional support, create an issue in the [Hiero SDK repository](https://gi
 ## Timeline
 
 - **Effective Date**: The new `org.hiero:sdk` artifact is available immediately
-- **Deprecation**: The `org.hedera.hashgraph:sdk` artifact will continue to work but will eventually be deprecated
+- **Deprecation**: The `com.hedera.hashgraph:sdk` artifact will continue to work but will eventually be deprecated
 - **Recommendation**: Migrate as soon as possible to ensure you're using the officially supported artifact
 
 ---
