@@ -31,7 +31,7 @@ public class IntegrationTestEnv implements AutoCloseable {
     public AccountId operatorId;
     public boolean isLocalNode = false;
     private static ExecutorService clientExecutor =
-            Executors.newVirtualThreadPerTaskExecutor();
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public IntegrationTestEnv() throws Exception {
         this(0);

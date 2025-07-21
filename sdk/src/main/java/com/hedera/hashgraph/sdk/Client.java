@@ -120,11 +120,20 @@ public final class Client implements AutoCloseable {
      * @return the executor service
      */
     static ExecutorService createExecutor() {
+        var threadFactory = new ThreadFactoryBuilder()
+                .setNameFormat("hedera-sdk-%d")
+                .setDaemon(true)
+                .build();
 
-        return Executors.newThreadPerTaskExecutor(
-            Thread.ofVirtual()
-                .name("hedera-sdk-", 0)
-                .factory());
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        return new ThreadPoolExecutor(
+                nThreads,
+                nThreads,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                threadFactory,
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**
