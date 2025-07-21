@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.hedera.hashgraph.sdk.*;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,7 @@ public class ContractInfoIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -75,7 +76,7 @@ public class ContractInfoIntegrationTest {
             var fileId = Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
 
             response = new ContractCreateTransaction()
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -124,7 +125,7 @@ public class ContractInfoIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -165,7 +166,7 @@ public class ContractInfoIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -193,6 +194,7 @@ public class ContractInfoIntegrationTest {
     }
 
     @Test
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeContractInfoFunction() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -206,7 +208,7 @@ public class ContractInfoIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")

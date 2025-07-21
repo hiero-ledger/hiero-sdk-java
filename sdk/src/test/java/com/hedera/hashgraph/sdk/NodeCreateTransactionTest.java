@@ -34,6 +34,8 @@ public class NodeCreateTransactionTest {
             spawnTestEndpoint((byte) 5),
             spawnTestEndpoint((byte) 6));
 
+    private static final Endpoint TEST_GRPC_WEB_PROXY_ENDPOINT = spawnTestEndpoint((byte) 3);
+
     private static final byte[] TEST_GOSSIP_CA_CERTIFICATE = new byte[] {0, 1, 2, 3, 4};
 
     private static final byte[] TEST_GRPC_CERTIFICATE_HASH = new byte[] {5, 6, 7, 8, 9};
@@ -78,6 +80,8 @@ public class NodeCreateTransactionTest {
                 .setGrpcCertificateHash(TEST_GRPC_CERTIFICATE_HASH)
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setMaxTransactionFee(new Hbar(1))
+                .setDeclineReward(false) // accepts the reward
+                .setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT)
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -146,6 +150,8 @@ public class NodeCreateTransactionTest {
         transactionBodyBuilder.setGossipCaCertificate(ByteString.copyFrom(TEST_GOSSIP_CA_CERTIFICATE));
         transactionBodyBuilder.setGrpcCertificateHash(ByteString.copyFrom(TEST_GRPC_CERTIFICATE_HASH));
         transactionBodyBuilder.setAdminKey(TEST_ADMIN_KEY.toProtobufKey());
+
+        transactionBodyBuilder.setDeclineReward(true);
 
         var tx = TransactionBody.newBuilder()
                 .setNodeCreate(transactionBodyBuilder.build())
@@ -243,5 +249,29 @@ public class NodeCreateTransactionTest {
     void getSetAdminKeyFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setAdminKey(TEST_ADMIN_KEY));
+    }
+
+    @Test
+    void getSetDeclineReward() {
+        var nodeCreateTransaction = new NodeCreateTransaction().setDeclineReward(true);
+        assertThat(nodeCreateTransaction.getDeclineReward()).isTrue();
+    }
+
+    @Test
+    void getSetDeclineRewardFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
+    }
+
+    @Test
+    void getGrpcWebProxyEndpoint() {
+        var nodeCreateTransaction = new NodeCreateTransaction().setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT);
+        assertThat(nodeCreateTransaction.getGrpcWebProxyEndpoint()).isEqualTo(TEST_GRPC_WEB_PROXY_ENDPOINT);
+    }
+
+    @Test
+    void setGrpcWebProxyEndpointRequiresFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
     }
 }

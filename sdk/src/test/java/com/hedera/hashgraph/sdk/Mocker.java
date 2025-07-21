@@ -49,6 +49,8 @@ public class Mocker implements AutoCloseable {
             var nodeAccountId = new AccountId(0, 0, 3 + i);
             var builder = InProcessServerBuilder.forName(name);
 
+            configureServerBuilder(builder);
+
             network.put("in-process:" + name, nodeAccountId);
 
             for (var service : services) {
@@ -107,6 +109,10 @@ public class Mocker implements AutoCloseable {
                 .setMinNodeReadmitTime(Duration.ofMillis(0))
                 .setMaxNodeReadmitTime(Duration.ofMillis(0))
                 .setLogger(new Logger(LogLevel.SILENT));
+    }
+
+    protected void configureServerBuilder(InProcessServerBuilder builder) {
+        // Override this method to configure the server builder
     }
 
     public static Mocker withResponses(List<List<Object>> responses) {

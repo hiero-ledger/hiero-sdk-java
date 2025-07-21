@@ -9,19 +9,20 @@ plugins {
 group = "org.hiero"
 
 val bouncycastle = "1.80"
-val grpc = "1.70.0"
-val protobuf = "4.29.3"
+val grpc = "1.73.0"
+val protobuf = "4.31.1"
 val slf4j = "2.0.17"
+val mockito = "5.18.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:3.4.2"))
-    api(platform("io.netty:netty-bom:4.1.119.Final"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.3"))
+    api(platform("io.netty:netty-bom:4.2.2.Final"))
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:12.3.3") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.3.0") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
-    api("com.google.code.gson:gson:2.12.1") { because("com.google.gson") }
+    api("com.google.code.gson:gson:2.13.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
     api("io.grpc:grpc-api:$grpc") { because("io.grpc") }
@@ -36,16 +37,21 @@ dependencies.constraints {
     api("org.bouncycastle:bcprov-jdk18on:$bouncycastle") { because("org.bouncycastle.provider") }
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
+    // Temporary workaround, remove when a new version of spring-boot-dependencies is released
+    api("org.apache.tomcat.embed:tomcat-embed-core:10.1.43") {
+        because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-10674391")
+    }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.18.3") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.4.0-android") { because("com.google.common") }
+    api("com.fasterxml.jackson.core:jackson-core:2.19.1") { because("com.fasterxml.jackson.core") }
+    api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
-    api("org.apache.commons:commons-lang3:3.17.0") { because("org.apache.commons.lang3") }
+    api("org.apache.commons:commons-lang3:3.18.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.3") { because("org.assertj.core") }
-    api("org.junit.jupiter:junit-jupiter-api:5.11.4") { because("org.junit.jupiter.api") }
-    api("org.mockito:mockito-core:5.15.2") { because("org.mockito") }
+    api("org.junit.jupiter:junit-jupiter-api:5.12.2") { because("org.junit.jupiter.api") }
+    api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
+    api("org.mockito:mockito-junit-jupiter:$mockito") { because("org.mockito.junit.jupiter") }
 
     api("com.google.protobuf:protoc:$protobuf")
     api("io.grpc:protoc-gen-grpc-java:$grpc")
@@ -53,5 +59,5 @@ dependencies.constraints {
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
     // Examples
-    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.10") { because("kotlin.stdlib") }
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.21") { because("kotlin.stdlib") }
 }

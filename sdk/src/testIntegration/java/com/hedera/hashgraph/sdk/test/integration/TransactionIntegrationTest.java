@@ -6,24 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.FileAppendTransaction;
-import com.hedera.hashgraph.sdk.FileContentsQuery;
-import com.hedera.hashgraph.sdk.FileCreateTransaction;
-import com.hedera.hashgraph.sdk.FileDeleteTransaction;
-import com.hedera.hashgraph.sdk.FileInfoQuery;
-import com.hedera.hashgraph.sdk.Hbar;
-import com.hedera.hashgraph.sdk.KeyList;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.TopicCreateTransaction;
-import com.hedera.hashgraph.sdk.TopicDeleteTransaction;
-import com.hedera.hashgraph.sdk.TopicInfoQuery;
-import com.hedera.hashgraph.sdk.TopicMessageSubmitTransaction;
-import com.hedera.hashgraph.sdk.Transaction;
-import com.hedera.hashgraph.sdk.TransactionId;
-import com.hedera.hashgraph.sdk.TransferTransaction;
+import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
 import com.hedera.hashgraph.sdk.proto.AccountID;
 import com.hedera.hashgraph.sdk.proto.CryptoTransferTransactionBody;
@@ -856,5 +839,55 @@ public class TransactionIntegrationTest {
                 resp.getReceipt(testEnv.client);
             }
         });
+    }
+
+    /**
+     * Integration test for AddSignature functionality.
+     * Tests the ability to get signable transaction body bytes and add signatures
+     * back to the transaction using the add signature method.
+     */
+    @Test
+    @DisplayName("AddSignature - can get signable body bytes, sign externally, and add signatures back")
+    void canAddSignatureToTransaction() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            // Step 1: Create a new key for the account
+            var newKey = PrivateKey.generateED25519();
+
+            // Step 2: Create account with the new key
+            var createResponse = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(newKey.getPublicKey())
+                    .setNodeAccountIds(
+                            testEnv.client.getNetwork().values().stream().toList())
+                    .execute(testEnv.client);
+
+            var createReceipt = createResponse.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(createReceipt.accountId);
+            var nodeId = createResponse.nodeId;
+
+            // Step 3: Create account delete transaction and freeze it
+            var deleteTransaction = new AccountDeleteTransaction()
+                    .setNodeAccountIds(Arrays.asList(nodeId))
+                    .setAccountId(accountId)
+                    .setTransferAccountId(testEnv.client.getOperatorAccountId())
+                    .freezeWith(testEnv.client);
+
+            // Step 4: Get signable body bytes list
+            var signableBodyList = deleteTransaction.getSignableNodeBodyBytesList();
+            assertThat(signableBodyList).isNotEmpty();
+
+            // Step 5: Sign each signable body externally and add signatures back
+            for (var signableBody : signableBodyList) {
+                byte[] signature = newKey.sign(signableBody.getBody());
+
+                deleteTransaction = deleteTransaction.addSignature(
+                        newKey.getPublicKey(), signature, signableBody.getTransactionID(), signableBody.getNodeID());
+            }
+
+            var deleteResponse = deleteTransaction.execute(testEnv.client);
+            var deleteReceipt = deleteResponse.getReceipt(testEnv.client);
+
+            assertThat(deleteReceipt.status).isEqualTo(Status.SUCCESS);
+        }
     }
 }

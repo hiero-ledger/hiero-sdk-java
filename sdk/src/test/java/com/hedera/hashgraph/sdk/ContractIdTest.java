@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.github.jsonSnapshot.SnapshotMatcher;
@@ -84,13 +85,141 @@ class ContractIdTest {
 
     @Test
     void toSolidityAddress() {
-        SnapshotMatcher.expect(new ContractId(0, 0, 5005).toSolidityAddress()).toMatchSnapshot();
+        SnapshotMatcher.expect(new ContractId(0, 0, 5005).toEvmAddress()).toMatchSnapshot();
     }
 
     @Test
     void toSolidityAddress2() {
         SnapshotMatcher.expect(ContractId.fromEvmAddress(1, 2, "0x98329e006610472e6B372C080833f6D79ED833cf")
-                        .toSolidityAddress())
+                        .toEvmAddress())
                 .toMatchSnapshot();
+    }
+
+    @Test
+    void fromEvmAddressIncorrectSizeTooShort() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    ContractId.fromEvmAddress(0, 0, "abc123");
+                })
+                .withMessageContaining("Solidity addresses must be 20 bytes or 40 hex chars");
+    }
+
+    @Test
+    void fromEvmAddressIncorrectSizeTooLong() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    ContractId.fromEvmAddress(0, 0, "0123456789abcdef0123456789abcdef0123456789abcdef");
+                })
+                .withMessageContaining("Solidity addresses must be 20 bytes or 40 hex chars");
+    }
+
+    @Test
+    void fromEvmAddressIncorrectSizeWith0xPrefix() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    ContractId.fromEvmAddress(0, 0, "0xabc123");
+                })
+                .withMessageContaining("Solidity addresses must be 20 bytes or 40 hex chars");
+    }
+
+    @Test
+    void fromEvmAddressCorrectSize() {
+        String correctAddress = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        ContractId id = ContractId.fromEvmAddress(0, 0, correctAddress);
+
+        assertThat(id.evmAddress).isNotNull();
+        assertThat(Hex.toHexString(id.evmAddress)).isEqualTo("742d35cc6634c0532925a3b844bc454e4438f44e");
+    }
+
+    @Test
+    void fromEvmAddressNormalAddress() {
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        ContractId id = ContractId.fromEvmAddress(0, 0, evmAddress);
+
+        assertThat(id.shard).isEqualTo(0);
+        assertThat(id.realm).isEqualTo(0);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressWithDifferentShardAndRealm() {
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        ContractId id = ContractId.fromEvmAddress(1, 1, evmAddress);
+
+        assertThat(id.shard).isEqualTo(1);
+        assertThat(id.realm).isEqualTo(1);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressLongZeroAddress() {
+        String evmAddress = "00000000000000000000000000000000000004d2";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        ContractId id = ContractId.fromEvmAddress(0, 0, evmAddress);
+
+        assertThat(id.shard).isEqualTo(0);
+        assertThat(id.realm).isEqualTo(0);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void fromEvmAddressLongZeroAddressWithShardAndRealm() {
+        String evmAddress = "00000000000000000000000000000000000004d2";
+        byte[] expectedBytes = Hex.decode(evmAddress);
+
+        ContractId id = ContractId.fromEvmAddress(1, 1, evmAddress);
+
+        assertThat(id.shard).isEqualTo(1);
+        assertThat(id.realm).isEqualTo(1);
+        assertThat(id.num).isEqualTo(0);
+        assertThat(id.evmAddress).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void toEvmAddressNormalContractId() {
+        ContractId id = new ContractId(0, 0, 123);
+
+        assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
+    }
+
+    @Test
+    void toEvmAddressWithDifferentShardAndRealm() {
+        ContractId id = new ContractId(1, 1, 123);
+
+        assertThat(id.toEvmAddress()).isEqualTo("000000000000000000000000000000000000007b");
+    }
+
+    @Test
+    void toEvmAddressLongZeroAddress() {
+        String longZeroAddress = "00000000000000000000000000000000000004d2";
+        ContractId id = ContractId.fromEvmAddress(1, 1, longZeroAddress);
+
+        assertThat(id.toEvmAddress()).isEqualTo(longZeroAddress.toLowerCase());
+    }
+
+    @Test
+    void toEvmAddressNormalEvmAddress() {
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        ContractId id = ContractId.fromEvmAddress(0, 0, evmAddress);
+        String expected = evmAddress.toLowerCase();
+
+        assertThat(id.toEvmAddress()).isEqualTo(expected);
+    }
+
+    @Test
+    void toEvmAddressNormalEvmAddressWithShardAndRealm() {
+        String evmAddress = "742d35Cc6634C0532925a3b844Bc454e4438f44e";
+        ContractId id = ContractId.fromEvmAddress(1, 1, evmAddress);
+        String expected = evmAddress.toLowerCase();
+
+        assertThat(id.toEvmAddress()).isEqualTo(expected);
     }
 }

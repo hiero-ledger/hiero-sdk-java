@@ -8,6 +8,21 @@ com.hedera.hashgraph.sdk.FileIdTest.fromSolidityAddress=[
 ]
 
 
+com.hedera.hashgraph.sdk.FileIdTest.getAddressBookFileIdForReturnsCorrectFileId=[
+  "5.10.102"
+]
+
+
+com.hedera.hashgraph.sdk.FileIdTest.getExchangeRatesFileIdForReturnsCorrectFileId=[
+  "3.9.112"
+]
+
+
+com.hedera.hashgraph.sdk.FileIdTest.getFeeScheduleFileIdForReturnsCorrectFileId=[
+  "7.12.111"
+]
+
+
 com.hedera.hashgraph.sdk.FileIdTest.shouldSerializeFromString=[
   "0.0.5005"
 ]

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.BytesValue;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.StringValue;
+import com.google.protobuf.*;
 import com.hedera.hashgraph.sdk.proto.AddressBookServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.NodeUpdateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
@@ -39,7 +36,7 @@ import javax.annotation.Nullable;
  */
 public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
-    private long nodeId = 0;
+    private Long nodeId;
 
     @Nullable
     private AccountId accountId = null;
@@ -59,6 +56,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
     @Nullable
     private Key adminKey = null;
+
+    @Nullable
+    private Boolean declineReward = null;
+
+    @Nullable
+    private Endpoint grpcWebProxyEndpoint = null;
 
     /**
      * Constructor.
@@ -91,8 +94,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     /**
      * Extract the consensus node identifier in the network state.
      * @return the consensus node identifier in the network state.
+     * @throws IllegalStateException when node is not being set
      */
     public long getNodeId() {
+        if (nodeId == null) {
+            throw new IllegalStateException("NodeUpdateTransaction: 'nodeId' has not been set");
+        }
         return nodeId;
     }
 
@@ -363,6 +370,52 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
+     * Gets whether this node declines rewards.
+     * @return true if the node declines rewards; false if it accepts rewards.
+     */
+    @Nullable
+    public Boolean getDeclineReward() {
+        return declineReward;
+    }
+
+    /**
+     * Sets whether this node should decline rewards.
+     * @param decline true to decline rewards; false to accept them. If left null no change will be made.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction setDeclineReward(boolean decline) {
+        requireNotFrozen();
+        this.declineReward = decline;
+        return this;
+    }
+
+    /**
+     * Get a web proxy for gRPC from non-gRPC clients.
+     *
+     */
+    @Nullable
+    public Endpoint getGrpcWebProxyEndpoint() {
+        return grpcWebProxyEndpoint;
+    }
+
+    /**
+     * A web proxy for gRPC from non-gRPC clients.
+     * <p>
+     * This endpoint SHALL be a Fully Qualified Domain Name (FQDN) using the HTTPS
+     * protocol, and SHALL support gRPC-Web for use by browser-based clients.<br/>
+     * This endpoint MUST be signed by a trusted certificate authority.<br/>
+     * This endpoint MUST use a valid port and SHALL be reachable over TLS.<br/>
+     * This field MAY be omitted if the node does not support gRPC-Web access.<br/>
+     * This field MUST be updated if the gRPC-Web endpoint changes.<br/>
+     * This field SHALL enable frontend clients to avoid hard-coded proxy endpoints.
+     */
+    public NodeUpdateTransaction setGrpcWebProxyEndpoint(@Nullable Endpoint grpcWebProxyEndpoint) {
+        requireNotFrozen();
+        this.grpcWebProxyEndpoint = grpcWebProxyEndpoint;
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.NodeUpdateTransactionBody}
@@ -370,7 +423,9 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     NodeUpdateTransactionBody.Builder build() {
         var builder = NodeUpdateTransactionBody.newBuilder();
 
-        builder.setNodeId(nodeId);
+        if (nodeId != null) {
+            builder.setNodeId(nodeId);
+        }
 
         if (accountId != null) {
             builder.setAccountId(accountId.toProtobuf());
@@ -398,6 +453,14 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
+        }
+
+        if (declineReward != null) {
+            builder.setDeclineReward(BoolValue.of(declineReward));
+        }
+
+        if (grpcWebProxyEndpoint != null) {
+            builder.setGrpcProxyEndpoint(grpcWebProxyEndpoint.toProtobuf());
         }
 
         return builder;
@@ -438,6 +501,14 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
         if (body.hasAdminKey()) {
             adminKey = Key.fromProtobufKey(body.getAdminKey());
         }
+
+        if (body.hasDeclineReward()) {
+            declineReward = body.getDeclineReward().getValue();
+        }
+
+        if (body.hasGrpcProxyEndpoint()) {
+            grpcWebProxyEndpoint = Endpoint.fromProtobuf(body.getGrpcProxyEndpoint());
+        }
     }
 
     @Override
@@ -460,5 +531,21 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setNodeUpdate(build());
+    }
+
+    /**
+     * Freeze this transaction with the given client.
+     *
+     * @param client the client to freeze with
+     * @return this transaction
+     * @throws IllegalStateException if nodeId is not set
+     */
+    @Override
+    public NodeUpdateTransaction freezeWith(@Nullable Client client) {
+        if (nodeId == null) {
+            throw new IllegalStateException(
+                    "NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+        }
+        return super.freezeWith(client);
     }
 }

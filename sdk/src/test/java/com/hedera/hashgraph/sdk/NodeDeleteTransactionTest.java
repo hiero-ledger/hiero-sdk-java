@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.hedera.hashgraph.sdk.proto.NodeDeleteTransactionBody;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class NodeDeleteTransactionTest {
@@ -97,5 +99,76 @@ public class NodeDeleteTransactionTest {
     void getSetNodeIdFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setNodeId(TEST_NODE_ID));
+    }
+
+    @Test
+    @DisplayName("should freeze successfully when nodeId is set")
+    void shouldFreezeSuccessfullyWhenNodeIdIsSet() {
+        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
+        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
+
+        var transaction = new NodeDeleteTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START))
+                .setNodeId(420);
+
+        assertThatCode(() -> transaction.freezeWith(null)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(420);
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing without setting nodeId")
+    void shouldThrowErrorWhenFreezingWithoutSettingNodeId() {
+        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
+        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
+
+        var transaction = new NodeDeleteTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeDeleteTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing with nodeId null")
+    void shouldThrowErrorWhenFreezingWithZeroNodeId() {
+        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
+        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
+
+        var transaction = new NodeDeleteTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeDeleteTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should freeze successfully with actual client when nodeId is set")
+    void shouldFreezeSuccessfullyWithActualClientWhenNodeIdIsSet() {
+        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
+        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
+
+        var transaction = new NodeDeleteTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START))
+                .setNodeId(420);
+
+        var mockClient = Client.forTestnet();
+
+        assertThatCode(() -> transaction.freezeWith(mockClient)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(420);
+    }
+
+    @Test
+    @DisplayName("should throw error when getting nodeId without setting it")
+    void shouldThrowErrorWhenGettingNodeIdWithoutSettingIt() {
+        var transaction = new NodeDeleteTransaction();
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
+        assertThat(exception.getMessage()).isEqualTo("NodeDeleteTransaction: 'nodeId' has not been set");
     }
 }

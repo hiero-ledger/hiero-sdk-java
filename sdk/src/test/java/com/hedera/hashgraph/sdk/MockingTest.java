@@ -21,7 +21,12 @@ import com.hedera.hashgraph.sdk.proto.TransactionGetRecordResponse;
 import com.hedera.hashgraph.sdk.proto.TransactionReceipt;
 import com.hedera.hashgraph.sdk.proto.TransactionRecord;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -39,7 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-public class MockingTest {
+class MockingTest {
     @Test
     void testSucceedsWithCorrectHbars() throws PrecheckStatusException, TimeoutException, InterruptedException {
         List<Object> responses1 = List.of(
@@ -402,11 +407,11 @@ public class MockingTest {
 
         if (sync.equals("sync")) {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .execute(server.client);
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .get();
         }
@@ -435,13 +440,13 @@ public class MockingTest {
             Assertions.assertThrows(MaxAttemptsExceededException.class, () -> {
                 new AccountCreateTransaction()
                         .setMaxAttempts(maxAttempts)
-                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                         .execute(server.client);
             });
         } else {
             new AccountCreateTransaction()
                     .setMaxAttempts(maxAttempts)
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .handle((response, error) -> {
                         Assertions.assertNotNull(error);
@@ -488,11 +493,11 @@ public class MockingTest {
 
         if (sync.equals("sync")) {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .execute(server.client);
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .get();
         }
@@ -525,12 +530,12 @@ public class MockingTest {
         if (sync.equals("sync")) {
             Assertions.assertThrows(MaxAttemptsExceededException.class, () -> {
                 new AccountCreateTransaction()
-                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                        .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                         .execute(server.client);
             });
         } else {
             new AccountCreateTransaction()
-                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("2.2.2")))
+                    .setNodeAccountIds(List.of(AccountId.fromString("1.1.1"), AccountId.fromString("1.1.2")))
                     .executeAsync(server.client)
                     .handle((response, error) -> {
                         Assertions.assertNotNull(error);
@@ -761,6 +766,61 @@ public class MockingTest {
         @Override
         public void createContract(Transaction request, StreamObserver<TransactionResponse> responseObserver) {
             respondToTransactionFromQueue(request, responseObserver);
+        }
+    }
+
+    @Test
+    void testMetadataInterceptor() throws PrecheckStatusException, TimeoutException, InterruptedException {
+        var metadataCaptor = new MetadataCapturingInterceptor();
+
+        List<Object> responses1 = List.of((Function<Object, Object>) request -> {
+            // Verify metadata before returning response
+            var metadata = metadataCaptor.getLastMetadata();
+            Assertions.assertNotNull(metadata, "No metadata was captured");
+
+            var userAgent = metadata.get(Metadata.Key.of("x-user-agent", Metadata.ASCII_STRING_MARSHALLER));
+            Assertions.assertNotNull(userAgent, "User agent header was not found");
+            Assertions.assertTrue(
+                    userAgent.startsWith("hiero-sdk-java/"),
+                    "User agent header does not match expected format: " + userAgent);
+
+            return Response.newBuilder()
+                    .setCryptogetAccountBalance(CryptoGetAccountBalanceResponse.newBuilder()
+                            .setHeader(ResponseHeader.newBuilder()
+                                    .setNodeTransactionPrecheckCode(ResponseCodeEnum.OK)
+                                    .build())
+                            .setAccountID(
+                                    AccountID.newBuilder().setAccountNum(10).build())
+                            .setBalance(100)
+                            .build())
+                    .build();
+        });
+
+        var responses = List.of(responses1);
+
+        try (var mocker = new Mocker(responses) {
+            @Override
+            protected void configureServerBuilder(InProcessServerBuilder builder) {
+                builder.intercept(metadataCaptor);
+            }
+        }) {
+            // Execute query to trigger metadata interceptor
+            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 10)).execute(mocker.client);
+        }
+    }
+
+    private static class MetadataCapturingInterceptor implements ServerInterceptor {
+        private Metadata lastMetadata;
+
+        @Override
+        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+                ServerCall<ReqT, RespT> call, Metadata metadata, ServerCallHandler<ReqT, RespT> next) {
+            this.lastMetadata = metadata;
+            return next.startCall(call, metadata);
+        }
+
+        public Metadata getLastMetadata() {
+            return lastMetadata;
         }
     }
 }

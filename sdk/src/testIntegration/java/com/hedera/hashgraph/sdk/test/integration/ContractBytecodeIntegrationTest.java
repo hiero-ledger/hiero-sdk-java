@@ -15,6 +15,7 @@ import com.hedera.hashgraph.sdk.MaxQueryPaymentExceededException;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,7 @@ public class ContractBytecodeIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -75,7 +76,7 @@ public class ContractBytecodeIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -119,7 +120,7 @@ public class ContractBytecodeIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")
@@ -148,6 +149,7 @@ public class ContractBytecodeIntegrationTest {
     }
 
     @Test
+    @Disabled("Cannot run with solo action")
     @DisplayName("Insufficient tx fee error.")
     void getCostInsufficientTxFeeQueryContractBytecode() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -161,7 +163,7 @@ public class ContractBytecodeIntegrationTest {
 
             response = new ContractCreateTransaction()
                     .setAdminKey(testEnv.operatorKey)
-                    .setGas(200000)
+                    .setGas(300000)
                     .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
                     .setBytecodeFileId(fileId)
                     .setContractMemo("[e2e::ContractCreateTransaction]")

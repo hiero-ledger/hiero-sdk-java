@@ -40,7 +40,19 @@ public class SolidityPrecompileExample {
         // by this account and be signed by this key
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
 
-        // We need a new account for the contract to interact with in some of its steps
+        // Create a new account to use as the operator for subsequent transactions
+        PrivateKey newOperatorPrivateKey = PrivateKey.generateED25519();
+        PublicKey newOperatorPublicKey = newOperatorPrivateKey.getPublicKey();
+        AccountId newOperatorAccountId = Objects.requireNonNull(new AccountCreateTransaction()
+                .setKeyWithoutAlias(newOperatorPublicKey)
+                .setInitialBalance(Hbar.fromTinybars(1000000))
+                .execute(client)
+                .getReceipt(client)
+                .accountId);
+
+        // Set the new account as the operator
+        client.setOperator(newOperatorAccountId, newOperatorPrivateKey);
+
         PrivateKey alicePrivateKey = PrivateKey.generateED25519();
         PublicKey alicePublicKey = alicePrivateKey.getPublicKey();
         AccountId aliceAccountId = Objects.requireNonNull(new AccountCreateTransaction()
@@ -54,8 +66,8 @@ public class SolidityPrecompileExample {
         ContractHelper contractHelper = new ContractHelper(
                 "contracts/precompile/PrecompileExample.json",
                 new ContractFunctionParameters()
-                        .addAddress(OPERATOR_ID.toSolidityAddress())
-                        .addAddress(aliceAccountId.toSolidityAddress()),
+                        .addAddress(OPERATOR_ID.toEvmAddress())
+                        .addAddress(aliceAccountId.toEvmAddress()),
                 client);
 
         // Update the signer to have contractId KeyList (this is by security requirement)
@@ -78,7 +90,7 @@ public class SolidityPrecompileExample {
         Consumer<String> additionalLogic = tokenAddress -> {
             try {
                 var tokenUpdateTransactionReceipt = new TokenUpdateTransaction()
-                        .setTokenId(TokenId.fromSolidityAddress(tokenAddress))
+                        .setTokenId(TokenId.fromEvmAddress(0, 0, tokenAddress))
                         .setAdminKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)
                                 .setThreshold(1))
                         .setSupplyKey(KeyList.of(OPERATOR_KEY.getPublicKey(), contractHelper.contractId)

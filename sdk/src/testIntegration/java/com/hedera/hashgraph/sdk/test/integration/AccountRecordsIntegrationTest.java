@@ -40,8 +40,10 @@ class AccountRecordsIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var records =
-                    new AccountRecordsQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
+            var records = new AccountRecordsQuery()
+                    .setAccountId(testEnv.operatorId)
+                    .setQueryPayment(new Hbar(10))
+                    .execute(testEnv.client);
 
             assertThat(records.isEmpty()).isFalse();
         }

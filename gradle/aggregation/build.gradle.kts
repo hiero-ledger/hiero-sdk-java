@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 plugins {
-    id("org.hiero.gradle.base.lifecycle")
+    id("org.hiero.gradle.feature.publish-maven-central-aggregation")
     id("org.hiero.gradle.report.code-coverage")
     id("org.hiero.gradle.check.spotless")
     id("org.hiero.gradle.check.spotless-kotlin")
 }
 
 dependencies {
-    implementation(project(":sdk"))
+    published(project(":sdk"))
+    published(project(":sdk-full"))
+
     implementation(project(":tck"))
     implementation("io.grpc:grpc-protobuf")
 }
+
+// Separate publishing from the coverage aggregation as 'sdk' and 'sdk-full'
+// cannot both exist on the compile/test path
+configurations.implementation { setExtendsFrom(extendsFrom.filter { it.name != "published" }) }
 
 tasks.testCodeCoverageReport {
     // Integrate coverage data from integration tests into the report
@@ -31,8 +37,8 @@ tasks.testCodeCoverageReport {
                     objects.named(VerificationType.JACOCO_RESULTS),
                 )
                 attributes.attribute(
-                    TestSuiteType.TEST_SUITE_TYPE_ATTRIBUTE,
-                    objects.named(TestSuiteType.INTEGRATION_TEST),
+                    TestSuiteName.TEST_SUITE_NAME_ATTRIBUTE,
+                    objects.named("testIntegration"),
                 )
             }
             .files

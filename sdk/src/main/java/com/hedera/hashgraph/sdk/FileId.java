@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.FileID;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
@@ -84,6 +85,36 @@ public final class FileId implements Comparable<FileId> {
     }
 
     /**
+     * Get the `FileId` of the Hedera address book for the given realm and shard.
+     * @param shard
+     * @param realm
+     * @return FileId
+     */
+    public static FileId getAddressBookFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 102);
+    }
+
+    /**
+     * Get the `FileId` of the Hedera fee schedule for the given realm and shard.
+     * @param shard
+     * @param realm
+     * @return FileId
+     */
+    public static FileId getFeeScheduleFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 111);
+    }
+
+    /**
+     * Get the `FileId` of the Hedera exchange rates for the given realm and shard.
+     * @param shard
+     * @param realm
+     * @return FileId
+     */
+    public static FileId getExchangeRatesFileIdFor(long shard, long realm) {
+        return new FileId(shard, realm, 112);
+    }
+
+    /**
      * Assign the file id from a string.
      *
      * @param id                        the string representation of a file id
@@ -116,22 +147,61 @@ public final class FileId implements Comparable<FileId> {
     }
 
     /**
-     * Create a file id object from a solidity address.
+     * Retrieve the file id from a solidity address.
      *
-     * @param address                   the solidity address
+     * @param address                   a string representing the address
      * @return                          the file id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(long, long, String)} instead.
      */
+    @Deprecated
     public static FileId fromSolidityAddress(String address) {
         return EntityIdHelper.fromSolidityAddress(address, FileId::new);
     }
 
     /**
-     * Extract the string representation of file id.
+     * Extract the solidity address.
      *
-     * @return                          the string representation of file id
+     * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
+    @Deprecated
     public String toSolidityAddress() {
         return EntityIdHelper.toSolidityAddress(shard, realm, num);
+    }
+
+    /**
+     * Constructs a FileId from shard, realm, and EVM address.
+     * The EVM address must be a "long zero address" (first 12 bytes are zero).
+     *
+     * @param shard      the shard number
+     * @param realm      the realm number
+     * @param evmAddress the EVM address as a hex string
+     * @return           the FileId object
+     * @throws IllegalArgumentException if the EVM address is not a valid long zero address
+     */
+    public static FileId fromEvmAddress(long shard, long realm, String evmAddress) {
+        byte[] addressBytes = EntityIdHelper.decodeEvmAddress(evmAddress);
+
+        if (!EntityIdHelper.isLongZeroAddress(addressBytes)) {
+            throw new IllegalArgumentException("EVM address is not a correct long zero address");
+        }
+
+        ByteBuffer buf = ByteBuffer.wrap(addressBytes);
+        buf.getInt();
+        buf.getLong();
+        long fileNum = buf.getLong();
+
+        return new FileId(shard, realm, fileNum);
+    }
+
+    /**
+     * Converts this FileId to an EVM address string.
+     * Creates a solidity address using shard=0, realm=0, and the file number.
+     *
+     * @return the EVM address as a hex string
+     */
+    public String toEvmAddress() {
+        return EntityIdHelper.toSolidityAddress(0, 0, this.num);
     }
 
     /**

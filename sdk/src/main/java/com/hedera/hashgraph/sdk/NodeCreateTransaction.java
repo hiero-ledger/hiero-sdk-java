@@ -59,6 +59,12 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     @Nullable
     private Key adminKey = null;
 
+    @Nullable
+    private Boolean declineReward = null;
+
+    @Nullable
+    private Endpoint grpcWebProxyEndpoint = null;
+
     /**
      * Constructor.
      */
@@ -308,6 +314,55 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
+     * Gets whether this node declines rewards.
+     * If null, the default behavior is to accept rewards.
+     *
+     * @return true if rewards are declined; false if accepted; null if unset.
+     */
+    @Nullable
+    public Boolean getDeclineReward() {
+        return declineReward;
+    }
+
+    /**
+     * Sets whether this node should decline rewards.
+     *
+     * @param decline true to decline rewards, false to accept.
+     * @return {@code this}
+     */
+    public NodeCreateTransaction setDeclineReward(boolean decline) {
+        requireNotFrozen();
+        this.declineReward = decline;
+        return this;
+    }
+
+    /**
+     * Get a web proxy for gRPC from non-gRPC clients.
+     *
+     */
+    @Nullable
+    public Endpoint getGrpcWebProxyEndpoint() {
+        return grpcWebProxyEndpoint;
+    }
+
+    /**
+     * A web proxy for gRPC from non-gRPC clients.
+     * <p>
+     * This endpoint SHALL be a Fully Qualified Domain Name (FQDN) using the HTTPS
+     * protocol, and SHALL support gRPC-Web for use by browser-based clients.<br/>
+     * This endpoint MUST be signed by a trusted certificate authority.<br/>
+     * This endpoint MUST use a valid port and SHALL be reachable over TLS.<br/>
+     * This field MAY be omitted if the node does not support gRPC-Web access.<br/>
+     * This field MUST be updated if the gRPC-Web endpoint changes.<br/>
+     * This field SHALL enable frontend clients to avoid hard-coded proxy endpoints.
+     */
+    public NodeCreateTransaction setGrpcWebProxyEndpoint(@Nullable Endpoint grpcWebProxyEndpoint) {
+        requireNotFrozen();
+        this.grpcWebProxyEndpoint = grpcWebProxyEndpoint;
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.NodeCreateTransactionBody}
@@ -341,6 +396,14 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
             builder.setAdminKey(adminKey.toProtobufKey());
         }
 
+        if (declineReward != null) {
+            builder.setDeclineReward(declineReward);
+        }
+
+        if (grpcWebProxyEndpoint != null) {
+            builder.setGrpcProxyEndpoint(grpcWebProxyEndpoint.toProtobuf());
+        }
+
         return builder;
     }
 
@@ -372,6 +435,12 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
         if (body.hasAdminKey()) {
             adminKey = Key.fromProtobufKey(body.getAdminKey());
+        }
+
+        declineReward = body.getDeclineReward();
+
+        if (body.hasGrpcProxyEndpoint()) {
+            grpcWebProxyEndpoint = Endpoint.fromProtobuf(body.getGrpcProxyEndpoint());
         }
     }
 

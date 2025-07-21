@@ -369,7 +369,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 //    }
     public O execute(Client client, Duration timeout) throws TimeoutException, PrecheckStatusException {
         Throwable lastException = null;
-
+        if (isBatchedAndNotBatchTransaction()) {
+            throw new IllegalArgumentException("Cannot execute batchified transaction outside of BatchTransaction");
+        }
         // If the logger on the request is not set, use the logger in client
         // (if set, otherwise do not use logger)
         if (this.logger == null) {
@@ -457,6 +459,10 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                     return grpcRequest.mapResponse();
             }
         }
+    }
+
+    protected boolean isBatchedAndNotBatchTransaction() {
+        return false;
     }
 
     /**

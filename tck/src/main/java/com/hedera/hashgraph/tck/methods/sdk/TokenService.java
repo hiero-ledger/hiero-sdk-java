@@ -5,12 +5,17 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
+import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2ParamsException;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
+import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
+import com.hedera.hashgraph.tck.util.AirdropUtils;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -485,5 +490,167 @@ public class TokenService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return new TokenBurnResponse("", receipt.status, receipt.totalSupply.toString());
+    }
+
+    @JSONRPC2Method("wipeToken")
+    public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
+        TokenWipeTransaction tokenWipeTransaction = new TokenWipeTransaction();
+
+        params.getTokenId().ifPresent(tokenId -> tokenWipeTransaction.setTokenId(TokenId.fromString(tokenId)));
+
+        params.getAccountId()
+                .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
+
+        try {
+            params.getAmount().ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
+        } catch (NumberFormatException e) {
+            tokenWipeTransaction.setAmount(-1L);
+        }
+
+        params.getSerialNumbers().ifPresent(serialNumbers -> {
+            List<Long> serialNumbersList = new ArrayList<>();
+            for (String serialNumber : serialNumbers) {
+                serialNumbersList.add(Long.parseLong(serialNumber));
+            }
+            tokenWipeTransaction.setSerials(serialNumbersList);
+        });
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenWipeTransaction, sdkService.getClient()));
+
+        TransactionReceipt receipt =
+                tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("airdropToken")
+    public Map<String, String> airdropToken(final TokenAirdropParams params) throws Exception {
+        TokenAirdropTransaction tokenAirdropTransaction = new TokenAirdropTransaction();
+
+        // Set a 3-second gRPC deadline
+        Duration threeSecondsDuration = Duration.ofSeconds(3);
+        tokenAirdropTransaction.setGrpcDeadline(threeSecondsDuration);
+
+        if (params.getTokenTransfers().isEmpty()) {
+            throw new InvalidJSONRPC2ParamsException("transferParams is required");
+        }
+
+        List<TransferParams> transferParams = params.getTokenTransfers().get();
+
+        for (TransferParams transferParam : transferParams) {
+            try {
+                AirdropUtils.handleAirdropParam(tokenAirdropTransaction, transferParam);
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenAirdropTransaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = tokenAirdropTransaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("cancelAirdrop")
+    public Map<String, String> cancelAirdrop(final TokenAirdropCancelParams params) throws Exception {
+        TokenCancelAirdropTransaction tokenCancelAirdropTransaction = new TokenCancelAirdropTransaction();
+
+        Duration threeSecondsDuration = Duration.ofSeconds(3);
+        tokenCancelAirdropTransaction.setGrpcDeadline(threeSecondsDuration);
+
+        if (params.getPendingAirdrops().isEmpty()) {
+            throw new InvalidJSONRPC2ParamsException("pendingAirdrops is required");
+        }
+
+        List<PendingAirdropParams> pendingAirdrops = params.getPendingAirdrops().get();
+
+        for (PendingAirdropParams pendingAirdrop : pendingAirdrops) {
+            String tokenId = pendingAirdrop
+                    .getTokenId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("tokenId is required"));
+            String senderAccountId = pendingAirdrop
+                    .getSenderAccountId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("senderAccountId is required"));
+            String receiverAccountId = pendingAirdrop
+                    .getReceiverAccountId()
+                    .orElseThrow(() -> new InvalidJSONRPC2ParamsException("receiverAccountId is required"));
+
+            if (pendingAirdrop.getSerialNumbers().isPresent()
+                    && !pendingAirdrop.getSerialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = pendingAirdrop.getSerialNumbers().get();
+                for (String serialNumber : serialNumbers) {
+                    PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                            AccountId.fromString(senderAccountId),
+                            AccountId.fromString(receiverAccountId),
+                            new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber)));
+                    tokenCancelAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+                }
+            } else {
+                PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                        AccountId.fromString(senderAccountId),
+                        AccountId.fromString(receiverAccountId),
+                        TokenId.fromString(tokenId));
+                tokenCancelAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+            }
+        }
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
+                        tokenCancelAirdropTransaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = tokenCancelAirdropTransaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("claimToken")
+    public Map<String, String> claimToken(final TokenClaimAirdropParams params) throws Exception {
+        TokenClaimAirdropTransaction tokenClaimAirdropTransaction = new TokenClaimAirdropTransaction();
+
+        Duration threeSecondsDuration = Duration.ofSeconds(3);
+        tokenClaimAirdropTransaction.setGrpcDeadline(threeSecondsDuration);
+
+        String senderAccountId = params.getSenderAccountId()
+                .orElseThrow(() -> new InvalidJSONRPC2ParamsException("senderAccountId is required"));
+        String receiverAccountId = params.getReceiverAccountId()
+                .orElseThrow(() -> new InvalidJSONRPC2ParamsException("receiverAccountId is required"));
+        String tokenId =
+                params.getTokenId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("tokenId is required"));
+
+        // NFT token claiming
+        if (params.getSerialNumbers().isPresent()
+                && !params.getSerialNumbers().get().isEmpty()) {
+            List<String> serialNumbers = params.getSerialNumbers().get();
+            for (String serialNumber : serialNumbers) {
+                PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                        AccountId.fromString(senderAccountId),
+                        AccountId.fromString(receiverAccountId),
+                        new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber)));
+                tokenClaimAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+            }
+        } else {
+            // Fungible token claiming
+            PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                    AccountId.fromString(senderAccountId),
+                    AccountId.fromString(receiverAccountId),
+                    TokenId.fromString(tokenId));
+            tokenClaimAirdropTransaction.addPendingAirdrop(pendingAirdropId);
+        }
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
+                        tokenClaimAirdropTransaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = tokenClaimAirdropTransaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+
+        return Map.of("status", receipt.status.toString());
     }
 }

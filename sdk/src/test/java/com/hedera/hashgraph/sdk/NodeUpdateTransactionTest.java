@@ -2,8 +2,10 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.google.protobuf.BoolValue;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -16,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class NodeUpdateTransactionTest {
@@ -37,6 +40,8 @@ public class NodeUpdateTransactionTest {
             spawnTestEndpoint((byte) 4),
             spawnTestEndpoint((byte) 5),
             spawnTestEndpoint((byte) 6));
+
+    private static final Endpoint TEST_GRPC_WEB_PROXY_ENDPOINT = spawnTestEndpoint((byte) 3);
 
     private static final byte[] TEST_GOSSIP_CA_CERTIFICATE = new byte[] {0, 1, 2, 3, 4};
 
@@ -83,6 +88,8 @@ public class NodeUpdateTransactionTest {
                 .setGrpcCertificateHash(TEST_GRPC_CERTIFICATE_HASH)
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setMaxTransactionFee(new Hbar(1))
+                .setDeclineReward(true)
+                .setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT)
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -116,7 +123,8 @@ public class NodeUpdateTransactionTest {
     void testEmptyCertificates() throws Exception {
         var tx = new NodeUpdateTransaction()
                 .setGossipCaCertificate(new byte[] {})
-                .setGrpcCertificateHash(new byte[] {});
+                .setGrpcCertificateHash(new byte[] {})
+                .setNodeId(0l);
         var tx2Bytes = tx.toBytes();
         NodeUpdateTransaction deserializedTx = (NodeUpdateTransaction) Transaction.fromBytes(tx2Bytes);
         assertThat(deserializedTx.getGossipCaCertificate()).isEqualTo(new byte[] {});
@@ -163,6 +171,7 @@ public class NodeUpdateTransactionTest {
         transactionBodyBuilder.setGossipCaCertificate(BytesValue.of(ByteString.copyFrom(TEST_GOSSIP_CA_CERTIFICATE)));
         transactionBodyBuilder.setGrpcCertificateHash(BytesValue.of(ByteString.copyFrom(TEST_GRPC_CERTIFICATE_HASH)));
         transactionBodyBuilder.setAdminKey(TEST_ADMIN_KEY.toProtobufKey());
+        transactionBodyBuilder.setDeclineReward(BoolValue.of(true));
 
         var tx = TransactionBody.newBuilder()
                 .setNodeUpdate(transactionBodyBuilder.build())
@@ -177,6 +186,7 @@ public class NodeUpdateTransactionTest {
         assertThat(nodeUpdateTransaction.getGossipCaCertificate()).isEqualTo(TEST_GOSSIP_CA_CERTIFICATE);
         assertThat(nodeUpdateTransaction.getGrpcCertificateHash()).isEqualTo(TEST_GRPC_CERTIFICATE_HASH);
         assertThat(nodeUpdateTransaction.getAdminKey()).isEqualTo(TEST_ADMIN_KEY);
+        assertThat(nodeUpdateTransaction.getDeclineReward()).isEqualTo(true);
     }
 
     @Test
@@ -273,5 +283,106 @@ public class NodeUpdateTransactionTest {
     void getSetAdminKeyFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setAdminKey(TEST_ADMIN_KEY));
+    }
+
+    @Test
+    void getSetDeclineReward() {
+        var tx = new NodeUpdateTransaction().setDeclineReward(true);
+        assertThat(tx.getDeclineReward()).isEqualTo(true);
+    }
+
+    @Test
+    void getSetDeclineRewardFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setDeclineReward(false));
+    }
+
+    @Test
+    void getGrpcWebProxyEndpoint() {
+        var nodeUpdateTransaction = new NodeUpdateTransaction().setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT);
+        assertThat(nodeUpdateTransaction.getGrpcWebProxyEndpoint()).isEqualTo(TEST_GRPC_WEB_PROXY_ENDPOINT);
+    }
+
+    @Test
+    void setGrpcWebProxyEndpointRequiresFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
+    }
+
+    @Test
+    @DisplayName("should freeze successfully when nodeId is set")
+    void shouldFreezeSuccessfullyWhenNodeIdIsSet() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID);
+
+        assertThatCode(() -> transaction.freezeWith(null)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing without setting nodeId")
+    void shouldThrowErrorWhenFreezingWithoutSettingNodeId() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should throw error when freezing with nodeId null")
+    void shouldThrowErrorWhenFreezingWithZeroNodeId() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START));
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.freezeWith(null));
+        assertThat(exception.getMessage())
+                .isEqualTo("NodeUpdateTransaction: 'nodeId' must be explicitly set before calling freeze().");
+    }
+
+    @Test
+    @DisplayName("should freeze successfully with actual client when nodeId is set")
+    void shouldFreezeSuccessfullyWithActualClientWhenNodeIdIsSet() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID);
+
+        var mockClient = Client.forTestnet();
+
+        assertThatCode(() -> transaction.freezeWith(mockClient)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+    }
+
+    @Test
+    @DisplayName("should freeze successfully when nodeId is set with additional fields")
+    void shouldFreezeSuccessfullyWhenNodeIdIsSetWithAdditionalFields() {
+        var transaction = new NodeUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
+                .setTransactionId(TransactionId.withValidStart(TEST_ACCOUNT_ID, TEST_VALID_START))
+                .setNodeId(TEST_NODE_ID)
+                .setDescription(TEST_DESCRIPTION)
+                .setAccountId(TEST_ACCOUNT_ID)
+                .setDeclineReward(false);
+
+        assertThatCode(() -> transaction.freezeWith(null)).doesNotThrowAnyException();
+        assertThat(transaction.getNodeId()).isEqualTo(TEST_NODE_ID);
+        assertThat(transaction.getDescription()).isEqualTo(TEST_DESCRIPTION);
+        assertThat(transaction.getAccountId()).isEqualTo(TEST_ACCOUNT_ID);
+        assertThat(transaction.getDeclineReward()).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("should throw error when getting nodeId without setting it")
+    void shouldThrowErrorWhenGettingNodeIdWithoutSettingIt() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
+        assertThat(exception.getMessage()).isEqualTo("NodeUpdateTransaction: 'nodeId' has not been set");
     }
 }

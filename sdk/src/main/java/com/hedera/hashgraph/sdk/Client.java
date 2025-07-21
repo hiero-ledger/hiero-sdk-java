@@ -75,6 +75,8 @@ public final class Client implements AutoCloseable {
     private boolean autoValidateChecksums = false;
     private boolean defaultRegenerateTransactionId = true;
     private final boolean shouldShutdownExecutor;
+    private final long shard;
+    private final long realm;
     // If networkUpdatePeriod is null, any network updates in progress will not complete
     @Nullable
     private Duration networkUpdatePeriod;
@@ -99,12 +101,16 @@ public final class Client implements AutoCloseable {
             MirrorNetwork mirrorNetwork,
             @Nullable Duration networkUpdateInitialDelay,
             boolean shouldShutdownExecutor,
-            @Nullable Duration networkUpdatePeriod) {
+            @Nullable Duration networkUpdatePeriod,
+            long shard,
+            long realm) {
         this.executor = executor;
         this.network = network;
         this.mirrorNetwork = mirrorNetwork;
         this.shouldShutdownExecutor = shouldShutdownExecutor;
         this.networkUpdatePeriod = networkUpdatePeriod;
+        this.shard = shard;
+        this.realm = realm;
         scheduleNetworkUpdate(networkUpdateInitialDelay);
     }
 
@@ -137,7 +143,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, false, null);
+        return new Client(executor, network, mirrorNetwork, null, false, null, 0, 0);
     }
 
     /**
@@ -154,25 +160,63 @@ public final class Client implements AutoCloseable {
      */
     public static Client forNetwork(Map<String, AccountId> networkMap) {
         var executor = createExecutor();
+        var isValidNetwork = true;
+        var shard = 0L;
+        var realm = 0L;
+
+        for (AccountId accountId : networkMap.values()) {
+            if (shard == 0) {
+                shard = accountId.shard;
+            }
+            if (realm == 0) {
+                realm = accountId.realm;
+            }
+
+            if (shard != accountId.shard || realm != accountId.realm) {
+                isValidNetwork = false;
+                break;
+            }
+        }
+
+        if (!isValidNetwork) {
+            throw new IllegalArgumentException("Network is not valid, all nodes must be in the same shard and realm");
+        }
+
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, true, null);
+        return new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
     }
 
     /**
      * Set up the client from selected mirror network.
+     * Using default `0` values for realm and shard for retrieving addressBookFileId
      *
      * @param mirrorNetworkList
      * @return
      */
     public static Client forMirrorNetwork(List<String> mirrorNetworkList)
             throws InterruptedException, TimeoutException {
+        return forMirrorNetwork(mirrorNetworkList, 0, 0);
+    }
+
+    /**
+     * Set up the client from selected mirror network and given realm and shard
+     *
+     * @param mirrorNetworkList
+     * @param realm
+     * @param shard
+     * @return
+     */
+    public static Client forMirrorNetwork(List<String> mirrorNetworkList, long shard, long realm)
+            throws InterruptedException, TimeoutException {
         var executor = createExecutor();
         var network = Network.forNetwork(executor, new HashMap<>());
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, mirrorNetworkList);
-        var client = new Client(executor, network, mirrorNetwork, null, true, null);
-        var addressBook = new AddressBookQuery().setFileId(FileId.ADDRESS_BOOK).execute(client);
+        var client = new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
+        var addressBook = new AddressBookQuery()
+                .setFileId(FileId.getAddressBookFileIdFor(shard, realm))
+                .execute(client);
         client.setNetworkFromAddressBook(addressBook);
         return client;
     }
@@ -204,7 +248,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -219,7 +270,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -235,7 +293,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -250,7 +315,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -265,7 +337,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -281,7 +360,14 @@ public final class Client implements AutoCloseable {
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
         return new Client(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -369,12 +455,15 @@ public final class Client implements AutoCloseable {
             networkUpdateFuture = null;
             return;
         }
+
         networkUpdateFuture = Delayer.delayFor(delay.toMillis(), executor);
         networkUpdateFuture.thenRun(() -> {
             // Checking networkUpdatePeriod != null must be synchronized, so I've put it in a synchronized method.
             requireNetworkUpdatePeriodNotNull(() -> {
+                var fileId = FileId.getAddressBookFileIdFor(this.shard, this.realm);
+
                 new AddressBookQuery()
-                        .setFileId(FileId.ADDRESS_BOOK)
+                        .setFileId(fileId)
                         .executeAsync(this)
                         .thenCompose(addressBook -> requireNetworkUpdatePeriodNotNull(() -> {
                             try {
@@ -388,6 +477,7 @@ public final class Client implements AutoCloseable {
                             logger.warn("Failed to update address book via mirror node query ", error);
                             return null;
                         });
+
                 scheduleNetworkUpdate(networkUpdatePeriod);
                 return null;
             });
@@ -1301,6 +1391,24 @@ public final class Client implements AutoCloseable {
     }
 
     /**
+     * Get the current default realm for new Client instances.
+     *
+     * @return the default realm
+     */
+    public long getRealm() {
+        return this.realm;
+    }
+
+    /**
+     * Get the current default shard for new Client instances.
+     *
+     * @return the default shard
+     */
+    public long getShard() {
+        return this.shard;
+    }
+
+    /**
      * Initiates an orderly shutdown of all channels (to the Hedera network) in which preexisting transactions or
      * queries continue but more would be immediately cancelled.
      *
@@ -1387,6 +1495,12 @@ public final class Client implements AutoCloseable {
         @Nullable
         private JsonElement mirrorNetwork;
 
+        @Nullable
+        private JsonElement shard;
+
+        @Nullable
+        private JsonElement realm;
+
         private static class ConfigOperator {
             @Nullable
             private String accountId;
@@ -1419,7 +1533,6 @@ public final class Client implements AutoCloseable {
             if (network.isJsonObject()) {
                 client = clientFromNetworkJson();
             } else {
-                ;
                 client = clientFromNetworkString();
             }
             return client;
@@ -1429,7 +1542,12 @@ public final class Client implements AutoCloseable {
             Client client;
             var networkJson = network.getAsJsonObject();
             Map<String, AccountId> nodes = Client.getNetworkNodes(networkJson);
-            client = Client.forNetwork(nodes);
+            var executor = createExecutor();
+            var network = Network.forNetwork(executor, nodes);
+            var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
+            var shardValue = shard != null ? shard.getAsLong() : 0;
+            var realmValue = realm != null ? realm.getAsLong() : 0;
+            client = new Client(executor, network, mirrorNetwork, null, true, null, shardValue, realmValue);
             setNetworkNameOn(client);
             return client;
         }

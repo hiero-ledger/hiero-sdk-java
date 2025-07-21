@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
+import javax.annotation.Nullable;
 
 /**
  * A transaction to delete a node from the network address book.
@@ -30,7 +31,7 @@ import java.util.LinkedHashMap;
  */
 public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
 
-    private long nodeId = 0;
+    private Long nodeId;
 
     /**
      * Constructor.
@@ -63,8 +64,12 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
     /**
      * Extract the consensus node identifier in the network state.
      * @return the consensus node identifier in the network state.
+     * @throws IllegalStateException when node is not being set
      */
     public long getNodeId() {
+        if (nodeId == null) {
+            throw new IllegalStateException("NodeDeleteTransaction: 'nodeId' has not been set");
+        }
         return nodeId;
     }
 
@@ -91,7 +96,9 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
      */
     NodeDeleteTransactionBody.Builder build() {
         var builder = NodeDeleteTransactionBody.newBuilder();
-        builder.setNodeId(nodeId);
+        if (nodeId != null) {
+            builder.setNodeId(nodeId);
+        }
         return builder;
     }
 
@@ -121,5 +128,21 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setNodeDelete(build());
+    }
+
+    /**
+     * Freeze this transaction with the given client.
+     *
+     * @param client the client to freeze with
+     * @return this transaction
+     * @throws IllegalStateException if nodeId is not set
+     */
+    @Override
+    public NodeDeleteTransaction freezeWith(@Nullable Client client) {
+        if (nodeId == null) {
+            throw new IllegalStateException(
+                    "NodeDeleteTransaction: 'nodeId' must be explicitly set before calling freeze().");
+        }
+        return super.freezeWith(client);
     }
 }

@@ -2,22 +2,7 @@ syntax = "proto3";
 
 package com.hedera.hapi.node.addressbook;
 
-/*
- * Copyright (C) 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// SPDX-License-Identifier: Apache-2.0
 option java_package = "com.hedera.hashgraph.sdk.proto";
 // <<<pbj.java_package = "com.hedera.hapi.node.addressbook">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
@@ -132,7 +117,7 @@ message NodeCreateTransactionBody {
     bytes grpc_certificate_hash = 6;
 
     /**
-    * An administrative key controlled by the node operator.
+     * An administrative key controlled by the node operator.
      * <p>
      * This key MUST sign this transaction.<br/>
      * This key MUST sign each transaction to update this node.<br/>
@@ -140,4 +125,26 @@ message NodeCreateTransactionBody {
      * This field is REQUIRED and MUST NOT be set to an empty `KeyList`.
      */
     proto.Key admin_key = 7;
+
+    /**
+     * A boolean flag indicating whether the node operator declines to receive
+     * node rewards.
+     * <p>
+     * If this flag is set to `true`, the node operator declines to receive
+     * node rewards.<br/>
+     */
+    bool decline_reward = 8;
+
+    /**
+     * A web proxy for gRPC from non-gRPC clients.
+     * <p>
+     * This endpoint SHALL be a Fully Qualified Domain Name (FQDN) using the HTTPS
+     * protocol, and SHALL support gRPC-Web for use by browser-based clients.<br/>
+     * This endpoint MUST be signed by a trusted certificate authority.<br/>
+     * This endpoint MUST use a valid port and SHALL be reachable over TLS.<br/>
+     * This field MAY be omitted if the node does not support gRPC-Web access.<br/>
+     * This field MUST be updated if the gRPC-Web endpoint changes.<br/>
+     * This field SHALL enable frontend clients to avoid hard-coded proxy endpoints.
+     */
+    proto.ServiceEndpoint grpc_proxy_endpoint = 9;
 }

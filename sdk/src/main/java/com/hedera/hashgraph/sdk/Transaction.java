@@ -3,24 +3,11 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SignatureMap;
-import com.hedera.hashgraph.sdk.proto.SignaturePair;
-import com.hedera.hashgraph.sdk.proto.SignedTransaction;
-import com.hedera.hashgraph.sdk.proto.TransactionBody;
-import com.hedera.hashgraph.sdk.proto.TransactionList;
+import com.hedera.hashgraph.sdk.proto.*;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -60,6 +47,8 @@ public abstract class Transaction<T extends Transaction<T>>
      * Default transaction duration
      */
     private static final Duration DEFAULT_TRANSACTION_VALID_DURATION = Duration.ofSeconds(120);
+
+    private static final String ATOMIC_BATCH_NODE_ACCOUNT_ID = "0.0.0";
 
     /**
      * Transaction constructors end their work by setting sourceTransactionBody. The expectation is that the Transaction
@@ -131,6 +120,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
+    private Key batchKey = null;
+
     /**
      * Constructor.
      */
@@ -168,11 +159,12 @@ public abstract class Transaction<T extends Transaction<T>>
         LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction> transactionMap =
                 txs.values().iterator().next();
         if (!transactionMap.isEmpty()
-                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)) {
+                && transactionMap.keySet().iterator().next().equals(DUMMY_ACCOUNT_ID)
+                && this.batchKey != null) {
             // If the first account ID is a dummy account ID, then only the source TransactionBody needs to be copied.
             var signedTransaction = SignedTransaction.parseFrom(
                     transactionMap.values().iterator().next().getSignedTransactionBytes());
-            sourceTransactionBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+            sourceTransactionBody = parseTransactionBody(signedTransaction.getBodyBytes());
         } else {
             var txCount = txs.keySet().size();
             var nodeCount = txs.values().iterator().next().size();
@@ -215,8 +207,8 @@ public abstract class Transaction<T extends Transaction<T>>
                 TransactionBody firstTxBody = null;
                 for (int j = 0; j < nodeCount; j++) {
                     int k = i * nodeCount + j;
-                    var txBody = TransactionBody.parseFrom(
-                            innerSignedTransactions.get(k).getBodyBytes());
+                    var txBody =
+                            parseTransactionBody(innerSignedTransactions.get(k).getBodyBytes());
                     if (firstTxBody == null) {
                         firstTxBody = txBody;
                     } else {
@@ -226,7 +218,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 }
             }
             sourceTransactionBody =
-                    TransactionBody.parseFrom(innerSignedTransactions.get(0).getBodyBytes());
+                    parseTransactionBody(innerSignedTransactions.get(0).getBodyBytes());
         }
 
         setTransactionValidDuration(
@@ -237,6 +229,7 @@ public abstract class Transaction<T extends Transaction<T>>
         this.customFeeLimits = sourceTransactionBody.getMaxCustomFeesList().stream()
                 .map(CustomFeeLimit::fromProtobuf)
                 .toList();
+        this.batchKey = Key.fromProtobufKey(sourceTransactionBody.getBatchKey());
 
         // The presence of signatures implies the Transaction should be frozen.
         if (!publicKeys.isEmpty()) {
@@ -252,68 +245,122 @@ public abstract class Transaction<T extends Transaction<T>>
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static Transaction<?> fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        var txs = new LinkedHashMap<
-                TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>>();
-        TransactionBody.DataCase dataCase = TransactionBody.DataCase.DATA_NOT_SET;
-
         var list = TransactionList.parseFrom(bytes);
 
-        if (list.getTransactionListList().isEmpty()) {
-            var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes).toBuilder();
+        var txsMap = new LinkedHashMap<
+                TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>>();
 
-            TransactionBody txBody;
-            if (transaction.getSignedTransactionBytes().isEmpty()) {
-                txBody = TransactionBody.parseFrom(transaction.getBodyBytes());
+        TransactionBody.DataCase dataCase;
 
-                transaction
-                        .setSignedTransactionBytes(SignedTransaction.newBuilder()
-                                .setBodyBytes(transaction.getBodyBytes())
-                                .setSigMap(transaction.getSigMap())
-                                .build()
-                                .toByteString())
-                        .clearBodyBytes()
-                        .clearSigMap();
-            } else {
-                var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-                txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-            }
-
-            dataCase = txBody.getDataCase();
-
-            var account =
-                    txBody.hasNodeAccountID() ? AccountId.fromProtobuf(txBody.getNodeAccountID()) : DUMMY_ACCOUNT_ID;
-            var transactionId = txBody.hasTransactionID()
-                    ? TransactionId.fromProtobuf(txBody.getTransactionID())
-                    : DUMMY_TRANSACTION_ID;
-
-            var linked = new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
-            linked.put(account, transaction.build());
-            txs.put(transactionId, linked);
+        if (!list.getTransactionListList().isEmpty()) {
+            dataCase = processTransactionList(list.getTransactionListList(), txsMap);
         } else {
-            for (var transaction : list.getTransactionListList()) {
-                var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-                var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
-
-                if (dataCase.getNumber() == TransactionBody.DataCase.DATA_NOT_SET.getNumber()) {
-                    dataCase = txBody.getDataCase();
-                }
-
-                var account = txBody.hasNodeAccountID()
-                        ? AccountId.fromProtobuf(txBody.getNodeAccountID())
-                        : DUMMY_ACCOUNT_ID;
-                var transactionId = txBody.hasTransactionID()
-                        ? TransactionId.fromProtobuf(txBody.getTransactionID())
-                        : DUMMY_TRANSACTION_ID;
-
-                var linked = txs.containsKey(transactionId)
-                        ? Objects.requireNonNull(txs.get(transactionId))
-                        : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
-
-                linked.put(account, transaction);
-
-                txs.put(transactionId, linked);
-            }
+            dataCase = processSingleTransaction(bytes, txsMap);
         }
+
+        return createTransactionFromDataCase(dataCase, txsMap);
+    }
+
+    /**
+     * Process a single transaction
+     */
+    private static TransactionBody.DataCase processSingleTransaction(
+            byte[] bytes,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap)
+            throws InvalidProtocolBufferException {
+
+        var transaction = com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(bytes);
+        var builtTransaction = prepareSingleTransaction(transaction);
+
+        var signedTransaction = SignedTransaction.parseFrom(builtTransaction.getSignedTransactionBytes());
+        var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+        addTransactionToMap(builtTransaction, txBody, txsMap);
+
+        return txBody.getDataCase();
+    }
+
+    /**
+     * Prepare a single transaction by ensuring it has SignedTransactionBytes
+     */
+    private static com.hedera.hashgraph.sdk.proto.Transaction prepareSingleTransaction(
+            com.hedera.hashgraph.sdk.proto.Transaction transaction) {
+
+        if (transaction.getSignedTransactionBytes().isEmpty()) {
+            var txBuilder = transaction.toBuilder();
+            var bodyBytes = txBuilder.getBodyBytes();
+            var sigMap = txBuilder.getSigMap();
+
+            txBuilder
+                    .setSignedTransactionBytes(SignedTransaction.newBuilder()
+                            .setBodyBytes(bodyBytes)
+                            .setSigMap(sigMap)
+                            .build()
+                            .toByteString())
+                    .clearBodyBytes()
+                    .clearSigMap();
+
+            return txBuilder.build();
+        }
+
+        return transaction;
+    }
+
+    /**
+     * Process a list of transactions with integrity verification
+     */
+    private static TransactionBody.DataCase processTransactionList(
+            List<com.hedera.hashgraph.sdk.proto.Transaction> transactionList,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap)
+            throws InvalidProtocolBufferException {
+
+        if (transactionList.isEmpty()) {
+            return TransactionBody.DataCase.DATA_NOT_SET;
+        }
+
+        var firstTransaction = transactionList.get(0);
+        var firstSignedTransaction = SignedTransaction.parseFrom(firstTransaction.getSignedTransactionBytes());
+        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
+        var dataCase = firstTxBody.getDataCase();
+
+        for (com.hedera.hashgraph.sdk.proto.Transaction transaction : transactionList) {
+            var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
+            var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+            addTransactionToMap(transaction, txBody, txsMap);
+        }
+
+        return dataCase;
+    }
+
+    /**
+     * Add a transaction to the transaction map
+     */
+    private static void addTransactionToMap(
+            com.hedera.hashgraph.sdk.proto.Transaction transaction,
+            TransactionBody txBody,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txsMap) {
+
+        var account = txBody.hasNodeAccountID() ? AccountId.fromProtobuf(txBody.getNodeAccountID()) : DUMMY_ACCOUNT_ID;
+        var transactionId = txBody.hasTransactionID()
+                ? TransactionId.fromProtobuf(txBody.getTransactionID())
+                : DUMMY_TRANSACTION_ID;
+
+        var linked = txsMap.containsKey(transactionId)
+                ? Objects.requireNonNull(txsMap.get(transactionId))
+                : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
+
+        linked.put(account, transaction);
+        txsMap.put(transactionId, linked);
+    }
+
+    /**
+     * Creates the appropriate transaction type based on the data case.
+     */
+    private static Transaction<?> createTransactionFromDataCase(
+            TransactionBody.DataCase dataCase,
+            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txs)
+            throws InvalidProtocolBufferException {
 
         return switch (dataCase) {
             case CONTRACTCALL -> new ContractExecuteTransaction(txs);
@@ -366,6 +413,7 @@ public abstract class Transaction<T extends Transaction<T>>
             case TOKENCLAIMAIRDROP -> new TokenClaimAirdropTransaction(txs);
             case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(txs);
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
+            case ATOMIC_BATCH -> new BatchTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }
@@ -633,6 +681,10 @@ public abstract class Transaction<T extends Transaction<T>>
         return scheduled;
     }
 
+    protected boolean isBatchedAndNotBatchTransaction() {
+        return batchKey != null && !(this instanceof BatchTransaction);
+    }
+
     /**
      * Extract the scheduled transaction.
      *
@@ -749,6 +801,42 @@ public abstract class Transaction<T extends Transaction<T>>
         this.memo = memo;
         // noinspection unchecked
         return (T) this;
+    }
+
+    /**
+     * batchify method is used to mark a transaction as part of a batch transaction or make it so-called inner transaction.
+     * The Transaction will be frozen and signed by the operator of the client.
+     * @param client sdk client
+     * @param batchKey batch key
+     * @return {@code this}
+     */
+    public final T batchify(Client client, Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+        signWithOperator(client);
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Set the key that will sign the batch of which this Transaction is a part of.
+     */
+    public final T setBatchKey(Key batchKey) {
+        requireNotFrozen();
+        Objects.requireNonNull(batchKey);
+        this.batchKey = batchKey;
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Get the key that will sign the batch of which this Transaction is a part of.
+     */
+    public Key getBatchKey() {
+        return batchKey;
     }
     /**
      * Extract a byte array representation.
@@ -1086,12 +1174,16 @@ public abstract class Transaction<T extends Transaction<T>>
 
         var feeHbars = maxTransactionFee != null ? maxTransactionFee : defaultFee;
 
-        return TransactionBody.newBuilder()
+        var builder = TransactionBody.newBuilder()
                 .setTransactionFee(feeHbars.toTinybars())
                 .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
                 .addAllMaxCustomFees(
                         customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
                 .setMemo(memo);
+        if (batchKey != null) {
+            builder.setBatchKey(batchKey.toProtobufKey());
+        }
+        return builder;
     }
 
     /**
@@ -1143,7 +1235,12 @@ public abstract class Transaction<T extends Transaction<T>>
             }
 
             try {
-                nodeAccountIds.setList(client.network.getNodeAccountIdsForExecute());
+                if (batchKey == null) {
+                    nodeAccountIds.setList(client.network.getNodeAccountIdsForExecute());
+                } else {
+                    nodeAccountIds.setList(
+                            Collections.singletonList(AccountId.fromString(ATOMIC_BATCH_NODE_ACCOUNT_ID)));
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -1409,5 +1506,238 @@ public abstract class Transaction<T extends Transaction<T>>
         onFreeze(body);
 
         return body.buildPartial().toString().replaceAll("@[A-Za-z0-9]+", "");
+    }
+
+    /**
+     * This method retrieves the size of the transaction
+     * @return
+     */
+    public int getTransactionSize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+        }
+
+        return makeRequest().getSerializedSize();
+    }
+
+    /**
+     * This method retrieves the transaction body size
+     * @return
+     */
+    public int getTransactionBodySize() {
+        if (!this.isFrozen()) {
+            throw new IllegalStateException(
+                    "transaction must have been frozen before getting it's body size, try calling `freeze`");
+        }
+
+        if (frozenBodyBuilder != null) {
+            return frozenBodyBuilder.build().getSerializedSize();
+        }
+
+        return 0;
+    }
+
+    public static class SignableNodeTransactionBodyBytes {
+        private AccountId nodeID;
+        private TransactionId transactionID;
+        private byte[] body;
+
+        public SignableNodeTransactionBodyBytes(AccountId nodeID, TransactionId transactionID, byte[] body) {
+            this.nodeID = nodeID;
+            this.transactionID = transactionID;
+            this.body = body;
+        }
+
+        public AccountId getNodeID() {
+            return nodeID;
+        }
+
+        public TransactionId getTransactionID() {
+            return transactionID;
+        }
+
+        public byte[] getBody() {
+            return body;
+        }
+    }
+
+    /**
+     * Returns a list of SignableNodeTransactionBodyBytes objects for each signed transaction in the transaction list.
+     * The NodeID represents the node that this transaction is signed for.
+     * The TransactionID is useful for signing chunked transactions like FileAppendTransaction,
+     * since they can have multiple transaction ids.
+     *
+     * @return List of SignableNodeTransactionBodyBytes
+     * @throws RuntimeException if transaction is not frozen or protobuf parsing fails
+     */
+    public List<SignableNodeTransactionBodyBytes> getSignableNodeBodyBytesList() {
+        if (!this.isFrozen()) {
+            throw new RuntimeException("Transaction is not frozen");
+        }
+
+        List<SignableNodeTransactionBodyBytes> signableNodeTransactionBodyBytesList = new ArrayList<>();
+
+        for (int i = 0; i < innerSignedTransactions.size(); i++) {
+            SignedTransaction signableNodeTransactionBodyBytes =
+                    innerSignedTransactions.get(i).build();
+
+            TransactionBody body = parseTransactionBody(signableNodeTransactionBodyBytes.getBodyBytes());
+
+            AccountId nodeID = AccountId.fromProtobuf(body.getNodeAccountID());
+            TransactionId transactionID = TransactionId.fromProtobuf(body.getTransactionID());
+
+            signableNodeTransactionBodyBytesList.add(new SignableNodeTransactionBodyBytes(
+                    nodeID,
+                    transactionID,
+                    signableNodeTransactionBodyBytes.getBodyBytes().toByteArray()));
+        }
+
+        return signableNodeTransactionBodyBytesList;
+    }
+
+    /**
+     * Adds a signature to the transaction for a specific transaction id and node id.
+     * This is useful for signing chunked transactions like FileAppendTransaction,
+     * since they can have multiple transaction ids.
+     *
+     * @param publicKey The public key to add signature for
+     * @param signature The signature bytes
+     * @param transactionID The specific transaction ID to match
+     * @param nodeID The specific node ID to match
+     * @return The child transaction (this)
+     * @throws RuntimeException if unmarshaling fails or invalid signed transaction
+     */
+    public T addSignature(PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
+
+        if (innerSignedTransactions.isEmpty()) {
+            // noinspection unchecked
+            return (T) this;
+        }
+
+        transactionIds.setLocked(true);
+
+        for (int index = 0; index < innerSignedTransactions.size(); index++) {
+            if (processedSignatureForTransaction(index, publicKey, signature, transactionID, nodeID)) {
+                updateTransactionState(publicKey);
+            }
+        }
+
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Processes signature addition for a single transaction at the given index.
+     *
+     * @param index The index of the transaction to process
+     * @param publicKey The public key to add signature for
+     * @param signature The signature bytes
+     * @param transactionID The specific transaction ID to match
+     * @param nodeID The specific node ID to match
+     * @return true if signature was added, false otherwise
+     */
+    private boolean processedSignatureForTransaction(
+            int index, PublicKey publicKey, byte[] signature, TransactionId transactionID, AccountId nodeID) {
+        SignedTransaction.Builder temp = innerSignedTransactions.get(index);
+
+        TransactionBody body = parseTransactionBody(temp);
+        if (body == null) {
+            return false;
+        }
+
+        if (!matchesTargetTransactionAndNode(body, transactionID, nodeID)) {
+            return false;
+        }
+
+        return addSignatureIfNotExists(index, publicKey, signature);
+    }
+
+    /**
+     * Parses the transaction body from a signed transaction builder.
+     *
+     * @param signedTransactionBuilder The signed transaction builder
+     * @return The parsed transaction body, or null if parsing fails
+     */
+    private static TransactionBody parseTransactionBody(SignedTransaction.Builder signedTransactionBuilder) {
+        try {
+            return TransactionBody.parseFrom(signedTransactionBuilder.getBodyBytes());
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException("Failed to parse transaction body", e);
+        }
+    }
+
+    private static TransactionBody parseTransactionBody(ByteString signedTransactionBuilder) {
+        try {
+            return TransactionBody.parseFrom(signedTransactionBuilder);
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException("Failed to parse transaction body", e);
+        }
+    }
+
+    /**
+     * Checks if the transaction body matches the target transaction ID and node ID.
+     *
+     * @param body The transaction body to check
+     * @param targetTransactionID The target transaction ID to match against
+     * @param targetNodeID The target node ID to match against
+     * @return true if both the transaction ID and node ID match the targets, false otherwise
+     */
+    private boolean matchesTargetTransactionAndNode(
+            TransactionBody body, TransactionId targetTransactionID, AccountId targetNodeID) {
+        TransactionId bodyTxID = TransactionId.fromProtobuf(body.getTransactionID());
+        AccountId bodyNodeID = AccountId.fromProtobuf(body.getNodeAccountID());
+
+        return bodyTxID.toString().equals(targetTransactionID.toString())
+                && bodyNodeID.toString().equals(targetNodeID.toString());
+    }
+
+    /**
+     * Adds signature if it doesn't already exist for the given public key.
+     *
+     * @param index The transaction index
+     * @param publicKey The public key
+     * @param signature The signature bytes
+     * @return true if signature was added, false if it already existed
+     */
+    private boolean addSignatureIfNotExists(int index, PublicKey publicKey, byte[] signature) {
+        SignatureMap.Builder sigMapBuilder = sigPairLists.get(index);
+
+        // Check if the signature is already in the signature map
+        if (isSignatureAlreadyPresent(sigMapBuilder, publicKey)) {
+            return false;
+        }
+
+        // Add the signature to the signature map
+        SignaturePair newSigPair = publicKey.toSignaturePairProtobuf(signature);
+        sigMapBuilder.addSigPair(newSigPair);
+
+        return true;
+    }
+
+    /**
+     * Checks if a signature for the given public key already exists.
+     *
+     * @param sigMapBuilder The signature map builder
+     * @param publicKey The public key to check
+     * @return true if signature already exists, false otherwise
+     */
+    private boolean isSignatureAlreadyPresent(SignatureMap.Builder sigMapBuilder, PublicKey publicKey) {
+        for (SignaturePair sig : sigMapBuilder.getSigPairList()) {
+            if (Arrays.equals(sig.getPubKeyPrefix().toByteArray(), publicKey.toBytesRaw())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Updates the transaction state after adding a signature.
+     *
+     * @param publicKey The public key that was added
+     */
+    private void updateTransactionState(PublicKey publicKey) {
+        publicKeys.add(publicKey);
+        signers.add(null);
     }
 }

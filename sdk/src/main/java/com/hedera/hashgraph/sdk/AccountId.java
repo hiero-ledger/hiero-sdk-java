@@ -203,6 +203,7 @@ public final class AccountId implements Comparable<AccountId> {
      * In case shard and realm are unknown, they should be set to zero
      */
     public static AccountId fromEvmAddress(EvmAddress evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
+        EntityIdHelper.decodeEvmAddress(evmAddress.toString());
         return new AccountId(shard, realm, 0, null, null, evmAddress);
     }
 
@@ -211,9 +212,11 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @param address                   a string representing the address
      * @return                          the account id object
+     * @deprecated This method is deprecated. Use {@link #fromEvmAddress(EvmAddress, long, long)} instead.
      */
+    @Deprecated
     public static AccountId fromSolidityAddress(String address) {
-        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeSolidityAddress(address))) {
+        if (EntityIdHelper.isLongZeroAddress(EntityIdHelper.decodeEvmAddress(address))) {
             return EntityIdHelper.fromSolidityAddress(address, AccountId::new);
         } else {
             return fromEvmAddress(address, 0, 0);
@@ -262,9 +265,23 @@ public final class AccountId implements Comparable<AccountId> {
      * Extract the solidity address.
      *
      * @return                          the solidity address as a string
+     * @deprecated This method is deprecated. Use {@link #toEvmAddress()} instead.
      */
+    @Deprecated
     public String toSolidityAddress() {
         return EntityIdHelper.toSolidityAddress(shard, realm, num);
+    }
+
+    /**
+     * toEvmAddress returns EVM-compatible address representation of the entity
+     * @return
+     */
+    public String toEvmAddress() {
+        if (evmAddress != null) {
+            return Hex.toHexString(evmAddress.toBytes());
+        } else {
+            return EntityIdHelper.toSolidityAddress(0, 0, num);
+        }
     }
 
     /**
