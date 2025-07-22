@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.61.0
+
+### Added
+
+- Validation of nodeId explicitly before execution of transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2388
+  - Following PR introduces specific validation inside NodeUpdateTransaction and NodeDeleteTransaction https://github.com/hiero-ledger/hiero-sdk-java/pull/2406/files
+- Migration document for publishing under the hieronamespace https://github.com/hiero-ledger/hiero-sdk-java/issues/2371
+  - A migration document with information for publishing under the Hiero namespace changes that developers can refer to https://github.com/hiero-ledger/hiero-sdk-java/pull/2411
+- Java version update from 17 to 21 https://github.com/hiero-ledger/hiero-sdk-java/issues/2075
+  - https://github.com/hiero-ledger/hiero-sdk-java/pull/2412
+
+### Deprecated
+
+- EthereumFlow due to introduction of JumboTransactions. https://github.com/hiero-ledger/hiero-sdk-java/issues/2250
+- EthereumTransaction should be used instead. https://github.com/hiero-ledger/hiero-sdk-java/pull/2402/files
+
 ## 2.60.0
 
 ### Added
