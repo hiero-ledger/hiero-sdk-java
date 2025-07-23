@@ -8,7 +8,6 @@ import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import java.util.HashMap;
 import java.util.List;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
