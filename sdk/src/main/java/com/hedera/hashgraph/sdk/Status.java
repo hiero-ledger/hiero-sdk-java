@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
+
 import java.util.Objects;
 
 /**
@@ -1053,8 +1054,7 @@ public enum Status {
     /**
      * Only tokens of type FUNGIBLE_COMMON can have fractional fees
      */
-    CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(
-            ResponseCodeEnum.CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
+    CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(ResponseCodeEnum.CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
 
     /**
      * The provided custom fee schedule key was invalid
@@ -1094,8 +1094,7 @@ public enum Status {
     /**
      * An AccountAmount token transfers list referenced a token type other than FUNGIBLE_COMMON
      */
-    ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(
-            ResponseCodeEnum.ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
+    ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(ResponseCodeEnum.ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
 
     /**
      * All the NFTs allowed in the current price regime have already been minted
@@ -1120,8 +1119,7 @@ public enum Status {
     /**
      * The sender account in the token transfer transaction could not afford a custom fee
      */
-    INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE(
-            ResponseCodeEnum.INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE),
+    INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE(ResponseCodeEnum.INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE),
 
     /**
      * Currently no more than 4,294,967,295 NFTs may be minted for a given unique token type
@@ -1131,8 +1129,7 @@ public enum Status {
     /**
      * Only tokens of type NON_FUNGIBLE_UNIQUE can have royalty fees
      */
-    CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(
-            ResponseCodeEnum.CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
+    CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(ResponseCodeEnum.CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
 
     /**
      * The account has reached the limit on the automatic associations count.
@@ -1142,15 +1139,13 @@ public enum Status {
     /**
      * Already existing automatic associations are more than the new maximum automatic associations.
      */
-    EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT(
-            ResponseCodeEnum.EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT),
+    EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT(ResponseCodeEnum.EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT),
 
     /**
      * Cannot set the number of automatic associations for an account more than the maximum allowed
      * token associations tokens.maxPerAccount.
      */
-    REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT(
-            ResponseCodeEnum.REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT),
+    REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT(ResponseCodeEnum.REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT),
 
     /**
      * Token is paused. This Token cannot be a part of any kind of Transaction until unpaused.
@@ -1380,8 +1375,7 @@ public enum Status {
     /**
      * The scheduled transaction could not be created because it's expiration_time was less than or equal to the consensus time.
      */
-    SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME(
-            ResponseCodeEnum.SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME),
+    SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME(ResponseCodeEnum.SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME),
 
     /**
      * The scheduled transaction could not be created because it would cause throttles to be violated on the specified expiration_time.
@@ -1908,7 +1902,12 @@ public enum Status {
      * The GRPC proxy endpoint is set in the NodeCreate or NodeUpdate transaction,
      * which the network does not support.
      */
-    GRPC_WEB_PROXY_NOT_SUPPORTED(ResponseCodeEnum.GRPC_WEB_PROXY_NOT_SUPPORTED);
+    GRPC_WEB_PROXY_NOT_SUPPORTED(ResponseCodeEnum.GRPC_WEB_PROXY_NOT_SUPPORTED),
+
+    /**
+     * An NFT transfers list referenced a token type other than NON_FUNGIBLE_UNIQUE.
+     */
+    NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE);
 
     final ResponseCodeEnum code;
 
@@ -2276,9 +2275,10 @@ public enum Status {
             case THROTTLE_GROUP_LCM_OVERFLOW -> THROTTLE_GROUP_LCM_OVERFLOW;
             case AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN -> AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN;
             case GRPC_WEB_PROXY_NOT_SUPPORTED -> GRPC_WEB_PROXY_NOT_SUPPORTED;
+            case NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE -> NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
             case UNRECOGNIZED ->
-            // NOTE: Protobuf deserialization will not give us the code on the wire
-            throw new IllegalArgumentException(
+                // NOTE: Protobuf deserialization will not give us the code on the wire
+                throw new IllegalArgumentException(
                     "network returned unrecognized response code; your SDK may be out of date");
         };
     }

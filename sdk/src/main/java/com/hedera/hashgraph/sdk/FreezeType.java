@@ -113,8 +113,8 @@ public enum FreezeType {
             case FREEZE_ABORT -> FREEZE_ABORT;
             case TELEMETRY_UPGRADE -> TELEMETRY_UPGRADE;
             case UNRECOGNIZED ->
-            // NOTE: Protobuf deserialization will not give us the code on the wire
-            throw new IllegalArgumentException(
+                // NOTE: Protobuf deserialization will not give us the code on the wire
+                throw new IllegalArgumentException(
                     "network returned unrecognized response code; your SDK may be out of date");
         };
     }
