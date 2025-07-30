@@ -548,4 +548,18 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
         }
         return super.freezeWith(client);
     }
+
+    /**
+     * Delete the gRPC web proxy endpoint.
+     * <p>
+     * This method clears the gRPC web proxy endpoint by setting it to an empty
+     * Endpoint, which will effectively delete it in the mirror node.
+     *
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction deleteGrpcWebProxyEndpoint() {
+        requireNotFrozen();
+        this.grpcWebProxyEndpoint = new Endpoint();
+        return this;
+    }
 }
