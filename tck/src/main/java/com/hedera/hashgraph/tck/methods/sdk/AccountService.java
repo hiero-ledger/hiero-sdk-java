@@ -12,7 +12,6 @@ import com.hedera.hashgraph.tck.methods.sdk.response.AccountAllowanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,8 +103,8 @@ public class AccountService extends AbstractJSONRPC2Service {
         params.getMemo().ifPresent(accountUpdateTransaction::setAccountMemo);
 
         params.getExpirationTime()
-                .ifPresent(expirationTime -> accountUpdateTransaction.setExpirationTime(
-                        Instant.ofEpochSecond(Long.parseLong(expirationTime))));
+                .ifPresent(expirationTime ->
+                        accountUpdateTransaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
 
         params.getMaxAutoTokenAssociations()
                 .ifPresent(autoAssociations ->

@@ -134,7 +134,7 @@ def ensure_protobufs():
         run_command("git", "clone", PROTO_GIT_REMOTE, PROTO_GIT_PATH)
     os.chdir(PROTO_GIT_PATH)
     run_command("git", "fetch")
-    checkout_ref = "v0.62.2"
+    checkout_ref = "v0.64.0"
     print(f">>> Checking out {checkout_ref}")
     run_command("git", "checkout", checkout_ref)
     if is_branch(checkout_ref):

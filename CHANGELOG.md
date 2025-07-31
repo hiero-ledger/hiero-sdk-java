@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.61.0
+
+### Added
+
+- Validation of nodeId explicitly before execution of transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2388
+  - Following PR introduces specific validation inside NodeUpdateTransaction and NodeDeleteTransaction https://github.com/hiero-ledger/hiero-sdk-java/pull/2406/files
+- Migration document for publishing under the hieronamespace https://github.com/hiero-ledger/hiero-sdk-java/issues/2371
+  - A migration document with information for publishing under the Hiero namespace changes that developers can refer to https://github.com/hiero-ledger/hiero-sdk-java/pull/2411
+- Java version update from 17 to 21 https://github.com/hiero-ledger/hiero-sdk-java/issues/2075
+  - https://github.com/hiero-ledger/hiero-sdk-java/pull/2412
+
+### Deprecated
+
+- EthereumFlow due to introduction of JumboTransactions. https://github.com/hiero-ledger/hiero-sdk-java/issues/2250
+- EthereumTransaction should be used instead. https://github.com/hiero-ledger/hiero-sdk-java/pull/2402/files
+
+## 2.60.0
+
+### Added
+
+- Persistent shard and realm support for Client https://github.com/hiero-ledger/hiero-sdk-java/issues/2376
+  - This PR adds persistent realm and shard support to the Client configuration, ensuring consistent address book queries across lifecycle events.
+    https://github.com/hiero-ledger/hiero-sdk-java/pull/2362
+- New fromEvmAddress and toEvmAddress APIs https://github.com/hiero-ledger/hiero-sdk-java/pull/2396
+
+### Deprecated
+
+- Shard and realm encoding from evm address https://github.com/hiero-ledger/hiero-sdk-java/issues/2368
+  - deprecated unnecessary fromSolidityAddress & toSolidityAddress methods
+
+## 2.59.0
+
+### Fixed
+
+- EthereumFlow transaction https://github.com/hiero-ledger/hiero-sdk-java/issues/2358
+  - Introduced changes to the flow where a single node handles all the transactions inside so pre-check errors are avoided https://github.com/hiero-ledger/hiero-sdk-java/pull/2379/files
+
 ## 2.58.0
 
 ### Added

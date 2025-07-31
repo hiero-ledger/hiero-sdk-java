@@ -18,7 +18,7 @@ _Maven:_
 <dependency>
   <groupId>com.hedera.hashgraph</groupId>
   <artifactId>sdk</artifactId>
-  <version>2.58.0</version>
+  <version>2.61.0</version>
 </dependency>
 ```
 
