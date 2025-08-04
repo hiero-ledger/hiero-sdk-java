@@ -42,8 +42,8 @@ class NodeCreateTransactionIntegrationTest {
             String description = "test";
 
             // Endpoint address can be any IPV4 address
-            var endpoint = new Endpoint().setDomainName("tests.com").setPort(1234);
-            var endpoint2 = new Endpoint().setDomainName("test.com").setPort(123);
+            var endpoint = new Endpoint().setDomainName("tset.com").setPort(123);
+            var endpoint2 = new Endpoint().setDomainName("test.com").setPort(1234);
 
             // Set up grpcWebProxyEndpoint address
             var grpcWebProxyEndpoint = new Endpoint()
