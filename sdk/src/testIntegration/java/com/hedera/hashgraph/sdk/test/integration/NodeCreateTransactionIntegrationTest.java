@@ -46,9 +46,7 @@ class NodeCreateTransactionIntegrationTest {
             var endpoint2 = new Endpoint().setDomainName("test.com").setPort(1234);
 
             // Set up grpcWebProxyEndpoint address
-            var grpcWebProxyEndpoint = new Endpoint()
-                    .setAddress(new byte[] {0x00, 0x01, 0x02, 0x05})
-                    .setPort(12345);
+            var grpcWebProxyEndpoint = new Endpoint().setDomainName("test.com").setPort(12345);
 
             // Convert hex string to byte array
             var validGossipCert = Hex.decode(validGossipCertDER.getBytes());
