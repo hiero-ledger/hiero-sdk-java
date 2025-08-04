@@ -73,6 +73,7 @@ class NodeCreateTransactionIntegrationTest {
                     .setPort(123456);
 
             new NodeUpdateTransaction()
+                    .setNodeId(0)
                     .setAccountId(accountID)
                     .setDeclineReward(false)
                     .setGrpcWebProxyEndpoint(grpcWebProxyEndpointUpdated)
