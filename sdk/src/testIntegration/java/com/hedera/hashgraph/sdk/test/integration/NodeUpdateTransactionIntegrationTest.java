@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class NodeUpdateTransactionIntegrationTest {
 
     @Test
-    @Disabled("The test has to be disabled so it doesn't fail calls to local-node")
+    //@Disabled("The test has to be disabled so it doesn't fail calls to local-node")
     @DisplayName("Can execute NodeUpdateTransaction")
     void canExecuteNodeUpdateTransaction() throws Exception {
         // Set the network
@@ -45,7 +45,7 @@ class NodeUpdateTransactionIntegrationTest {
     }
 
     @Test
-    @Disabled("The test has to be disabled so it doesn't fail calls to local-node")
+    //@Disabled("The test has to be disabled so it doesn't fail calls to local-node")
     @DisplayName("Can delete gRPC web proxy endpoint")
     void canDeleteGrpcWebProxyEndpoint() throws Exception {
         // Set the network
