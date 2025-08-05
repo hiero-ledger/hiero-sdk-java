@@ -80,7 +80,7 @@ abstract class RunAllExample : DefaultTask() {
                 .filter { it != "ZeroTokenOperationsExample" && it != "ScheduleExample" }
                 .filter {
                     it != "MirrorNodeContractQueriesExample"
-                }// disabled due to consensus node issue
+                } // disabled due to consensus node issue
                 .toList()
 
         exampleClasses.forEach { className ->
