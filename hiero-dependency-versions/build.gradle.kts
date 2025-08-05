@@ -9,14 +9,14 @@ plugins {
 group = "org.hiero"
 
 val bouncycastle = "1.80"
-val grpc = "1.73.0"
+val grpc = "1.74.0"
 val protobuf = "4.31.1"
 val slf4j = "2.0.17"
 val mockito = "5.18.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.5.3"))
-    api(platform("io.netty:netty-bom:4.2.2.Final"))
+    api(platform("io.netty:netty-bom:4.2.3.Final"))
 }
 
 dependencies.constraints {
@@ -43,7 +43,7 @@ dependencies.constraints {
     }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.19.1") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.19.2") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
