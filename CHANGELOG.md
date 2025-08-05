@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Feature changes
 
-- Package naming is expected to change from `hedera` to `hiero`
+- Package naming is expected to change from `hedera` to `hiero` in 6 months period. See the migration guide here https://github.com/hiero-ledger/hiero-sdk-java/blob/main/HIERO_MIGRATION.md
 
 ## 2.61.0
 
