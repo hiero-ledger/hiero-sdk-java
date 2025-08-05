@@ -78,6 +78,9 @@ abstract class RunAllExample : DefaultTask() {
                     it != "SolidityPrecompileExample"
                 } // disabled - cannot run on solo action
                 .filter { it != "ZeroTokenOperationsExample" && it != "ScheduleExample" }
+                .filter {
+                    it != "MirrorNodeContractQueriesExample"
+                } // disabled due to consensus node issue
                 .toList()
 
         exampleClasses.forEach { className ->
