@@ -17,7 +17,13 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
- * @deprecated with no replacement
+ * <b>Deprecated.</b> This class is deprecated and will be removed in a future release.<br>
+ * <p>
+ * There is no direct replacement for this class. For new implementations, consider using
+ * {@link com.hedera.hashgraph.sdk.AccountAllowanceApproveTransaction} and related methods for managing allowances.
+ * </p>
+ *
+ * @deprecated This class is deprecated and will be removed in a future release. Use {@link com.hedera.hashgraph.sdk.AccountAllowanceApproveTransaction} where possible.
  */
 @Deprecated
 public class AccountAllowanceAdjustTransaction extends Transaction<AccountAllowanceAdjustTransaction> {
@@ -56,12 +62,17 @@ public class AccountAllowanceAdjustTransaction extends Transaction<AccountAllowa
     }
 
     /**
-     * @deprecated - Use {@link #grantHbarAllowance(AccountId, AccountId, Hbar)} or
-     * {@link #revokeHbarAllowance(AccountId, AccountId, Hbar)} instead
+     * <b>Deprecated.</b> This method is deprecated and will be removed in a future release.<br>
+     * <p>
+     * Please use {@link #grantHbarAllowance(AccountId, AccountId, Hbar)} to grant an allowance or
+     * {@link #revokeHbarAllowance(AccountId, AccountId, Hbar)} to revoke an allowance instead.
+     * </p>
      *
-     * @param spenderAccountId          the spender account id
-     * @param amount                    the amount of hbar
-     * @return                          an account allowance adjust transaction
+     * @param spenderAccountId the spender account id
+     * @param amount the amount of hbar
+     * @return an account allowance adjust transaction
+     * @deprecated Use {@link #grantHbarAllowance(AccountId, AccountId, Hbar)} or
+     * {@link #revokeHbarAllowance(AccountId, AccountId, Hbar)} instead.
      */
     @Deprecated
     public AccountAllowanceAdjustTransaction addHbarAllowance(AccountId spenderAccountId, Hbar amount) {
