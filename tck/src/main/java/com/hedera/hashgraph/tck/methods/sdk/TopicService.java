@@ -267,23 +267,14 @@ public class TopicService extends AbstractJSONRPC2Service {
             throw new IllegalArgumentException("Message is required");
         } else {
             String message = params.getMessage().get();
-            if (message.isEmpty()) {
-                throw new IllegalArgumentException("Message cannot be empty");
-            }
             transaction.setMessage(message.getBytes());
         }
 
         params.getMaxChunks().ifPresent(maxChunks -> {
-            if (maxChunks <= 0) {
-                throw new IllegalArgumentException("maxChunks must be greater than 0");
-            }
             transaction.setMaxChunks(maxChunks.intValue());
         });
 
         params.getChunkSize().ifPresent(chunkSize -> {
-            if (chunkSize <= 0) {
-                throw new IllegalArgumentException("chunkSize must be greater than 0");
-            }
             transaction.setChunkSize(chunkSize.intValue());
         });
 
