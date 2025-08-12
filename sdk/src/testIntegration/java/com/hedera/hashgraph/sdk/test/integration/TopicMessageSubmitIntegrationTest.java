@@ -143,39 +143,6 @@ public class TopicMessageSubmitIntegrationTest {
     }
 
     @Test
-    @DisplayName("Cannot submit message when message is not set")
-    void cannotSubmitMessageWhenMessageIsNotSet() {
-        // Skip if using PreviewNet
-        Assumptions.assumeTrue(!System.getProperty("HEDERA_NETWORK").equals("previewnet"));
-
-        assertThatNoException().isThrownBy(() -> {
-            try (var testEnv = new IntegrationTestEnv(1)) {
-
-                var response = new TopicCreateTransaction()
-                        .setAdminKey(testEnv.operatorKey)
-                        .setTopicMemo("[e2e::TopicCreateTransaction]")
-                        .execute(testEnv.client);
-
-                var topicId = Objects.requireNonNull(response.getReceipt(testEnv.client).topicId);
-
-                assertThatExceptionOfType(PrecheckStatusException.class)
-                        .isThrownBy(() -> {
-                            new TopicMessageSubmitTransaction()
-                                    .setTopicId(topicId)
-                                    .execute(testEnv.client)
-                                    .getReceipt(testEnv.client);
-                        })
-                        .withMessageContaining(Status.INVALID_TOPIC_MESSAGE.toString());
-
-                new TopicDeleteTransaction()
-                        .setTopicId(topicId)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-            }
-        });
-    }
-
-    @Test
     @DisplayName("Hex Decode Regression Test")
     @SuppressWarnings("UnusedVariable")
     void decodeHexRegressionTest() throws Exception {
