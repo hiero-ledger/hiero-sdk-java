@@ -455,6 +455,9 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
 
     @Override
     int getRequiredChunks() {
+        if (this.data.isEmpty()) {
+            throw new IllegalArgumentException("message cannot be empty");
+        }
         var requiredChunks = (this.data.size() + (chunkSize - 1)) / chunkSize;
 
         if (requiredChunks == 0) {
