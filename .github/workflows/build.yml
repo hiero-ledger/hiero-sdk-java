@@ -240,7 +240,7 @@ jobs:
           installMirrorNode: true
           hieroVersion: v0.65.0
           mirrorNodeVersion: v0.136.1
-          
+
       - name: Build SDK
         run: ./gradlew assemble
 
