@@ -70,6 +70,7 @@ import "token_airdrop.proto";
 
 import "schedule_delete.proto";
 import "util_prng.proto";
+import "custom_fees.proto";
 
 import "node_create.proto";
 import "node_update.proto";

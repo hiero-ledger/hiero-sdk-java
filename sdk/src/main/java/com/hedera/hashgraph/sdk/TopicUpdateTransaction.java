@@ -48,6 +48,8 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     @Nullable
     private Instant expirationTime = null;
 
+    private Duration expirationTimeDuration = null;
+
     private Key feeScheduleKey = null;
 
     private List<Key> feeExemptKeys = null;
@@ -335,6 +337,15 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     public TopicUpdateTransaction setExpirationTime(Instant expirationTime) {
         requireNotFrozen();
         this.expirationTime = Objects.requireNonNull(expirationTime);
+        this.expirationTimeDuration = null;
+        return this;
+    }
+
+    public TopicUpdateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -525,6 +536,9 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         if (feeScheduleKey != null) {
             builder.setFeeScheduleKey(feeScheduleKey.toProtobufKey());

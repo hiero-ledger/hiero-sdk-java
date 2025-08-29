@@ -9,18 +9,18 @@ plugins {
 group = "org.hiero"
 
 val bouncycastle = "1.80"
-val grpc = "1.73.0"
+val grpc = "1.74.0"
 val protobuf = "4.31.1"
 val slf4j = "2.0.17"
 val mockito = "5.18.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.3"))
-    api(platform("io.netty:netty-bom:4.2.2.Final"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
+    api(platform("io.netty:netty-bom:4.2.4.Final"))
 }
 
 dependencies.constraints {
-    api("com.esaulpaugh:headlong:13.3.0") { because("com.esaulpaugh.headlong") }
+    api("com.esaulpaugh:headlong:13.3.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
     api("com.google.code.gson:gson:2.13.1") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
@@ -38,12 +38,16 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
     // Temporary workaround, remove when a new version of spring-boot-dependencies is released
-    api("org.apache.tomcat.embed:tomcat-embed-core:10.1.43") {
-        because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-10674391")
+    api("org.apache.tomcat.embed:tomcat-embed-core:10.1.44") {
+        because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152")
+    }
+    // Temporary workaround, remove when a new version of spring-boot-dependencies is released
+    api("org.springframework:spring-beans:6.2.10") {
+        because("Temporary fix for vulnerability: SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931")
     }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.19.1") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.19.2") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }

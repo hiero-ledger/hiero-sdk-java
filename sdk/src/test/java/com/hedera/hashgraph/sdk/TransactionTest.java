@@ -256,6 +256,7 @@ public class TransactionTest {
         var fileAppendTx = new FileAppendTransaction()
                 .setFileId(new FileId(1))
                 .setTransactionId(new TransactionId(testAccountId, validStart))
+                .setContents(" ")
                 .setNodeAccountIds(testNodeAccountIds)
                 .freeze();
 
