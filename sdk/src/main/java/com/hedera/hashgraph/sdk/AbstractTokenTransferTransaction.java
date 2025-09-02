@@ -172,11 +172,16 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
     }
 
     /**
-     * @param tokenId    the token id
-     * @param accountId  the account id
+     * <b>Deprecated.</b> This method is deprecated and will be removed in a future release.<br>
+     * <p>
+     * Please use {@link #addApprovedTokenTransfer(TokenId, AccountId, long)} instead for marking a token transfer as approved.
+     * </p>
+     *
+     * @param tokenId the token id
+     * @param accountId the account id
      * @param isApproved whether the transfer is approved
      * @return {@code this}
-     * @deprecated - Use {@link #addApprovedTokenTransfer(TokenId, AccountId, long)} instead
+     * @deprecated Use {@link #addApprovedTokenTransfer(TokenId, AccountId, long)} instead.
      */
     @Deprecated
     public T setTokenTransferApproval(TokenId tokenId, AccountId accountId, boolean isApproved) {
@@ -244,10 +249,15 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
     }
 
     /**
-     * @param nftId      the NFT id
+     * <b>Deprecated.</b> This method is deprecated and will be removed in a future release.<br>
+     * <p>
+     * Please use {@link #addApprovedNftTransfer(NftId, AccountId, AccountId)} instead for marking an NFT transfer as approved.
+     * </p>
+     *
+     * @param nftId the NFT id
      * @param isApproved whether the transfer is approved
      * @return {@code this}
-     * @deprecated - Use {@link #addApprovedNftTransfer(NftId, AccountId, AccountId)} instead
+     * @deprecated Use {@link #addApprovedNftTransfer(NftId, AccountId, AccountId)} instead.
      */
     @Deprecated
     public T setNftTransferApproval(NftId nftId, boolean isApproved) {
