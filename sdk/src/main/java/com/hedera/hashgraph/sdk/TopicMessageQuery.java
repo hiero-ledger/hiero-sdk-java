@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -245,7 +246,10 @@ public final class TopicMessageQuery {
                 .getChannel()
                 .newCall(ConsensusServiceGrpc.getSubscribeTopicMethod(), CallOptions.DEFAULT);
 
+        final AtomicBoolean cancelledByClient = new AtomicBoolean(false);
+
         subscriptionHandle.setOnUnsubscribe(() -> {
+            cancelledByClient.set(true);
             client.untrackSubscription(subscriptionHandle);
 
             call.cancel("unsubscribe", null);
@@ -318,6 +322,9 @@ public final class TopicMessageQuery {
             public void onError(Throwable t) {
                 if (attempt >= maxAttempts || !retryHandler.test(t)) {
                     errorHandler.accept(t, null);
+                    return;
+                }
+                if (cancelledByClient.get()) {
                     return;
                 }
 

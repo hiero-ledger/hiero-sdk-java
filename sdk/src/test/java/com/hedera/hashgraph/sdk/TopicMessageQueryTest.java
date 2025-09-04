@@ -371,6 +371,40 @@ class TopicMessageQueryTest {
         Assertions.assertThat(received).isEmpty();
     }
 
+    @Test
+    @Timeout(3)
+    void unsubscribeDoesNotInvokeErrorOrRetry() {
+        consensusServiceStub.requests.add(request().build());
+        SubscriptionHandle handle = topicMessageQuery.subscribe(client, received::add);
+        handle.unsubscribe();
+
+        Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+
+        assertThat(errors).isEmpty();
+        Assertions.assertThat(received).isEmpty();
+    }
+
+    @Test
+    @Timeout(3)
+    void serverCancelledRetriesWhenCustomRetryAllows() {
+        consensusServiceStub.requests.add(request().build());
+        consensusServiceStub.requests.add(request().build());
+        consensusServiceStub.responses.add(Status.CANCELLED.asRuntimeException());
+        consensusServiceStub.responses.add(response(1L));
+        topicMessageQuery.setRetryHandler(t -> {
+            if (t instanceof StatusRuntimeException sre) {
+                return sre.getStatus().getCode() == Status.Code.CANCELLED;
+            }
+            return false;
+        });
+        subscribeToMirror(received::add);
+        Assertions.assertThat(received)
+            .hasSize(1)
+            .extracting(t -> t.sequenceNumber)
+            .containsExactly(1L);
+        assertThat(errors).isEmpty();
+    }
+
     private void subscribeToMirror(Consumer<TopicMessage> onNext) {
         SubscriptionHandle subscriptionHandle = topicMessageQuery.subscribe(client, onNext);
         Stopwatch stopwatch = Stopwatch.createStarted();
