@@ -320,11 +320,8 @@ public final class TopicMessageQuery {
 
             @Override
             public void onError(Throwable t) {
-                if (attempt >= maxAttempts || !retryHandler.test(t)) {
+                if (attempt >= maxAttempts || !retryHandler.test(t) || cancelledByClient.get()) {
                     errorHandler.accept(t, null);
-                    return;
-                }
-                if (cancelledByClient.get()) {
                     return;
                 }
 
