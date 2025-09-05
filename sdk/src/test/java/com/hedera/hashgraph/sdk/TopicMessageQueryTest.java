@@ -405,6 +405,44 @@ class TopicMessageQueryTest {
         assertThat(errors).isEmpty();
     }
 
+    @Test
+    @Timeout(5)
+    void unsubscribeThenResubscribeResetsClientCancelFlagAllowsRetryOnCancelled() {
+        consensusServiceStub.requests.add(request().build());
+        SubscriptionHandle firstHandle = topicMessageQuery.subscribe(client, received::add);
+        firstHandle.unsubscribe();
+        Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+        assertThat(errors).isEmpty();
+        Assertions.assertThat(received).isEmpty();
+
+        consensusServiceStub.requests.add(request().build());
+        consensusServiceStub.requests.add(request().build());
+        consensusServiceStub.responses.add(Status.CANCELLED.asRuntimeException());
+        consensusServiceStub.responses.add(response(1L));
+
+        topicMessageQuery.setRetryHandler(t -> {
+            if (t instanceof StatusRuntimeException sre) {
+                return sre.getStatus().getCode() == Status.Code.CANCELLED;
+            }
+            return false;
+        });
+
+        SubscriptionHandle secondHandle = topicMessageQuery.subscribe(client, received::add);
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        while (received.size() < 1 && stopwatch.elapsed(TimeUnit.SECONDS) < 3) {
+            Uninterruptibles.sleepUninterruptibly(50, TimeUnit.MILLISECONDS);
+        }
+
+        assertThat(errors).isEmpty();
+        Assertions.assertThat(received)
+            .hasSize(1)
+            .extracting(t -> t.sequenceNumber)
+            .containsExactly(1L);
+
+        secondHandle.unsubscribe();
+    }
+
     private void subscribeToMirror(Consumer<TopicMessage> onNext) {
         SubscriptionHandle subscriptionHandle = topicMessageQuery.subscribe(client, onNext);
         Stopwatch stopwatch = Stopwatch.createStarted();
