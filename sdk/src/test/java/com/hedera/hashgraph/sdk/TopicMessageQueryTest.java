@@ -399,9 +399,9 @@ class TopicMessageQueryTest {
         });
         subscribeToMirror(received::add);
         Assertions.assertThat(received)
-            .hasSize(1)
-            .extracting(t -> t.sequenceNumber)
-            .containsExactly(1L);
+                .hasSize(1)
+                .extracting(t -> t.sequenceNumber)
+                .containsExactly(1L);
         assertThat(errors).isEmpty();
     }
 
@@ -436,9 +436,9 @@ class TopicMessageQueryTest {
 
         assertThat(errors).isEmpty();
         Assertions.assertThat(received)
-            .hasSize(1)
-            .extracting(t -> t.sequenceNumber)
-            .containsExactly(1L);
+                .hasSize(1)
+                .extracting(t -> t.sequenceNumber)
+                .containsExactly(1L);
 
         secondHandle.unsubscribe();
     }
