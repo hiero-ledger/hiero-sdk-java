@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -116,6 +117,53 @@ public class TopicMessageIntegrationTest {
 
                 Thread.sleep(1000);
             }
+
+            new TopicDeleteTransaction()
+                    .setTopicId(topicId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Unsubscribing does not log retry warnings")
+    void unsubscribingDoesNotLogRetryWarnings() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var response = new TopicCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setTopicMemo("[e2e::TopicCreateTransaction]")
+                    .execute(testEnv.client);
+
+            var topicId = Objects.requireNonNull(response.getReceipt(testEnv.client).topicId);
+
+            Thread.sleep(3000);
+
+            var receivedMessage = new AtomicBoolean(false);
+            var retryWarningLogged = new AtomicBoolean(false);
+
+            var retryHandler = new java.util.function.Predicate<Throwable>() {
+                @Override
+                public boolean test(Throwable throwable) {
+                    retryWarningLogged.set(true);
+                    return false; // Don't actually retry
+                }
+            };
+
+            var handle = new TopicMessageQuery()
+                    .setTopicId(topicId)
+                    .setStartTime(Instant.EPOCH)
+                    .setRetryHandler(retryHandler)
+                    .subscribe(testEnv.client, (message) -> {
+                        receivedMessage.set(true);
+                    });
+
+            handle.unsubscribe();
+
+            Thread.sleep(3000);
+
+            assertThat(retryWarningLogged.get()).isFalse();
+            assertThat(receivedMessage.get()).isFalse();
 
             new TopicDeleteTransaction()
                     .setTopicId(topicId)
