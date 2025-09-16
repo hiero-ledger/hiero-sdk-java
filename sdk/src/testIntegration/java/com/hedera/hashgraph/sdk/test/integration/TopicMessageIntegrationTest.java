@@ -141,6 +141,7 @@ public class TopicMessageIntegrationTest {
 
             var receivedMessage = new AtomicBoolean(false);
             var retryWarningLogged = new AtomicBoolean(false);
+            var errorHandlerInvoked = new AtomicBoolean(false);
 
             var retryHandler = new java.util.function.Predicate<Throwable>() {
                 @Override
@@ -154,6 +155,7 @@ public class TopicMessageIntegrationTest {
                     .setTopicId(topicId)
                     .setStartTime(Instant.EPOCH)
                     .setRetryHandler(retryHandler)
+                    .setErrorHandler((throwable, topicMessage) -> errorHandlerInvoked.set(true))
                     .subscribe(testEnv.client, (message) -> {
                         receivedMessage.set(true);
                     });
@@ -164,6 +166,7 @@ public class TopicMessageIntegrationTest {
 
             assertThat(retryWarningLogged.get()).isFalse();
             assertThat(receivedMessage.get()).isFalse();
+            assertThat(errorHandlerInvoked.get()).isFalse();
 
             new TopicDeleteTransaction()
                     .setTopicId(topicId)
