@@ -137,8 +137,6 @@ public class TopicMessageIntegrationTest {
 
             var topicId = Objects.requireNonNull(response.getReceipt(testEnv.client).topicId);
 
-            Thread.sleep(3000);
-
             var receivedMessage = new AtomicBoolean(false);
             var retryWarningLogged = new AtomicBoolean(false);
             var errorHandlerInvoked = new AtomicBoolean(false);
