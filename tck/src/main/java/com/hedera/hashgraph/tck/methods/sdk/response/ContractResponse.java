@@ -9,5 +9,3 @@ public class ContractResponse {
     private final String contractId;
     private final Status status;
 }
-
-

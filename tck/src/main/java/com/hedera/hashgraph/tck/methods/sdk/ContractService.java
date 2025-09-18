@@ -6,10 +6,12 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
+import com.hedera.hashgraph.tck.methods.ValidationException;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import org.bouncycastle.util.encoders.Hex;
@@ -48,8 +50,7 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getInitcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
 
-        params.getBytecodeFileId()
-                .ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
+        params.getBytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
 
         params.getStakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
@@ -83,7 +84,7 @@ public class ContractService extends AbstractJSONRPC2Service {
         ContractUpdateTransaction transaction = new ContractUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
         params.getContractId()
-                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+            .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
 
         params.getAdminKey().ifPresent(key -> {
             try {
@@ -94,13 +95,13 @@ public class ContractService extends AbstractJSONRPC2Service {
         });
 
         params.getAutoRenewPeriod()
-                .ifPresent(periodStr -> transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(periodStr))));
+            .ifPresent(periodStr -> transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(periodStr))));
 
         params.getAutoRenewAccountId()
-                .ifPresent(accountIdStr -> transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr)));
+            .ifPresent(accountIdStr -> transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr)));
 
         params.getStakedAccountId()
-                .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
+            .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
 
         params.getStakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
 
@@ -109,22 +110,24 @@ public class ContractService extends AbstractJSONRPC2Service {
         params.getMemo().ifPresent(transaction::setContractMemo);
 
         params.getMaxAutomaticTokenAssociations()
-                .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
+            .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
 
-        params.getExpirationTime()
-                .ifPresent(expirationTimeStr -> {
-                    long seconds = Long.parseLong(expirationTimeStr);
-                    Instant instant = Instant.ofEpochSecond(seconds);
-                    transaction.setExpirationTime(instant);
-                });
+        params.getExpirationTime().ifPresent(expirationTimeStr -> {
+            long seconds = Long.parseLong(expirationTimeStr);
+            try {
+                transaction.setExpirationTime(Instant.ofEpochSecond(seconds));
+            } catch (DateTimeException e) {
+                Status status = (seconds < 0) ? Status.EXPIRATION_REDUCTION_NOT_ALLOWED : Status.INVALID_EXPIRATION_TIME;
+                String message = (seconds < 0) ? "Expiration reduction not allowed" : "Invalid expiration time";
+                throw new ValidationException(status, message + ": " + e.getMessage(), e);
+            }
+        });
 
         params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+            .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
 
         TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return new ContractResponse(null, receipt.status);
     }
 }
-
-

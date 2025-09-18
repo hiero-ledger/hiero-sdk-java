@@ -40,7 +40,8 @@ public class UpdateContractParams extends JSONRPC2Param {
         var parsedStakedNodeId = Optional.ofNullable((String) jrpcParams.get("stakedNodeId"));
         var parsedDeclineStakingReward = Optional.ofNullable((Boolean) jrpcParams.get("declineStakingReward"));
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
-        var parsedMaxAutomaticTokenAssociations = Optional.ofNullable((Long) jrpcParams.get("maxAutomaticTokenAssociations"));
+        var parsedMaxAutomaticTokenAssociations =
+                Optional.ofNullable((Long) jrpcParams.get("maxAutomaticTokenAssociations"));
         var parsedExpirationTime = Optional.ofNullable((String) jrpcParams.get("expirationTime"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
