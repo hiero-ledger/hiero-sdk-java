@@ -8,7 +8,6 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.DeleteContractParams;
-import com.hedera.hashgraph.tck.exception.HederaStatusException;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
@@ -94,11 +93,7 @@ public class ContractService extends AbstractJSONRPC2Service {
                     .ifPresent(transferAccountIdStr -> transaction.setTransferAccountId(AccountId.fromString(transferAccountIdStr)));
         }
 
-        if (params.getPermanentRemoval().isPresent()) {
-            throw new HederaStatusException(
-                    Status.PERMANENT_REMOVAL_REQUIRES_SYSTEM_INITIATION,
-                    "permanentRemoval may only be set by the system");
-        }
+        params.getPermanentRemoval().ifPresent(transaction::setPermanentRemoval);
 
         params.getCommonTransactionParams()
                 .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));

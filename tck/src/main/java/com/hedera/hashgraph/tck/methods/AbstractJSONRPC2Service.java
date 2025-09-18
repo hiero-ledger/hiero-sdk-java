@@ -5,7 +5,6 @@ import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2ParamsException;
-import com.hedera.hashgraph.tck.exception.HederaStatusException;
 import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2RequestException;
 import com.hedera.hashgraph.tck.methods.JSONRPC2Error.ErrorData;
 import com.thetransactioncompany.jsonrpc2.JSONRPC2Error;
@@ -90,8 +89,6 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
                 errorData = new ErrorData(precheckStatusException.status, precheckStatusException.getMessage());
             } else if (targetException instanceof ReceiptStatusException receiptStatusException) {
                 errorData = new ErrorData(receiptStatusException.receipt.status, receiptStatusException.getMessage());
-            } else if (targetException instanceof HederaStatusException hederaStatusException) {
-                errorData = new ErrorData(hederaStatusException.status, hederaStatusException.getMessage());
             } else if (targetException instanceof InvalidJSONRPC2RequestException) {
                 return new JSONRPC2Response(JSONRPC2Error.INVALID_REQUEST, req.getID());
             } else {
