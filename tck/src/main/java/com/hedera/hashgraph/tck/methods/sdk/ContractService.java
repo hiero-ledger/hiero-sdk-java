@@ -7,6 +7,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.DeleteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
@@ -73,5 +74,36 @@ public class ContractService extends AbstractJSONRPC2Service {
         }
 
         return new ContractResponse(contractId, receipt.status);
+    }
+
+    @JSONRPC2Method("deleteContract")
+    public ContractResponse deleteContract(final DeleteContractParams params) throws Exception {
+        ContractDeleteTransaction transaction = new ContractDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        params.getContractId()
+                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+
+        if (params.getTransferAccountId().isPresent()
+                && params.getTransferContractId().isPresent()) {
+            transaction.setTransferAccountId(
+                    AccountId.fromString(params.getTransferAccountId().get()));
+        } else {
+            params.getTransferContractId()
+                    .ifPresent(transferContractIdStr ->
+                            transaction.setTransferContractId(ContractId.fromString(transferContractIdStr)));
+
+            params.getTransferAccountId()
+                    .ifPresent(transferAccountIdStr ->
+                            transaction.setTransferAccountId(AccountId.fromString(transferAccountIdStr)));
+        }
+
+        params.getPermanentRemoval().ifPresent(transaction::setPermanentRemoval);
+
+        params.getCommonTransactionParams()
+                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+
+        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return new ContractResponse(null, receipt.status);
     }
 }

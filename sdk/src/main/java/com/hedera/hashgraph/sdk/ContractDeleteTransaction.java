@@ -50,6 +50,9 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
     @Nullable
     private AccountId transferAccountId = null;
 
+    @Nullable
+    private Boolean permanentRemoval = null;
+
     /**
      * Constructor.
      */
@@ -153,6 +156,31 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
     }
 
     /**
+     * Extract the permanent removal flag.
+     *
+     * @return                          the permanent removal flag
+     */
+    @Nullable
+    public Boolean getPermanentRemoval() {
+        return permanentRemoval;
+    }
+
+    /**
+     * Sets the permanent removal flag.
+     * <p>
+     * This field is reserved for system use. User transactions setting this field
+     * may be rejected by the network with status {@link Status#PERMANENT_REMOVAL_REQUIRES_SYSTEM_INITIATION}.
+     *
+     * @param permanentRemoval The permanent removal flag to be set
+     * @return {@code this}
+     */
+    public ContractDeleteTransaction setPermanentRemoval(boolean permanentRemoval) {
+        requireNotFrozen();
+        this.permanentRemoval = permanentRemoval;
+        return this;
+    }
+
+    /**
      * Validates tha the contract id, transfer contract id and the transfer account id are valid.
      *
      * @param client                    the configured client
@@ -211,6 +239,10 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
 
         if (transferContractId != null) {
             builder.setTransferContractID(transferContractId.toProtobuf());
+        }
+
+        if (permanentRemoval != null) {
+            builder.setPermanentRemoval(permanentRemoval.booleanValue());
         }
 
         return builder;
