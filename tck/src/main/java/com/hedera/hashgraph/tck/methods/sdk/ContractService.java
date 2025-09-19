@@ -46,8 +46,7 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getInitcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
 
-        params.getBytecodeFileId()
-                .ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
+        params.getBytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
 
         params.getStakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
@@ -76,5 +75,3 @@ public class ContractService extends AbstractJSONRPC2Service {
         return new ContractResponse(contractId, receipt.status);
     }
 }
-
-
