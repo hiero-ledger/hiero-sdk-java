@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.hedera.hashgraph.sdk.proto.ContractCreateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
@@ -107,5 +108,23 @@ public class ContractCreateTransactionTest {
         var tx = Transaction.fromScheduledTransaction(transactionBody);
 
         assertThat(tx).isInstanceOf(ContractCreateTransaction.class);
+    }
+
+    @Test
+    void setGasShouldRejectNegativeValues() {
+        var tx = new ContractCreateTransaction();
+        var ex = assertThrows(IllegalArgumentException.class, () -> tx.setGas(-1));
+        assertThat(ex.getMessage()).isEqualTo("Gas must be non-negative");
+    }
+
+    @Test
+    void setGasShouldAcceptZeroAndPositiveValues() {
+        var tx = new ContractCreateTransaction();
+
+        tx.setGas(0);
+        assertThat(tx.getGas()).isEqualTo(0);
+
+        tx.setGas(123456);
+        assertThat(tx.getGas()).isEqualTo(123456);
     }
 }
