@@ -47,8 +47,7 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getInitcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
 
-        params.getBytecodeFileId()
-                .ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
+        params.getBytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
 
         params.getStakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
@@ -81,16 +80,21 @@ public class ContractService extends AbstractJSONRPC2Service {
     public ContractResponse deleteContract(final DeleteContractParams params) throws Exception {
         ContractDeleteTransaction transaction = new ContractDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-        params.getContractId().ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+        params.getContractId()
+                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
 
-        if (params.getTransferAccountId().isPresent() && params.getTransferContractId().isPresent()) {
-            transaction.setTransferAccountId(AccountId.fromString(params.getTransferAccountId().get()));
+        if (params.getTransferAccountId().isPresent()
+                && params.getTransferContractId().isPresent()) {
+            transaction.setTransferAccountId(
+                    AccountId.fromString(params.getTransferAccountId().get()));
         } else {
             params.getTransferContractId()
-                    .ifPresent(transferContractIdStr -> transaction.setTransferContractId(ContractId.fromString(transferContractIdStr)));
+                    .ifPresent(transferContractIdStr ->
+                            transaction.setTransferContractId(ContractId.fromString(transferContractIdStr)));
 
             params.getTransferAccountId()
-                    .ifPresent(transferAccountIdStr -> transaction.setTransferAccountId(AccountId.fromString(transferAccountIdStr)));
+                    .ifPresent(transferAccountIdStr ->
+                            transaction.setTransferAccountId(AccountId.fromString(transferAccountIdStr)));
         }
 
         params.getPermanentRemoval().ifPresent(transaction::setPermanentRemoval);
@@ -103,5 +107,3 @@ public class ContractService extends AbstractJSONRPC2Service {
         return new ContractResponse(null, receipt.status);
     }
 }
-
-

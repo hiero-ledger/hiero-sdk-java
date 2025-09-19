@@ -68,5 +68,3 @@ public class CreateContractParams extends JSONRPC2Param {
                 parsedCommonTransactionParams);
     }
 }
-
-

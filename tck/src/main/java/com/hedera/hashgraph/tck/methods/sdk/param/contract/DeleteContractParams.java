@@ -41,5 +41,3 @@ public class DeleteContractParams extends JSONRPC2Param {
                 parsedCommonTransactionParams);
     }
 }
-
-
