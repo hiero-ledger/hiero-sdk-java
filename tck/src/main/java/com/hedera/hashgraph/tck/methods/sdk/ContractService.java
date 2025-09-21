@@ -101,4 +101,3 @@ public class ContractService extends AbstractJSONRPC2Service {
     }
 }
 
-
