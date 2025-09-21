@@ -46,7 +46,8 @@ public class CreateContractParams extends JSONRPC2Param {
         var parsedGas = Optional.ofNullable((String) jrpcParams.get("gas"));
         var parsedDeclineStakingReward = Optional.ofNullable((Boolean) jrpcParams.get("declineStakingReward"));
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
-        var parsedMaxAutomaticTokenAssociations = Optional.ofNullable((Long) jrpcParams.get("maxAutomaticTokenAssociations"));
+        var parsedMaxAutomaticTokenAssociations =
+                Optional.ofNullable((Long) jrpcParams.get("maxAutomaticTokenAssociations"));
         var parsedConstructorParameters = Optional.ofNullable((String) jrpcParams.get("constructorParameters"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
@@ -67,5 +68,3 @@ public class CreateContractParams extends JSONRPC2Param {
                 parsedCommonTransactionParams);
     }
 }
-
-

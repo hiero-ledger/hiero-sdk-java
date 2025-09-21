@@ -33,10 +33,6 @@ public class ExecuteContractParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new ExecuteContractParams(
-                parsedContractId,
-                parsedGas,
-                parsedAmount,
-                parsedFunctionParameters,
-                parsedCommonTransactionParams);
+                parsedContractId, parsedGas, parsedAmount, parsedFunctionParameters, parsedCommonTransactionParams);
     }
 }

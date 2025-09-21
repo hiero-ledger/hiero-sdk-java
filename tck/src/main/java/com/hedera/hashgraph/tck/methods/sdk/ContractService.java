@@ -48,8 +48,7 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getInitcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
 
-        params.getBytecodeFileId()
-                .ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
+        params.getBytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
 
         params.getStakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
@@ -80,7 +79,8 @@ public class ContractService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("executeContract")
     public ContractResponse executeContract(final ExecuteContractParams params) throws Exception {
-        ContractExecuteTransaction transaction = new ContractExecuteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        ContractExecuteTransaction transaction =
+                new ContractExecuteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
         if (params.getContractId() != null) {
             transaction.setContractId(ContractId.fromString(params.getContractId()));
@@ -88,9 +88,11 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getGas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
 
-        params.getAmount().ifPresent(amountStr -> transaction.setPayableAmount(Hbar.fromTinybars(Long.parseLong(amountStr))));
+        params.getAmount()
+                .ifPresent(amountStr -> transaction.setPayableAmount(Hbar.fromTinybars(Long.parseLong(amountStr))));
 
-        params.getFunctionParameters().ifPresent(hex -> transaction.setFunctionParameters(ByteString.copyFrom(Hex.decode(hex))));
+        params.getFunctionParameters()
+                .ifPresent(hex -> transaction.setFunctionParameters(ByteString.copyFrom(Hex.decode(hex))));
 
         params.getCommonTransactionParams()
                 .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
@@ -100,4 +102,3 @@ public class ContractService extends AbstractJSONRPC2Service {
         return new ContractResponse("", receipt.status);
     }
 }
-
