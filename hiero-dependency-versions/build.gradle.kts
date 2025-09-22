@@ -42,7 +42,7 @@ dependencies.constraints {
         because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152")
     }
     // Temporary workaround, remove when a new version of spring-boot-dependencies is released
-    api("org.springframework:spring-beans:6.2.10") {
+    api("org.springframework:spring-beans:6.2.11") {
         because("Temporary fix for vulnerability: SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931")
     }
 
