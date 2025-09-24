@@ -9,6 +9,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ExecuteContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
@@ -100,5 +101,55 @@ public class ContractService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
 
         return new ContractResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("updateContract")
+    public ContractResponse updateContract(final UpdateContractParams params) throws Exception {
+        ContractUpdateTransaction transaction = new ContractUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        params.getContractId()
+                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+
+        params.getAdminKey().ifPresent(key -> {
+            try {
+                transaction.setAdminKey(KeyUtils.getKeyFromString(key));
+            } catch (InvalidProtocolBufferException e) {
+                throw new IllegalArgumentException(e);
+            }
+        });
+
+        params.getAutoRenewPeriod()
+                .ifPresent(periodStr -> transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(periodStr))));
+
+        params.getAutoRenewAccountId()
+                .ifPresent(accountIdStr -> transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr)));
+
+        params.getStakedAccountId()
+                .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
+
+        params.getStakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
+
+        params.getDeclineStakingReward().ifPresent(transaction::setDeclineStakingReward);
+
+        params.getMemo().ifPresent(transaction::setContractMemo);
+
+        params.getMaxAutomaticTokenAssociations()
+                .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
+
+        params.getExpirationTime().ifPresent(expirationTimeStr -> {
+            try {
+                long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
+                transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
+            }
+        });
+
+        params.getCommonTransactionParams()
+                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+
+        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return new ContractResponse(null, receipt.status);
     }
 }
