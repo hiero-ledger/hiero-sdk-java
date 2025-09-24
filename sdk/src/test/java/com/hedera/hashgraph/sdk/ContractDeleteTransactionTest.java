@@ -70,4 +70,15 @@ public class ContractDeleteTransactionTest {
 
         assertThat(tx).isInstanceOf(ContractDeleteTransaction.class);
     }
+
+    @Test
+    void setsPermanentRemovalInProtobufBody() {
+        var tx = new ContractDeleteTransaction()
+                .setContractId(ContractId.fromString("0.0.5007"))
+                .setPermanentRemoval(true);
+
+        var proto = tx.build().build();
+
+        assertThat(proto.getPermanentRemoval()).isTrue();
+    }
 }
