@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.ExecuteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
@@ -73,5 +75,30 @@ public class ContractService extends AbstractJSONRPC2Service {
         }
 
         return new ContractResponse(contractId, receipt.status);
+    }
+
+    @JSONRPC2Method("executeContract")
+    public ContractResponse executeContract(final ExecuteContractParams params) throws Exception {
+        ContractExecuteTransaction transaction =
+                new ContractExecuteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        if (params.getContractId() != null) {
+            transaction.setContractId(ContractId.fromString(params.getContractId()));
+        }
+
+        params.getGas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
+
+        params.getAmount()
+                .ifPresent(amountStr -> transaction.setPayableAmount(Hbar.fromTinybars(Long.parseLong(amountStr))));
+
+        params.getFunctionParameters()
+                .ifPresent(hex -> transaction.setFunctionParameters(ByteString.copyFrom(Hex.decode(hex))));
+
+        params.getCommonTransactionParams()
+                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+
+        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        return new ContractResponse("", receipt.status);
     }
 }
