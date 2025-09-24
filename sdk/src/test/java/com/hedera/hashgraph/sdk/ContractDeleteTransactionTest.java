@@ -77,7 +77,7 @@ public class ContractDeleteTransactionTest {
                 .setContractId(ContractId.fromString("0.0.5007"))
                 .setPermanentRemoval(true);
 
-        var proto = tx.build().build();
+        var proto = tx.build();
 
         assertThat(proto.getPermanentRemoval()).isTrue();
     }
