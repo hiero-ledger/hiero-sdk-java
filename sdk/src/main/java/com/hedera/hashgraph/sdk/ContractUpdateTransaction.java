@@ -5,10 +5,7 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import com.hedera.hashgraph.sdk.proto.ContractUpdateTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
-import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.*;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
@@ -593,7 +590,11 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         }
 
         if (autoRenewAccountId != null) {
-            builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
+            if(autoRenewAccountId.toString().equals("0.0.0")){
+                builder.setAutoRenewAccountId(AccountID.getDefaultInstance());
+            } else {
+                builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
+            }
         }
 
         return builder;
