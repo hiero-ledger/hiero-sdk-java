@@ -133,4 +133,60 @@ class ContractUpdateIntegrationTest {
                     .withMessageContaining(Status.MODIFYING_IMMUTABLE_CONTRACT.toString());
         }
     }
+
+    @Test
+    @DisplayName("Setting autoRenewAccountId to 0.0.0 clears the field")
+    void settingAutoRenewAccountIdToDefaultClearsField() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var response = new FileCreateTransaction()
+                    .setKeys(testEnv.operatorKey)
+                    .setContents(SMART_CONTRACT_BYTECODE)
+                    .execute(testEnv.client);
+
+            var fileId = Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
+
+            response = new ContractCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setGas(400000)
+                    .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                    .setBytecodeFileId(fileId)
+                    .setContractMemo("[e2e::ContractCreateTransaction]")
+                    .execute(testEnv.client);
+
+            var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
+
+            new ContractUpdateTransaction()
+                    .setContractId(contractId)
+                    .setAutoRenewAccountId(testEnv.operatorId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var infoWithAutoRenew =
+                    new ContractInfoQuery().setContractId(contractId).execute(testEnv.client);
+            assertThat(Objects.requireNonNull(infoWithAutoRenew.autoRenewAccountId))
+                    .isEqualTo(testEnv.operatorId);
+
+            new ContractUpdateTransaction()
+                    .setContractId(contractId)
+                    .setAutoRenewAccountId(new com.hedera.hashgraph.sdk.AccountId(0, 0, 0))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var infoCleared = new ContractInfoQuery().setContractId(contractId).execute(testEnv.client);
+            assertThat(Objects.requireNonNull(infoCleared.autoRenewAccountId))
+                    .isEqualTo(new com.hedera.hashgraph.sdk.AccountId(0, 0, 0));
+
+            new ContractDeleteTransaction()
+                    .setTransferAccountId(testEnv.operatorId)
+                    .setContractId(contractId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new FileDeleteTransaction()
+                    .setFileId(fileId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+        }
+    }
 }
