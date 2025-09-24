@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.hedera.hashgraph.sdk.proto.ContractUpdateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
@@ -94,6 +95,43 @@ public class ContractUpdateTransactionTest {
         var tx = spawnTestTransaction2();
         var tx2 = ContractUpdateTransaction.fromBytes(tx.toBytes());
         assertThat(tx2.toString()).isEqualTo(tx.toString());
+    }
+
+    @Test
+    void shouldSupportExpirationTimeDurationBytesRoundTrip() throws Exception {
+        var tx = new ContractUpdateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setContractId(ContractId.fromString("0.0.5007"))
+                .setAdminKey(privateKey)
+                .setMaxAutomaticTokenAssociations(101)
+                .setAutoRenewPeriod(Duration.ofDays(1))
+                .setContractMemo("with-duration")
+                .setStakedAccountId(AccountId.fromString("0.0.3"))
+                .setExpirationTime(Duration.ofSeconds(1234))
+                .setProxyAccountId(new AccountId(0, 0, 4))
+                .setMaxTransactionFee(Hbar.fromTinybars(100_000))
+                .setAutoRenewAccountId(new AccountId(0, 0, 30));
+
+        // When expiration is set via Duration, Instant getter should be null
+        assertThat(tx.getExpirationTime()).isNull();
+
+        var tx2 = (ContractUpdateTransaction) Transaction.fromBytes(tx.toBytes());
+        assertThat(tx2.toString()).isEqualTo(tx.toString());
+        assertThat(tx2.getExpirationTime()).isEqualTo(Instant.ofEpochSecond(1234));
+    }
+
+    @Test
+    void setExpirationTimeDurationOnFrozenTransactionShouldThrow() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setExpirationTime(Duration.ofSeconds(1)));
+    }
+
+    @Test
+    void getSetExpirationTimeInstant() {
+        var instant = Instant.ofEpochSecond(1_234_567L);
+        var tx = new ContractUpdateTransaction().setExpirationTime(instant);
+        assertThat(tx.getExpirationTime()).isEqualTo(instant);
     }
 
     @Test
