@@ -220,6 +220,9 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
         if (body.hasTransferAccountID()) {
             transferAccountId = AccountId.fromProtobuf(body.getTransferAccountID());
         }
+        if (body.getPermanentRemoval()) {
+            permanentRemoval = true;
+        }
     }
 
     /**
