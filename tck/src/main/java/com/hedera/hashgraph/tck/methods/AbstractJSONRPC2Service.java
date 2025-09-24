@@ -89,8 +89,6 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
                 errorData = new ErrorData(precheckStatusException.status, precheckStatusException.getMessage());
             } else if (targetException instanceof ReceiptStatusException receiptStatusException) {
                 errorData = new ErrorData(receiptStatusException.receipt.status, receiptStatusException.getMessage());
-            } else if (targetException instanceof ValidationException validationException) {
-                errorData = new ErrorData(validationException.getStatus(), validationException.getMessage());
             } else if (targetException instanceof InvalidJSONRPC2RequestException) {
                 return new JSONRPC2Response(JSONRPC2Error.INVALID_REQUEST, req.getID());
             } else {
