@@ -162,8 +162,10 @@ class ContractUpdateIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var infoWithAutoRenew = new ContractInfoQuery().setContractId(contractId).execute(testEnv.client);
-            assertThat(Objects.requireNonNull(infoWithAutoRenew.autoRenewAccountId)).isEqualTo(testEnv.operatorId);
+            var infoWithAutoRenew =
+                    new ContractInfoQuery().setContractId(contractId).execute(testEnv.client);
+            assertThat(Objects.requireNonNull(infoWithAutoRenew.autoRenewAccountId))
+                    .isEqualTo(testEnv.operatorId);
 
             new ContractUpdateTransaction()
                     .setContractId(contractId)

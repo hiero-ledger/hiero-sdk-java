@@ -165,7 +165,6 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         return this;
     }
 
-
     /**
      * Extract the administrator key.
      *
@@ -605,7 +604,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         }
 
         if (autoRenewAccountId != null) {
-            if(autoRenewAccountId.toString().equals("0.0.0")){
+            if (autoRenewAccountId.toString().equals("0.0.0")) {
                 builder.setAutoRenewAccountId(AccountID.getDefaultInstance());
             } else {
                 builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
