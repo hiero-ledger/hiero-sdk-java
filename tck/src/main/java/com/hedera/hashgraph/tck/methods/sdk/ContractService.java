@@ -6,14 +6,11 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
-import com.hedera.hashgraph.tck.methods.ValidationException;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
-import java.time.DateTimeException;
 import java.time.Duration;
-import java.time.Instant;
 import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
@@ -113,14 +110,11 @@ public class ContractService extends AbstractJSONRPC2Service {
                 .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
 
         params.getExpirationTime().ifPresent(expirationTimeStr -> {
-            long seconds = Long.parseLong(expirationTimeStr);
             try {
-                transaction.setExpirationTime(Instant.ofEpochSecond(seconds));
-            } catch (DateTimeException e) {
-                Status status =
-                        (seconds < 0) ? Status.EXPIRATION_REDUCTION_NOT_ALLOWED : Status.INVALID_EXPIRATION_TIME;
-                String message = (seconds < 0) ? "Expiration reduction not allowed" : "Invalid expiration time";
-                throw new ValidationException(status, message + ": " + e.getMessage(), e);
+                long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
+                transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
             }
         });
 

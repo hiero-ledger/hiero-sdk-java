@@ -50,6 +50,8 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     @Nullable
     private Instant expirationTime = null;
 
+    private Duration expirationTimeDuration = null;
+
     @Nullable
     private Key adminKey = null;
 
@@ -151,8 +153,18 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         Objects.requireNonNull(expirationTime);
         requireNotFrozen();
         this.expirationTime = expirationTime;
+        this.expirationTimeDuration = null;
         return this;
     }
+
+    public ContractUpdateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
+        return this;
+    }
+
 
     /**
      * Extract the administrator key.
@@ -562,6 +574,9 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
