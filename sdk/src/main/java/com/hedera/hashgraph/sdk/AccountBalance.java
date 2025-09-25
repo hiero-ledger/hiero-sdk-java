@@ -22,7 +22,12 @@ public class AccountBalance {
     public final Hbar hbars;
 
     /**
-     * @deprecated - Use `tokens` instead
+     * <b>Deprecated.</b> This field is deprecated and will be removed in a future release.<br>
+     * <p>
+     * Please use {@link #tokens} instead for accessing token balances.
+     * </p>
+     *
+     * @deprecated Use {@link #tokens} instead.
      */
     @Deprecated
     @Nonnegative
