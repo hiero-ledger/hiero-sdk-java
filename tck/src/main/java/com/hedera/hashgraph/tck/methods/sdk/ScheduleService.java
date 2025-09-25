@@ -25,7 +25,6 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     public ScheduleResponse createSchedule(final ScheduleCreateParams params) throws Exception {
         ScheduleCreateTransaction transaction = new ScheduleCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-        // Set scheduled transaction if provided
         params.getScheduledTransaction().ifPresent(scheduledTx -> {
             try {
                 Transaction<?> tx = buildScheduledTransaction(scheduledTx);
@@ -35,10 +34,8 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             }
         });
 
-        // Set memo if provided
         params.getMemo().ifPresent(transaction::setScheduleMemo);
 
-        // Set admin key if provided
         params.getAdminKey().ifPresent(key -> {
             try {
                 transaction.setAdminKey(KeyUtils.getKeyFromString(key));
@@ -47,28 +44,23 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             }
         });
 
-        // Set payer account ID if provided
-        params.getPayerAccountId().ifPresent(accountIdStr -> 
+        params.getPayerAccountId().ifPresent(accountIdStr ->
             transaction.setPayerAccountId(AccountId.fromString(accountIdStr)));
 
-        // Set expiration time if provided
         params.getExpirationTime().ifPresent(expirationTimeStr -> {
             try {
                 long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
-                transaction.setExpirationTime(Instant.ofEpochSecond(expirationTimeSeconds));
+                transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
             }
         });
 
-        // Set wait for expiry if provided
         params.getWaitForExpiry().ifPresent(transaction::setWaitForExpiry);
 
-        // Apply common transaction params
         params.getCommonTransactionParams()
                 .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
 
-        // Execute the transaction
         TransactionResponse txResponse = transaction.execute(sdkService.getClient());
         TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
 
@@ -130,7 +122,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     // Helper methods to build specific transaction types
     private TransferTransaction buildTransferTransaction(Map<String, Object> params) throws Exception {
         TransferTransaction transaction = new TransferTransaction();
-        
+
         if (params.containsKey("transfers")) {
             @SuppressWarnings("unchecked")
             var transfers = (java.util.List<Map<String, Object>>) params.get("transfers");
@@ -148,7 +140,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
                 // Add other transfer types as needed
             }
         }
-        
+
         return transaction;
     }
 
@@ -187,7 +179,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
 
     private AccountAllowanceApproveTransaction buildAccountAllowanceApproveTransaction(Map<String, Object> params) throws Exception {
         AccountAllowanceApproveTransaction transaction = new AccountAllowanceApproveTransaction();
-        
+
         if (params.containsKey("allowances")) {
             @SuppressWarnings("unchecked")
             var allowances = (java.util.List<Map<String, Object>>) params.get("allowances");
@@ -206,7 +198,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
                 // Add other allowance types as needed
             }
         }
-        
+
         return transaction;
     }
 
