@@ -204,7 +204,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Process an individual transfer based on its type (Hbar, Token, or NFT)
      */
-    private void processTransfer(TransferTransaction tx, TransferParams txParams) {
+    public static void processTransfer(TransferTransaction tx, TransferParams txParams) {
         boolean approved = txParams.getApproved().orElse(false);
 
         txParams.getHbar().ifPresent(hbarParams -> processHbarTransfer(tx, hbarParams, approved));
@@ -215,7 +215,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Process an Hbar transfer
      */
-    private void processHbarTransfer(TransferTransaction tx, HbarTransferParams hbarParams, boolean approved) {
+    private static void processHbarTransfer(TransferTransaction tx, HbarTransferParams hbarParams, boolean approved) {
         hbarParams.getAmount().ifPresent(amountStr -> {
             Hbar amount = Hbar.fromTinybars(Long.parseLong(amountStr));
 
@@ -242,7 +242,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Process a token transfer
      */
-    private void processTokenTransfer(TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
+    private static void processTokenTransfer(TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
         tokenParams.getAccountId().ifPresent(accountIdStr -> {
             tokenParams.getTokenId().ifPresent(tokenIdStr -> {
                 tokenParams.getAmount().ifPresent(amountStr -> {
@@ -272,7 +272,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Process an NFT transfer
      */
-    private void processNftTransfer(TransferTransaction tx, NftTransferParams nftParams, boolean approved) {
+    private static void processNftTransfer(TransferTransaction tx, NftTransferParams nftParams, boolean approved) {
         nftParams.getSenderAccountId().ifPresent(senderIdStr -> {
             nftParams.getReceiverAccountId().ifPresent(receiverIdStr -> {
                 nftParams.getTokenId().ifPresent(tokenIdStr -> {

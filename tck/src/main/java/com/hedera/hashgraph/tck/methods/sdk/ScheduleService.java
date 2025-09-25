@@ -6,10 +6,10 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleCreateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ScheduleResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 
 @JSONRPC2Service
@@ -127,17 +127,12 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             @SuppressWarnings("unchecked")
             var transfers = (java.util.List<Map<String, Object>>) params.get("transfers");
             for (var transfer : transfers) {
-                if (transfer.containsKey("hbar")) {
-                    @SuppressWarnings("unchecked")
-                    var hbarTransfer = (Map<String, Object>) transfer.get("hbar");
-                    if (hbarTransfer.containsKey("accountId") && hbarTransfer.containsKey("amount")) {
-                        transaction.addHbarTransfer(
-                            AccountId.fromString((String) hbarTransfer.get("accountId")),
-                            Hbar.fromTinybars(Long.parseLong((String) hbarTransfer.get("amount")))
-                        );
-                    }
+                try {
+                    TransferParams transferParams = TransferParams.parse(transfer);
+                    AccountService.processTransfer(transaction, transferParams);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Failed to parse transfer parameters: " + e.getMessage(), e);
                 }
-                // Add other transfer types as needed
             }
         }
 
