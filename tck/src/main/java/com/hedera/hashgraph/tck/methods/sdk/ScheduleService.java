@@ -180,22 +180,30 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     private AccountAllowanceApproveTransaction buildAccountAllowanceApproveTransaction(Map<String, Object> params) throws Exception {
         AccountAllowanceApproveTransaction transaction = new AccountAllowanceApproveTransaction();
 
-        if (params.containsKey("allowances")) {
+        @SuppressWarnings("unchecked")
+        var allowances = (java.util.List<Map<String, Object>>) params.get("allowances");
+        if (allowances == null) {
+            return transaction;
+        }
+
+        for (var allowance : allowances) {
             @SuppressWarnings("unchecked")
-            var allowances = (java.util.List<Map<String, Object>>) params.get("allowances");
-            for (var allowance : allowances) {
-                if (allowance.containsKey("hbar")) {
-                    @SuppressWarnings("unchecked")
-                    var hbarAllowance = (Map<String, Object>) allowance.get("hbar");
-                    if (hbarAllowance.containsKey("ownerAccountId") && hbarAllowance.containsKey("spenderAccountId") && hbarAllowance.containsKey("amount")) {
-                        transaction.approveHbarAllowance(
-                            AccountId.fromString((String) hbarAllowance.get("ownerAccountId")),
-                            AccountId.fromString((String) hbarAllowance.get("spenderAccountId")),
-                            Hbar.fromTinybars(Long.parseLong((String) hbarAllowance.get("amount")))
-                        );
-                    }
-                }
-                // Add other allowance types as needed
+            var hbar = (Map<String, Object>) allowance.get("hbar");
+            if (hbar == null) {
+                continue;
+            }
+
+            String owner = (String) allowance.get("ownerAccountId");
+            String spender = (String) allowance.get("spenderAccountId");
+            if (owner == null) owner = (String) hbar.get("ownerAccountId");
+            if (spender == null) spender = (String) hbar.get("spenderAccountId");
+            String amountStr = (String) hbar.get("amount");
+
+            if (owner != null && spender != null && amountStr != null) {
+                transaction.approveHbarAllowance(
+                        AccountId.fromString(owner),
+                        AccountId.fromString(spender),
+                        Hbar.fromTinybars(Long.parseLong(amountStr)));
             }
         }
 
