@@ -12,12 +12,11 @@ import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
 import com.hedera.hashgraph.tck.util.AirdropUtils;
 import com.hedera.hashgraph.tck.util.KeyUtils;
+import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * TokenService for token related methods
@@ -34,124 +33,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("createToken")
     public TokenResponse createToken(final TokenCreateParams params) throws Exception {
-        TokenCreateTransaction tokenCreateTransaction = new TokenCreateTransaction();
-
-        params.getAdminKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setAdminKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getKycKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setKycKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getFreezeKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setFreezeKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getWipeKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setWipeKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getSupplyKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setSupplyKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getFeeScheduleKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getPauseKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setPauseKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getMetadataKey().ifPresent(key -> {
-            try {
-                tokenCreateTransaction.setMetadataKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getName().ifPresent(tokenCreateTransaction::setTokenName);
-        params.getSymbol().ifPresent(tokenCreateTransaction::setTokenSymbol);
-        params.getDecimals().ifPresent(decimals -> tokenCreateTransaction.setDecimals(decimals.intValue()));
-        params.getInitialSupply()
-                .ifPresent(initialSupply -> tokenCreateTransaction.setInitialSupply(Long.parseLong(initialSupply)));
-
-        params.getTreasuryAccountId()
-                .ifPresent(treasuryAccountId ->
-                        tokenCreateTransaction.setTreasuryAccountId(AccountId.fromString(treasuryAccountId)));
-
-        params.getFreezeDefault().ifPresent(tokenCreateTransaction::setFreezeDefault);
-
-        params.getExpirationTime()
-                .ifPresent(expirationTime ->
-                        tokenCreateTransaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
-
-        params.getAutoRenewAccountId()
-                .ifPresent(autoRenewAccountId ->
-                        tokenCreateTransaction.setAutoRenewAccountId(AccountId.fromString(autoRenewAccountId)));
-
-        params.getAutoRenewPeriod()
-                .ifPresent(autoRenewPeriodSeconds -> tokenCreateTransaction.setAutoRenewPeriod(
-                        Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
-
-        params.getMemo().ifPresent(tokenCreateTransaction::setTokenMemo);
-        params.getTokenType().ifPresent(tokenType -> {
-            if (tokenType.equals("ft")) {
-                tokenCreateTransaction.setTokenType(TokenType.FUNGIBLE_COMMON);
-            } else if (tokenType.equals("nft")) {
-                tokenCreateTransaction.setTokenType(TokenType.NON_FUNGIBLE_UNIQUE);
-            } else {
-                throw new IllegalArgumentException("Invalid token type");
-            }
-        });
-
-        params.getSupplyType().ifPresent(supplyType -> {
-            if (supplyType.equals("infinite")) {
-                tokenCreateTransaction.setSupplyType(TokenSupplyType.INFINITE);
-            } else if (supplyType.equals("finite")) {
-                tokenCreateTransaction.setSupplyType(TokenSupplyType.FINITE);
-            } else {
-                throw new IllegalArgumentException("Invalid supply type");
-            }
-        });
-
-        params.getMaxSupply().ifPresent(maxSupply -> tokenCreateTransaction.setMaxSupply(Long.valueOf(maxSupply)));
-
-        params.getCustomFees()
-                .ifPresent(customFees ->
-                        tokenCreateTransaction.setCustomFees(customFees.get(0).fillOutCustomFees(customFees)));
-
-        params.getMetadata().ifPresent(metadata -> tokenCreateTransaction.setTokenMetadata(metadata.getBytes()));
+        TokenCreateTransaction tokenCreateTransaction = TransactionBuilders.TokenBuilder.buildCreate(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
@@ -441,19 +323,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("mintToken")
     public TokenMintResponse mintToken(MintTokenParams params) throws Exception {
-        TokenMintTransaction transaction = new TokenMintTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        try {
-            params.getAmount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
-        } catch (NumberFormatException e) {
-            transaction.setAmount(-1L);
-        }
-
-        params.getMetadata()
-                .ifPresent(metadata -> transaction.setMetadata(
-                        metadata.stream().map(Hex::decode).toList()));
+        TokenMintTransaction transaction = TransactionBuilders.TokenBuilder.buildMint(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -469,20 +339,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("burnToken")
     public TokenBurnResponse burnToken(BurnTokenParams params) throws Exception {
-        TokenBurnTransaction transaction = new TokenBurnTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        try {
-            params.getAmount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
-        } catch (NumberFormatException e) {
-            transaction.setAmount(-1L);
-        }
-
-        params.getSerialNumbers().ifPresent(serialNumbers -> {
-            List<Long> tokenIdList = serialNumbers.stream().map(Long::parseLong).collect(Collectors.toList());
-            transaction.setSerials(tokenIdList);
-        });
+        TokenBurnTransaction transaction = TransactionBuilders.TokenBuilder.buildBurn(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -494,26 +351,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("wipeToken")
     public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
-        TokenWipeTransaction tokenWipeTransaction = new TokenWipeTransaction();
-
-        params.getTokenId().ifPresent(tokenId -> tokenWipeTransaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAccountId()
-                .ifPresent(accountId -> tokenWipeTransaction.setAccountId(AccountId.fromString(accountId)));
-
-        try {
-            params.getAmount().ifPresent(amount -> tokenWipeTransaction.setAmount(Long.parseLong(amount)));
-        } catch (NumberFormatException e) {
-            tokenWipeTransaction.setAmount(-1L);
-        }
-
-        params.getSerialNumbers().ifPresent(serialNumbers -> {
-            List<Long> serialNumbersList = new ArrayList<>();
-            for (String serialNumber : serialNumbers) {
-                serialNumbersList.add(Long.parseLong(serialNumber));
-            }
-            tokenWipeTransaction.setSerials(serialNumbersList);
-        });
+        TokenWipeTransaction tokenWipeTransaction = TransactionBuilders.TokenBuilder.buildWipe(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->

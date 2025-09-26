@@ -7,9 +7,9 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.*;
-import com.hedera.hashgraph.tck.methods.sdk.param.topic.CustomFeeLimit;
 import com.hedera.hashgraph.tck.methods.sdk.response.TopicResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
+import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,83 +29,7 @@ public class TopicService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("createTopic")
     public TopicResponse createTopic(final CreateTopicParams params) throws Exception {
-        TopicCreateTransaction transaction = new TopicCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getMemo().ifPresent(transaction::setTopicMemo);
-
-        params.getAdminKey().ifPresent(key -> {
-            try {
-                transaction.setAdminKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid admin key: " + key, e);
-            }
-        });
-
-        params.getSubmitKey().ifPresent(key -> {
-            try {
-                transaction.setSubmitKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid submit key: " + key, e);
-            }
-        });
-
-        params.getFeeScheduleKey().ifPresent(key -> {
-            try {
-                transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid fee schedule key: " + key, e);
-            }
-        });
-
-        params.getFeeExemptKeys().ifPresent(keyStrings -> {
-            if (!keyStrings.isEmpty()) {
-                List<Key> keys = new ArrayList<>();
-                for (String keyStr : keyStrings) {
-                    try {
-                        keys.add(KeyUtils.getKeyFromString(keyStr));
-                    } catch (InvalidProtocolBufferException e) {
-                        throw new IllegalArgumentException("Invalid fee exempt key: " + keyStr, e);
-                    }
-                }
-                transaction.setFeeExemptKeys(keys);
-            }
-        });
-
-        params.getAutoRenewPeriod().ifPresent(periodStr -> {
-            try {
-                long periodSeconds = Long.parseLong(periodStr);
-                transaction.setAutoRenewPeriod(Duration.ofSeconds(periodSeconds));
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid auto renew period: " + periodStr, e);
-            }
-        });
-
-        params.getAutoRenewAccountId().ifPresent(accountIdStr -> {
-            try {
-                transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr));
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid auto renew account ID: " + accountIdStr, e);
-            }
-        });
-
-        params.getCustomFees().ifPresent(customFees -> {
-            if (!customFees.isEmpty()) {
-                List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
-                        customFees.get(0).fillOutCustomFees(customFees);
-
-                // Filter for fixed fees only as topics don't support fractional/royalty fees
-                List<CustomFixedFee> topicCustomFees = new ArrayList<>();
-                for (com.hedera.hashgraph.sdk.CustomFee fee : sdkCustomFees) {
-                    if (fee instanceof CustomFixedFee) {
-                        topicCustomFees.add((CustomFixedFee) fee);
-                    }
-                }
-
-                if (!topicCustomFees.isEmpty()) {
-                    transaction.setCustomFees(topicCustomFees);
-                }
-            }
-        });
+        TopicCreateTransaction transaction = TransactionBuilders.TopicBuilder.buildCreate(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -252,77 +176,7 @@ public class TopicService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("submitTopicMessage")
     public TopicResponse submitTopicMessage(final SubmitTopicMessageParams params) throws Exception {
-        TopicMessageSubmitTransaction transaction =
-                new TopicMessageSubmitTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTopicId().ifPresent(topicIdStr -> {
-            try {
-                transaction.setTopicId(TopicId.fromString(topicIdStr));
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid topic ID: " + topicIdStr, e);
-            }
-        });
-
-        if (params.getMessage().isEmpty()) {
-            throw new IllegalArgumentException("Message is required");
-        } else {
-            String message = params.getMessage().get();
-            transaction.setMessage(message.getBytes());
-        }
-
-        params.getMaxChunks().ifPresent(maxChunks -> {
-            transaction.setMaxChunks(maxChunks.intValue());
-        });
-
-        params.getChunkSize().ifPresent(chunkSize -> {
-            transaction.setChunkSize(chunkSize.intValue());
-        });
-
-        params.getCustomFeeLimits().ifPresent(customFeeLimits -> {
-            for (CustomFeeLimit customFeeLimitParam : customFeeLimits) {
-                com.hedera.hashgraph.sdk.CustomFeeLimit sdkCustomFeeLimit =
-                        new com.hedera.hashgraph.sdk.CustomFeeLimit();
-
-                // Set payer ID if present
-                customFeeLimitParam.getPayerId().ifPresent(payerIdStr -> {
-                    try {
-                        sdkCustomFeeLimit.setPayerId(AccountId.fromString(payerIdStr));
-                    } catch (Exception e) {
-                        throw new IllegalArgumentException("Invalid payer ID: " + payerIdStr, e);
-                    }
-                });
-
-                // Process fixed fees
-                customFeeLimitParam.getFixedFees().ifPresent(fixedFees -> {
-                    List<CustomFixedFee> sdkFixedFees = new ArrayList<>();
-
-                    for (com.hedera.hashgraph.tck.methods.sdk.param.CustomFee.FixedFee fixedFee : fixedFees) {
-                        CustomFixedFee sdkFixedFee = new CustomFixedFee();
-
-                        try {
-                            sdkFixedFee.setAmount(Long.parseLong(fixedFee.getAmount()));
-                        } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException("Invalid fixed fee amount: " + fixedFee.getAmount(), e);
-                        }
-
-                        fixedFee.getDenominatingTokenId().ifPresent(tokenIdStr -> {
-                            try {
-                                sdkFixedFee.setDenominatingTokenId(TokenId.fromString(tokenIdStr));
-                            } catch (Exception e) {
-                                throw new IllegalArgumentException("Invalid denominating token ID: " + tokenIdStr, e);
-                            }
-                        });
-
-                        sdkFixedFees.add(sdkFixedFee);
-                    }
-
-                    // Set all fixed fees at once instead of overwriting one by one
-                    sdkCustomFeeLimit.setCustomFees(sdkFixedFees);
-                });
-
-                transaction.addCustomFeeLimit(sdkCustomFeeLimit);
-            }
-        });
+        TopicMessageSubmitTransaction transaction = TransactionBuilders.TopicBuilder.buildSubmitMessage(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
