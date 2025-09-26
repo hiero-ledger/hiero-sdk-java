@@ -76,44 +76,12 @@ public class TransactionBuilders {
         }
 
         public static AccountCreateTransaction buildCreate(Map<String, Object> params) {
-            AccountCreateTransaction transaction = new AccountCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("key")) {
-                try {
-                    transaction.setKey(KeyUtils.getKeyFromString((String) params.get("key")));
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Invalid key format", e);
-                }
+            try {
+                AccountCreateParams typedParams = new AccountCreateParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AccountCreateParams", e);
             }
-            if (params.containsKey("initialBalance")) {
-                transaction.setInitialBalance(Hbar.fromTinybars(Long.parseLong((String) params.get("initialBalance"))));
-            }
-            if (params.containsKey("receiverSignatureRequired")) {
-                transaction.setReceiverSignatureRequired((Boolean) params.get("receiverSignatureRequired"));
-            }
-            if (params.containsKey("autoRenewPeriod")) {
-                transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong((String) params.get("autoRenewPeriod"))));
-            }
-            if (params.containsKey("memo")) {
-                transaction.setAccountMemo((String) params.get("memo"));
-            }
-            if (params.containsKey("maxAutoTokenAssociations")) {
-                transaction.setMaxAutomaticTokenAssociations(((Number) params.get("maxAutoTokenAssociations")).intValue());
-            }
-            if (params.containsKey("stakedAccountId")) {
-                transaction.setStakedAccountId(AccountId.fromString((String) params.get("stakedAccountId")));
-            }
-            if (params.containsKey("stakedNodeId")) {
-                transaction.setStakedNodeId(Long.parseLong((String) params.get("stakedNodeId")));
-            }
-            if (params.containsKey("declineStakingReward")) {
-                transaction.setDeclineStakingReward((Boolean) params.get("declineStakingReward"));
-            }
-            if (params.containsKey("alias")) {
-                transaction.setAlias((String) params.get("alias"));
-            }
-
-            return transaction;
         }
 
         public static AccountUpdateTransaction buildUpdate(AccountUpdateParams params) {
@@ -159,44 +127,12 @@ public class TransactionBuilders {
         }
 
         public static AccountUpdateTransaction buildUpdate(Map<String, Object> params) {
-            AccountUpdateTransaction transaction = new AccountUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
+            try {
+                AccountUpdateParams typedParams = new AccountUpdateParams().parse(params);
+                return buildUpdate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AccountUpdateParams", e);
             }
-            if (params.containsKey("key")) {
-                try {
-                    transaction.setKey(KeyUtils.getKeyFromString((String) params.get("key")));
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Invalid key format", e);
-                }
-            }
-            if (params.containsKey("receiverSignatureRequired")) {
-                transaction.setReceiverSignatureRequired((Boolean) params.get("receiverSignatureRequired"));
-            }
-            if (params.containsKey("autoRenewPeriod")) {
-                transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong((String) params.get("autoRenewPeriod"))));
-            }
-            if (params.containsKey("memo")) {
-                transaction.setAccountMemo((String) params.get("memo"));
-            }
-            if (params.containsKey("expirationTime")) {
-                transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong((String) params.get("expirationTime"))));
-            }
-            if (params.containsKey("maxAutoTokenAssociations")) {
-                transaction.setMaxAutomaticTokenAssociations(((Number) params.get("maxAutoTokenAssociations")).intValue());
-            }
-            if (params.containsKey("stakedAccountId")) {
-                transaction.setStakedAccountId(AccountId.fromString((String) params.get("stakedAccountId")));
-            }
-            if (params.containsKey("stakedNodeId")) {
-                transaction.setStakedNodeId(Long.parseLong((String) params.get("stakedNodeId")));
-            }
-            if (params.containsKey("declineStakingReward")) {
-                transaction.setDeclineStakingReward((Boolean) params.get("declineStakingReward"));
-            }
-
-            return transaction;
         }
 
         public static AccountDeleteTransaction buildDelete(AccountDeleteParams params) {
@@ -212,16 +148,12 @@ public class TransactionBuilders {
         }
 
         public static AccountDeleteTransaction buildDelete(Map<String, Object> params) {
-            AccountDeleteTransaction transaction = new AccountDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("deleteAccountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("deleteAccountId")));
+            try {
+                AccountDeleteParams typedParams = new AccountDeleteParams().parse(params);
+                return buildDelete(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AccountDeleteParams", e);
             }
-            if (params.containsKey("transferAccountId")) {
-                transaction.setTransferAccountId(AccountId.fromString((String) params.get("transferAccountId")));
-            }
-
-            return transaction;
         }
 
         public static AccountAllowanceApproveTransaction buildApproveAllowance(AccountAllowanceParams params) {
@@ -233,36 +165,12 @@ public class TransactionBuilders {
         }
 
         public static AccountAllowanceApproveTransaction buildApproveAllowance(Map<String, Object> params) {
-            AccountAllowanceApproveTransaction transaction = new AccountAllowanceApproveTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            @SuppressWarnings("unchecked")
-            var allowances = (java.util.List<Map<String, Object>>) params.get("allowances");
-            if (allowances == null) {
-                return transaction;
+            try {
+                AccountAllowanceParams typedParams = (AccountAllowanceParams) new AccountAllowanceParams().parse(params);
+                return buildApproveAllowance(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AccountAllowanceParams", e);
             }
-
-            for (var allowance : allowances) {
-                @SuppressWarnings("unchecked")
-                var hbar = (Map<String, Object>) allowance.get("hbar");
-                if (hbar == null) {
-                    continue;
-                }
-
-                String owner = (String) allowance.get("ownerAccountId");
-                String spender = (String) allowance.get("spenderAccountId");
-                if (owner == null) owner = (String) hbar.get("ownerAccountId");
-                if (spender == null) spender = (String) hbar.get("spenderAccountId");
-                String amountStr = (String) hbar.get("amount");
-
-                if (owner != null && spender != null && amountStr != null) {
-                    transaction.approveHbarAllowance(
-                            AccountId.fromString(owner),
-                            AccountId.fromString(spender),
-                            Hbar.fromTinybars(Long.parseLong(amountStr)));
-                }
-            }
-
-            return transaction;
         }
 
         public static AccountAllowanceDeleteTransaction buildDeleteAllowance(AccountAllowanceParams params) {
@@ -274,9 +182,12 @@ public class TransactionBuilders {
         }
 
         public static AccountAllowanceDeleteTransaction buildDeleteAllowance(Map<String, Object> params) {
-            AccountAllowanceDeleteTransaction transaction = new AccountAllowanceDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-            // Implementation would parse allowance parameters
-            return transaction;
+            try {
+                AccountAllowanceParams typedParams = (AccountAllowanceParams) new AccountAllowanceParams().parse(params);
+                return buildDeleteAllowance(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AccountAllowanceParams", e);
+            }
         }
 
         private static void approve(AccountAllowanceApproveTransaction tx, com.hedera.hashgraph.tck.methods.sdk.param.account.AllowanceParams allowance) {
@@ -346,22 +257,12 @@ public class TransactionBuilders {
         }
 
         public static TransferTransaction buildTransfer(Map<String, Object> params) {
-            TransferTransaction transaction = new TransferTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("transfers")) {
-                @SuppressWarnings("unchecked")
-                var transfers = (java.util.List<Map<String, Object>>) params.get("transfers");
-                for (var transfer : transfers) {
-                    try {
-                        TransferParams transferParams = TransferParams.parse(transfer);
-                        AccountService.processTransfer(transaction, transferParams);
-                    } catch (Exception e) {
-                        throw new IllegalArgumentException("Failed to parse transfer parameters: " + e.getMessage(), e);
-                    }
-                }
+            try {
+                TransferCryptoParams typedParams = (TransferCryptoParams) new TransferCryptoParams().parse(params);
+                return buildTransfer(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TransferCryptoParams", e);
             }
-
-            return transaction;
         }
     }
 
@@ -496,25 +397,12 @@ public class TransactionBuilders {
         }
 
         public static TokenCreateTransaction buildCreate(Map<String, Object> params) {
-            TokenCreateTransaction transaction = new TokenCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("name")) {
-                transaction.setTokenName((String) params.get("name"));
+            try {
+                TokenCreateParams typedParams = (TokenCreateParams) new TokenCreateParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenCreateParams", e);
             }
-            if (params.containsKey("symbol")) {
-                transaction.setTokenSymbol((String) params.get("symbol"));
-            }
-            if (params.containsKey("decimals")) {
-                transaction.setDecimals(((Number) params.get("decimals")).intValue());
-            }
-            if (params.containsKey("initialSupply")) {
-                transaction.setInitialSupply(Long.parseLong((String) params.get("initialSupply")));
-            }
-            if (params.containsKey("treasuryAccountId")) {
-                transaction.setTreasuryAccountId(AccountId.fromString((String) params.get("treasuryAccountId")));
-            }
-
-            return transaction;
         }
 
         public static TokenUpdateTransaction buildUpdate(TokenUpdateParams params) {
@@ -618,13 +506,12 @@ public class TransactionBuilders {
         }
 
         public static TokenUpdateTransaction buildUpdate(Map<String, Object> params) {
-            TokenUpdateTransaction transaction = new TokenUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
+            try {
+                TokenUpdateParams typedParams = (TokenUpdateParams) new TokenUpdateParams().parse(params);
+                return buildUpdate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenUpdateParams", e);
             }
-
-            return transaction;
         }
 
         public static TokenDeleteTransaction buildDelete(TokenDeleteParams params) {
@@ -636,13 +523,12 @@ public class TransactionBuilders {
         }
 
         public static TokenDeleteTransaction buildDelete(Map<String, Object> params) {
-            TokenDeleteTransaction transaction = new TokenDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
+            try {
+                TokenDeleteParams typedParams = (TokenDeleteParams) new TokenDeleteParams().parse(params);
+                return buildDelete(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenDeleteParams", e);
             }
-
-            return transaction;
         }
 
         public static TokenMintTransaction buildMint(MintTokenParams params) {
@@ -664,16 +550,12 @@ public class TransactionBuilders {
         }
 
         public static TokenMintTransaction buildMint(Map<String, Object> params) {
-            TokenMintTransaction transaction = new TokenMintTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
+            try {
+                MintTokenParams typedParams = (MintTokenParams) new MintTokenParams().parse(params);
+                return buildMint(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse MintTokenParams", e);
             }
-            if (params.containsKey("amount")) {
-                transaction.setAmount(Long.parseLong((String) params.get("amount")));
-            }
-
-            return transaction;
         }
 
         public static TokenBurnTransaction buildBurn(BurnTokenParams params) {
@@ -696,16 +578,12 @@ public class TransactionBuilders {
         }
 
         public static TokenBurnTransaction buildBurn(Map<String, Object> params) {
-            TokenBurnTransaction transaction = new TokenBurnTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
+            try {
+                BurnTokenParams typedParams = (BurnTokenParams) new BurnTokenParams().parse(params);
+                return buildBurn(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse BurnTokenParams", e);
             }
-            if (params.containsKey("amount")) {
-                transaction.setAmount(Long.parseLong((String) params.get("amount")));
-            }
-
-            return transaction;
         }
 
         public static TokenWipeTransaction buildWipe(TokenWipeParams params) {
@@ -734,116 +612,159 @@ public class TransactionBuilders {
         }
 
         public static TokenWipeTransaction buildWipe(Map<String, Object> params) {
-            TokenWipeTransaction transaction = new TokenWipeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
+            try {
+                TokenWipeParams typedParams = (TokenWipeParams) new TokenWipeParams().parse(params);
+                return buildWipe(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenWipeParams", e);
             }
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
-            if (params.containsKey("amount")) {
-                transaction.setAmount(Long.parseLong((String) params.get("amount")));
-            }
-
-            return transaction;
         }
 
         // Additional token operations for schedule support
         public static TokenAssociateTransaction buildAssociate(Map<String, Object> params) {
+            try {
+                AssociateDisassociateTokenParams typedParams = (AssociateDisassociateTokenParams) new AssociateDisassociateTokenParams().parse(params);
+                return buildAssociate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AssociateDisassociateTokenParams", e);
+            }
+        }
+
+        public static TokenAssociateTransaction buildAssociate(AssociateDisassociateTokenParams params) {
             TokenAssociateTransaction transaction = new TokenAssociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
-            if (params.containsKey("tokenIds")) {
-                // Implementation would parse token IDs
-            }
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.getTokenIds().ifPresent(tokenIds -> {
+                List<TokenId> tokenIdList = tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
+                transaction.setTokenIds(tokenIdList);
+            });
 
             return transaction;
         }
 
         public static TokenDissociateTransaction buildDissociate(Map<String, Object> params) {
+            try {
+                AssociateDisassociateTokenParams typedParams = (AssociateDisassociateTokenParams) new AssociateDisassociateTokenParams().parse(params);
+                return buildDissociate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse AssociateDisassociateTokenParams", e);
+            }
+        }
+
+        public static TokenDissociateTransaction buildDissociate(AssociateDisassociateTokenParams params) {
             TokenDissociateTransaction transaction = new TokenDissociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
-            if (params.containsKey("tokenIds")) {
-                // Implementation would parse token IDs
-            }
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.getTokenIds().ifPresent(tokenIds -> {
+                List<TokenId> tokenIdList = tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
+                transaction.setTokenIds(tokenIdList);
+            });
 
             return transaction;
         }
 
         public static TokenFreezeTransaction buildFreeze(Map<String, Object> params) {
+            try {
+                FreezeUnfreezeTokenParams typedParams = (FreezeUnfreezeTokenParams) new FreezeUnfreezeTokenParams().parse(params);
+                return buildFreeze(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FreezeUnfreezeTokenParams", e);
+            }
+        }
+
+        public static TokenFreezeTransaction buildFreeze(FreezeUnfreezeTokenParams params) {
             TokenFreezeTransaction transaction = new TokenFreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
 
         public static TokenUnfreezeTransaction buildUnfreeze(Map<String, Object> params) {
+            try {
+                FreezeUnfreezeTokenParams typedParams = (FreezeUnfreezeTokenParams) new FreezeUnfreezeTokenParams().parse(params);
+                return buildUnfreeze(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FreezeUnfreezeTokenParams", e);
+            }
+        }
+
+        public static TokenUnfreezeTransaction buildUnfreeze(FreezeUnfreezeTokenParams params) {
             TokenUnfreezeTransaction transaction = new TokenUnfreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
 
         public static TokenGrantKycTransaction buildGrantKyc(Map<String, Object> params) {
+            try {
+                GrantRevokeTokenKycParams typedParams = (GrantRevokeTokenKycParams) new GrantRevokeTokenKycParams().parse(params);
+                return buildGrantKyc(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse GrantRevokeTokenKycParams", e);
+            }
+        }
+
+        public static TokenGrantKycTransaction buildGrantKyc(GrantRevokeTokenKycParams params) {
             TokenGrantKycTransaction transaction = new TokenGrantKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
 
         public static TokenRevokeKycTransaction buildRevokeKyc(Map<String, Object> params) {
+            try {
+                GrantRevokeTokenKycParams typedParams = (GrantRevokeTokenKycParams) new GrantRevokeTokenKycParams().parse(params);
+                return buildRevokeKyc(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse GrantRevokeTokenKycParams", e);
+            }
+        }
+
+        public static TokenRevokeKycTransaction buildRevokeKyc(GrantRevokeTokenKycParams params) {
             TokenRevokeKycTransaction transaction = new TokenRevokeKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
-            if (params.containsKey("accountId")) {
-                transaction.setAccountId(AccountId.fromString((String) params.get("accountId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
 
         public static TokenPauseTransaction buildPause(Map<String, Object> params) {
+            try {
+                PauseUnpauseTokenParams typedParams = (PauseUnpauseTokenParams) new PauseUnpauseTokenParams().parse(params);
+                return buildPause(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse PauseUnpauseTokenParams", e);
+            }
+        }
+
+        public static TokenPauseTransaction buildPause(PauseUnpauseTokenParams params) {
             TokenPauseTransaction transaction = new TokenPauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             return transaction;
         }
 
         public static TokenUnpauseTransaction buildUnpause(Map<String, Object> params) {
+            try {
+                PauseUnpauseTokenParams typedParams = (PauseUnpauseTokenParams) new PauseUnpauseTokenParams().parse(params);
+                return buildUnpause(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse PauseUnpauseTokenParams", e);
+            }
+        }
+
+        public static TokenUnpauseTransaction buildUnpause(PauseUnpauseTokenParams params) {
             TokenUnpauseTransaction transaction = new TokenUnpauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("tokenId")) {
-                transaction.setTokenId(TokenId.fromString((String) params.get("tokenId")));
-            }
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             return transaction;
         }
@@ -950,13 +871,12 @@ public class TransactionBuilders {
         }
 
         public static TopicCreateTransaction buildCreate(Map<String, Object> params) {
-            TopicCreateTransaction transaction = new TopicCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("memo")) {
-                transaction.setTopicMemo((String) params.get("memo"));
+            try {
+                CreateTopicParams typedParams = (CreateTopicParams) new CreateTopicParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse CreateTopicParams", e);
             }
-
-            return transaction;
         }
 
         public static TopicUpdateTransaction buildUpdate(UpdateTopicParams params) {
@@ -1031,13 +951,12 @@ public class TransactionBuilders {
         }
 
         public static TopicUpdateTransaction buildUpdate(Map<String, Object> params) {
-            TopicUpdateTransaction transaction = new TopicUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("topicId")) {
-                transaction.setTopicId(TopicId.fromString((String) params.get("topicId")));
+            try {
+                UpdateTopicParams typedParams = (UpdateTopicParams) new UpdateTopicParams().parse(params);
+                return buildUpdate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse UpdateTopicParams", e);
             }
-
-            return transaction;
         }
 
         public static TopicDeleteTransaction buildDelete(DeleteTopicParams params) {
@@ -1055,13 +974,12 @@ public class TransactionBuilders {
         }
 
         public static TopicDeleteTransaction buildDelete(Map<String, Object> params) {
-            TopicDeleteTransaction transaction = new TopicDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("topicId")) {
-                transaction.setTopicId(TopicId.fromString((String) params.get("topicId")));
+            try {
+                DeleteTopicParams typedParams = (DeleteTopicParams) new DeleteTopicParams().parse(params);
+                return buildDelete(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse DeleteTopicParams", e);
             }
-
-            return transaction;
         }
 
         public static TopicMessageSubmitTransaction buildSubmitMessage(SubmitTopicMessageParams params) {
@@ -1141,16 +1059,12 @@ public class TransactionBuilders {
         }
 
         public static TopicMessageSubmitTransaction buildSubmitMessage(Map<String, Object> params) {
-            TopicMessageSubmitTransaction transaction = new TopicMessageSubmitTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("topicId")) {
-                transaction.setTopicId(TopicId.fromString((String) params.get("topicId")));
+            try {
+                SubmitTopicMessageParams typedParams = (SubmitTopicMessageParams) new SubmitTopicMessageParams().parse(params);
+                return buildSubmitMessage(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse SubmitTopicMessageParams", e);
             }
-            if (params.containsKey("message")) {
-                transaction.setMessage(((String) params.get("message")).getBytes());
-            }
-
-            return transaction;
         }
     }
 
@@ -1187,35 +1101,12 @@ public class TransactionBuilders {
         }
 
         public static FileCreateTransaction buildCreate(Map<String, Object> params) {
-            FileCreateTransaction transaction = new FileCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("keys")) {
-                @SuppressWarnings("unchecked")
-                var keyStrings = (java.util.List<String>) params.get("keys");
-                if (keyStrings != null && !keyStrings.isEmpty()) {
-                    try {
-                        Key[] keys = new Key[keyStrings.size()];
-                        for (int i = 0; i < keyStrings.size(); i++) {
-                            keys[i] = KeyUtils.getKeyFromString(keyStrings.get(i));
-                        }
-                        transaction.setKeys(keys);
-                    } catch (InvalidProtocolBufferException e) {
-                        throw new IllegalArgumentException("Invalid key format", e);
-                    }
-                }
+            try {
+                FileCreateParams typedParams = new FileCreateParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FileCreateParams", e);
             }
-            if (params.containsKey("contents")) {
-                transaction.setContents(((String) params.get("contents")).getBytes());
-            }
-            if (params.containsKey("expirationTime")) {
-                long expirationTimeSeconds = Long.parseLong((String) params.get("expirationTime"));
-                transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
-            }
-            if (params.containsKey("memo")) {
-                transaction.setFileMemo((String) params.get("memo"));
-            }
-
-            return transaction;
         }
 
         public static FileUpdateTransaction buildUpdate(FileUpdateParams params) {
@@ -1247,13 +1138,12 @@ public class TransactionBuilders {
         }
 
         public static FileUpdateTransaction buildUpdate(Map<String, Object> params) {
-            FileUpdateTransaction transaction = new FileUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("fileId")) {
-                transaction.setFileId(FileId.fromString((String) params.get("fileId")));
+            try {
+                FileUpdateParams typedParams = new FileUpdateParams().parse(params);
+                return buildUpdate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FileUpdateParams", e);
             }
-
-            return transaction;
         }
 
         public static FileDeleteTransaction buildDelete(FileDeleteParams params) {
@@ -1265,13 +1155,12 @@ public class TransactionBuilders {
         }
 
         public static FileDeleteTransaction buildDelete(Map<String, Object> params) {
-            FileDeleteTransaction transaction = new FileDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("fileId")) {
-                transaction.setFileId(FileId.fromString((String) params.get("fileId")));
+            try {
+                FileDeleteParams typedParams = new FileDeleteParams().parse(params);
+                return buildDelete(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FileDeleteParams", e);
             }
-
-            return transaction;
         }
 
         public static FileAppendTransaction buildAppend(FileAppendParams params) {
@@ -1293,16 +1182,12 @@ public class TransactionBuilders {
         }
 
         public static FileAppendTransaction buildAppend(Map<String, Object> params) {
-            FileAppendTransaction transaction = new FileAppendTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            if (params.containsKey("fileId")) {
-                transaction.setFileId(FileId.fromString((String) params.get("fileId")));
+            try {
+                FileAppendParams typedParams = new FileAppendParams().parse(params);
+                return buildAppend(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse FileAppendParams", e);
             }
-            if (params.containsKey("contents")) {
-                transaction.setContents(((String) params.get("contents")).getBytes());
-            }
-
-            return transaction;
         }
     }
 }
