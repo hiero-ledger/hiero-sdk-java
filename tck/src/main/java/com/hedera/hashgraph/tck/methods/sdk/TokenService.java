@@ -52,96 +52,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("updateToken")
     public TokenResponse updateToken(final TokenUpdateParams params) throws Exception {
-        TokenUpdateTransaction tokenUpdateTransaction = new TokenUpdateTransaction();
-
-        params.getTokenId().ifPresent(tokenId -> tokenUpdateTransaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAdminKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setAdminKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getKycKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setKycKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getFreezeKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setFreezeKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getWipeKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setWipeKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getSupplyKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setSupplyKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getFeeScheduleKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getPauseKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setPauseKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getMetadataKey().ifPresent(key -> {
-            try {
-                tokenUpdateTransaction.setMetadataKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException(e);
-            }
-        });
-
-        params.getName().ifPresent(tokenUpdateTransaction::setTokenName);
-        params.getSymbol().ifPresent(tokenUpdateTransaction::setTokenSymbol);
-
-        params.getTreasuryAccountId()
-                .ifPresent(treasuryAccountId ->
-                        tokenUpdateTransaction.setTreasuryAccountId(AccountId.fromString(treasuryAccountId)));
-
-        params.getExpirationTime()
-                .ifPresent(expirationTime ->
-                        tokenUpdateTransaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
-
-        params.getAutoRenewAccountId()
-                .ifPresent(autoRenewAccountId ->
-                        tokenUpdateTransaction.setAutoRenewAccountId(AccountId.fromString(autoRenewAccountId)));
-
-        params.getAutoRenewPeriod()
-                .ifPresent(autoRenewPeriodSeconds -> tokenUpdateTransaction.setAutoRenewPeriod(
-                        Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
-
-        params.getMemo().ifPresent(tokenUpdateTransaction::setTokenMemo);
-
-        params.getMetadata().ifPresent(metadata -> tokenUpdateTransaction.setTokenMetadata(metadata.getBytes()));
+        TokenUpdateTransaction tokenUpdateTransaction = TransactionBuilders.TokenBuilder.buildUpdate(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
@@ -155,9 +66,7 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("deleteToken")
     public TokenResponse deleteToken(final TokenDeleteParams params) throws Exception {
-        TokenDeleteTransaction tokenDeleteTransaction = new TokenDeleteTransaction();
-
-        params.getTokenId().ifPresent(tokenId -> tokenDeleteTransaction.setTokenId(TokenId.fromString(tokenId)));
+        TokenDeleteTransaction tokenDeleteTransaction = TransactionBuilders.TokenBuilder.buildDelete(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
@@ -190,11 +99,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("freezeToken")
     public TokenResponse tokenFreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
-        TokenFreezeTransaction transaction = new TokenFreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse(""),
+            "accountId", params.getAccountId().orElse("")
+        );
+        
+        TokenFreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildFreeze(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -206,11 +117,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("unfreezeToken")
     public TokenResponse tokenUnfreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
-        TokenUnfreezeTransaction transaction = new TokenUnfreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse(""),
+            "accountId", params.getAccountId().orElse("")
+        );
+        
+        TokenUnfreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildUnfreeze(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -222,15 +135,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("associateToken")
     public TokenResponse associateToken(AssociateDisassociateTokenParams params) throws Exception {
-        TokenAssociateTransaction transaction = new TokenAssociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenIds().ifPresent(tokenIds -> {
-            List<TokenId> tokenIdList =
-                    tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
-            transaction.setTokenIds(tokenIdList);
-        });
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "accountId", params.getAccountId().orElse(""),
+            "tokenIds", params.getTokenIds().orElse(List.of())
+        );
+        
+        TokenAssociateTransaction transaction = TransactionBuilders.TokenBuilder.buildAssociate(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -242,16 +153,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("dissociateToken")
     public TokenResponse dissociateToken(AssociateDisassociateTokenParams params) throws Exception {
-        TokenDissociateTransaction transaction =
-                new TokenDissociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenIds().ifPresent(tokenIds -> {
-            List<TokenId> tokenIdList =
-                    tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
-            transaction.setTokenIds(tokenIdList);
-        });
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "accountId", params.getAccountId().orElse(""),
+            "tokenIds", params.getTokenIds().orElse(List.of())
+        );
+        
+        TokenDissociateTransaction transaction = TransactionBuilders.TokenBuilder.buildDissociate(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -263,9 +171,12 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("pauseToken")
     public TokenResponse pauseToken(PauseUnpauseTokenParams params) throws Exception {
-        TokenPauseTransaction transaction = new TokenPauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse("")
+        );
+        
+        TokenPauseTransaction transaction = TransactionBuilders.TokenBuilder.buildPause(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -277,9 +188,12 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("unpauseToken")
     public TokenResponse tokenUnpauseTransaction(PauseUnpauseTokenParams params) throws Exception {
-        TokenUnpauseTransaction transaction = new TokenUnpauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse("")
+        );
+        
+        TokenUnpauseTransaction transaction = TransactionBuilders.TokenBuilder.buildUnpause(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -291,11 +205,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("grantTokenKyc")
     public TokenResponse grantTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
-        TokenGrantKycTransaction transaction = new TokenGrantKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse(""),
+            "accountId", params.getAccountId().orElse("")
+        );
+        
+        TokenGrantKycTransaction transaction = TransactionBuilders.TokenBuilder.buildGrantKyc(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -307,11 +223,13 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("revokeTokenKyc")
     public TokenResponse revokeTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
-        TokenRevokeKycTransaction transaction = new TokenRevokeKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-
-        params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+        // Convert params to Map for TransactionBuilders
+        Map<String, Object> mapParams = Map.of(
+            "tokenId", params.getTokenId().orElse(""),
+            "accountId", params.getAccountId().orElse("")
+        );
+        
+        TokenRevokeKycTransaction transaction = TransactionBuilders.TokenBuilder.buildRevokeKyc(mapParams);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));

@@ -47,102 +47,7 @@ public class TopicService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("updateTopic")
     public TopicResponse updateTopic(final UpdateTopicParams params) throws Exception {
-        TopicUpdateTransaction transaction = new TopicUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTopicId().ifPresent(topicIdStr -> {
-            try {
-                transaction.setTopicId(TopicId.fromString(topicIdStr));
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid topic ID: " + topicIdStr, e);
-            }
-        });
-
-        params.getMemo().ifPresent(transaction::setTopicMemo);
-
-        params.getAdminKey().ifPresent(key -> {
-            try {
-                transaction.setAdminKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid admin key: " + key, e);
-            }
-        });
-
-        params.getSubmitKey().ifPresent(key -> {
-            try {
-                transaction.setSubmitKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid submit key: " + key, e);
-            }
-        });
-
-        params.getFeeScheduleKey().ifPresent(key -> {
-            try {
-                transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid fee schedule key: " + key, e);
-            }
-        });
-
-        params.getFeeExemptKeys().ifPresent(keyStrings -> {
-            if (keyStrings.isEmpty()) {
-                transaction.clearFeeExemptKeys();
-            } else {
-                List<Key> keys = new ArrayList<>();
-                for (String keyStr : keyStrings) {
-                    try {
-                        keys.add(KeyUtils.getKeyFromString(keyStr));
-                    } catch (InvalidProtocolBufferException e) {
-                        throw new IllegalArgumentException("Invalid fee exempt key: " + keyStr, e);
-                    }
-                }
-                transaction.setFeeExemptKeys(keys);
-            }
-        });
-
-        params.getAutoRenewPeriod().ifPresent(periodStr -> {
-            try {
-                long periodSeconds = Long.parseLong(periodStr);
-                transaction.setAutoRenewPeriod(Duration.ofSeconds(periodSeconds));
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid auto renew period: " + periodStr, e);
-            }
-        });
-
-        params.getAutoRenewAccountId().ifPresent(accountIdStr -> {
-            try {
-                transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr));
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid auto renew account ID: " + accountIdStr, e);
-            }
-        });
-
-        params.getExpirationTime().ifPresent(expirationTimeStr -> {
-            try {
-                long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
-                transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
-            }
-        });
-
-        params.getCustomFees().ifPresent(customFees -> {
-            if (customFees.isEmpty()) {
-                transaction.clearCustomFees();
-            } else {
-                List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
-                        customFees.get(0).fillOutCustomFees(customFees);
-
-                // Filter for fixed fees only as topics don't support fractional/royalty fees
-                List<CustomFixedFee> topicCustomFees = new ArrayList<>();
-                for (com.hedera.hashgraph.sdk.CustomFee fee : sdkCustomFees) {
-                    if (fee instanceof CustomFixedFee) {
-                        topicCustomFees.add((CustomFixedFee) fee);
-                    }
-                }
-
-                transaction.setCustomFees(topicCustomFees);
-            }
-        });
+        TopicUpdateTransaction transaction = TransactionBuilders.TopicBuilder.buildUpdate(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
@@ -155,15 +60,7 @@ public class TopicService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("deleteTopic")
     public TopicResponse deleteTopic(final DeleteTopicParams params) throws Exception {
-        TopicDeleteTransaction transaction = new TopicDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getTopicId().ifPresent(topicIdStr -> {
-            try {
-                transaction.setTopicId(TopicId.fromString(topicIdStr));
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid topic ID: " + topicIdStr, e);
-            }
-        });
+        TopicDeleteTransaction transaction = TransactionBuilders.TopicBuilder.buildDelete(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
