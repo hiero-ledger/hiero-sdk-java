@@ -81,7 +81,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     /**
      * Builds a scheduled transaction from method name and parameters
      */
-    private Transaction<?> buildScheduledTransaction(ScheduleCreateParams.ScheduledTransaction scheduledTx) throws Exception {
+    private Transaction<?> buildScheduledTransaction(ScheduleCreateParams.ScheduledTransaction scheduledTx) {
         String method = scheduledTx.getMethod();
         Map<String, Object> params = scheduledTx.getParams();
 
@@ -112,7 +112,10 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             case "pauseToken" -> TransactionBuilders.TokenBuilder.buildPause(params);
             case "unpauseToken" -> TransactionBuilders.TokenBuilder.buildUnpause(params);
             case "wipeToken" -> TransactionBuilders.TokenBuilder.buildWipe(params);
-            case "rejectToken" -> TransactionBuilders.TokenBuilder.buildReject(params);
+            case "updateTokenFeeSchedule" -> TransactionBuilders.TokenBuilder.buildUpdateFeeSchedule(params);
+            case "airdropToken" -> TransactionBuilders.TokenBuilder.buildAirdrop(params);
+            case "cancelAirdrop" -> TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
+            case "claimToken" -> TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
             case "deleteAllowance" -> TransactionBuilders.AccountBuilder.buildDeleteAllowance(params);
             case "appendFile" -> TransactionBuilders.FileBuilder.buildAppend(params);
             default -> throw new IllegalArgumentException("Unsupported scheduled transaction method: " + method);

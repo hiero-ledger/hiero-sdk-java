@@ -764,18 +764,138 @@ public class TransactionBuilders {
             return transaction;
         }
 
-        public static TokenRejectTransaction buildReject(Map<String, Object> params) {
-            TokenRejectTransaction transaction = new TokenRejectTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        public static TokenFeeScheduleUpdateTransaction buildUpdateFeeSchedule(TokenUpdateFeeScheduleParams params) {
+            TokenFeeScheduleUpdateTransaction transaction = new TokenFeeScheduleUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.containsKey("ownerId")) {
-                transaction.setOwnerId(AccountId.fromString((String) params.get("ownerId")));
+            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+
+            params.getCustomFees().ifPresent(customFees -> {
+                if (!customFees.isEmpty()) {
+                    List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
+                            customFees.get(0).fillOutCustomFees(customFees);
+                    transaction.setCustomFees(sdkCustomFees);
+                }
+            });
+
+            return transaction;
+        }
+
+        public static TokenFeeScheduleUpdateTransaction buildUpdateFeeSchedule(Map<String, Object> params) {
+            try {
+                TokenUpdateFeeScheduleParams typedParams = (TokenUpdateFeeScheduleParams) new TokenUpdateFeeScheduleParams().parse(params);
+                return buildUpdateFeeSchedule(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenUpdateFeeScheduleParams", e);
             }
-            if (params.containsKey("tokenIds")) {
-                // Implementation would parse token IDs
-                //TODO
+        }
+
+        public static TokenAirdropTransaction buildAirdrop(TokenAirdropParams params) {
+            TokenAirdropTransaction transaction = new TokenAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            params.getTokenTransfers().ifPresent(transferParams -> {
+                for (com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams transferParam : transferParams) {
+                    try {
+                        AirdropUtils.handleAirdropParam(transaction, transferParam);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Failed to handle airdrop transfer parameter", e);
+                    }
+                }
+            });
+
+            return transaction;
+        }
+
+        public static TokenAirdropTransaction buildAirdrop(Map<String, Object> params) {
+            try {
+                TokenAirdropParams typedParams = (TokenAirdropParams) new TokenAirdropParams().parse(params);
+                return buildAirdrop(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenAirdropParams", e);
+            }
+        }
+
+        public static TokenCancelAirdropTransaction buildCancelAirdrop(TokenAirdropCancelParams params) {
+            TokenCancelAirdropTransaction transaction = new TokenCancelAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            params.getPendingAirdrops().ifPresent(pendingAirdrops -> {
+                for (PendingAirdropParams pendingAirdrop : pendingAirdrops) {
+                    String tokenId = pendingAirdrop.getTokenId().orElseThrow();
+                    String senderAccountId = pendingAirdrop.getSenderAccountId().orElseThrow();
+                    String receiverAccountId = pendingAirdrop.getReceiverAccountId().orElseThrow();
+                    
+                    // NFT token cancellation
+                    if (pendingAirdrop.getSerialNumbers().isPresent() && !pendingAirdrop.getSerialNumbers().get().isEmpty()) {
+                        List<String> serialNumbers = pendingAirdrop.getSerialNumbers().get();
+                        for (String serialNumber : serialNumbers) {
+                            PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                                AccountId.fromString(senderAccountId),
+                                AccountId.fromString(receiverAccountId),
+                                new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber))
+                            );
+                            transaction.addPendingAirdrop(pendingAirdropId);
+                        }
+                    } else {
+                        // Fungible token cancellation
+                        PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                            AccountId.fromString(senderAccountId),
+                            AccountId.fromString(receiverAccountId),
+                            TokenId.fromString(tokenId)
+                        );
+                        transaction.addPendingAirdrop(pendingAirdropId);
+                    }
+                }
+            });
+
+            return transaction;
+        }
+
+        public static TokenCancelAirdropTransaction buildCancelAirdrop(Map<String, Object> params) {
+            try {
+                TokenAirdropCancelParams typedParams = (TokenAirdropCancelParams) new TokenAirdropCancelParams().parse(params);
+                return buildCancelAirdrop(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenAirdropCancelParams", e);
+            }
+        }
+
+        public static TokenClaimAirdropTransaction buildClaimAirdrop(TokenClaimAirdropParams params) {
+            TokenClaimAirdropTransaction transaction = new TokenClaimAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            String senderAccountId = params.getSenderAccountId().orElseThrow();
+            String receiverAccountId = params.getReceiverAccountId().orElseThrow();
+            String tokenId = params.getTokenId().orElseThrow();
+
+            // NFT token claiming
+            if (params.getSerialNumbers().isPresent() && !params.getSerialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = params.getSerialNumbers().get();
+                for (String serialNumber : serialNumbers) {
+                    PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                        AccountId.fromString(senderAccountId),
+                        AccountId.fromString(receiverAccountId),
+                        new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber))
+                    );
+                    transaction.addPendingAirdrop(pendingAirdropId);
+                }
+            } else {
+                // Fungible token claiming
+                PendingAirdropId pendingAirdropId = new PendingAirdropId(
+                    AccountId.fromString(senderAccountId),
+                    AccountId.fromString(receiverAccountId),
+                    TokenId.fromString(tokenId)
+                );
+                transaction.addPendingAirdrop(pendingAirdropId);
             }
 
             return transaction;
+        }
+
+        public static TokenClaimAirdropTransaction buildClaimAirdrop(Map<String, Object> params) {
+            try {
+                TokenClaimAirdropParams typedParams = (TokenClaimAirdropParams) new TokenClaimAirdropParams().parse(params);
+                return buildClaimAirdrop(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse TokenClaimAirdropParams", e);
+            }
         }
     }
 
