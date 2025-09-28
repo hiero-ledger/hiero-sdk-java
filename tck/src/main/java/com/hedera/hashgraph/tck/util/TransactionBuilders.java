@@ -363,6 +363,7 @@ public class TransactionBuilders {
                             Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
 
             params.getMemo().ifPresent(transaction::setTokenMemo);
+            params.getMetadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
             params.getTokenType().ifPresent(tokenType -> {
                 if (tokenType.equals("ft")) {
                     transaction.setTokenType(TokenType.FUNGIBLE_COMMON);
@@ -493,6 +494,8 @@ public class TransactionBuilders {
             params.getExpirationTime()
                     .ifPresent(expirationTime ->
                             transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
+
+            params.getMetadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
 
             return transaction;
         }

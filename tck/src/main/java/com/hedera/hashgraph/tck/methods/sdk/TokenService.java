@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
@@ -11,12 +10,11 @@ import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
 import com.hedera.hashgraph.tck.util.AirdropUtils;
-import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * TokenService for token related methods
@@ -100,11 +98,10 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("freezeToken")
     public TokenResponse tokenFreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse(""),
-            "accountId", params.getAccountId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+        params.getAccountId().ifPresent(accountId -> mapParams.put("accountId", accountId));
+
         TokenFreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildFreeze(mapParams);
 
         params.getCommonTransactionParams()
@@ -118,11 +115,10 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("unfreezeToken")
     public TokenResponse tokenUnfreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse(""),
-            "accountId", params.getAccountId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+        params.getAccountId().ifPresent(accountId -> mapParams.put("accountId", accountId));
+
         TokenUnfreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildUnfreeze(mapParams);
 
         params.getCommonTransactionParams()
@@ -140,7 +136,7 @@ public class TokenService extends AbstractJSONRPC2Service {
             "accountId", params.getAccountId().orElse(""),
             "tokenIds", params.getTokenIds().orElse(List.of())
         );
-        
+
         TokenAssociateTransaction transaction = TransactionBuilders.TokenBuilder.buildAssociate(mapParams);
 
         params.getCommonTransactionParams()
@@ -158,7 +154,7 @@ public class TokenService extends AbstractJSONRPC2Service {
             "accountId", params.getAccountId().orElse(""),
             "tokenIds", params.getTokenIds().orElse(List.of())
         );
-        
+
         TokenDissociateTransaction transaction = TransactionBuilders.TokenBuilder.buildDissociate(mapParams);
 
         params.getCommonTransactionParams()
@@ -172,10 +168,9 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("pauseToken")
     public TokenResponse pauseToken(PauseUnpauseTokenParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+
         TokenPauseTransaction transaction = TransactionBuilders.TokenBuilder.buildPause(mapParams);
 
         params.getCommonTransactionParams()
@@ -189,10 +184,9 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("unpauseToken")
     public TokenResponse tokenUnpauseTransaction(PauseUnpauseTokenParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+
         TokenUnpauseTransaction transaction = TransactionBuilders.TokenBuilder.buildUnpause(mapParams);
 
         params.getCommonTransactionParams()
@@ -206,11 +200,10 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("grantTokenKyc")
     public TokenResponse grantTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse(""),
-            "accountId", params.getAccountId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+        params.getAccountId().ifPresent(accountId -> mapParams.put("accountId", accountId));
+
         TokenGrantKycTransaction transaction = TransactionBuilders.TokenBuilder.buildGrantKyc(mapParams);
 
         params.getCommonTransactionParams()
@@ -224,11 +217,10 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("revokeTokenKyc")
     public TokenResponse revokeTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
         // Convert params to Map for TransactionBuilders
-        Map<String, Object> mapParams = Map.of(
-            "tokenId", params.getTokenId().orElse(""),
-            "accountId", params.getAccountId().orElse("")
-        );
-        
+        Map<String, Object> mapParams = new HashMap<>();
+        params.getTokenId().ifPresent(tokenId -> mapParams.put("tokenId", tokenId));
+        params.getAccountId().ifPresent(accountId -> mapParams.put("accountId", accountId));
+
         TokenRevokeKycTransaction transaction = TransactionBuilders.TokenBuilder.buildRevokeKyc(mapParams);
 
         params.getCommonTransactionParams()
