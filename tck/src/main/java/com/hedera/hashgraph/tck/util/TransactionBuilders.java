@@ -8,8 +8,8 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountAllowanceParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.topic.CustomFeeLimit;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferCryptoParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.*;
@@ -494,14 +494,6 @@ public class TransactionBuilders {
                     .ifPresent(expirationTime ->
                             transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
 
-//            params.getCustomFees().ifPresent(customFees -> {
-//                if (!customFees.isEmpty()) {
-//                    List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
-//                            customFees.get(0).fillOutCustomFees(customFees);
-//                    transaction.setCustomFees(sdkCustomFees);
-//                }
-//            });
-
             return transaction;
         }
 
@@ -777,6 +769,7 @@ public class TransactionBuilders {
             }
             if (params.containsKey("tokenIds")) {
                 // Implementation would parse token IDs
+                //TODO
             }
 
             return transaction;
@@ -818,7 +811,9 @@ public class TransactionBuilders {
             });
 
             params.getFeeExemptKeys().ifPresent(keyStrings -> {
-                if (!keyStrings.isEmpty()) {
+                if (keyStrings.isEmpty()) {
+                    transaction.clearFeeExemptKeys();
+                } else {
                     List<Key> keys = new ArrayList<>();
                     for (String keyStr : keyStrings) {
                         try {
@@ -849,7 +844,9 @@ public class TransactionBuilders {
             });
 
             params.getCustomFees().ifPresent(customFees -> {
-                if (!customFees.isEmpty()) {
+                if (customFees.isEmpty()) {
+                    transaction.clearCustomFees();
+                } else {
                     List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
                             customFees.get(0).fillOutCustomFees(customFees);
 
@@ -917,7 +914,10 @@ public class TransactionBuilders {
             });
 
             params.getFeeExemptKeys().ifPresent(keyStrings -> {
-                if (!keyStrings.isEmpty()) {
+                if (keyStrings.isEmpty()) {
+                    // Empty array means clear all fee exempt keys
+                    transaction.clearFeeExemptKeys();
+                } else {
                     List<Key> keys = new ArrayList<>();
                     for (String keyStr : keyStrings) {
                         try {
@@ -944,6 +944,37 @@ public class TransactionBuilders {
                     transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr));
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Invalid auto renew account ID: " + accountIdStr, e);
+                }
+            });
+
+            params.getExpirationTime().ifPresent(expirationTimeStr -> {
+                try {
+                    long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
+                    transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
+                }
+            });
+
+            params.getCustomFees().ifPresent(customFees -> {
+                if (customFees.isEmpty()) {
+                    // Empty array means clear all custom fees
+                    transaction.clearCustomFees();
+                } else {
+                    List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
+                            customFees.get(0).fillOutCustomFees(customFees);
+
+                    // Filter for fixed fees only as topics don't support fractional/royalty fees
+                    List<CustomFixedFee> topicCustomFees = new ArrayList<>();
+                    for (com.hedera.hashgraph.sdk.CustomFee fee : sdkCustomFees) {
+                        if (fee instanceof CustomFixedFee) {
+                            topicCustomFees.add((CustomFixedFee) fee);
+                        }
+                    }
+
+                    if (!topicCustomFees.isEmpty()) {
+                        transaction.setCustomFees(topicCustomFees);
+                    }
                 }
             });
 
@@ -1009,51 +1040,50 @@ public class TransactionBuilders {
                 transaction.setChunkSize(chunkSize.intValue());
             });
 
-//            params.getCustomFeeLimits().ifPresent(customFeeLimits -> {
-//                for (CustomFeeLimit customFeeLimitParam : customFeeLimits) {
-//                    com.hedera.hashgraph.sdk.CustomFeeLimit sdkCustomFeeLimit =
-//                            new com.hedera.hashgraph.sdk.CustomFeeLimit();
-//
-//                    // Set payer ID if present
-//                    customFeeLimitParam.getPayerId().ifPresent(payerIdStr -> {
-//                        try {
-//                            sdkCustomFeeLimit.setPayerId(AccountId.fromString(payerIdStr));
-//                        } catch (Exception e) {
-//                            throw new IllegalArgumentException("Invalid payer ID: " + payerIdStr, e);
-//                        }
-//                    });
-//
-//                    // Process fixed fees
-//                    customFeeLimitParam.getFixedFees().ifPresent(fixedFees -> {
-//                        List<CustomFixedFee> sdkFixedFees = new ArrayList<>();
-//
-//                        for (com.hedera.hashgraph.tck.methods.sdk.param.CustomFee.FixedFee fixedFee : fixedFees) {
-//                            CustomFixedFee sdkFixedFee = new CustomFixedFee();
-//
-//                            try {
-//                                sdkFixedFee.setAmount(Long.parseLong(fixedFee.getAmount()));
-//                            } catch (NumberFormatException e) {
-//                                throw new IllegalArgumentException("Invalid fixed fee amount: " + fixedFee.getAmount(), e);
-//                            }
-//
-//                            fixedFee.getDenominatingTokenId().ifPresent(tokenIdStr -> {
-//                                try {
-//                                    sdkFixedFee.setDenominatingTokenId(TokenId.fromString(tokenIdStr));
-//                                } catch (Exception e) {
-//                                    throw new IllegalArgumentException("Invalid denominating token ID: " + tokenIdStr, e);
-//                                }
-//                            });
-//
-//                            sdkFixedFees.add(sdkFixedFee);
-//                        }
-//
-//                        // Set all fixed fees at once instead of overwriting one by one
-//                        sdkCustomFeeLimit.setCustomFees(sdkFixedFees);
-//                    });
-//
-//                    transaction.addCustomFeeLimit(sdkCustomFeeLimit);
-//                }
-//            });
+            params.getCustomFeeLimits().ifPresent(customFeeLimits -> {
+                for (CustomFeeLimit customFeeLimitParam : customFeeLimits) {
+                    com.hedera.hashgraph.sdk.CustomFeeLimit sdkCustomFeeLimit =
+                            new com.hedera.hashgraph.sdk.CustomFeeLimit();
+
+                    // Set payer ID if present
+                    customFeeLimitParam.getPayerId().ifPresent(payerIdStr -> {
+                        try {
+                            sdkCustomFeeLimit.setPayerId(AccountId.fromString(payerIdStr));
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("Invalid payer ID: " + payerIdStr, e);
+                        }
+                    });
+
+                    // Process fixed fees
+                    customFeeLimitParam.getFixedFees().ifPresent(fixedFees -> {
+                        List<CustomFixedFee> sdkFixedFees = new ArrayList<>();
+
+                        for (com.hedera.hashgraph.tck.methods.sdk.param.CustomFee.FixedFee fixedFee : fixedFees) {
+                            CustomFixedFee sdkFixedFee = new CustomFixedFee();
+
+                            try {
+                                sdkFixedFee.setAmount(Long.parseLong(fixedFee.getAmount()));
+                            } catch (NumberFormatException e) {
+                                throw new IllegalArgumentException("Invalid fixed fee amount: " + fixedFee.getAmount(), e);
+                            }
+
+                            fixedFee.getDenominatingTokenId().ifPresent(tokenIdStr -> {
+                                try {
+                                    sdkFixedFee.setDenominatingTokenId(TokenId.fromString(tokenIdStr));
+                                } catch (Exception e) {
+                                    throw new IllegalArgumentException("Invalid denominating token ID: " + tokenIdStr, e);
+                                }
+                            });
+
+                            sdkFixedFees.add(sdkFixedFee);
+                        }
+
+                        sdkCustomFeeLimit.setCustomFees(sdkFixedFees);
+                    });
+
+                    transaction.addCustomFeeLimit(sdkCustomFeeLimit);
+                }
+            });
 
             return transaction;
         }
