@@ -28,7 +28,8 @@ public class ScheduleCreateParams extends JSONRPC2Param {
 
     @Override
     public ScheduleCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
-        var parsedScheduledTransaction = Optional.ofNullable((Map<String, Object>) jrpcParams.get("scheduledTransaction"))
+        var parsedScheduledTransaction = Optional.ofNullable(
+                        (Map<String, Object>) jrpcParams.get("scheduledTransaction"))
                 .map(ScheduledTransaction::new);
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));

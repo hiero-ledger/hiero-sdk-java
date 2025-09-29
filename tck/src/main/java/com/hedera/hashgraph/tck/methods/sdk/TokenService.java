@@ -8,7 +8,6 @@ import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
-import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -236,7 +235,8 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("cancelAirdrop")
     public Map<String, String> cancelAirdrop(final TokenAirdropCancelParams params) throws Exception {
-        TokenCancelAirdropTransaction tokenCancelAirdropTransaction = TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
+        TokenCancelAirdropTransaction tokenCancelAirdropTransaction =
+                TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
@@ -250,7 +250,8 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("claimToken")
     public Map<String, String> claimToken(final TokenClaimAirdropParams params) throws Exception {
-        TokenClaimAirdropTransaction tokenClaimAirdropTransaction = TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
+        TokenClaimAirdropTransaction tokenClaimAirdropTransaction =
+                TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(

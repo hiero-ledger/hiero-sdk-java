@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.TopicResponse;
-import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * TopicService for topic related methods

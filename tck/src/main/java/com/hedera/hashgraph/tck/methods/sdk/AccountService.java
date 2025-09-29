@@ -156,7 +156,8 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Process a token transfer
      */
-    private static void processTokenTransfer(TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
+    private static void processTokenTransfer(
+            TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
         tokenParams.getAccountId().ifPresent(accountIdStr -> {
             tokenParams.getTokenId().ifPresent(tokenIdStr -> {
                 tokenParams.getAmount().ifPresent(amountStr -> {
@@ -207,5 +208,4 @@ public class AccountService extends AbstractJSONRPC2Service {
             });
         });
     }
-
 }

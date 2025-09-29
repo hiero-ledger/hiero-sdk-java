@@ -44,8 +44,8 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getPayerAccountId().ifPresent(accountIdStr ->
-            transaction.setPayerAccountId(AccountId.fromString(accountIdStr)));
+        params.getPayerAccountId()
+                .ifPresent(accountIdStr -> transaction.setPayerAccountId(AccountId.fromString(accountIdStr)));
 
         params.getExpirationTime().ifPresent(expirationTimeStr -> {
             try {
@@ -121,5 +121,4 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             default -> throw new IllegalArgumentException("Unsupported scheduled transaction method: " + method);
         };
     }
-
 }
