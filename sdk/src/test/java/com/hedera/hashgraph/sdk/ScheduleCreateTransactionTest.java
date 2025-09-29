@@ -2,8 +2,10 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.jsonSnapshot.SnapshotMatcher;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
@@ -60,5 +62,42 @@ public class ScheduleCreateTransactionTest {
         var tx = new ScheduleCreateTransaction();
         var tx2 = Transaction.fromBytes(tx.toBytes());
         assertThat(tx2.toString()).isEqualTo(tx.toString());
+    }
+
+    @Test
+    void shouldSupportExpirationTimeDurationBytesRoundTrip() throws Exception {
+        var transferTransaction = new TransferTransaction()
+                .addHbarTransfer(AccountId.fromString("0.0.555"), new Hbar(-10))
+                .addHbarTransfer(AccountId.fromString("0.0.333"), new Hbar(10));
+
+        var tx = transferTransaction
+                .schedule()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setAdminKey(unusedPrivateKey)
+                .setPayerAccountId(AccountId.fromString("0.0.222"))
+                .setScheduleMemo("with-duration")
+                .setMaxTransactionFee(new Hbar(1))
+                .setExpirationTime(Duration.ofSeconds(1234));
+
+        // When expiration is set via Duration, Instant getter should be null
+        assertThat(tx.getExpirationTime()).isNull();
+
+        var tx2 = (ScheduleCreateTransaction) Transaction.fromBytes(tx.toBytes());
+        assertThat(tx2.toString()).isEqualTo(tx.toString());
+        assertThat(tx2.getExpirationTime()).isEqualTo(Instant.ofEpochSecond(1234));
+    }
+
+    @Test
+    void setExpirationTimeDurationOnFrozenTransactionShouldThrow() {
+        var tx = spawnTestTransaction();
+        assertThrows(IllegalStateException.class, () -> tx.setExpirationTime(Duration.ofSeconds(1)));
+    }
+
+    @Test
+    void getSetExpirationTimeInstant() {
+        var instant = Instant.ofEpochSecond(1_234_567L);
+        var tx = new ScheduleCreateTransaction().setExpirationTime(instant);
+        assertThat(tx.getExpirationTime()).isEqualTo(instant);
     }
 }
