@@ -276,7 +276,7 @@ public class EntityIdHelper {
      * @param client
      * @param num
      */
-    public static CompletableFuture<EvmAddress>     getEvmAddressFromMirrorNodeAsync(Client client, long num) {
+    public static CompletableFuture<EvmAddress> getEvmAddressFromMirrorNodeAsync(Client client, long num) {
         String apiEndpoint = "/accounts/" + num;
         return performQueryToMirrorNodeAsync(client, apiEndpoint, null, false)
                 .thenApply(response -> EvmAddress.fromString(parseStringMirrorNodeResponse(response, "evm_address")));

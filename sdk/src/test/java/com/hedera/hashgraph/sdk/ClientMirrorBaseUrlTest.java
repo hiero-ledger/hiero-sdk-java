@@ -81,9 +81,6 @@ public class ClientMirrorBaseUrlTest {
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of());
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
 
-        assertThatThrownBy(() -> client.getMirrorRestBaseUrl(false))
-                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> client.getMirrorRestBaseUrl(false)).isInstanceOf(RuntimeException.class);
     }
 }
-
-
