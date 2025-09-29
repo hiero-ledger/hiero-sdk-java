@@ -176,11 +176,9 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@71219540ac7f578e6ea4fc3c17575c0295e56163 # v0.9
+        uses: hiero-ledger/hiero-solo-action@b76850c1ac44466900f8e7412b309c3aa0f539c1 # v0.14
         with:
           installMirrorNode: true
-          hieroVersion: v0.65.0
-          mirrorNodeVersion: v0.138.0
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -235,11 +233,9 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@71219540ac7f578e6ea4fc3c17575c0295e56163 # v0.9
+        uses: hiero-ledger/hiero-solo-action@b76850c1ac44466900f8e7412b309c3aa0f539c1 # v0.14
         with:
           installMirrorNode: true
-          hieroVersion: v0.65.0
-          mirrorNodeVersion: v0.138.0
 
       - name: Build SDK
         run: ./gradlew assemble

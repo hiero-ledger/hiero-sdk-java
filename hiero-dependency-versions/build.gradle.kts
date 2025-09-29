@@ -15,7 +15,7 @@ val slf4j = "2.0.17"
 val mockito = "5.19.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
     api(platform("io.netty:netty-bom:4.2.6.Final"))
 }
 
@@ -40,10 +40,6 @@ dependencies.constraints {
     // Temporary workaround, remove when a new version of spring-boot-dependencies is released
     api("org.apache.tomcat.embed:tomcat-embed-core:10.1.44") {
         because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152")
-    }
-    // Temporary workaround, remove when a new version of spring-boot-dependencies is released
-    api("org.springframework:spring-beans:6.2.10") {
-        because("Temporary fix for vulnerability: SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931")
     }
 
     // Testing
