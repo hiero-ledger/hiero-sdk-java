@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -274,69 +275,14 @@ public class TransactionBuilders {
         public static TokenCreateTransaction buildCreate(TokenCreateParams params) {
             TokenCreateTransaction transaction = new TokenCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAdminKey().ifPresent(key -> {
-                try {
-                    transaction.setAdminKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getKycKey().ifPresent(key -> {
-                try {
-                    transaction.setKycKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getFreezeKey().ifPresent(key -> {
-                try {
-                    transaction.setFreezeKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getWipeKey().ifPresent(key -> {
-                try {
-                    transaction.setWipeKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getSupplyKey().ifPresent(key -> {
-                try {
-                    transaction.setSupplyKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getFeeScheduleKey().ifPresent(key -> {
-                try {
-                    transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getPauseKey().ifPresent(key -> {
-                try {
-                    transaction.setPauseKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
-
-            params.getMetadataKey().ifPresent(key -> {
-                try {
-                    transaction.setMetadataKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
+            setKey(params.getAdminKey(), transaction::setAdminKey, "admin");
+            setKey(params.getKycKey(), transaction::setKycKey, "kyc");
+            setKey(params.getFreezeKey(), transaction::setFreezeKey, "freeze");
+            setKey(params.getWipeKey(), transaction::setWipeKey, "wipe");
+            setKey(params.getSupplyKey(), transaction::setSupplyKey, "supply");
+            setKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+            setKey(params.getPauseKey(), transaction::setPauseKey, "pause");
+            setKey(params.getMetadataKey(), transaction::setMetadataKey, "metadata");
 
             params.getName().ifPresent(transaction::setTokenName);
             params.getSymbol().ifPresent(transaction::setTokenSymbol);
@@ -364,28 +310,48 @@ public class TransactionBuilders {
 
             params.getMemo().ifPresent(transaction::setTokenMemo);
             params.getMetadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
-            params.getTokenType().ifPresent(tokenType -> {
-                if (tokenType.equals("ft")) {
-                    transaction.setTokenType(TokenType.FUNGIBLE_COMMON);
-                } else if (tokenType.equals("nft")) {
-                    transaction.setTokenType(TokenType.NON_FUNGIBLE_UNIQUE);
-                } else {
-                    throw new IllegalArgumentException("Invalid token type");
-                }
-            });
+            params.getTokenType().ifPresent(tokenType -> transaction.setTokenType(parseTokenType(tokenType)));
 
-            params.getSupplyType().ifPresent(supplyType -> {
-                if (supplyType.equals("infinite")) {
-                    transaction.setSupplyType(TokenSupplyType.INFINITE);
-                } else if (supplyType.equals("finite")) {
-                    transaction.setSupplyType(TokenSupplyType.FINITE);
-                } else {
-                    throw new IllegalArgumentException("Invalid supply type");
-                }
-            });
+            params.getSupplyType().ifPresent(supplyType -> transaction.setSupplyType(parseSupplyType(supplyType)));
 
             params.getMaxSupply().ifPresent(maxSupply -> transaction.setMaxSupply(Long.parseLong(maxSupply)));
 
+            setCustomFees(params, transaction);
+
+            return transaction;
+        }
+
+        private static void setKey(Optional<String> keyStr, Consumer<Key> setter, String fieldLabel) {
+            keyStr.ifPresent(k -> {
+                try {
+                    setter.accept(KeyUtils.getKeyFromString(k));
+                } catch (InvalidProtocolBufferException e) {
+                    throw new IllegalArgumentException("Invalid " + fieldLabel + " key", e);
+                }
+            });
+        }
+
+        private static TokenType parseTokenType(String tokenType) {
+            if ("ft".equals(tokenType)) {
+                return TokenType.FUNGIBLE_COMMON;
+            }
+            if ("nft".equals(tokenType)) {
+                return TokenType.NON_FUNGIBLE_UNIQUE;
+            }
+            throw new IllegalArgumentException("Invalid token type");
+        }
+
+        private static TokenSupplyType parseSupplyType(String supplyType) {
+            if ("infinite".equals(supplyType)) {
+                return TokenSupplyType.INFINITE;
+            }
+            if ("finite".equals(supplyType)) {
+                return TokenSupplyType.FINITE;
+            }
+            throw new IllegalArgumentException("Invalid supply type");
+        }
+
+        private static void setCustomFees(TokenCreateParams params, TokenCreateTransaction transaction) {
             params.getCustomFees().ifPresent(customFees -> {
                 if (!customFees.isEmpty()) {
                     List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
@@ -393,8 +359,6 @@ public class TransactionBuilders {
                     transaction.setCustomFees(sdkCustomFees);
                 }
             });
-
-            return transaction;
         }
 
         public static TokenCreateTransaction buildCreate(Map<String, Object> params) {
@@ -822,7 +786,7 @@ public class TransactionBuilders {
                     String tokenId = pendingAirdrop.getTokenId().orElseThrow();
                     String senderAccountId = pendingAirdrop.getSenderAccountId().orElseThrow();
                     String receiverAccountId = pendingAirdrop.getReceiverAccountId().orElseThrow();
-                    
+
                     // NFT token cancellation
                     if (pendingAirdrop.getSerialNumbers().isPresent() && !pendingAirdrop.getSerialNumbers().get().isEmpty()) {
                         List<String> serialNumbers = pendingAirdrop.getSerialNumbers().get();
@@ -909,30 +873,32 @@ public class TransactionBuilders {
 
             params.getMemo().ifPresent(transaction::setTopicMemo);
 
-            params.getAdminKey().ifPresent(key -> {
+            setTopicKey(params.getAdminKey(), transaction::setAdminKey, "admin");
+            setTopicKey(params.getSubmitKey(), transaction::setSubmitKey, "submit");
+            setTopicKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+
+            setFeeExemptKeys(params, transaction);
+
+            params.getAutoRenewPeriod().ifPresent(periodStr -> transaction.setAutoRenewPeriod(parseDuration(periodStr, "auto renew period")));
+
+            setAccountId(params.getAutoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
+
+            setTopicCustomFees(params, transaction);
+
+            return transaction;
+        }
+
+        private static void setTopicKey(Optional<String> keyStr, Consumer<Key> setter, String label) {
+            keyStr.ifPresent(k -> {
                 try {
-                    transaction.setAdminKey(KeyUtils.getKeyFromString(key));
+                    setter.accept(KeyUtils.getKeyFromString(k));
                 } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid admin key: " + key, e);
+                    throw new IllegalArgumentException("Invalid " + label + " key: " + k, e);
                 }
             });
+        }
 
-            params.getSubmitKey().ifPresent(key -> {
-                try {
-                    transaction.setSubmitKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid submit key: " + key, e);
-                }
-            });
-
-            params.getFeeScheduleKey().ifPresent(key -> {
-                try {
-                    transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid fee schedule key: " + key, e);
-                }
-            });
-
+        private static void setFeeExemptKeys(CreateTopicParams params, TopicCreateTransaction transaction) {
             params.getFeeExemptKeys().ifPresent(keyStrings -> {
                 if (keyStrings.isEmpty()) {
                     transaction.clearFeeExemptKeys();
@@ -948,94 +914,9 @@ public class TransactionBuilders {
                     transaction.setFeeExemptKeys(keys);
                 }
             });
-
-            params.getAutoRenewPeriod().ifPresent(periodStr -> {
-                try {
-                    long periodSeconds = Long.parseLong(periodStr);
-                    transaction.setAutoRenewPeriod(Duration.ofSeconds(periodSeconds));
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid auto renew period: " + periodStr, e);
-                }
-            });
-
-            params.getAutoRenewAccountId().ifPresent(accountIdStr -> {
-                try {
-                    transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr));
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Invalid auto renew account ID: " + accountIdStr, e);
-                }
-            });
-
-            params.getCustomFees().ifPresent(customFees -> {
-                if (customFees.isEmpty()) {
-                    transaction.clearCustomFees();
-                } else {
-                    List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
-                            customFees.get(0).fillOutCustomFees(customFees);
-
-                    // Filter for fixed fees only as topics don't support fractional/royalty fees
-                    List<CustomFixedFee> topicCustomFees = new ArrayList<>();
-                    for (com.hedera.hashgraph.sdk.CustomFee fee : sdkCustomFees) {
-                        if (fee instanceof CustomFixedFee) {
-                            topicCustomFees.add((CustomFixedFee) fee);
-                        }
-                    }
-
-                    if (!topicCustomFees.isEmpty()) {
-                        transaction.setCustomFees(topicCustomFees);
-                    }
-                }
-            });
-
-            return transaction;
         }
 
-        public static TopicCreateTransaction buildCreate(Map<String, Object> params) {
-            try {
-                CreateTopicParams typedParams = (CreateTopicParams) new CreateTopicParams().parse(params);
-                return buildCreate(typedParams);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to parse CreateTopicParams", e);
-            }
-        }
-
-        public static TopicUpdateTransaction buildUpdate(UpdateTopicParams params) {
-            TopicUpdateTransaction transaction = new TopicUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-            params.getTopicId().ifPresent(topicIdStr -> {
-                try {
-                    transaction.setTopicId(TopicId.fromString(topicIdStr));
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Invalid topic ID: " + topicIdStr, e);
-                }
-            });
-
-            params.getMemo().ifPresent(transaction::setTopicMemo);
-
-            params.getAdminKey().ifPresent(key -> {
-                try {
-                    transaction.setAdminKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid admin key: " + key, e);
-                }
-            });
-
-            params.getSubmitKey().ifPresent(key -> {
-                try {
-                    transaction.setSubmitKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid submit key: " + key, e);
-                }
-            });
-
-            params.getFeeScheduleKey().ifPresent(key -> {
-                try {
-                    transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
-                } catch (InvalidProtocolBufferException e) {
-                    throw new IllegalArgumentException("Invalid fee schedule key: " + key, e);
-                }
-            });
-
+        private static void setFeeExemptKeys(UpdateTopicParams params, TopicUpdateTransaction transaction) {
             params.getFeeExemptKeys().ifPresent(keyStrings -> {
                 if (keyStrings.isEmpty()) {
                     // Empty array means clear all fee exempt keys
@@ -1052,33 +933,60 @@ public class TransactionBuilders {
                     transaction.setFeeExemptKeys(keys);
                 }
             });
+        }
 
-            params.getAutoRenewPeriod().ifPresent(periodStr -> {
-                try {
-                    long periodSeconds = Long.parseLong(periodStr);
-                    transaction.setAutoRenewPeriod(Duration.ofSeconds(periodSeconds));
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid auto renew period: " + periodStr, e);
-                }
-            });
+        private static Duration parseDuration(String secondsStr, String label) {
+            try {
+                long seconds = Long.parseLong(secondsStr);
+                return Duration.ofSeconds(seconds);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid " + label + ": " + secondsStr, e);
+            }
+        }
 
-            params.getAutoRenewAccountId().ifPresent(accountIdStr -> {
+        private static void setAccountId(Optional<String> idStr, Consumer<AccountId> setter, String label) {
+            idStr.ifPresent(s -> {
                 try {
-                    transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr));
+                    setter.accept(AccountId.fromString(s));
                 } catch (Exception e) {
-                    throw new IllegalArgumentException("Invalid auto renew account ID: " + accountIdStr, e);
+                    throw new IllegalArgumentException("Invalid " + label + ": " + s, e);
                 }
             });
+        }
 
-            params.getExpirationTime().ifPresent(expirationTimeStr -> {
+        private static void setTopicId(Optional<String> topicIdStr, Consumer<TopicId> setter) {
+            topicIdStr.ifPresent(s -> {
                 try {
-                    long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
-                    transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid expiration time: " + expirationTimeStr, e);
+                    setter.accept(TopicId.fromString(s));
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Invalid topic ID: " + s, e);
                 }
             });
+        }
 
+        private static void setTopicCustomFees(CreateTopicParams params, TopicCreateTransaction transaction) {
+            params.getCustomFees().ifPresent(customFees -> {
+                if (customFees.isEmpty()) {
+                    transaction.clearCustomFees();
+                } else {
+                    List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
+                            customFees.get(0).fillOutCustomFees(customFees);
+
+                    List<CustomFixedFee> topicCustomFees = new ArrayList<>();
+                    for (com.hedera.hashgraph.sdk.CustomFee fee : sdkCustomFees) {
+                        if (fee instanceof CustomFixedFee) {
+                            topicCustomFees.add((CustomFixedFee) fee);
+                        }
+                    }
+
+                    if (!topicCustomFees.isEmpty()) {
+                        transaction.setCustomFees(topicCustomFees);
+                    }
+                }
+            });
+        }
+
+        private static void setTopicCustomFees(UpdateTopicParams params, TopicUpdateTransaction transaction) {
             params.getCustomFees().ifPresent(customFees -> {
                 if (customFees.isEmpty()) {
                     // Empty array means clear all custom fees
@@ -1100,6 +1008,37 @@ public class TransactionBuilders {
                     }
                 }
             });
+        }
+
+        public static TopicCreateTransaction buildCreate(Map<String, Object> params) {
+            try {
+                CreateTopicParams typedParams = (CreateTopicParams) new CreateTopicParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse CreateTopicParams", e);
+            }
+        }
+
+        public static TopicUpdateTransaction buildUpdate(UpdateTopicParams params) {
+            TopicUpdateTransaction transaction = new TopicUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            setTopicId(params.getTopicId(), transaction::setTopicId);
+
+            params.getMemo().ifPresent(transaction::setTopicMemo);
+
+            setTopicKey(params.getAdminKey(), transaction::setAdminKey, "admin");
+            setTopicKey(params.getSubmitKey(), transaction::setSubmitKey, "submit");
+            setTopicKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+
+            setFeeExemptKeys(params, transaction);
+
+            params.getAutoRenewPeriod().ifPresent(periodStr -> transaction.setAutoRenewPeriod(parseDuration(periodStr, "auto renew period")));
+
+            setAccountId(params.getAutoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
+
+            params.getExpirationTime().ifPresent(expirationTimeStr -> transaction.setExpirationTime(parseDuration(expirationTimeStr, "expiration time")));
+
+            setTopicCustomFees(params, transaction);
 
             return transaction;
         }
