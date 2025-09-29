@@ -41,10 +41,6 @@ dependencies.constraints {
     api("org.apache.tomcat.embed:tomcat-embed-core:10.1.44") {
         because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152")
     }
-    // Temporary workaround, remove when a new version of spring-boot-dependencies is released
-    api("org.springframework:spring-beans:6.2.11") {
-        because("Temporary fix for vulnerability: SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931")
-    }
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.19.2") { because("com.fasterxml.jackson.core") }
