@@ -44,7 +44,7 @@ dependencies.constraints {
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.19.2") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
+    api("com.google.guava:guava:33.5.0-android") { because("com.google.common") }
     api("io.github.cdimascio:java-dotenv:5.3.1") { because("java.dotenv") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.18.0") { because("org.apache.commons.lang3") }
