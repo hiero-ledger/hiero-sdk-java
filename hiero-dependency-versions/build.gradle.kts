@@ -38,7 +38,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
     api("org.slf4j:slf4j-simple:$slf4j") { because("org.slf4j.simple") }
     // Temporary workaround, remove when a new version of spring-boot-dependencies is released
-    api("org.apache.tomcat.embed:tomcat-embed-core:10.1.44") {
+    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.11") {
         because("Temporary fix for vulnerability: SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152")
     }
 
