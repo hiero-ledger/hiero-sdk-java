@@ -301,7 +301,8 @@ public class EntityIdHelper {
 
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
             Client client, String apiEndpoint, String jsonBody, boolean isContractCall) {
-        String apiUrl = MirrorNodeUrlBuilder.buildApiUrl(client, apiEndpoint, isContractCall);
+        String baseUrl = client.getMirrorRestBaseUrl(isContractCall);
+        String apiUrl = baseUrl + apiEndpoint;
 
         HttpClient httpClient = HttpClient.newHttpClient();
         var httpBuilder =

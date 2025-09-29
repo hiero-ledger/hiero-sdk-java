@@ -106,4 +106,11 @@ class MirrorNetwork extends BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNo
     synchronized MirrorNode getNextMirrorNode() throws InterruptedException {
         return getNumberOfMostHealthyNodes(1).get(0);
     }
+
+    /**
+     * Convenience to get the REST base URL from the next healthy mirror node.
+     */
+    String getRestBaseUrl(boolean isLocalNetwork, boolean isContractCall) throws InterruptedException {
+        return getNextMirrorNode().getRestBaseUrl(isLocalNetwork, isContractCall);
+    }
 }
