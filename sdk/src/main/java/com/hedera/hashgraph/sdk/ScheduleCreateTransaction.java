@@ -355,7 +355,6 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
         }
         if (body.hasExpirationTime()) {
             expirationTime = InstantConverter.fromProtobuf(body.getExpirationTime());
-            expirationTimeDuration = null;
         }
         scheduleMemo = body.getMemo();
     }
