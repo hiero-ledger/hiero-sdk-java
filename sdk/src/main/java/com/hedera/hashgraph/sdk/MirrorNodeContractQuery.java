@@ -277,11 +277,22 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 blockNumber,
                 estimate);
 
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, jsonPayload, true)
-                .exceptionally(ex -> {
-                    client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-                    throw new CompletionException(ex);
-                });
+        String baseUrl = client.getMirrorRestBaseUrl();
+
+        // For localhost contract calls, override to use port 8545 unless system property overrides
+        if (baseUrl.contains("localhost:5551") || baseUrl.contains("127.0.0.1:5551")) {
+            String contractPort = System.getProperty("hedera.mirror.contract.port");
+            if (contractPort != null && !contractPort.isEmpty()) {
+                baseUrl = baseUrl.replace(":5551", ":" + contractPort);
+            } else {
+                baseUrl = baseUrl.replace(":5551", ":8545");
+            }
+        }
+
+        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, jsonPayload).exceptionally(ex -> {
+            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+            throw new CompletionException(ex);
+        });
     }
 
     static String createJsonPayload(

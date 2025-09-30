@@ -443,6 +443,20 @@ public final class Client implements AutoCloseable {
     }
 
     /**
+     * Build the REST base URL for the next healthy mirror node.
+     * Returns a string like `https://host[:port]/api/v1`.
+     * If the selected mirror node is a local host (localhost/127.0.0.1) returns `http://localhost:{5551|8545}/api/v1`.
+     */
+    public String getMirrorRestBaseUrl() {
+        try {
+            return mirrorNetwork.getRestBaseUrl();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while retrieving mirror base URL", e);
+        }
+    }
+
+    /**
      * Set the mirror network nodes.
      *
      * @param network list of network nodes

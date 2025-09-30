@@ -30,6 +30,8 @@ class MirrorNodeContractQueryIntegrationTest {
     @Test
     @DisplayName("Can estimate and simulate transaction")
     void canSimulateTransaction() throws Exception {
+        // Clear any system properties to ensure clean state
+        System.clearProperty("hedera.mirror.contract.port");
         try (var testEnv = new IntegrationTestEnv(1)) {
             var response = new FileCreateTransaction()
                     .setKeys(testEnv.operatorKey)
@@ -169,6 +171,8 @@ class MirrorNodeContractQueryIntegrationTest {
     @Test
     @DisplayName("Fails when sender is not set")
     void failsWhenSenderIsNotSet() throws Exception {
+        // Set system property to use port 5551 for contract calls in this test
+        System.setProperty("hedera.mirror.contract.port", "5551");
         try (var testEnv = new IntegrationTestEnv(1)) {
             var response = new FileCreateTransaction()
                     .setKeys(testEnv.operatorKey)
@@ -207,6 +211,9 @@ class MirrorNodeContractQueryIntegrationTest {
                                 .execute(testEnv.client);
                     })
                     .withMessageContaining("Received non-200 response from Mirror Node");
+        } finally {
+            // Clear the system property after the test
+            System.clearProperty("hedera.mirror.contract.port");
         }
     }
 
