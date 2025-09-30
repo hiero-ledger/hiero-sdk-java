@@ -6,6 +6,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleCreateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleSignParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ScheduleResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
@@ -69,6 +70,33 @@ public class ScheduleService extends AbstractJSONRPC2Service {
         if (receipt.status == Status.SUCCESS) {
             if (receipt.scheduleId != null) {
                 scheduleId = receipt.scheduleId.toString();
+            }
+            if (receipt.scheduledTransactionId != null) {
+                transactionId = receipt.scheduledTransactionId.toString();
+            }
+        }
+
+        return new ScheduleResponse(scheduleId, transactionId, receipt.status);
+    }
+
+    @JSONRPC2Method("signSchedule")
+    public ScheduleResponse signSchedule(final ScheduleSignParams params) throws Exception {
+        ScheduleSignTransaction transaction = new ScheduleSignTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        params.getScheduleId()
+                .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
+
+        params.getCommonTransactionParams()
+                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+
+        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
+        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+
+        String scheduleId = "";
+        String transactionId = "";
+        if (receipt.status == Status.SUCCESS) {
+            if (params.getScheduleId().isPresent()) {
+                scheduleId = params.getScheduleId().get();
             }
             if (receipt.scheduledTransactionId != null) {
                 transactionId = receipt.scheduledTransactionId.toString();
