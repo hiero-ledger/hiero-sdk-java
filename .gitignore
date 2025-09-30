@@ -14,6 +14,7 @@ bin/
 
 # local environment
 .env
+examples/.env
 gradle.properties
 .DS_Store
 /examples/address-book.proto.bin
