@@ -263,7 +263,7 @@ public class EntityIdHelper {
      */
     static CompletableFuture<Long> getAccountNumFromMirrorNodeAsync(Client client, String evmAddress) {
         String apiEndpoint = "/accounts/" + evmAddress;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null, false)
+        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
                 .thenApply(response -> parseNumFromMirrorNodeResponse(response, "account"));
     }
 
@@ -278,7 +278,7 @@ public class EntityIdHelper {
      */
     public static CompletableFuture<EvmAddress> getEvmAddressFromMirrorNodeAsync(Client client, long num) {
         String apiEndpoint = "/accounts/" + num;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null, false)
+        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
                 .thenApply(response -> EvmAddress.fromString(parseStringMirrorNodeResponse(response, "evm_address")));
     }
 
@@ -294,14 +294,17 @@ public class EntityIdHelper {
     public static CompletableFuture<Long> getContractNumFromMirrorNodeAsync(Client client, String evmAddress) {
         String apiEndpoint = "/contracts/" + evmAddress;
 
-        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, apiEndpoint, null, false);
+        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, apiEndpoint, null);
 
         return responseFuture.thenApply(response -> parseNumFromMirrorNodeResponse(response, "contract_id"));
     }
 
+    static CompletableFuture<String> performQueryToMirrorNodeAsync(Client client, String apiEndpoint, String jsonBody) {
+        return performQueryToMirrorNodeAsync(client.getMirrorRestBaseUrl(), apiEndpoint, jsonBody);
+    }
+
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
-            Client client, String apiEndpoint, String jsonBody, boolean isContractCall) {
-        String baseUrl = client.getMirrorRestBaseUrl(isContractCall);
+            String baseUrl, String apiEndpoint, String jsonBody) {
         String apiUrl = baseUrl + apiEndpoint;
 
         HttpClient httpClient = HttpClient.newHttpClient();

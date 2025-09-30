@@ -110,7 +110,7 @@ class MirrorNetwork extends BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNo
     /**
      * Convenience to get the REST base URL from the next healthy mirror node.
      */
-    String getRestBaseUrl(boolean isContractCall) throws InterruptedException {
-        return getNextMirrorNode().getRestBaseUrl(isContractCall);
+    String getRestBaseUrl() throws InterruptedException {
+        return getNextMirrorNode().getRestBaseUrl();
     }
 }

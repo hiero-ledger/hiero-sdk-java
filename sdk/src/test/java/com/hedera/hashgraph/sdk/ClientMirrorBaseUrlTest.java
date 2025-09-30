@@ -38,7 +38,7 @@ public class ClientMirrorBaseUrlTest {
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
         client.setLedgerId(LedgerId.TESTNET);
 
-        String base = client.getMirrorRestBaseUrl(false);
+        String base = client.getMirrorRestBaseUrl();
         assertThat(base).isEqualTo("https://mirror.example.com:8080/api/v1");
     }
 
@@ -49,7 +49,7 @@ public class ClientMirrorBaseUrlTest {
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
         client.setLedgerId(LedgerId.TESTNET);
 
-        String base = client.getMirrorRestBaseUrl(false);
+        String base = client.getMirrorRestBaseUrl();
         assertThat(base).isEqualTo("https://mirror.example.com/api/v1");
     }
 
@@ -60,19 +60,19 @@ public class ClientMirrorBaseUrlTest {
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
         // No ledger id -> local
 
-        String base = client.getMirrorRestBaseUrl(false);
+        String base = client.getMirrorRestBaseUrl();
         assertThat(base).isEqualTo("http://localhost:5551/api/v1");
     }
 
     @Test
-    void localNetwork_contractCall_uses8545_http() {
+    void localNetwork_contractCall_uses5551_http() {
         var network = Network.forNetwork(executor, new HashMap<>());
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of("127.0.0.1:8080"));
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
         // No ledger id -> local
 
-        String base = client.getMirrorRestBaseUrl(true);
-        assertThat(base).isEqualTo("http://localhost:8545/api/v1");
+        String base = client.getMirrorRestBaseUrl();
+        assertThat(base).isEqualTo("http://127.0.0.1:5551/api/v1");
     }
 
     @Test
@@ -81,6 +81,6 @@ public class ClientMirrorBaseUrlTest {
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of());
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
 
-        assertThatThrownBy(() -> client.getMirrorRestBaseUrl(false)).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> client.getMirrorRestBaseUrl()).isInstanceOf(RuntimeException.class);
     }
 }

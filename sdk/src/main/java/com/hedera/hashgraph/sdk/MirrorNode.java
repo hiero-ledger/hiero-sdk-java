@@ -40,10 +40,9 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
     /**
      * Build the REST base URL for this mirror node.
      *
-     * @param isContractCall when true and local, use 8545; otherwise 5551
      * @return scheme://host[:port]/api/v1
      */
-    String getRestBaseUrl(boolean isContractCall) {
+    String getRestBaseUrl() {
         String host = address.getAddress();
         int port = address.getPort();
 
@@ -53,9 +52,8 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
 
         boolean isLocalHost = "localhost".equals(host) || "127.0.0.1".equals(host);
         if (isLocalHost) {
-            String localHost = "localhost";
-            int localPort = isContractCall ? 8545 : 5551;
-            return "http://" + localHost + ":" + localPort + "/api/v1";
+            // For localhost, always use port 5551 for general REST calls
+            return "http://" + host + ":5551/api/v1";
         }
 
         String scheme;
