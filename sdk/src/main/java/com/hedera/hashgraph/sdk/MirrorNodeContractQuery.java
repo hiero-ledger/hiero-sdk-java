@@ -289,11 +289,10 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
             }
         }
 
-        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, jsonPayload)
-                .exceptionally(ex -> {
-                    client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-                    throw new CompletionException(ex);
-                });
+        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, jsonPayload).exceptionally(ex -> {
+            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+            throw new CompletionException(ex);
+        });
     }
 
     static String createJsonPayload(

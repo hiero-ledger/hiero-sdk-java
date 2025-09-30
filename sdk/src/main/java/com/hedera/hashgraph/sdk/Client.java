@@ -447,7 +447,7 @@ public final class Client implements AutoCloseable {
      * Returns a string like `https://host[:port]/api/v1`.
      * If the selected mirror node is a local host (localhost/127.0.0.1) returns `http://localhost:{5551|8545}/api/v1`.
      */
-    String getMirrorRestBaseUrl() {
+    public String getMirrorRestBaseUrl() {
         try {
             return mirrorNetwork.getRestBaseUrl();
         } catch (InterruptedException e) {

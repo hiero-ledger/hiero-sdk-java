@@ -59,8 +59,6 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
         String scheme;
         if (port == 80) {
             scheme = "http";
-        } else if (port == 443) {
-            scheme = "https";
         } else {
             scheme = "https";
         }
