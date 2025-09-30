@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.64.0
+
+### Fixed
+
+- Fix reties on topic unsubscribe - https://github.com/hiero-ledger/hiero-sdk-java/pull/2456
+
+### Added
+
+- Make mirror node security protocol rely on port number - https://github.com/hiero-ledger/hiero-sdk-java/pull/2480
+- New TCK methods
+  - for Contract [Create](https://github.com/hiero-ledger/hiero-sdk-java/pull/2469) / [Update](https://github.com/hiero-ledger/hiero-sdk-java/pull/2477) / [Delete](https://github.com/hiero-ledger/hiero-sdk-java/pull/2470) / [Execute](https://github.com/hiero-ledger/hiero-sdk-java/pull/2476)
+  - for ScheduleCreateTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2478
+  - for ScheduleSignTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2485
+
 ## 2.63.0
 
 ### Added
