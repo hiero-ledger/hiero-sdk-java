@@ -50,26 +50,32 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
             throw new IllegalStateException("mirror node address is not set");
         }
 
-        boolean isLocalHost = "localhost".equals(host) || "127.0.0.1".equals(host);
-        if (isLocalHost) {
+        if (isLocalHost(host)) {
             // For localhost, always use port 5551 for general REST calls
             return "http://" + host + ":5551/api/v1";
         }
 
-        String scheme;
-        if (port == 80) {
-            scheme = "http";
-        } else {
-            scheme = "https";
-        }
+        String scheme = chooseScheme(port);
 
         StringBuilder base = new StringBuilder();
         base.append(scheme).append("://").append(host);
         // Omit default ports
-        if (!((scheme.equals("http") && port == 80) || (scheme.equals("https") && port == 443))) {
+        if (!isDefaultPort(scheme, port)) {
             base.append(":").append(port);
         }
         base.append("/api/v1");
         return base.toString();
+    }
+
+    private static boolean isLocalHost(String host) {
+        return "localhost".equals(host) || "127.0.0.1".equals(host);
+    }
+
+    private static String chooseScheme(int port) {
+        return port == 80 ? "http" : "https";
+    }
+
+    private static boolean isDefaultPort(String scheme, int port) {
+        return ("http".equals(scheme) && port == 80) || ("https".equals(scheme) && port == 443);
     }
 }

@@ -452,7 +452,7 @@ public final class Client implements AutoCloseable {
             return mirrorNetwork.getRestBaseUrl();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while retrieving mirror base URL", e);
+            throw new IllegalStateException("Interrupted while retrieving mirror base URL", e);
         }
     }
 
