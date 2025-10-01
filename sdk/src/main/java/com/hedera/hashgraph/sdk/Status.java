@@ -2295,6 +2295,10 @@ public enum Status {
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
                         "network returned unrecognized response code; your SDK may be out of date");
+            default ->
+                // Handle any new enum values that might be added
+                throw new IllegalArgumentException(
+                        "unknown response code: " + code + "; your SDK may be out of date");
         };
     }
 
