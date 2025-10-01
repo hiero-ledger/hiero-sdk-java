@@ -34,6 +34,17 @@ public class LambdaMappingEntry {
     }
 
     /**
+     * Create a new mapping entry with an explicit key.
+     *
+     * @param key the explicit mapping key (max 32 bytes, minimal representation)
+     * @param value the mapping value (max 32 bytes, minimal representation)
+     */
+    public static LambdaMappingEntry ofKey(byte[] key, byte[] value) {
+        Objects.requireNonNull(key, "key cannot be null");
+        return new LambdaMappingEntry(key, null, value);
+    }
+
+    /**
      * Create a new mapping entry with a preimage key.
      *
      * @param preimage the preimage bytes for the mapping key
