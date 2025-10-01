@@ -10,7 +10,10 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -49,6 +52,8 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
 
     @Nullable
     private EvmAddress alias = null;
+
+    private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
      * Constructor.
@@ -456,6 +461,111 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
+     * Get the hook creation details for this account.
+     *
+     * @return a copy of the hook creation details list
+     */
+    public List<HookCreationDetails> getHookCreationDetails() {
+        return new ArrayList<>(hookCreationDetails);
+    }
+
+    /**
+     * Add a hook creation detail to this account.
+     *
+     * @param hookDetails the hook creation details to add
+     * @return {@code this}
+     */
+    public AccountCreateTransaction addHookCreationDetails(HookCreationDetails hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails.add(hookDetails);
+        return this;
+    }
+
+    /**
+     * Set the hook creation details for this account.
+     *
+     * @param hookDetails the list of hook creation details
+     * @return {@code this}
+     */
+    public AccountCreateTransaction setHookCreationDetails(List<HookCreationDetails> hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails = new ArrayList<>(hookDetails);
+        return this;
+    }
+
+    /**
+     * Add an account allowance hook to this account.
+     * <p>
+     * This is a convenience method for adding the most common type of hook.
+     *
+     * @param hookId the unique ID for the hook
+     * @param contractId the contract that implements the hook
+     * @param adminKey the admin key for managing the hook (optional)
+     * @param storageUpdates initial storage updates for the hook (optional)
+     * @return {@code this}
+     */
+    public AccountCreateTransaction addAccountAllowanceHook(
+            long hookId,
+            ContractId contractId,
+            @Nullable Key adminKey,
+            @Nullable List<LambdaStorageUpdate> storageUpdates
+    ) {
+        requireNotFrozen();
+        Objects.requireNonNull(contractId, "contractId cannot be null");
+        
+        var evmHookSpec = new EvmHookSpec(contractId);
+        var hook = storageUpdates != null 
+            ? new LambdaEvmHook(evmHookSpec, storageUpdates)
+            : new LambdaEvmHook(evmHookSpec);
+        
+        var hookDetails = adminKey != null
+            ? new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook, adminKey)
+            : new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook);
+        
+        return addHookCreationDetails(hookDetails);
+    }
+
+    /**
+     * Add an account allowance hook to this account without admin key or storage updates.
+     * <p>
+     * This is a convenience method for the simplest hook configuration.
+     *
+     * @param hookId the unique ID for the hook
+     * @param contractId the contract that implements the hook
+     * @return {@code this}
+     */
+    public AccountCreateTransaction addAccountAllowanceHook(long hookId, ContractId contractId) {
+        return addAccountAllowanceHook(hookId, contractId, null, null);
+    }
+
+    /**
+     * Validate hook creation details.
+     * <p>
+     * Ensures that hook IDs are unique and that only supported extension points are used.
+     *
+     * @throws IllegalArgumentException if validation fails
+     */
+    private void validateHookCreationDetails() {
+        // Validate hook IDs are unique
+        var hookIds = new HashSet<Long>();
+        for (HookCreationDetails details : hookCreationDetails) {
+            if (!hookIds.add(details.getHookId())) {
+                throw new IllegalArgumentException("Duplicate hook ID: " + details.getHookId());
+            }
+        }
+        
+        // Validate extension points are appropriate for account creation
+        for (HookCreationDetails details : hookCreationDetails) {
+            if (details.getExtensionPoint() != HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK) {
+                throw new IllegalArgumentException("Unsupported extension point for account creation: " + 
+                    details.getExtensionPoint());
+            }
+        }
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.CryptoCreateTransactionBody}
@@ -485,6 +595,12 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
             builder.setStakedAccountId(stakedAccountId.toProtobuf());
         } else if (stakedNodeId != null) {
             builder.setStakedNodeId(stakedNodeId);
+        }
+
+        // Add hook creation details
+        validateHookCreationDetails();
+        for (HookCreationDetails hookDetails : hookCreationDetails) {
+            builder.addHookCreationDetails(hookDetails.toProtobuf());
         }
 
         return builder;
@@ -531,6 +647,12 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         }
 
         alias = EvmAddress.fromAliasBytes(body.getAlias());
+
+        // Initialize hook creation details
+        hookCreationDetails.clear();
+        for (var protoHookDetails : body.getHookCreationDetailsList()) {
+            hookCreationDetails.add(HookCreationDetails.fromProtobuf(protoHookDetails));
+        }
     }
 
     private EvmAddress extractAlias(Key key) {

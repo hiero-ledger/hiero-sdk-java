@@ -3,7 +3,6 @@ package com.hedera.hashgraph.sdk;
 
 // Using fully qualified names to avoid conflicts with generated classes
 import java.util.Objects;
-import com.hedera.hapi.node.hooks.legacy.EvmHookSpec;
 
 /**
  * Shared specifications for an EVM hook.
@@ -38,7 +37,7 @@ public class EvmHookSpec {
      *
      * @return the protobuf EvmHookSpec
      */
-    public EvmHookSpec toProtobuf() {
+    public com.hedera.hapi.node.hooks.legacy.EvmHookSpec toProtobuf() {
         return com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
                 .setContractId(contractId.toProtobuf())
                 .build();
