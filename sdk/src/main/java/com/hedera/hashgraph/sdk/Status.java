@@ -1466,11 +1466,6 @@ public enum Status {
     STAKING_NOT_ENABLED(ResponseCodeEnum.STAKING_NOT_ENABLED),
 
     /**
-     * Hooks, while implemented, have not yet been enabled by the council.
-     */
-    HOOKS_NOT_ENABLED(ResponseCodeEnum.HOOKS_NOT_ENABLED),
-
-    /**
      * The range provided in UtilPrng transaction is negative.
      */
     INVALID_PRNG_RANGE(ResponseCodeEnum.INVALID_PRNG_RANGE),
@@ -2218,7 +2213,6 @@ public enum Status {
             case SELF_STAKING_IS_NOT_ALLOWED -> SELF_STAKING_IS_NOT_ALLOWED;
             case INVALID_STAKING_ID -> INVALID_STAKING_ID;
             case STAKING_NOT_ENABLED -> STAKING_NOT_ENABLED;
-            case HOOKS_NOT_ENABLED -> HOOKS_NOT_ENABLED;
             case INVALID_PRNG_RANGE -> INVALID_PRNG_RANGE;
             case MAX_ENTITIES_IN_PRICE_REGIME_HAVE_BEEN_CREATED -> MAX_ENTITIES_IN_PRICE_REGIME_HAVE_BEEN_CREATED;
             case INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE -> INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE;
@@ -2301,10 +2295,7 @@ public enum Status {
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
                         "network returned unrecognized response code; your SDK may be out of date");
-            default ->
-                // Handle any new enum values that might be added
-                throw new IllegalArgumentException(
-                        "unknown response code: " + code + "; your SDK may be out of date");
+            default -> UNKNOWN;
         };
     }
 
