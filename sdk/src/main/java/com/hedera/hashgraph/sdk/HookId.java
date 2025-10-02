@@ -48,8 +48,8 @@ public class HookId {
      *
      * @return the protobuf HookId
      */
-    public com.hedera.hashgraph.sdk.proto.HookId toProtobuf() {
-        return com.hedera.hashgraph.sdk.proto.HookId.newBuilder()
+    public com.hedera.hapi.node.hooks.legacy.HookId toProtobuf() {
+        return com.hedera.hapi.node.hooks.legacy.HookId.newBuilder()
                 .setEntityId(entityId.toProtobuf())
                 .setHookId(hookId)
                 .build();
@@ -61,7 +61,7 @@ public class HookId {
      * @param proto the protobuf HookId
      * @return a new HookId instance
      */
-    public static HookId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookId proto) {
+    public static HookId fromProtobuf(com.hedera.hapi.node.hooks.legacy.HookId proto) {
         return new HookId(
                 HookEntityId.fromProtobuf(proto.getEntityId()),
                 proto.getHookId()

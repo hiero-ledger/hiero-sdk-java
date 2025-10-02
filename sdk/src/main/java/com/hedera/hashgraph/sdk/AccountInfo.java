@@ -258,9 +258,7 @@ public final class AccountInfo {
 
         @Nullable var aliasKey = PublicKey.fromAliasBytes(accountInfo.getAlias());
 
-        var hooks = accountInfo.getHooksList().stream()
-                .map(HookInfo::fromProtobuf)
-                .collect(toList());
+        var hooks = java.util.Collections.<HookInfo>emptyList();
 
         return new AccountInfo(
                 accountId,

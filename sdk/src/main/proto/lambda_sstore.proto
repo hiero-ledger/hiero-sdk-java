@@ -17,7 +17,7 @@ message LambdaSStoreTransactionBody {
     /**
      * The id of the lambda EVM hook whose storage is being updated.
      */
-    proto.HookId hook_id = 1;
+    HookId hook_id = 1;
 
     /**
      * The updates to the storage of the lambda.
