@@ -24,7 +24,6 @@ import "basic_types.proto";
 import "query_header.proto";
 import "response_header.proto";
 import "crypto_add_live_hash.proto";
-import "hook_types.proto";
 
 /**
  * A query to read information for an account.
@@ -270,11 +269,6 @@ message CryptoGetInfoResponse {
          * Staking information for this account.
          */
         StakingInfo staking_info = 22;
-
-        /**
-         * Hooks attached to this account.
-         */
-        repeated com.hedera.hapi.node.hooks.HookCreationDetails hooks = 23;
     }
 
     /**
