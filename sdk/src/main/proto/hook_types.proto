@@ -27,7 +27,7 @@ message HookCreation {
     /**
      * The id of the hook's entity.
      */
-    proto.HookEntityId entity_id = 1;
+    HookEntityId entity_id = 1;
 
     /**
      * The creation details.
@@ -72,6 +72,36 @@ message HookCreationDetails {
      * the hook.
      */
     proto.Key admin_key = 4;
+}
+
+/**
+ * A unique identifier for a hook instance.
+ */
+message HookId {
+    /**
+     * The entity that owns the hook.
+     */
+    HookEntityId entity_id = 1;
+
+    /**
+     * A whole number hook identifier, unique within the owning entity.
+     */
+    int64 hook_id = 2;
+}
+
+/**
+ * The identifier of the entity that owns a hook.
+ * An entity may be an account, token, or contract.
+ */
+message HookEntityId {
+    oneof entity_id {
+        /** The owning account id. */
+        proto.AccountID account_id = 1;
+        /** The owning token id. */
+        proto.TokenID token_id = 2;
+        /** The owning contract id. */
+        proto.ContractID contract_id = 3;
+    }
 }
 
 /**

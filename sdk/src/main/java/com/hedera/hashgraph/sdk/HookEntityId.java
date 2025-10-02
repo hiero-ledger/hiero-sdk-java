@@ -85,8 +85,8 @@ public class HookEntityId {
      *
      * @return the protobuf HookEntityId
      */
-    public com.hedera.hashgraph.sdk.proto.HookEntityId toProtobuf() {
-        var builder = com.hedera.hashgraph.sdk.proto.HookEntityId.newBuilder();
+    public com.hedera.hapi.node.hooks.legacy.HookEntityId toProtobuf() {
+        var builder = com.hedera.hapi.node.hooks.legacy.HookEntityId.newBuilder();
         
         if (accountId != null) {
             builder.setAccountId(accountId.toProtobuf());
@@ -103,11 +103,11 @@ public class HookEntityId {
      * @param proto the protobuf HookEntityId
      * @return a new HookEntityId instance
      */
-    public static HookEntityId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookEntityId proto) {
+    public static HookEntityId fromProtobuf(com.hedera.hapi.node.hooks.legacy.HookEntityId proto) {
         return switch (proto.getEntityIdCase()) {
             case ACCOUNT_ID -> HookEntityId.ofAccount(AccountId.fromProtobuf(proto.getAccountId()));
             case CONTRACT_ID -> HookEntityId.ofContract(ContractId.fromProtobuf(proto.getContractId()));
-            case ENTITYID_NOT_SET -> throw new IllegalArgumentException("HookEntityId must have either account_id or contract_id set");
+            default -> throw new IllegalArgumentException("HookEntityId must have either account_id or contract_id set");
         };
     }
 

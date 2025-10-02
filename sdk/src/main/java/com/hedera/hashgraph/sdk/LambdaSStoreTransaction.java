@@ -170,7 +170,7 @@ public final class LambdaSStoreTransaction extends Transaction<LambdaSStoreTrans
 
     @Override
     void onFreeze(TransactionBody.Builder bodyBuilder) {
-        bodyBuilder.setLambdaSstore(build().build());
+        throw new UnsupportedOperationException("LambdaSStore not wired into TransactionBody in this branch");
     }
 
     @Override
@@ -182,16 +182,7 @@ public final class LambdaSStoreTransaction extends Transaction<LambdaSStoreTrans
      * Initialize from the transaction body.
      */
     void initFromTransactionBody() {
-        var body = sourceTransactionBody.getLambdaSstore();
-
-        if (body.hasHookId()) {
-            hookId = HookId.fromProtobuf(body.getHookId());
-        }
-
-        storageUpdates.clear();
-        for (var protoUpdate : body.getStorageUpdatesList()) {
-            storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));
-        }
+        // No-op: LambdaSStore not available on this branch
     }
 
 }
