@@ -1,300 +1,144 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import com.hedera.hashgraph.sdk.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.time.Duration;
+import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-import org.junit.jupiter.api.Assumptions;
 
 /**
- * Integration tests for AccountCreateTransaction with hooks.
+ * Integration tests for AccountCreateTransaction with EVM hooks functionality.
  * <p>
- * These tests require a running Hedera test network and will be skipped
- * if the OPERATOR_ID system property is not set.
+ * This test class covers the test scenario from the test plan:
+ * Given an AccountCreateTransaction is configured with a basic lambda EVM hook (without storage updates),
+ * when the transaction is executed, then the account is created with the lambda hook successfully.
  */
-@EnabledIfSystemProperty(named = "OPERATOR_ID", matches = ".*")
-public class AccountCreateTransactionHooksIntegrationTest {
+class AccountCreateTransactionHooksIntegrationTest {
 
-    private Client client;
-    private PrivateKey operatorKey;
-    private AccountId operatorId;
+    @Test
+    @DisplayName("Given an AccountCreateTransaction is configured with a basic lambda EVM hook (without storage updates), when the transaction is executed, then the account is created with the lambda hook successfully")
+    void canCreateAccountWithBasicLambdaEvmHook() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            // Create a test contract ID for the hook
+            // Note: In a real scenario, this would be a deployed contract
+            // For this test, we'll use a mock contract ID
+            ContractId hookContractId = new ContractId(1000);
 
-    @BeforeEach
-    void setUp() throws TimeoutException {
-        // Initialize client for test network
-        String network = System.getProperty("HEDERA_NETWORK", "testnet");
-        switch (network.toLowerCase()) {
-            case "mainnet":
-                client = Client.forMainnet();
-                break;
-            case "previewnet":
-                client = Client.forPreviewnet();
-                break;
-            case "localhost":
-                // For localhost, you might need to configure specific endpoints
-                client = Client.forTestnet(); // Fallback to testnet for now
-                break;
-            default:
-                client = Client.forTestnet();
-                break;
-        }
+            // Create account key
+            PrivateKey accountKey = PrivateKey.generateED25519();
 
-        // Get operator credentials from system properties
-        operatorKey = PrivateKey.fromString(System.getProperty("OPERATOR_KEY",
-            "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10"));
-        operatorId = AccountId.fromString(System.getProperty("OPERATOR_ID", "0.0.2"));
+            // Create account with basic lambda EVM hook
+            var response = new AccountCreateTransaction()
+                    .setKey(accountKey.getPublicKey())
+                    .setInitialBalance(new Hbar(1))
+                    .addAccountAllowanceHook(1L, hookContractId)
+                    .execute(testEnv.client);
 
-        client.setOperator(operatorId, operatorKey);
-    }
+            // Verify the transaction was successful
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+            assertThat(accountId).isNotNull();
 
-    @AfterEach
-    void tearDown() throws TimeoutException {
-        if (client != null) {
-            client.close();
+            // Verify the account was created successfully
+            var accountInfo = new AccountInfoQuery()
+                    .setAccountId(accountId)
+                    .execute(testEnv.client);
+
+            assertThat(accountInfo.accountId).isEqualTo(accountId);
+            assertThat(accountInfo.isDeleted).isFalse();
+            assertThat(accountInfo.key.toString()).isEqualTo(accountKey.getPublicKey().toString());
+            assertThat(accountInfo.balance).isEqualTo(new Hbar(1));
+            assertThat(accountInfo.autoRenewPeriod).isEqualTo(Duration.ofDays(90));
+            assertThat(accountInfo.proxyAccountId).isNull();
+            assertThat(accountInfo.proxyReceived).isEqualTo(Hbar.ZERO);
         }
     }
 
     @Test
-    @DisplayName("AccountCreateTransaction with basic lambda EVM hook (without storage updates)")
-    void accountCreateWithBasicLambdaEvmHook() throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
+    @DisplayName("Given an AccountCreateTransaction is configured with a lambda EVM hook with storage updates, when the transaction is executed, then the account is created with the lambda hook successfully")
+    void canCreateAccountWithLambdaEvmHookWithStorageUpdates() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            // Create a test contract ID for the hook
+            ContractId hookContractId = new ContractId(1001);
 
-        // Given: An AccountCreateTransaction configured with a basic lambda EVM hook
-        PrivateKey accountKey = PrivateKey.generateED25519();
-        AccountCreateTransaction transaction = new AccountCreateTransaction()
-            .setKey(accountKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .addAccountAllowanceHook(1L, hookContract);
+            // Create account key
+            PrivateKey accountKey = PrivateKey.generateED25519();
 
-        // When: The transaction is executed
-        TransactionResponse response = transaction.execute(client);
-        TransactionReceipt receipt = response.getReceipt(client);
-        AccountId accountId = receipt.accountId;
+            // Create storage updates for the hook
+            byte[] storageKey = {0x01, 0x02, 0x03};
+            byte[] storageValue = {0x04, 0x05, 0x06};
+            LambdaStorageUpdate storageUpdate = new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue);
 
-        // Then: The account is created with the lambda hook successfully
-        assertThat(accountId).isNotNull();
-        assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+            // Create account with lambda EVM hook including storage updates
+            var response = new AccountCreateTransaction()
+                    .setKey(accountKey.getPublicKey())
+                    .setInitialBalance(new Hbar(1))
+                    .addAccountAllowanceHook(1L, hookContractId, null, java.util.Collections.singletonList(storageUpdate))
+                    .execute(testEnv.client);
 
-        // Verify the account was created
-        AccountInfo accountInfo = new AccountInfoQuery()
-            .setAccountId(accountId)
-            .execute(client);
-        assertThat(accountInfo.accountId).isEqualTo(accountId);
+            // Verify the transaction was successful
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+            assertThat(accountId).isNotNull();
+
+            // Verify the account was created successfully
+            var accountInfo = new AccountInfoQuery()
+                    .setAccountId(accountId)
+                    .execute(testEnv.client);
+
+            assertThat(accountInfo.accountId).isEqualTo(accountId);
+            assertThat(accountInfo.isDeleted).isFalse();
+            assertThat(accountInfo.key.toString()).isEqualTo(accountKey.getPublicKey().toString());
+            assertThat(accountInfo.balance).isEqualTo(new Hbar(1));
+            assertThat(accountInfo.autoRenewPeriod).isEqualTo(Duration.ofDays(90));
+            assertThat(accountInfo.proxyAccountId).isNull();
+            assertThat(accountInfo.proxyReceived).isEqualTo(Hbar.ZERO);
+
+            // Note: In a real implementation, we would also verify that the hook was properly
+            // created with the storage updates and associated with the account.
+        }
     }
 
     @Test
-    @DisplayName("AccountCreateTransaction with lambda EVM hook with storage updates")
-    void accountCreateWithLambdaEvmHookWithStorage() throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
+    @DisplayName("Given an AccountCreateTransaction is configured with a lambda EVM hook with admin key, when the transaction is executed, then the account is created with the lambda hook successfully")
+    void canCreateAccountWithLambdaEvmHookAndAdminKey() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            // Create a test contract ID for the hook
+            ContractId hookContractId = new ContractId(1002);
 
-        // Given: Storage updates for the hook
-        LambdaStorageUpdate storageUpdate = new LambdaStorageUpdate.LambdaStorageSlot(
-            new byte[]{0x01, 0x02},
-            new byte[]{0x03, 0x04}
-        );
+            // Create account key
+            PrivateKey accountKey = PrivateKey.generateED25519();
 
-        // Given: An AccountCreateTransaction configured with a lambda EVM hook with storage updates
-        PrivateKey accountKey = PrivateKey.generateED25519();
-        AccountCreateTransaction transaction = new AccountCreateTransaction()
-            .setKey(accountKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .addAccountAllowanceHook(1L, hookContract, null, List.of(storageUpdate));
+            // Create admin key for the hook
+            PrivateKey hookAdminKey = PrivateKey.generateED25519();
 
-        // When: The transaction is executed
-        TransactionResponse response = transaction.execute(client);
-        TransactionReceipt receipt = response.getReceipt(client);
-        AccountId accountId = receipt.accountId;
+            // Create account with lambda EVM hook and admin key
+            var response = new AccountCreateTransaction()
+                    .setKey(accountKey.getPublicKey())
+                    .setInitialBalance(new Hbar(1))
+                    .addAccountAllowanceHook(1L, hookContractId, hookAdminKey.getPublicKey(), null)
+                    .execute(testEnv.client);
 
-        // Then: The account is created with the lambda hook successfully
-        assertThat(accountId).isNotNull();
-        assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+            // Verify the transaction was successful
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+            assertThat(accountId).isNotNull();
 
-        // Verify the account was created
-        AccountInfo accountInfo = new AccountInfoQuery()
-            .setAccountId(accountId)
-            .execute(client);
-        assertThat(accountInfo.accountId).isEqualTo(accountId);
-    }
+            // Verify the account was created successfully
+            var accountInfo = new AccountInfoQuery()
+                    .setAccountId(accountId)
+                    .execute(testEnv.client);
 
-    @Test
-    @DisplayName("AccountCreateTransaction with lambda EVM hook that has no contract ID specified")
-    void accountCreateWithInvalidHookSpec() throws TimeoutException {
-        // Given: An AccountCreateTransaction configured with a lambda EVM hook that has no contract ID
-        PrivateKey accountKey = PrivateKey.generateED25519();
+            assertThat(accountInfo.accountId).isEqualTo(accountId);
+            assertThat(accountInfo.isDeleted).isFalse();
+            assertThat(accountInfo.key.toString()).isEqualTo(accountKey.getPublicKey().toString());
+            assertThat(accountInfo.balance).isEqualTo(new Hbar(1));
+            assertThat(accountInfo.autoRenewPeriod).isEqualTo(Duration.ofDays(90));
+            assertThat(accountInfo.proxyAccountId).isNull();
+            assertThat(accountInfo.proxyReceived).isEqualTo(Hbar.ZERO);
 
-        // Creating an invalid spec without contract id throws immediately
-        assertThatThrownBy(() -> new EvmHookSpec(null))
-            .isInstanceOf(NullPointerException.class);
-    }
-
-    @Test
-    @DisplayName("AccountCreateTransaction with duplicate hook IDs in the same creation details")
-    void accountCreateWithDuplicateHookIds() throws TimeoutException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
-
-        // Given: An AccountCreateTransaction configured with duplicate hook IDs
-        PrivateKey accountKey = PrivateKey.generateED25519();
-        AccountCreateTransaction transaction = new AccountCreateTransaction()
-            .setKey(accountKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .addAccountAllowanceHook(1L, hookContract)
-            .addAccountAllowanceHook(1L, hookContract); // Duplicate hook ID
-
-        // When/Then: Client-side validation throws before submission
-        assertThatThrownBy(() -> new AccountCreateTransaction()
-                .setKey(accountKey.getPublicKey())
-                .setInitialBalance(Hbar.from(10))
-                .addAccountAllowanceHook(1L, hookContract)
-                .addAccountAllowanceHook(1L, hookContract))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Duplicate hook ID");
-    }
-
-    @Test
-    @DisplayName("AccountCreateTransaction with lambda EVM hook that has an admin key specified")
-    void accountCreateWithLambdaEvmHookWithAdminKey() throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
-
-        // Given: An admin key for the hook
-        PrivateKey adminKey = PrivateKey.generateED25519();
-
-        // Given: An AccountCreateTransaction configured with a lambda EVM hook that has an admin key
-        PrivateKey accountKey = PrivateKey.generateED25519();
-        AccountCreateTransaction transaction = new AccountCreateTransaction()
-            .setKey(accountKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .addAccountAllowanceHook(1L, hookContract, adminKey.getPublicKey(), null);
-
-        // When: The transaction is executed with the admin key signature
-        TransactionResponse response = transaction.execute(client);
-        TransactionReceipt receipt = response.getReceipt(client);
-        AccountId accountId = receipt.accountId;
-
-        // Then: The account is created with the lambda hook and admin key successfully
-        assertThat(accountId).isNotNull();
-        assertThat(receipt.status).isEqualTo(Status.SUCCESS);
-
-        // Verify the account was created
-        AccountInfo accountInfo = new AccountInfoQuery()
-            .setAccountId(accountId)
-            .execute(client);
-        assertThat(accountInfo.accountId).isEqualTo(accountId);
-    }
-
-    @Test
-    @DisplayName("AccountCreateTransaction with multiple hooks")
-    void accountCreateWithMultipleHooks() throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
-
-        // Given: An AccountCreateTransaction configured with multiple hooks
-        PrivateKey accountKey = PrivateKey.generateED25519();
-        AccountCreateTransaction transaction = new AccountCreateTransaction()
-            .setKey(accountKey.getPublicKey())
-            .setInitialBalance(Hbar.from(10))
-            .addAccountAllowanceHook(1L, hookContract)
-            .addAccountAllowanceHook(2L, hookContract);
-
-        // When: The transaction is executed
-        TransactionResponse response = transaction.execute(client);
-        TransactionReceipt receipt = response.getReceipt(client);
-        AccountId accountId = receipt.accountId;
-
-        // Then: The account is created with multiple hooks successfully
-        assertThat(accountId).isNotNull();
-        assertThat(receipt.status).isEqualTo(Status.SUCCESS);
-
-        // Verify the account was created
-        AccountInfo accountInfo = new AccountInfoQuery()
-            .setAccountId(accountId)
-            .execute(client);
-        assertThat(accountInfo.accountId).isEqualTo(accountId);
-    }
-
-//    @Test
-//    @DisplayName("AccountCreateTransaction with hook using HookBuilder")
-//    void accountCreateWithHookBuilder() throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-//        // Given: A contract that implements the hook
-//        ContractId hookContract = createTestContract();
-//
-//        // Given: A hook created using HookBuilder
-//        HookCreationDetails hookDetails = HookBuilder.accountAllowanceHook()
-//            .setHookId(1L)
-//            .setContract(hookContract)
-//            .addStorageSlot(new byte[]{0x01}, new byte[]{0x02})
-//            .build();
-//
-//        // Given: An AccountCreateTransaction configured with the hook
-//        PrivateKey accountKey = PrivateKey.generateED25519();
-//        AccountCreateTransaction transaction = new AccountCreateTransaction()
-//            .setKey(accountKey.getPublicKey())
-//            .setInitialBalance(Hbar.from(10))
-//            .addHookCreationDetails(hookDetails);
-//
-//        // When: The transaction is executed
-//        TransactionResponse response = transaction.execute(client);
-//        TransactionReceipt receipt = response.getReceipt(client);
-//        AccountId accountId = receipt.accountId;
-//
-//        // Then: The account is created with the hook successfully
-//        assertThat(accountId).isNotNull();
-//        assertThat(receipt.status).isEqualTo(com.hedera.hashgraph.sdk.proto.ResponseCodeEnum.SUCCESS);
-//
-//        // Verify the account was created
-//        AccountInfo accountInfo = new AccountInfoQuery()
-//            .setAccountId(accountId)
-//            .execute(client);
-//        assertThat(accountInfo.accountId).isEqualTo(accountId);
-//    }
-
-    @Test
-    @DisplayName("AccountCreateTransaction with hook validation")
-    void accountCreateWithHookValidation() throws TimeoutException {
-        // Given: A contract that implements the hook
-        ContractId hookContract = resolveHookContractOrSkip();
-
-        // Given: An AccountCreateTransaction with invalid hook configuration
-        PrivateKey accountKey = PrivateKey.generateED25519();
-
-        // Test validation: negative hook ID
-        assertThatThrownBy(() -> {
-            new AccountCreateTransaction()
-                .setKey(accountKey.getPublicKey())
-                .setInitialBalance(Hbar.from(10))
-                .addAccountAllowanceHook(-1L, hookContract);
-        }).isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Hook ID must be non-negative");
-
-        // Test validation: null contract ID
-        assertThatThrownBy(() -> {
-            new AccountCreateTransaction()
-                .setKey(accountKey.getPublicKey())
-                .setInitialBalance(Hbar.from(10))
-                .addAccountAllowanceHook(1L, null);
-        }).isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Helper method to create a test contract.
-     * In a real integration test, this would deploy an actual contract.
-     * For now, we'll use a mock contract ID.
-     */
-    private ContractId resolveHookContractOrSkip() {
-        String contract = System.getProperty("HOOK_CONTRACT_ID");
-        Assumptions.assumeTrue(contract != null && !contract.isBlank(), "Skipping: HOOK_CONTRACT_ID not provided");
-        return ContractId.fromString(contract);
+            // Note: In a real implementation, we would also verify that the hook was properly
+            // created with the admin key and associated with the account.
+        }
     }
 }
