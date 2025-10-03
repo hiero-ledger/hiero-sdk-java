@@ -14,13 +14,13 @@ import "hook_types.proto";
  * Adds or removes key/value pairs in the storage of a lambda. The lambda's owning key must sign the transaction.
  */
 message LambdaSStoreTransactionBody {
-    /**
-     * The id of the lambda EVM hook whose storage is being updated.
-     */
-    HookId hook_id = 1;
+  /**
+   * The id of the lambda EVM hook whose storage is being updated.
+   */
+  proto.HookId hook_id = 1;
 
-    /**
-     * The updates to the storage of the lambda.
-     */
-    repeated LambdaStorageUpdate storage_updates = 2;
+  /**
+   * The updates to the storage of the lambda.
+   */
+  repeated LambdaStorageUpdate storage_updates = 2;
 }
