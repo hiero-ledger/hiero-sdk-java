@@ -39,19 +39,14 @@ public final class HookInfo {
      */
     public static HookInfo fromProtobuf(HookCreationDetails protobuf) {
         return new HookInfo(
-            protobuf.getHookId(),
-            protobuf.getExtensionPoint(),
-            protobuf.hasAdminKey() ? Key.fromProtobufKey(protobuf.getAdminKey()) : null,
-            protobuf
-        );
+                protobuf.getHookId(),
+                protobuf.getExtensionPoint(),
+                protobuf.hasAdminKey() ? Key.fromProtobufKey(protobuf.getAdminKey()) : null,
+                protobuf);
     }
 
     private HookInfo(
-            long hookId,
-            HookExtensionPoint extensionPoint,
-            @Nullable Key adminKey,
-            HookCreationDetails protobuf
-    ) {
+            long hookId, HookExtensionPoint extensionPoint, @Nullable Key adminKey, HookCreationDetails protobuf) {
         this.hookId = hookId;
         this.extensionPoint = extensionPoint;
         this.adminKey = adminKey;
@@ -63,9 +58,9 @@ public final class HookInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HookInfo hookInfo = (HookInfo) o;
-        return hookId == hookInfo.hookId &&
-            extensionPoint == hookInfo.extensionPoint &&
-            Objects.equals(adminKey, hookInfo.adminKey);
+        return hookId == hookInfo.hookId
+                && extensionPoint == hookInfo.extensionPoint
+                && Objects.equals(adminKey, hookInfo.adminKey);
     }
 
     @Override
@@ -75,10 +70,6 @@ public final class HookInfo {
 
     @Override
     public String toString() {
-        return "HookInfo{" +
-            "hookId=" + hookId +
-            ", extensionPoint=" + extensionPoint +
-            ", adminKey=" + adminKey +
-            '}';
+        return "HookInfo{" + "hookId=" + hookId + ", extensionPoint=" + extensionPoint + ", adminKey=" + adminKey + '}';
     }
 }

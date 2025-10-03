@@ -2,8 +2,8 @@
 package com.hedera.hashgraph.sdk;
 
 // Using fully qualified names to avoid conflicts with generated classes
-import javax.annotation.Nullable;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * Specifies the details of a hook's creation.
@@ -15,6 +15,7 @@ public class HookCreationDetails {
     private final HookExtensionPoint extensionPoint;
     private final long hookId;
     private final LambdaEvmHook hook;
+
     @Nullable
     private final Key adminKey;
 
@@ -27,11 +28,7 @@ public class HookCreationDetails {
      * @param adminKey the admin key for managing the hook
      */
     public HookCreationDetails(
-            HookExtensionPoint extensionPoint,
-            long hookId,
-            LambdaEvmHook hook,
-            @Nullable Key adminKey
-    ) {
+            HookExtensionPoint extensionPoint, long hookId, LambdaEvmHook hook, @Nullable Key adminKey) {
         this.extensionPoint = Objects.requireNonNull(extensionPoint, "extensionPoint cannot be null");
         this.hookId = hookId;
         this.hook = Objects.requireNonNull(hook, "hook cannot be null");
@@ -45,11 +42,7 @@ public class HookCreationDetails {
      * @param hookId the ID to create the hook at
      * @param hook the hook implementation
      */
-    public HookCreationDetails(
-            HookExtensionPoint extensionPoint,
-            long hookId,
-            LambdaEvmHook hook
-    ) {
+    public HookCreationDetails(HookExtensionPoint extensionPoint, long hookId, LambdaEvmHook hook) {
         this(extensionPoint, hookId, hook, null);
     }
 
@@ -109,11 +102,11 @@ public class HookCreationDetails {
                 .setExtensionPoint(extensionPoint.getProtoValue())
                 .setHookId(hookId)
                 .setLambdaEvmHook(hook.toProtobuf());
-        
+
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
         }
-        
+
         return builder.build();
     }
 
@@ -125,25 +118,24 @@ public class HookCreationDetails {
      */
     public static HookCreationDetails fromProtobuf(com.hedera.hapi.node.hooks.legacy.HookCreationDetails proto) {
         var adminKey = proto.hasAdminKey() ? Key.fromProtobufKey(proto.getAdminKey()) : null;
-        
+
         return new HookCreationDetails(
                 HookExtensionPoint.fromProtobuf(proto.getExtensionPoint()),
                 proto.getHookId(),
                 LambdaEvmHook.fromProtobuf(proto.getLambdaEvmHook()),
-                adminKey
-        );
+                adminKey);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        
+
         HookCreationDetails that = (HookCreationDetails) o;
-        return hookId == that.hookId &&
-               extensionPoint == that.extensionPoint &&
-               hook.equals(that.hook) &&
-               Objects.equals(adminKey, that.adminKey);
+        return hookId == that.hookId
+                && extensionPoint == that.extensionPoint
+                && hook.equals(that.hook)
+                && Objects.equals(adminKey, that.adminKey);
     }
 
     @Override
@@ -153,11 +145,10 @@ public class HookCreationDetails {
 
     @Override
     public String toString() {
-        return "HookCreationDetails{" +
-               "extensionPoint=" + extensionPoint +
-               ", hookId=" + hookId +
-               ", hook=" + hook +
-               ", adminKey=" + adminKey +
-               "}";
+        return "HookCreationDetails{" + "extensionPoint="
+                + extensionPoint + ", hookId="
+                + hookId + ", hook="
+                + hook + ", adminKey="
+                + adminKey + "}";
     }
 }

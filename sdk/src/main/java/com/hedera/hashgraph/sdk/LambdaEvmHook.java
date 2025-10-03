@@ -62,13 +62,13 @@ public class LambdaEvmHook {
      * @return the protobuf LambdaEvmHook
      */
     public com.hedera.hapi.node.hooks.legacy.LambdaEvmHook toProtobuf() {
-        var builder = com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder()
-                .setSpec(spec.toProtobuf());
-        
+        var builder =
+                com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(spec.toProtobuf());
+
         for (LambdaStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());
         }
-        
+
         return builder.build();
     }
 
@@ -83,18 +83,15 @@ public class LambdaEvmHook {
         for (var protoUpdate : proto.getStorageUpdatesList()) {
             storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));
         }
-        
-        return new LambdaEvmHook(
-                EvmHookSpec.fromProtobuf(proto.getSpec()),
-                storageUpdates
-        );
+
+        return new LambdaEvmHook(EvmHookSpec.fromProtobuf(proto.getSpec()), storageUpdates);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        
+
         LambdaEvmHook that = (LambdaEvmHook) o;
         return spec.equals(that.spec) && storageUpdates.equals(that.storageUpdates);
     }

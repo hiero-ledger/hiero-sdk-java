@@ -3,8 +3,8 @@ package com.hedera.hashgraph.sdk;
 
 // Using fully qualified names to avoid conflicts with generated classes
 import com.google.protobuf.ByteString;
-import java.util.Objects;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Represents an entry in a Solidity mapping.
@@ -28,7 +28,7 @@ public class LambdaMappingEntry {
         this.key = Objects.requireNonNull(key, "key cannot be null").clone();
         this.preimage = null;
         this.value = value != null ? value.clone() : new byte[0];
-        
+
         validateKey(key);
         validateValue(value);
     }
@@ -59,7 +59,7 @@ public class LambdaMappingEntry {
         this.key = key != null ? key.clone() : null;
         this.preimage = preimage != null ? preimage.clone() : null;
         this.value = value != null ? value.clone() : new byte[0];
-        
+
         if (key != null) {
             validateKey(key);
         }
@@ -116,7 +116,8 @@ public class LambdaMappingEntry {
             throw new IllegalArgumentException("Mapping entry key cannot exceed 32 bytes");
         }
         if (key.length > 0 && key[0] == 0) {
-            throw new IllegalArgumentException("Mapping entry key must use minimal byte representation (no leading zeros)");
+            throw new IllegalArgumentException(
+                    "Mapping entry key must use minimal byte representation (no leading zeros)");
         }
     }
 
@@ -125,7 +126,8 @@ public class LambdaMappingEntry {
             throw new IllegalArgumentException("Mapping entry value cannot exceed 32 bytes");
         }
         if (value != null && value.length > 0 && value[0] == 0) {
-            throw new IllegalArgumentException("Mapping entry value must use minimal byte representation (no leading zeros)");
+            throw new IllegalArgumentException(
+                    "Mapping entry value must use minimal byte representation (no leading zeros)");
         }
     }
 
@@ -136,17 +138,17 @@ public class LambdaMappingEntry {
      */
     public com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry toProtobuf() {
         var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry.newBuilder();
-        
+
         if (key != null) {
             builder.setKey(ByteString.copyFrom(key));
         } else if (preimage != null) {
             builder.setPreimage(ByteString.copyFrom(preimage));
         }
-        
+
         if (value.length > 0) {
             builder.setValue(ByteString.copyFrom(value));
         }
-        
+
         return builder.build();
     }
 
@@ -158,15 +160,14 @@ public class LambdaMappingEntry {
      */
     public static LambdaMappingEntry fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry proto) {
         return switch (proto.getEntryKeyCase()) {
-            case KEY -> new LambdaMappingEntry(
-                    proto.getKey().toByteArray(),
-                    proto.getValue().toByteArray()
-            );
-            case PREIMAGE -> LambdaMappingEntry.withPreimage(
-                    proto.getPreimage().toByteArray(),
-                    proto.getValue().toByteArray()
-            );
-            case ENTRYKEY_NOT_SET -> throw new IllegalArgumentException("LambdaMappingEntry must have either key or preimage set");
+            case KEY ->
+                new LambdaMappingEntry(
+                        proto.getKey().toByteArray(), proto.getValue().toByteArray());
+            case PREIMAGE ->
+                LambdaMappingEntry.withPreimage(
+                        proto.getPreimage().toByteArray(), proto.getValue().toByteArray());
+            case ENTRYKEY_NOT_SET ->
+                throw new IllegalArgumentException("LambdaMappingEntry must have either key or preimage set");
         };
     }
 
@@ -174,11 +175,11 @@ public class LambdaMappingEntry {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        
+
         LambdaMappingEntry that = (LambdaMappingEntry) o;
-        return Arrays.equals(key, that.key) && 
-               Arrays.equals(preimage, that.preimage) && 
-               Arrays.equals(value, that.value);
+        return Arrays.equals(key, that.key)
+                && Arrays.equals(preimage, that.preimage)
+                && Arrays.equals(value, that.value);
     }
 
     @Override
@@ -189,11 +190,11 @@ public class LambdaMappingEntry {
     @Override
     public String toString() {
         if (key != null) {
-            return "LambdaMappingEntry{key=" + java.util.Arrays.toString(key) + 
-                   ", value=" + java.util.Arrays.toString(value) + "}";
+            return "LambdaMappingEntry{key=" + java.util.Arrays.toString(key) + ", value="
+                    + java.util.Arrays.toString(value) + "}";
         } else {
-            return "LambdaMappingEntry{preimage=" + java.util.Arrays.toString(preimage) + 
-                   ", value=" + java.util.Arrays.toString(value) + "}";
+            return "LambdaMappingEntry{preimage=" + java.util.Arrays.toString(preimage) + ", value="
+                    + java.util.Arrays.toString(value) + "}";
         }
     }
 }

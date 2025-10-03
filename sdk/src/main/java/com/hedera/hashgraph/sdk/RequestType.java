@@ -504,7 +504,17 @@ public enum RequestType {
     /**
      * Submit a batch of transactions to run atomically
      */
-    ATOMIC_BATCH(HederaFunctionality.AtomicBatch);
+    ATOMIC_BATCH(HederaFunctionality.AtomicBatch),
+
+    /**
+     * Update one or more storage slots in an lambda EVM hook.
+     */
+    LAMBDA_S_STORE(HederaFunctionality.LambdaSStore),
+
+    /**
+     * (Internal-only) Dispatch a hook action.
+     */
+    HOOK_DISPATCH(HederaFunctionality.HookDispatch);
 
     final HederaFunctionality code;
 
@@ -605,6 +615,8 @@ public enum RequestType {
             case HistoryProofVote -> HISTORY_PROOF_VOTE;
             case CrsPublication -> CRS_PUBLICATION;
             case AtomicBatch -> ATOMIC_BATCH;
+            case LambdaSStore -> LAMBDA_S_STORE;
+            case HookDispatch -> HOOK_DISPATCH;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -703,6 +715,8 @@ public enum RequestType {
             case HISTORY_PROOF_VOTE -> "HISTORY_PROOF_VOTE";
             case CRS_PUBLICATION -> "CRS_PUBLICATION";
             case ATOMIC_BATCH -> "ATOMIC_BATCH";
+            case LAMBDA_S_STORE -> "LAMBDA_S_STORE";
+            case HOOK_DISPATCH -> "HOOK_DISPATCH";
         };
     }
 }

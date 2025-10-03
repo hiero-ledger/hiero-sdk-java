@@ -465,7 +465,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return a copy of the hook creation details list
      */
-    public List<HookCreationDetails> getHookCreationDetails() {
+    public List<HookCreationDetails> getHooks() {
         return new ArrayList<>(hookCreationDetails);
     }
 
@@ -475,7 +475,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * @param hookDetails the hook creation details to add
      * @return {@code this}
      */
-    public AccountCreateTransaction addHookCreationDetails(HookCreationDetails hookDetails) {
+    public AccountCreateTransaction addHook(HookCreationDetails hookDetails) {
         requireNotFrozen();
         Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
         this.hookCreationDetails.add(hookDetails);
@@ -488,7 +488,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * @param hookDetails the list of hook creation details
      * @return {@code this}
      */
-    public AccountCreateTransaction setHookCreationDetails(List<HookCreationDetails> hookDetails) {
+    public AccountCreateTransaction setHooks(List<HookCreationDetails> hookDetails) {
         requireNotFrozen();
         Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
         this.hookCreationDetails = new ArrayList<>(hookDetails);
@@ -510,25 +510,24 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
             long hookId,
             ContractId contractId,
             @Nullable Key adminKey,
-            @Nullable List<LambdaStorageUpdate> storageUpdates
-    ) {
+            @Nullable List<LambdaStorageUpdate> storageUpdates) {
         requireNotFrozen();
         Objects.requireNonNull(contractId, "contractId cannot be null");
-        
+
         if (hookId < 0) {
             throw new IllegalArgumentException("Hook ID must be non-negative: " + hookId);
         }
-        
+
         var evmHookSpec = new EvmHookSpec(contractId);
-        var hook = storageUpdates != null 
-            ? new LambdaEvmHook(evmHookSpec, storageUpdates)
-            : new LambdaEvmHook(evmHookSpec);
-        
+        var hook = storageUpdates != null
+                ? new LambdaEvmHook(evmHookSpec, storageUpdates)
+                : new LambdaEvmHook(evmHookSpec);
+
         var hookDetails = adminKey != null
-            ? new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook, adminKey)
-            : new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook);
-        
-        return addHookCreationDetails(hookDetails);
+                ? new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook, adminKey)
+                : new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook);
+
+        return addHook(hookDetails);
     }
 
     /**
@@ -559,12 +558,12 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
                 throw new IllegalArgumentException("Duplicate hook ID: " + details.getHookId());
             }
         }
-        
+
         // Validate extension points are appropriate for account creation
         for (HookCreationDetails details : hookCreationDetails) {
             if (details.getExtensionPoint() != HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK) {
-                throw new IllegalArgumentException("Unsupported extension point for account creation: " + 
-                    details.getExtensionPoint());
+                throw new IllegalArgumentException(
+                        "Unsupported extension point for account creation: " + details.getExtensionPoint());
             }
         }
     }
