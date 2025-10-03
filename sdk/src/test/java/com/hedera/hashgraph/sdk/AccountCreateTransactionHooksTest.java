@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class AccountCreateTransactionHooksTest {
 
@@ -31,7 +31,7 @@ public class AccountCreateTransactionHooksTest {
                 .addAccountAllowanceHook(2L, contractId); // Simple hook without admin key or storage
 
         // Verify hooks were added
-        List<HookCreationDetails> hookDetails = transaction.getHookCreationDetails();
+        List<HookCreationDetails> hookDetails = transaction.getHooks();
         assertEquals(2, hookDetails.size());
 
         // Verify first hook
@@ -58,20 +58,17 @@ public class AccountCreateTransactionHooksTest {
         // Create hook details manually
         EvmHookSpec evmHookSpec = new EvmHookSpec(contractId);
         LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(evmHookSpec);
-        HookCreationDetails hookDetails = new HookCreationDetails(
-                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-                1L,
-                lambdaEvmHook
-        );
+        HookCreationDetails hookDetails =
+                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaEvmHook);
 
         // Set hooks using setHookCreationDetails
         AccountCreateTransaction transaction = new AccountCreateTransaction()
                 .setKey(PrivateKey.generateED25519().getPublicKey())
                 .setInitialBalance(Hbar.from(50))
-                .setHookCreationDetails(Collections.singletonList(hookDetails));
+                .setHooks(Collections.singletonList(hookDetails));
 
         // Verify hooks were set
-        List<HookCreationDetails> retrievedHooks = transaction.getHookCreationDetails();
+        List<HookCreationDetails> retrievedHooks = transaction.getHooks();
         assertEquals(1, retrievedHooks.size());
         assertEquals(hookDetails, retrievedHooks.get(0));
     }
@@ -93,28 +90,28 @@ public class AccountCreateTransactionHooksTest {
         });
     }
 
-//    @Test
-//    public void testAccountCreateTransactionProtobufSerialization() {
-//        ContractId contractId = new ContractId(400);
-//
-//        // Create transaction with hooks
-//        AccountCreateTransaction transaction = new AccountCreateTransaction()
-//                .setKey(PrivateKey.generateED25519().getPublicKey())
-//                .setInitialBalance(Hbar.from(75))
-//                .addAccountAllowanceHook(1L, contractId);
-//
-//        // Build the protobuf
-//        var protoBody = transaction.build();
-//
-//        // Verify hook creation details are included
-//        assertEquals(1, protoBody.getHookCreationDetailsCount());
-//
-//        var protoHookDetails = protoBody.getHookCreationDetails(0);
-//        assertEquals(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-//                    protoHookDetails.getExtensionPoint());
-//        assertEquals(1L, protoHookDetails.getHookId());
-//        assertTrue(protoHookDetails.hasLambdaEvmHook());
-//    }
+    //    @Test
+    //    public void testAccountCreateTransactionProtobufSerialization() {
+    //        ContractId contractId = new ContractId(400);
+    //
+    //        // Create transaction with hooks
+    //        AccountCreateTransaction transaction = new AccountCreateTransaction()
+    //                .setKey(PrivateKey.generateED25519().getPublicKey())
+    //                .setInitialBalance(Hbar.from(75))
+    //                .addAccountAllowanceHook(1L, contractId);
+    //
+    //        // Build the protobuf
+    //        var protoBody = transaction.build();
+    //
+    //        // Verify hook creation details are included
+    //        assertEquals(1, protoBody.getHookCreationDetailsCount());
+    //
+    //        var protoHookDetails = protoBody.getHookCreationDetails(0);
+    //        assertEquals(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+    //                    protoHookDetails.getExtensionPoint());
+    //        assertEquals(1L, protoHookDetails.getHookId());
+    //        assertTrue(protoHookDetails.hasLambdaEvmHook());
+    //    }
 
     @Test
     public void testAccountCreateTransactionEmptyHooks() {
@@ -124,7 +121,7 @@ public class AccountCreateTransactionHooksTest {
                 .setInitialBalance(Hbar.from(100));
 
         // Verify no hooks
-        List<HookCreationDetails> hookDetails = transaction.getHookCreationDetails();
+        List<HookCreationDetails> hookDetails = transaction.getHooks();
         assertTrue(hookDetails.isEmpty());
 
         // Should build successfully

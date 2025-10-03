@@ -3,8 +3,8 @@ package com.hedera.hashgraph.sdk;
 
 // Using fully qualified names to avoid conflicts with generated classes
 import com.google.protobuf.ByteString;
-import java.util.Objects;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Abstract base class for lambda storage updates.
@@ -14,7 +14,7 @@ import java.util.Arrays;
  * updating Solidity mapping entries.
  */
 public abstract class LambdaStorageUpdate {
-    
+
     /**
      * Convert this storage update to a protobuf message.
      *
@@ -32,7 +32,9 @@ public abstract class LambdaStorageUpdate {
         return switch (proto.getUpdateCase()) {
             case STORAGE_SLOT -> LambdaStorageSlot.fromProtobuf(proto.getStorageSlot());
             case MAPPING_ENTRIES -> LambdaMappingEntries.fromProtobuf(proto.getMappingEntries());
-            case UPDATE_NOT_SET -> throw new IllegalArgumentException("LambdaStorageUpdate must have either storage_slot or mapping_entries set");
+            case UPDATE_NOT_SET ->
+                throw new IllegalArgumentException(
+                        "LambdaStorageUpdate must have either storage_slot or mapping_entries set");
         };
     }
 
@@ -54,7 +56,7 @@ public abstract class LambdaStorageUpdate {
         public LambdaStorageSlot(byte[] key, byte[] value) {
             this.key = Objects.requireNonNull(key, "key cannot be null").clone();
             this.value = value != null ? value.clone() : new byte[0];
-            
+
             validateKey(key);
             validateValue(value);
         }
@@ -82,7 +84,8 @@ public abstract class LambdaStorageUpdate {
                 throw new IllegalArgumentException("Storage slot key cannot exceed 32 bytes");
             }
             if (key.length > 0 && key[0] == 0) {
-                throw new IllegalArgumentException("Storage slot key must use minimal byte representation (no leading zeros)");
+                throw new IllegalArgumentException(
+                        "Storage slot key must use minimal byte representation (no leading zeros)");
             }
         }
 
@@ -91,7 +94,8 @@ public abstract class LambdaStorageUpdate {
                 throw new IllegalArgumentException("Storage slot value cannot exceed 32 bytes");
             }
             if (value != null && value.length > 0 && value[0] == 0) {
-                throw new IllegalArgumentException("Storage slot value must use minimal byte representation (no leading zeros)");
+                throw new IllegalArgumentException(
+                        "Storage slot value must use minimal byte representation (no leading zeros)");
             }
         }
 
@@ -107,16 +111,14 @@ public abstract class LambdaStorageUpdate {
 
         public static LambdaStorageSlot fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaStorageSlot proto) {
             return new LambdaStorageSlot(
-                    proto.getKey().toByteArray(),
-                    proto.getValue().toByteArray()
-            );
+                    proto.getKey().toByteArray(), proto.getValue().toByteArray());
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            
+
             LambdaStorageSlot that = (LambdaStorageSlot) o;
             return Arrays.equals(key, that.key) && Arrays.equals(value, that.value);
         }
@@ -128,8 +130,8 @@ public abstract class LambdaStorageUpdate {
 
         @Override
         public String toString() {
-            return "LambdaStorageSlot{key=" + java.util.Arrays.toString(key) + 
-                   ", value=" + java.util.Arrays.toString(value) + "}";
+            return "LambdaStorageSlot{key=" + java.util.Arrays.toString(key) + ", value="
+                    + java.util.Arrays.toString(value) + "}";
         }
     }
 
@@ -151,9 +153,10 @@ public abstract class LambdaStorageUpdate {
          * @param entries the entries to update in the mapping
          */
         public LambdaMappingEntries(byte[] mappingSlot, java.util.List<LambdaMappingEntry> entries) {
-            this.mappingSlot = Objects.requireNonNull(mappingSlot, "mappingSlot cannot be null").clone();
+            this.mappingSlot = Objects.requireNonNull(mappingSlot, "mappingSlot cannot be null")
+                    .clone();
             this.entries = new java.util.ArrayList<>(Objects.requireNonNull(entries, "entries cannot be null"));
-            
+
             validateMappingSlot(mappingSlot);
         }
 
@@ -180,7 +183,8 @@ public abstract class LambdaStorageUpdate {
                 throw new IllegalArgumentException("Mapping slot cannot exceed 32 bytes");
             }
             if (mappingSlot.length > 0 && mappingSlot[0] == 0) {
-                throw new IllegalArgumentException("Mapping slot must use minimal byte representation (no leading zeros)");
+                throw new IllegalArgumentException(
+                        "Mapping slot must use minimal byte representation (no leading zeros)");
             }
         }
 
@@ -188,11 +192,11 @@ public abstract class LambdaStorageUpdate {
         public com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
             var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries.newBuilder()
                     .setMappingSlot(ByteString.copyFrom(mappingSlot));
-            
+
             for (LambdaMappingEntry entry : entries) {
                 builder.addEntries(entry.toProtobuf());
             }
-            
+
             return com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder()
                     .setMappingEntries(builder.build())
                     .build();
@@ -203,18 +207,15 @@ public abstract class LambdaStorageUpdate {
             for (var protoEntry : proto.getEntriesList()) {
                 entries.add(LambdaMappingEntry.fromProtobuf(protoEntry));
             }
-            
-            return new LambdaMappingEntries(
-                    proto.getMappingSlot().toByteArray(),
-                    entries
-            );
+
+            return new LambdaMappingEntries(proto.getMappingSlot().toByteArray(), entries);
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            
+
             LambdaMappingEntries that = (LambdaMappingEntries) o;
             return Arrays.equals(mappingSlot, that.mappingSlot) && entries.equals(that.entries);
         }
@@ -226,8 +227,8 @@ public abstract class LambdaStorageUpdate {
 
         @Override
         public String toString() {
-            return "LambdaMappingEntries{mappingSlot=" + java.util.Arrays.toString(mappingSlot) + 
-                   ", entries=" + entries + "}";
+            return "LambdaMappingEntries{mappingSlot=" + java.util.Arrays.toString(mappingSlot) + ", entries=" + entries
+                    + "}";
         }
     }
 }

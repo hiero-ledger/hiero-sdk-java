@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 /**
  * Integration test demonstrating the complete hook workflow.
@@ -29,7 +29,7 @@ public class HookTest {
                 .addAccountAllowanceHook(1L, hookContract);
 
         // Verify the account creation transaction has hooks
-        List<HookCreationDetails> hookDetails = accountCreateTx.getHookCreationDetails();
+        List<HookCreationDetails> hookDetails = accountCreateTx.getHooks();
         assertEquals(1, hookDetails.size());
 
         HookCreationDetails hookDetail = hookDetails.get(0);
@@ -67,13 +67,12 @@ public class HookTest {
         assertEquals(evmHookSpec, EvmHookSpec.fromProtobuf(evmHookSpec.toProtobuf()));
 
         // Test LambdaStorageUpdate
-        LambdaStorageUpdate storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(
-                new byte[]{0x20}, new byte[]{0x21});
+        LambdaStorageUpdate storageSlot =
+                new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x20}, new byte[] {0x21});
         assertEquals(storageSlot, LambdaStorageUpdate.fromProtobuf(storageSlot.toProtobuf()));
 
         // Test LambdaMappingEntry
-        LambdaMappingEntry mappingEntry = LambdaMappingEntry.ofKey(
-                new byte[]{0x22}, new byte[]{0x23});
+        LambdaMappingEntry mappingEntry = LambdaMappingEntry.ofKey(new byte[] {0x22}, new byte[] {0x23});
         assertEquals(mappingEntry, LambdaMappingEntry.fromProtobuf(mappingEntry.toProtobuf()));
 
         // Test LambdaEvmHook
@@ -92,20 +91,20 @@ public class HookTest {
 
         // Test LambdaStorageSlot validation
         assertThrows(IllegalArgumentException.class, () -> {
-            new LambdaStorageUpdate.LambdaStorageSlot(new byte[33], new byte[]{0x01});
+            new LambdaStorageUpdate.LambdaStorageSlot(new byte[33], new byte[] {0x01});
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new LambdaStorageUpdate.LambdaStorageSlot(new byte[]{0x00, 0x01}, new byte[]{0x01});
+            new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x00, 0x01}, new byte[] {0x01});
         });
 
         // Test LambdaMappingEntry validation
         assertThrows(IllegalArgumentException.class, () -> {
-            LambdaMappingEntry.ofKey(new byte[33], new byte[]{0x01});
+            LambdaMappingEntry.ofKey(new byte[33], new byte[] {0x01});
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            LambdaMappingEntry.ofKey(new byte[]{0x00, 0x01}, new byte[]{0x01});
+            LambdaMappingEntry.ofKey(new byte[] {0x00, 0x01}, new byte[] {0x01});
         });
 
         // No LambdaSStoreTransaction tests on this branch
