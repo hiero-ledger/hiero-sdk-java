@@ -155,11 +155,6 @@ public final class AccountInfo {
     public final StakingInfo stakingInfo;
 
     /**
-     * Hooks attached to this account.
-     */
-    public final List<HookInfo> hooks;
-
-    /**
      * Constructor.
      *
      * @param accountId                     the account id
@@ -203,8 +198,7 @@ public final class AccountInfo {
             @Nullable PublicKey aliasKey,
             LedgerId ledgerId,
             long ethereumNonce,
-            @Nullable StakingInfo stakingInfo,
-            List<HookInfo> hooks) {
+            @Nullable StakingInfo stakingInfo) {
         this.accountId = accountId;
         this.contractAccountId = contractAccountId;
         this.isDeleted = isDeleted;
@@ -229,7 +223,6 @@ public final class AccountInfo {
         this.tokenAllowances = Collections.emptyList();
         this.tokenNftAllowances = Collections.emptyList();
         this.stakingInfo = stakingInfo;
-        this.hooks = Collections.unmodifiableList(hooks);
     }
 
     /**
@@ -258,8 +251,6 @@ public final class AccountInfo {
 
         @Nullable var aliasKey = PublicKey.fromAliasBytes(accountInfo.getAlias());
 
-        var hooks = java.util.Collections.<HookInfo>emptyList();
-
         return new AccountInfo(
                 accountId,
                 accountInfo.getContractAccountID(),
@@ -281,8 +272,7 @@ public final class AccountInfo {
                 aliasKey,
                 LedgerId.fromByteString(accountInfo.getLedgerId()),
                 accountInfo.getEthereumNonce(),
-                accountInfo.hasStakingInfo() ? StakingInfo.fromProtobuf(accountInfo.getStakingInfo()) : null,
-                hooks);
+                accountInfo.hasStakingInfo() ? StakingInfo.fromProtobuf(accountInfo.getStakingInfo()) : null);
     }
 
     /**
