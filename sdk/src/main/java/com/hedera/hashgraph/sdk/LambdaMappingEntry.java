@@ -24,21 +24,6 @@ public class LambdaMappingEntry {
      * @param key the explicit mapping key (max 32 bytes, minimal representation)
      * @param value the mapping value (max 32 bytes, minimal representation)
      */
-    public LambdaMappingEntry(byte[] key, byte[] value) {
-        this.key = Objects.requireNonNull(key, "key cannot be null").clone();
-        this.preimage = null;
-        this.value = value != null ? value.clone() : new byte[0];
-
-        validateKey(key);
-        validateValue(value);
-    }
-
-    /**
-     * Create a new mapping entry with an explicit key.
-     *
-     * @param key the explicit mapping key (max 32 bytes, minimal representation)
-     * @param value the mapping value (max 32 bytes, minimal representation)
-     */
     public static LambdaMappingEntry ofKey(byte[] key, byte[] value) {
         Objects.requireNonNull(key, "key cannot be null");
         return new LambdaMappingEntry(key, null, value);
@@ -59,11 +44,6 @@ public class LambdaMappingEntry {
         this.key = key != null ? key.clone() : null;
         this.preimage = preimage != null ? preimage.clone() : null;
         this.value = value != null ? value.clone() : new byte[0];
-
-        if (key != null) {
-            validateKey(key);
-        }
-        validateValue(value);
     }
 
     /**
@@ -111,26 +91,6 @@ public class LambdaMappingEntry {
         return value.clone();
     }
 
-    private void validateKey(byte[] key) {
-        if (key.length > 32) {
-            throw new IllegalArgumentException("Mapping entry key cannot exceed 32 bytes");
-        }
-        if (key.length > 0 && key[0] == 0) {
-            throw new IllegalArgumentException(
-                    "Mapping entry key must use minimal byte representation (no leading zeros)");
-        }
-    }
-
-    private void validateValue(byte[] value) {
-        if (value != null && value.length > 32) {
-            throw new IllegalArgumentException("Mapping entry value cannot exceed 32 bytes");
-        }
-        if (value != null && value.length > 0 && value[0] == 0) {
-            throw new IllegalArgumentException(
-                    "Mapping entry value must use minimal byte representation (no leading zeros)");
-        }
-    }
-
     /**
      * Convert this mapping entry to a protobuf message.
      *
@@ -161,7 +121,7 @@ public class LambdaMappingEntry {
     public static LambdaMappingEntry fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry proto) {
         return switch (proto.getEntryKeyCase()) {
             case KEY ->
-                new LambdaMappingEntry(
+                LambdaMappingEntry.ofKey(
                         proto.getKey().toByteArray(), proto.getValue().toByteArray());
             case PREIMAGE ->
                 LambdaMappingEntry.withPreimage(

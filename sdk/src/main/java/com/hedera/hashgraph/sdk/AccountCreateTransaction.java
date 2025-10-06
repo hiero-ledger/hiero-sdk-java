@@ -513,10 +513,6 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         requireNotFrozen();
         Objects.requireNonNull(contractId, "contractId cannot be null");
 
-        if (hookId < 0) {
-            throw new IllegalArgumentException("Hook ID must be non-negative: " + hookId);
-        }
-
         var evmHookSpec = new EvmHookSpec(contractId);
         var hook = storageUpdates != null
                 ? new LambdaEvmHook(evmHookSpec, storageUpdates)

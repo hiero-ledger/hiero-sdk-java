@@ -20,7 +20,7 @@ public abstract class LambdaStorageUpdate {
      *
      * @return the protobuf LambdaStorageUpdate
      */
-    public abstract com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf();
+    abstract com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf();
 
     /**
      * Create a LambdaStorageUpdate from a protobuf message.
@@ -28,7 +28,7 @@ public abstract class LambdaStorageUpdate {
      * @param proto the protobuf LambdaStorageUpdate
      * @return a new LambdaStorageUpdate instance
      */
-    public static LambdaStorageUpdate fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate proto) {
+    static LambdaStorageUpdate fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate proto) {
         return switch (proto.getUpdateCase()) {
             case STORAGE_SLOT -> LambdaStorageSlot.fromProtobuf(proto.getStorageSlot());
             case MAPPING_ENTRIES -> LambdaMappingEntries.fromProtobuf(proto.getMappingEntries());
@@ -56,9 +56,6 @@ public abstract class LambdaStorageUpdate {
         public LambdaStorageSlot(byte[] key, byte[] value) {
             this.key = Objects.requireNonNull(key, "key cannot be null").clone();
             this.value = value != null ? value.clone() : new byte[0];
-
-            validateKey(key);
-            validateValue(value);
         }
 
         /**
@@ -77,26 +74,6 @@ public abstract class LambdaStorageUpdate {
          */
         public byte[] getValue() {
             return value.clone();
-        }
-
-        private void validateKey(byte[] key) {
-            if (key.length > 32) {
-                throw new IllegalArgumentException("Storage slot key cannot exceed 32 bytes");
-            }
-            if (key.length > 0 && key[0] == 0) {
-                throw new IllegalArgumentException(
-                        "Storage slot key must use minimal byte representation (no leading zeros)");
-            }
-        }
-
-        private void validateValue(byte[] value) {
-            if (value != null && value.length > 32) {
-                throw new IllegalArgumentException("Storage slot value cannot exceed 32 bytes");
-            }
-            if (value != null && value.length > 0 && value[0] == 0) {
-                throw new IllegalArgumentException(
-                        "Storage slot value must use minimal byte representation (no leading zeros)");
-            }
         }
 
         @Override
