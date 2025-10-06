@@ -11,7 +11,6 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -544,31 +543,6 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Validate hook creation details.
-     * <p>
-     * Ensures that hook IDs are unique and that only supported extension points are used.
-     *
-     * @throws IllegalArgumentException if validation fails
-     */
-    private void validateHookCreationDetails() {
-        // Validate hook IDs are unique
-        var hookIds = new HashSet<Long>();
-        for (HookCreationDetails details : hookCreationDetails) {
-            if (!hookIds.add(details.getHookId())) {
-                throw new IllegalArgumentException("Duplicate hook ID: " + details.getHookId());
-            }
-        }
-
-        // Validate extension points are appropriate for account creation
-        for (HookCreationDetails details : hookCreationDetails) {
-            if (details.getExtensionPoint() != HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK) {
-                throw new IllegalArgumentException(
-                        "Unsupported extension point for account creation: " + details.getExtensionPoint());
-            }
-        }
-    }
-
-    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.CryptoCreateTransactionBody}
@@ -600,8 +574,6 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
             builder.setStakedNodeId(stakedNodeId);
         }
 
-        // Add hook creation details
-        validateHookCreationDetails();
         for (HookCreationDetails hookDetails : hookCreationDetails) {
             builder.addHookCreationDetails(hookDetails.toProtobuf());
         }

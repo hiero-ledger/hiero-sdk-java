@@ -104,8 +104,8 @@ class AccountCreateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given AccountCreateTransaction with duplicate hook IDs, when executed, then HOOK_ID_REPEATED_IN_CREATION_DETAILS (validated)")
-    void accountCreateWithDuplicateHookIdsFailsValidation() throws Exception {
+            "Given AccountCreateTransaction with duplicate hook IDs, when executed, then HOOK_ID_REPEATED_IN_CREATION_DETAILS (precheck)")
+    void accountCreateWithDuplicateHookIdsFailsPrecheck() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
@@ -114,15 +114,15 @@ class AccountCreateTransactionHooksIntegrationTest {
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
 
-            // SDK validates duplicate IDs before submit and throws IllegalArgumentException
-            assertThatExceptionOfType(IllegalArgumentException.class)
+            assertThatExceptionOfType(PrecheckStatusException.class)
                     .isThrownBy(() -> new AccountCreateTransaction()
                             .setKeyWithoutAlias(PrivateKey.generateED25519())
                             .setInitialBalance(new Hbar(1))
                             .addHook(hookDetails1)
                             .addHook(hookDetails2)
-                            .execute(testEnv.client))
-                    .withMessageContaining("Duplicate hook ID");
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .withMessageContaining(Status.HOOK_ID_REPEATED_IN_CREATION_DETAILS.toString());
         }
     }
 
