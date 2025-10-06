@@ -84,34 +84,36 @@ public class AccountCreateTransactionHooksTest {
                 .addAccountAllowanceHook(1L, contractId)
                 .addAccountAllowanceHook(1L, contractId); // Duplicate hook ID
 
-        // This should throw an exception when building
-        assertThrows(IllegalArgumentException.class, () -> {
-            transaction.build();
-        });
+        // Client-side duplicate ID validation was removed; ensure build includes both entries
+        var proto = transaction.build();
+        assertEquals(2, proto.getHookCreationDetailsCount());
+        assertEquals(1L, proto.getHookCreationDetails(0).getHookId());
+        assertEquals(1L, proto.getHookCreationDetails(1).getHookId());
     }
 
-    //    @Test
-    //    public void testAccountCreateTransactionProtobufSerialization() {
-    //        ContractId contractId = new ContractId(400);
-    //
-    //        // Create transaction with hooks
-    //        AccountCreateTransaction transaction = new AccountCreateTransaction()
-    //                .setKey(PrivateKey.generateED25519().getPublicKey())
-    //                .setInitialBalance(Hbar.from(75))
-    //                .addAccountAllowanceHook(1L, contractId);
-    //
-    //        // Build the protobuf
-    //        var protoBody = transaction.build();
-    //
-    //        // Verify hook creation details are included
-    //        assertEquals(1, protoBody.getHookCreationDetailsCount());
-    //
-    //        var protoHookDetails = protoBody.getHookCreationDetails(0);
-    //        assertEquals(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-    //                    protoHookDetails.getExtensionPoint());
-    //        assertEquals(1L, protoHookDetails.getHookId());
-    //        assertTrue(protoHookDetails.hasLambdaEvmHook());
-    //    }
+    @Test
+    public void testAccountCreateTransactionProtobufSerialization() {
+        ContractId contractId = new ContractId(400);
+
+        // Create transaction with hooks
+        AccountCreateTransaction transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519().getPublicKey())
+                .setInitialBalance(Hbar.from(75))
+                .addAccountAllowanceHook(1L, contractId);
+
+        // Build the protobuf
+        var protoBody = transaction.build();
+
+        // Verify hook creation details are included
+        assertEquals(1, protoBody.getHookCreationDetailsCount());
+
+        var protoHookDetails = protoBody.getHookCreationDetails(0);
+        assertEquals(
+                com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+                protoHookDetails.getExtensionPoint());
+        assertEquals(1L, protoHookDetails.getHookId());
+        assertTrue(protoHookDetails.hasLambdaEvmHook());
+    }
 
     @Test
     public void testAccountCreateTransactionEmptyHooks() {
