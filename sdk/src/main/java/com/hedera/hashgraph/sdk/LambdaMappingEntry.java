@@ -41,9 +41,10 @@ public class LambdaMappingEntry {
     }
 
     private LambdaMappingEntry(byte[] key, byte[] preimage, byte[] value) {
+        Objects.requireNonNull(value, "value cannot be null");
         this.key = key != null ? key.clone() : null;
         this.preimage = preimage != null ? preimage.clone() : null;
-        this.value = value != null ? value.clone() : new byte[0];
+        this.value = value.clone();
     }
 
     /**
