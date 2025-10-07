@@ -37,7 +37,7 @@ public class EvmHookSpec {
      *
      * @return the protobuf EvmHookSpec
      */
-    public com.hedera.hapi.node.hooks.legacy.EvmHookSpec toProtobuf() {
+    com.hedera.hapi.node.hooks.legacy.EvmHookSpec toProtobuf() {
         return com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
                 .setContractId(contractId.toProtobuf())
                 .build();
@@ -49,7 +49,7 @@ public class EvmHookSpec {
      * @param proto the protobuf EvmHookSpec
      * @return a new EvmHookSpec instance
      */
-    public static EvmHookSpec fromProtobuf(com.hedera.hapi.node.hooks.legacy.EvmHookSpec proto) {
+    static EvmHookSpec fromProtobuf(com.hedera.hapi.node.hooks.legacy.EvmHookSpec proto) {
         return new EvmHookSpec(ContractId.fromProtobuf(proto.getContractId()));
     }
 

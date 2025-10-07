@@ -133,8 +133,6 @@ public abstract class LambdaStorageUpdate {
             this.mappingSlot = Objects.requireNonNull(mappingSlot, "mappingSlot cannot be null")
                     .clone();
             this.entries = new java.util.ArrayList<>(Objects.requireNonNull(entries, "entries cannot be null"));
-
-            validateMappingSlot(mappingSlot);
         }
 
         /**
@@ -153,16 +151,6 @@ public abstract class LambdaStorageUpdate {
          */
         public java.util.List<LambdaMappingEntry> getEntries() {
             return new java.util.ArrayList<>(entries);
-        }
-
-        private void validateMappingSlot(byte[] mappingSlot) {
-            if (mappingSlot.length > 32) {
-                throw new IllegalArgumentException("Mapping slot cannot exceed 32 bytes");
-            }
-            if (mappingSlot.length > 0 && mappingSlot[0] == 0) {
-                throw new IllegalArgumentException(
-                        "Mapping slot must use minimal byte representation (no leading zeros)");
-            }
         }
 
         @Override
