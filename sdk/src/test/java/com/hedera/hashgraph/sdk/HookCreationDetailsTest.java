@@ -12,12 +12,13 @@ class HookCreationDetailsTest {
         var spec = new EvmHookSpec(new ContractId(0, 0, 123));
         var lambda = new LambdaEvmHook(spec);
 
-        NullPointerException ex1 = assertThrows(NullPointerException.class, () ->
-                new HookCreationDetails(null, 1L, lambda));
+        NullPointerException ex1 =
+                assertThrows(NullPointerException.class, () -> new HookCreationDetails(null, 1L, lambda));
         assertTrue(ex1.getMessage().contains("extensionPoint cannot be null"));
 
-        NullPointerException ex2 = assertThrows(NullPointerException.class, () ->
-                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, null));
+        NullPointerException ex2 = assertThrows(
+                NullPointerException.class,
+                () -> new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, null));
         assertTrue(ex2.getMessage().contains("hook cannot be null"));
     }
 
@@ -27,16 +28,14 @@ class HookCreationDetailsTest {
         var lambda = new LambdaEvmHook(new EvmHookSpec(cid));
         var admin = PrivateKey.generateED25519().getPublicKey();
 
-        var withAdmin = new HookCreationDetails(
-                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 9L, lambda, admin);
+        var withAdmin = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 9L, lambda, admin);
         assertEquals(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, withAdmin.getExtensionPoint());
         assertEquals(9L, withAdmin.getHookId());
         assertEquals(lambda, withAdmin.getHook());
         assertTrue(withAdmin.hasAdminKey());
         assertEquals(admin, withAdmin.getAdminKey());
 
-        var withoutAdmin = new HookCreationDetails(
-                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 10L, lambda);
+        var withoutAdmin = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 10L, lambda);
         assertFalse(withoutAdmin.hasAdminKey());
         assertNull(withoutAdmin.getAdminKey());
     }
@@ -46,7 +45,10 @@ class HookCreationDetailsTest {
         var cid = new ContractId(0, 0, 1234);
         var lambda = new LambdaEvmHook(new EvmHookSpec(cid));
         var details = new HookCreationDetails(
-                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 42L, lambda, PrivateKey.generateED25519().getPublicKey());
+                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+                42L,
+                lambda,
+                PrivateKey.generateED25519().getPublicKey());
 
         var proto = details.toProtobuf();
         var restored = HookCreationDetails.fromProtobuf(proto);
@@ -85,5 +87,3 @@ class HookCreationDetailsTest {
         assertTrue(s.contains("hook"));
     }
 }
-
-

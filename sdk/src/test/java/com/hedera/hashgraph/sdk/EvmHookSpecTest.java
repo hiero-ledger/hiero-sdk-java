@@ -52,5 +52,3 @@ class EvmHookSpecTest {
         assertTrue(s.contains("0.0.42"));
     }
 }
-
-

@@ -91,28 +91,29 @@ public class AccountCreateTransactionHooksTest {
         assertEquals(1L, proto.getHookCreationDetails(1).getHookId());
     }
 
-        @Test
-        public void testAccountCreateTransactionProtobufSerialization() {
-            ContractId contractId = new ContractId(400);
+    @Test
+    public void testAccountCreateTransactionProtobufSerialization() {
+        ContractId contractId = new ContractId(400);
 
-            // Create transaction with hooks
-            AccountCreateTransaction transaction = new AccountCreateTransaction()
-                    .setKey(PrivateKey.generateED25519().getPublicKey())
-                    .setInitialBalance(Hbar.from(75))
-                    .addAccountAllowanceHook(1L, contractId);
+        // Create transaction with hooks
+        AccountCreateTransaction transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519().getPublicKey())
+                .setInitialBalance(Hbar.from(75))
+                .addAccountAllowanceHook(1L, contractId);
 
-            // Build the protobuf
-            var protoBody = transaction.build();
+        // Build the protobuf
+        var protoBody = transaction.build();
 
-            // Verify hook creation details are included
-            assertEquals(1, protoBody.getHookCreationDetailsCount());
+        // Verify hook creation details are included
+        assertEquals(1, protoBody.getHookCreationDetailsCount());
 
-            var protoHookDetails = protoBody.getHookCreationDetails(0);
-            assertEquals(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-                        protoHookDetails.getExtensionPoint());
-            assertEquals(1L, protoHookDetails.getHookId());
-            assertTrue(protoHookDetails.hasLambdaEvmHook());
-        }
+        var protoHookDetails = protoBody.getHookCreationDetails(0);
+        assertEquals(
+                com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+                protoHookDetails.getExtensionPoint());
+        assertEquals(1L, protoHookDetails.getHookId());
+        assertTrue(protoHookDetails.hasLambdaEvmHook());
+    }
 
     @Test
     public void testAccountCreateTransactionEmptyHooks() {

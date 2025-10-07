@@ -12,7 +12,8 @@ class LambdaEvmHookTest {
     @Test
     void constructorRejectsNulls() {
         assertThrows(NullPointerException.class, () -> new LambdaEvmHook(null));
-        assertThrows(NullPointerException.class, () -> new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 1)), null));
+        assertThrows(
+                NullPointerException.class, () -> new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 1)), null));
     }
 
     @Test
@@ -50,8 +51,10 @@ class LambdaEvmHookTest {
     void equalsAndHashCodeDependOnSpecAndUpdates() {
         var spec1 = new EvmHookSpec(new ContractId(0, 0, 1));
         var spec2 = new EvmHookSpec(new ContractId(0, 0, 2));
-        List<LambdaStorageUpdate> u1 = List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02}));
-        List<LambdaStorageUpdate> u2 = List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x03}, new byte[] {0x04}));
+        List<LambdaStorageUpdate> u1 =
+                List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02}));
+        List<LambdaStorageUpdate> u2 =
+                List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x03}, new byte[] {0x04}));
 
         var a = new LambdaEvmHook(spec1, u1);
         var b = new LambdaEvmHook(spec1, new ArrayList<LambdaStorageUpdate>(u1));
@@ -73,5 +76,3 @@ class LambdaEvmHookTest {
         assertTrue(s.contains("storageUpdates"));
     }
 }
-
-

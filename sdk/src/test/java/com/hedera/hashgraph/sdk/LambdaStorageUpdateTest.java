@@ -64,11 +64,17 @@ class LambdaStorageUpdateTest {
         // mappingSlot cannot be null
         assertThrows(NullPointerException.class, () -> new LambdaStorageUpdate.LambdaMappingEntries(null, List.of()));
         // entries cannot be null
-        assertThrows(NullPointerException.class, () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x01}, null));
+        assertThrows(
+                NullPointerException.class,
+                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x01}, null));
         // mappingSlot length > 32
-        assertThrows(IllegalArgumentException.class, () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[33], List.of()));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[33], List.of()));
         // mappingSlot minimal representation (leading zeros not allowed when length > 0)
-        assertThrows(IllegalArgumentException.class, () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x00, 0x01}, List.of()));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x00, 0x01}, List.of()));
     }
 
     @Test
@@ -88,9 +94,8 @@ class LambdaStorageUpdateTest {
 
     @Test
     void fromProtobufWithoutUpdateThrows() {
-        var emptyProto = com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder().build();
+        var emptyProto = com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder()
+                .build();
         assertThrows(IllegalArgumentException.class, () -> LambdaStorageUpdate.fromProtobuf(emptyProto));
     }
 }
-
-

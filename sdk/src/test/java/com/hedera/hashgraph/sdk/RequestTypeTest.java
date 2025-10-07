@@ -28,12 +28,9 @@ class RequestTypeTest {
 
     @Test
     void valueOfMapsNewFunctions() {
-        assertThat(RequestType.valueOf(HederaFunctionality.AtomicBatch))
-                .isEqualTo(RequestType.ATOMIC_BATCH);
-        assertThat(RequestType.valueOf(HederaFunctionality.LambdaSStore))
-                .isEqualTo(RequestType.LAMBDA_S_STORE);
-        assertThat(RequestType.valueOf(HederaFunctionality.HookDispatch))
-                .isEqualTo(RequestType.HOOK_DISPATCH);
+        assertThat(RequestType.valueOf(HederaFunctionality.AtomicBatch)).isEqualTo(RequestType.ATOMIC_BATCH);
+        assertThat(RequestType.valueOf(HederaFunctionality.LambdaSStore)).isEqualTo(RequestType.LAMBDA_S_STORE);
+        assertThat(RequestType.valueOf(HederaFunctionality.HookDispatch)).isEqualTo(RequestType.HOOK_DISPATCH);
     }
 
     @Test
@@ -46,9 +43,9 @@ class RequestTypeTest {
     @Test
     void roundTripNewEntries() {
         var pairs = new Object[][] {
-            { HederaFunctionality.AtomicBatch, RequestType.ATOMIC_BATCH },
-            { HederaFunctionality.LambdaSStore, RequestType.LAMBDA_S_STORE },
-            { HederaFunctionality.HookDispatch, RequestType.HOOK_DISPATCH },
+            {HederaFunctionality.AtomicBatch, RequestType.ATOMIC_BATCH},
+            {HederaFunctionality.LambdaSStore, RequestType.LAMBDA_S_STORE},
+            {HederaFunctionality.HookDispatch, RequestType.HOOK_DISPATCH},
         };
 
         for (var pair : pairs) {
