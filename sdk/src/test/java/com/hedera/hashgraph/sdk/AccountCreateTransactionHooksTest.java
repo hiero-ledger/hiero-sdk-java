@@ -130,4 +130,36 @@ public class AccountCreateTransactionHooksTest {
         var protoBody = transaction.build();
         assertEquals(0, protoBody.getHookCreationDetailsCount());
     }
+
+    @Test
+    public void testAccountCreateTransactionHooksPersistThroughBytesRoundTrip()
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        // Create contract and hook details
+        ContractId contractId = new ContractId(500);
+        EvmHookSpec evmHookSpec = new EvmHookSpec(contractId);
+        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(evmHookSpec);
+        HookCreationDetails hookDetails =
+                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaEvmHook);
+
+        // Create transaction with set hooks
+        AccountCreateTransaction originalTx = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519().getPublicKey())
+                .setInitialBalance(Hbar.from(123))
+                .setHooks(Collections.singletonList(hookDetails));
+
+        // Serialize to bytes then deserialize back
+        byte[] bytes = originalTx.toBytes();
+        Transaction<?> parsed = Transaction.fromBytes(bytes);
+        assertTrue(parsed instanceof AccountCreateTransaction);
+        AccountCreateTransaction parsedTx = (AccountCreateTransaction) parsed;
+
+        // Verify hook information persisted
+        List<HookCreationDetails> parsedHooks = parsedTx.getHooks();
+        assertEquals(1, parsedHooks.size());
+        HookCreationDetails parsedHook = parsedHooks.get(0);
+        assertEquals(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, parsedHook.getExtensionPoint());
+        assertEquals(3L, parsedHook.getHookId());
+        assertNotNull(parsedHook.getHook());
+        assertTrue(parsedHook.getHook().getStorageUpdates().isEmpty());
+    }
 }

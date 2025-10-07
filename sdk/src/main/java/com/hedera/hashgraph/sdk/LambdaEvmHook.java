@@ -64,7 +64,8 @@ public class LambdaEvmHook extends EvmHookSpec {
         var specProto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
                 .setContractId(getContractId().toProtobuf())
                 .build();
-        var builder = com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(specProto);
+        var builder =
+                com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(specProto);
 
         for (LambdaStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());
