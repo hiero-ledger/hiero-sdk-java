@@ -33,17 +33,6 @@ public class EvmHookSpec {
     }
 
     /**
-     * Convert this EvmHookSpec to a protobuf message.
-     *
-     * @return the protobuf EvmHookSpec
-     */
-    com.hedera.hapi.node.hooks.legacy.EvmHookSpec toProtobuf() {
-        return com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
-                .setContractId(contractId.toProtobuf())
-                .build();
-    }
-
-    /**
      * Create an EvmHookSpec from a protobuf message.
      *
      * @param proto the protobuf EvmHookSpec

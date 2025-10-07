@@ -25,7 +25,9 @@ class EvmHookSpecTest {
         var cid = new ContractId(0, 0, 999);
         var original = new EvmHookSpec(cid);
 
-        var proto = original.toProtobuf();
+        var proto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
+                .setContractId(cid.toProtobuf())
+                .build();
         var restored = EvmHookSpec.fromProtobuf(proto);
 
         assertEquals(original, restored);

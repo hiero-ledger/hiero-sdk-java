@@ -14,8 +14,7 @@ import java.util.Objects;
  * and can access state or interact with external contracts. It includes the
  * hook specification and any initial storage updates.
  */
-public class LambdaEvmHook {
-    private final EvmHookSpec spec;
+public class LambdaEvmHook extends EvmHookSpec {
     private final List<LambdaStorageUpdate> storageUpdates;
 
     /**
@@ -34,7 +33,7 @@ public class LambdaEvmHook {
      * @param storageUpdates the initial storage updates for the lambda
      */
     public LambdaEvmHook(EvmHookSpec spec, List<LambdaStorageUpdate> storageUpdates) {
-        this.spec = Objects.requireNonNull(spec, "spec cannot be null");
+        super(Objects.requireNonNull(spec, "spec cannot be null").getContractId());
         this.storageUpdates = new ArrayList<>(Objects.requireNonNull(storageUpdates, "storageUpdates cannot be null"));
     }
 
@@ -44,7 +43,7 @@ public class LambdaEvmHook {
      * @return the hook specification
      */
     public EvmHookSpec getSpec() {
-        return spec;
+        return new EvmHookSpec(getContractId());
     }
 
     /**
@@ -62,8 +61,10 @@ public class LambdaEvmHook {
      * @return the protobuf LambdaEvmHook
      */
     public com.hedera.hapi.node.hooks.legacy.LambdaEvmHook toProtobuf() {
-        var builder =
-                com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(spec.toProtobuf());
+        var specProto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
+                .setContractId(getContractId().toProtobuf())
+                .build();
+        var builder = com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(specProto);
 
         for (LambdaStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());
@@ -93,16 +94,16 @@ public class LambdaEvmHook {
         if (o == null || getClass() != o.getClass()) return false;
 
         LambdaEvmHook that = (LambdaEvmHook) o;
-        return spec.equals(that.spec) && storageUpdates.equals(that.storageUpdates);
+        return super.equals(o) && storageUpdates.equals(that.storageUpdates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(spec, storageUpdates);
+        return Objects.hash(super.hashCode(), storageUpdates);
     }
 
     @Override
     public String toString() {
-        return "LambdaEvmHook{spec=" + spec + ", storageUpdates=" + storageUpdates + "}";
+        return "LambdaEvmHook{spec=" + getSpec() + ", storageUpdates=" + storageUpdates + "}";
     }
 }
