@@ -72,7 +72,7 @@ class AccountCreateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given AccountCreateTransaction with lambda hook without valid contractId, when executed, then fails (INVALID_HOOK_CREATION_SPEC or INVALID_CONTRACT_ID)")
+            "Given AccountCreateTransaction with lambda hook without valid contractId, when executed, then fails (INVALID_HOOK_CREATION_SPEC)")
     void accountCreateWithLambdaHookMissingOrInvalidContractIdFails() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Use a clearly non-existent contract num to force failure
@@ -95,8 +95,7 @@ class AccountCreateTransactionHooksIntegrationTest {
             } catch (PrecheckStatusException e) {
                 // Some networks may surface this as a precheck
                 var msg = e.getMessage();
-                assertThat(msg.contains(Status.INVALID_HOOK_CREATION_SPEC.toString())
-                                || msg.contains(Status.INVALID_CONTRACT_ID.toString()))
+                assertThat(msg.contains(Status.INVALID_HOOK_CREATION_SPEC.toString()))
                         .isTrue();
             }
         }
