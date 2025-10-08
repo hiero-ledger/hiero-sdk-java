@@ -56,8 +56,7 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(200);
 
         // Create hook details manually
-        EvmHookSpec evmHookSpec = new EvmHookSpec(contractId);
-        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(evmHookSpec);
+        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(contractId);
         HookCreationDetails hookDetails =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaEvmHook);
 
@@ -136,8 +135,7 @@ public class AccountCreateTransactionHooksTest {
             throws com.google.protobuf.InvalidProtocolBufferException {
         // Create contract and hook details
         ContractId contractId = new ContractId(500);
-        EvmHookSpec evmHookSpec = new EvmHookSpec(contractId);
-        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(evmHookSpec);
+        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(contractId);
         HookCreationDetails hookDetails =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaEvmHook);
 

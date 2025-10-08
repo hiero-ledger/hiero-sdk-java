@@ -9,8 +9,7 @@ class HookCreationDetailsTest {
 
     @Test
     void constructorRejectsNullsWhereNotAllowed() {
-        var spec = new EvmHookSpec(new ContractId(0, 0, 123));
-        var lambda = new LambdaEvmHook(spec);
+        var lambda = new LambdaEvmHook(new ContractId(0, 0, 123));
 
         NullPointerException ex1 =
                 assertThrows(NullPointerException.class, () -> new HookCreationDetails(null, 1L, lambda));
@@ -25,7 +24,7 @@ class HookCreationDetailsTest {
     @Test
     void gettersAndHasAdminKeyWork() {
         var cid = new ContractId(0, 0, 77);
-        var lambda = new LambdaEvmHook(new EvmHookSpec(cid));
+        var lambda = new LambdaEvmHook(cid);
         var admin = PrivateKey.generateED25519().getPublicKey();
 
         var withAdmin = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 9L, lambda, admin);
@@ -43,7 +42,7 @@ class HookCreationDetailsTest {
     @Test
     void protobufRoundTripPreservesValues() {
         var cid = new ContractId(0, 0, 1234);
-        var lambda = new LambdaEvmHook(new EvmHookSpec(cid));
+        var lambda = new LambdaEvmHook(cid);
         var details = new HookCreationDetails(
                 HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                 42L,
@@ -63,8 +62,8 @@ class HookCreationDetailsTest {
 
     @Test
     void equalsAndHashCodeVaryByFields() {
-        var lambda1 = new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 1)));
-        var lambda2 = new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 2)));
+        var lambda1 = new LambdaEvmHook(new ContractId(0, 0, 1));
+        var lambda2 = new LambdaEvmHook(new ContractId(0, 0, 2));
 
         var a = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambda1);
         var b = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambda1);
@@ -79,7 +78,7 @@ class HookCreationDetailsTest {
 
     @Test
     void toStringContainsKeyFields() {
-        var lambda = new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 3)));
+        var lambda = new LambdaEvmHook(new ContractId(0, 0, 3));
         var details = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 7L, lambda);
         var s = details.toString();
         assertTrue(s.contains("extensionPoint"));

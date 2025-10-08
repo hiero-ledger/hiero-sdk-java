@@ -9,36 +9,22 @@ class EvmHookSpecTest {
 
     @Test
     void constructorRejectsNullContractId() {
-        NullPointerException ex = assertThrows(NullPointerException.class, () -> new EvmHookSpec(null));
+        NullPointerException ex = assertThrows(NullPointerException.class, () -> new LambdaEvmHook((ContractId) null));
         assertTrue(ex.getMessage().contains("contractId cannot be null"));
     }
 
     @Test
     void getContractIdReturnsProvidedValue() {
         var cid = new ContractId(0, 0, 1234);
-        var spec = new EvmHookSpec(cid);
+        var spec = new LambdaEvmHook(cid);
         assertEquals(cid, spec.getContractId());
     }
 
     @Test
-    void protobufRoundTripPreservesValue() {
-        var cid = new ContractId(0, 0, 999);
-        var original = new EvmHookSpec(cid);
-
-        var proto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
-                .setContractId(cid.toProtobuf())
-                .build();
-        var restored = EvmHookSpec.fromProtobuf(proto);
-
-        assertEquals(original, restored);
-        assertEquals(cid, restored.getContractId());
-    }
-
-    @Test
     void equalsAndHashCodeDependOnContractId() {
-        var a = new EvmHookSpec(new ContractId(0, 0, 1));
-        var b = new EvmHookSpec(new ContractId(0, 0, 1));
-        var c = new EvmHookSpec(new ContractId(0, 0, 2));
+        var a = new LambdaEvmHook(new ContractId(0, 0, 1));
+        var b = new LambdaEvmHook(new ContractId(0, 0, 1));
+        var c = new LambdaEvmHook(new ContractId(0, 0, 2));
 
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
@@ -48,9 +34,9 @@ class EvmHookSpecTest {
     @Test
     void toStringContainsContractId() {
         var cid = new ContractId(0, 0, 42);
-        var spec = new EvmHookSpec(cid);
+        var spec = new LambdaEvmHook(cid);
         var s = spec.toString();
-        assertTrue(s.contains("contractId"));
+        assertTrue(s.contains("spec"));
         assertTrue(s.contains("0.0.42"));
     }
 }
