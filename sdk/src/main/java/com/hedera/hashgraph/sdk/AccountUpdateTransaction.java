@@ -77,7 +77,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     @Nullable
     private Boolean declineStakingReward = null;
 
-    private final List<Long> hookIdsToDelete = new ArrayList<>();
+    private List<Long> hookIdsToDelete = new ArrayList<>();
 
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
@@ -499,7 +499,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * @param hookDetails the hook creation details to add
      * @return {@code this}
      */
-    public AccountUpdateTransaction addHook(HookCreationDetails hookDetails) {
+    public AccountUpdateTransaction addHookToCreate(HookCreationDetails hookDetails) {
         requireNotFrozen();
         Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
         this.hookCreationDetails.add(hookDetails);
@@ -512,7 +512,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * @param hookDetails list of hook creation details
      * @return {@code this}
      */
-    public AccountUpdateTransaction setHooks(List<HookCreationDetails> hookDetails) {
+    public AccountUpdateTransaction setHooksToCreate(List<HookCreationDetails> hookDetails) {
         requireNotFrozen();
         Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
         this.hookCreationDetails = new ArrayList<>(hookDetails);
@@ -525,7 +525,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * @param hookId the hook id to delete
      * @return {@code this}
      */
-    public AccountUpdateTransaction deleteHook(Long hookId) {
+    public AccountUpdateTransaction addHookToDelete(Long hookId) {
         requireNotFrozen();
         Objects.requireNonNull(hookId, "hookId cannot be null");
         this.hookIdsToDelete.add(hookId);
@@ -538,10 +538,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * @param hookIds list of hook ids to delete
      * @return {@code this}
      */
-    public AccountUpdateTransaction deleteHooks(List<Long> hookIds) {
+    public AccountUpdateTransaction setHooksToDelete(List<Long> hookIds) {
         requireNotFrozen();
         Objects.requireNonNull(hookIds, "hookIds cannot be null");
-        this.hookIdsToDelete.addAll(hookIds);
+        this.hookIdsToDelete = new ArrayList<>(hookIds);
         return this;
     }
 

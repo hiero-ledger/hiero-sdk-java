@@ -45,7 +45,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to add the hook
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .addHook(hookDetails)
+                    .addHookToCreate(hookDetails)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
 
@@ -77,8 +77,8 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .addHook(hookDetails1)
-                        .addHook(hookDetails2)
+                        .addHookToCreate(hookDetails1)
+                        .addHookToCreate(hookDetails2)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)
@@ -120,7 +120,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .addHook(hookDetails2)
+                        .addHookToCreate(hookDetails2)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)
@@ -158,7 +158,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to add the hook with storage updates
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .addHook(hookDetails)
+                    .addHookToCreate(hookDetails)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
 
@@ -195,7 +195,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .addHook(hookDetails2)
+                        .addHookToCreate(hookDetails2)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)
@@ -230,7 +230,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to delete the hook
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .deleteHook(1L)
+                    .addHookToDelete(1L)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
 
@@ -263,7 +263,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .deleteHook(999L)
+                        .addHookToDelete(999L)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)
@@ -298,8 +298,8 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .addHook(hookDetails)
-                        .deleteHook(1L)
+                        .addHookToCreate(hookDetails)
+                        .addHookToDelete(1L)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)
@@ -334,7 +334,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // First delete the hook
             var deleteResponse = new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .deleteHook(1L)
+                    .addHookToDelete(1L)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
 
@@ -345,7 +345,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             try {
                 new AccountUpdateTransaction()
                         .setAccountId(accountId)
-                        .deleteHook(1L)
+                        .addHookToDelete(1L)
                         .freezeWith(testEnv.client)
                         .sign(accountKey)
                         .execute(testEnv.client)

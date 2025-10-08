@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 public class AccountUpdateTransactionHooksTest {
 
     @Test
-    void shouldAddHook() {
+    void shouldAddHookToCreate() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
-        var result = tx.addHook(hookDetails);
+        var result = tx.addHookToCreate(hookDetails);
 
         assertThat(result).isSameAs(tx);
         assertThat(tx.getHooksToCreate()).hasSize(1);
@@ -24,7 +24,7 @@ public class AccountUpdateTransactionHooksTest {
     }
 
     @Test
-    void shouldSetHooks() {
+    void shouldSetHooksToCreate() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
         var lambdaHook = new LambdaEvmHook(contractId);
@@ -32,7 +32,7 @@ public class AccountUpdateTransactionHooksTest {
         var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
         var hooks = List.of(hookDetails1, hookDetails2);
 
-        var result = tx.setHooks(hooks);
+        var result = tx.setHooksToCreate(hooks);
 
         assertThat(result).isSameAs(tx);
         assertThat(tx.getHooksToCreate()).hasSize(2);
@@ -40,11 +40,11 @@ public class AccountUpdateTransactionHooksTest {
     }
 
     @Test
-    void shouldDeleteHook() {
+    void shouldAddHookToDelete() {
         var tx = new AccountUpdateTransaction();
         var hookId = 123L;
 
-        var result = tx.deleteHook(hookId);
+        var result = tx.addHookToDelete(hookId);
 
         assertThat(result).isSameAs(tx);
         assertThat(tx.getHooksToDelete()).hasSize(1);
@@ -52,11 +52,11 @@ public class AccountUpdateTransactionHooksTest {
     }
 
     @Test
-    void shouldDeleteHooks() {
+    void shouldAddHooksToDelete() {
         var tx = new AccountUpdateTransaction();
         var hookIds = List.of(123L, 456L, 789L);
 
-        var result = tx.deleteHooks(hookIds);
+        var result = tx.setHooksToDelete(hookIds);
 
         assertThat(result).isSameAs(tx);
         assertThat(tx.getHooksToDelete()).hasSize(3);
@@ -69,7 +69,7 @@ public class AccountUpdateTransactionHooksTest {
         var contractId = new ContractId(0, 0, 1);
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
-        tx.addHook(hookDetails);
+        tx.addHookToCreate(hookDetails);
 
         var result = tx.getHooksToCreate();
 
@@ -83,7 +83,7 @@ public class AccountUpdateTransactionHooksTest {
     @Test
     void shouldGetHooksToDelete() {
         var tx = new AccountUpdateTransaction();
-        tx.deleteHook(123L);
+        tx.addHookToDelete(123L);
 
         var result = tx.getHooksToDelete();
 
@@ -105,7 +105,7 @@ public class AccountUpdateTransactionHooksTest {
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
-        assertThatThrownBy(() -> tx.addHook(hookDetails))
+        assertThatThrownBy(() -> tx.addHookToCreate(hookDetails))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("transaction is immutable");
     }
@@ -121,7 +121,7 @@ public class AccountUpdateTransactionHooksTest {
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
-        assertThatThrownBy(() -> tx.setHooks(List.of(hookDetails)))
+        assertThatThrownBy(() -> tx.setHooksToCreate(List.of(hookDetails)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("transaction is immutable");
     }
@@ -134,7 +134,7 @@ public class AccountUpdateTransactionHooksTest {
                 AccountId.fromString("0.0.5006"), java.time.Instant.ofEpochSecond(1554158542)));
         tx.freeze();
 
-        assertThatThrownBy(() -> tx.deleteHook(123L))
+        assertThatThrownBy(() -> tx.addHookToDelete(123L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("transaction is immutable");
     }
@@ -147,7 +147,7 @@ public class AccountUpdateTransactionHooksTest {
                 AccountId.fromString("0.0.5006"), java.time.Instant.ofEpochSecond(1554158542)));
         tx.freeze();
 
-        assertThatThrownBy(() -> tx.deleteHooks(List.of(123L, 456L)))
+        assertThatThrownBy(() -> tx.setHooksToDelete(List.of(123L, 456L)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("transaction is immutable");
     }
@@ -156,7 +156,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldThrowWhenAddingNullHook() {
         var tx = new AccountUpdateTransaction();
 
-        assertThatThrownBy(() -> tx.addHook(null))
+        assertThatThrownBy(() -> tx.addHookToCreate(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("hookDetails cannot be null");
     }
@@ -165,7 +165,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldThrowWhenSettingNullHooks() {
         var tx = new AccountUpdateTransaction();
 
-        assertThatThrownBy(() -> tx.setHooks(null))
+        assertThatThrownBy(() -> tx.setHooksToCreate(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("hookDetails cannot be null");
     }
@@ -174,7 +174,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldThrowWhenDeletingNullHook() {
         var tx = new AccountUpdateTransaction();
 
-        assertThatThrownBy(() -> tx.deleteHook(null))
+        assertThatThrownBy(() -> tx.addHookToDelete(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("hookId cannot be null");
     }
@@ -183,7 +183,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldThrowWhenDeletingNullHooks() {
         var tx = new AccountUpdateTransaction();
 
-        assertThatThrownBy(() -> tx.deleteHooks(null))
+        assertThatThrownBy(() -> tx.setHooksToDelete(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("hookIds cannot be null");
     }
@@ -194,8 +194,8 @@ public class AccountUpdateTransactionHooksTest {
         var contractId = new ContractId(0, 0, 1);
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
-        tx.addHook(hookDetails);
-        tx.deleteHook(123L);
+        tx.addHookToCreate(hookDetails);
+        tx.addHookToDelete(123L);
 
         var builder = tx.build();
 
@@ -210,8 +210,8 @@ public class AccountUpdateTransactionHooksTest {
         var contractId = new ContractId(0, 0, 1);
         var lambdaHook = new LambdaEvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
-        tx.addHook(hookDetails);
-        tx.deleteHook(123L);
+        tx.addHookToCreate(hookDetails);
+        tx.addHookToDelete(123L);
 
         var bytes = tx.toBytes();
         var deserializedTx = (AccountUpdateTransaction) Transaction.fromBytes(bytes);
@@ -242,10 +242,10 @@ public class AccountUpdateTransactionHooksTest {
         var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
 
-        tx.addHook(hookDetails1);
-        tx.addHook(hookDetails2);
-        tx.deleteHook(100L);
-        tx.deleteHook(200L);
+        tx.addHookToCreate(hookDetails1);
+        tx.addHookToCreate(hookDetails2);
+        tx.addHookToDelete(100L);
+        tx.addHookToDelete(200L);
 
         assertThat(tx.getHooksToCreate()).hasSize(2);
         assertThat(tx.getHooksToDelete()).hasSize(2);
