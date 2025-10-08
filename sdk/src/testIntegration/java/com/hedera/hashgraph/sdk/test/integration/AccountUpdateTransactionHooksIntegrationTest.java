@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
@@ -74,21 +75,16 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToCreate(hookDetails1)
-                        .addHookToCreate(hookDetails2)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail(
-                        "Expected HOOK_ID_REPEATED_IN_CREATION_DETAILS failure, but transaction succeeded");
-            } catch (PrecheckStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.getMessage())
-                        .contains(Status.HOOK_ID_REPEATED_IN_CREATION_DETAILS.toString());
-            }
+            assertThatExceptionOfType(PrecheckStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToCreate(hookDetails1)
+                            .addHookToCreate(hookDetails2)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .withMessageContaining(Status.HOOK_ID_REPEATED_IN_CREATION_DETAILS.toString());
         }
     }
 
@@ -117,18 +113,15 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var lambdaHook2 = new LambdaEvmHook(hookContractId2);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook2);
 
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToCreate(hookDetails2)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail("Expected HOOK_ID_IN_USE failure, but transaction succeeded");
-            } catch (ReceiptStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.receipt.status).isEqualTo(Status.HOOK_ID_IN_USE);
-            }
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToCreate(hookDetails2)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_ID_IN_USE));
         }
     }
 
@@ -192,18 +185,15 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var lambdaHook2 = new LambdaEvmHook(hookContractId2);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook2);
 
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToCreate(hookDetails2)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail("Expected HOOK_ID_IN_USE failure, but transaction succeeded");
-            } catch (ReceiptStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.receipt.status).isEqualTo(Status.HOOK_ID_IN_USE);
-            }
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToCreate(hookDetails2)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_ID_IN_USE));
         }
     }
 
@@ -260,18 +250,15 @@ class AccountUpdateTransactionHooksIntegrationTest {
                     .accountId;
 
             // Try to delete a hook that doesn't exist (ID 999)
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToDelete(999L)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail("Expected HOOK_NOT_FOUND failure, but transaction succeeded");
-            } catch (ReceiptStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND);
-            }
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToDelete(999L)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND));
         }
     }
 
@@ -295,19 +282,16 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             // Try to add and delete the same hook ID in the same transaction
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToCreate(hookDetails)
-                        .addHookToDelete(1L)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail("Expected HOOK_NOT_FOUND failure, but transaction succeeded");
-            } catch (ReceiptStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND);
-            }
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToCreate(hookDetails)
+                            .addHookToDelete(1L)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND));
         }
     }
 
@@ -342,18 +326,15 @@ class AccountUpdateTransactionHooksIntegrationTest {
             assertThat(deleteReceipt.status).isEqualTo(Status.SUCCESS);
 
             // Try to delete the same hook again
-            try {
-                new AccountUpdateTransaction()
-                        .setAccountId(accountId)
-                        .addHookToDelete(1L)
-                        .freezeWith(testEnv.client)
-                        .sign(accountKey)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-                org.junit.jupiter.api.Assertions.fail("Expected HOOK_NOT_FOUND failure, but transaction succeeded");
-            } catch (ReceiptStatusException e) {
-                org.assertj.core.api.Assertions.assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND);
-            }
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountUpdateTransaction()
+                            .setAccountId(accountId)
+                            .addHookToDelete(1L)
+                            .freezeWith(testEnv.client)
+                            .sign(accountKey)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND));
         }
     }
 }
