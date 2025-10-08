@@ -495,48 +495,6 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
-     * Add an account allowance hook to this account.
-     * <p>
-     * This is a convenience method for adding the most common type of hook.
-     *
-     * @param hookId the unique ID for the hook
-     * @param contractId the contract that implements the hook
-     * @param adminKey the admin key for managing the hook (optional)
-     * @param storageUpdates initial storage updates for the hook (optional)
-     * @return {@code this}
-     */
-    public AccountCreateTransaction addAccountAllowanceHook(
-            long hookId,
-            ContractId contractId,
-            @Nullable Key adminKey,
-            @Nullable List<LambdaStorageUpdate> storageUpdates) {
-        requireNotFrozen();
-        Objects.requireNonNull(contractId, "contractId cannot be null");
-
-        var hook =
-                storageUpdates != null ? new LambdaEvmHook(contractId, storageUpdates) : new LambdaEvmHook(contractId);
-
-        var hookDetails = adminKey != null
-                ? new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook, adminKey)
-                : new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook);
-
-        return addHook(hookDetails);
-    }
-
-    /**
-     * Add an account allowance hook to this account without admin key or storage updates.
-     * <p>
-     * This is a convenience method for the simplest hook configuration.
-     *
-     * @param hookId the unique ID for the hook
-     * @param contractId the contract that implements the hook
-     * @return {@code this}
-     */
-    public AccountCreateTransaction addAccountAllowanceHook(long hookId, ContractId contractId) {
-        return addAccountAllowanceHook(hookId, contractId, null, null);
-    }
-
-    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.CryptoCreateTransactionBody}

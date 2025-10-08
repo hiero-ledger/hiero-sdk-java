@@ -60,7 +60,7 @@ public class LambdaEvmHook extends EvmHookSpec {
      *
      * @return the protobuf LambdaEvmHook
      */
-    public com.hedera.hapi.node.hooks.legacy.LambdaEvmHook toProtobuf() {
+    com.hedera.hapi.node.hooks.legacy.LambdaEvmHook toProtobuf() {
         var specProto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
                 .setContractId(getContractId().toProtobuf())
                 .build();

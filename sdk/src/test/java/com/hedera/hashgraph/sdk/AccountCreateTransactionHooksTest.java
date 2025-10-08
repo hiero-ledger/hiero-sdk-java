@@ -24,11 +24,17 @@ public class AccountCreateTransactionHooksTest {
         List<LambdaStorageUpdate> storageUpdates = Collections.singletonList(storageUpdate);
 
         // Create account create transaction with hooks
+        var lambdaHookWithStorage = new LambdaEvmHook(contractId, storageUpdates);
+        var hookWithAdmin = new HookCreationDetails(
+                HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHookWithStorage, adminKey.getPublicKey());
+        var simpleLambdaHook = new LambdaEvmHook(contractId);
+        var simpleHook = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, simpleLambdaHook);
+
         AccountCreateTransaction transaction = new AccountCreateTransaction()
                 .setKey(PrivateKey.generateED25519().getPublicKey())
                 .setInitialBalance(Hbar.from(100))
-                .addAccountAllowanceHook(1L, contractId, adminKey.getPublicKey(), storageUpdates)
-                .addAccountAllowanceHook(2L, contractId); // Simple hook without admin key or storage
+                .addHook(hookWithAdmin)
+                .addHook(simpleHook); // Simple hook without admin key or storage
 
         // Verify hooks were added
         List<HookCreationDetails> hookDetails = transaction.getHooks();
@@ -77,11 +83,15 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(300);
 
         // Test duplicate hook IDs
+        var lambdaHook = new LambdaEvmHook(contractId);
+        var hook1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
+        var hook2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook); // Duplicate ID
+
         AccountCreateTransaction transaction = new AccountCreateTransaction()
                 .setKey(PrivateKey.generateED25519().getPublicKey())
                 .setInitialBalance(Hbar.from(25))
-                .addAccountAllowanceHook(1L, contractId)
-                .addAccountAllowanceHook(1L, contractId); // Duplicate hook ID
+                .addHook(hook1)
+                .addHook(hook2); // Duplicate hook ID
 
         // Client-side duplicate ID validation was removed; ensure build includes both entries
         var proto = transaction.build();
@@ -95,10 +105,12 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(400);
 
         // Create transaction with hooks
+        var lambdaHook = new LambdaEvmHook(contractId);
+        var hook = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         AccountCreateTransaction transaction = new AccountCreateTransaction()
                 .setKey(PrivateKey.generateED25519().getPublicKey())
                 .setInitialBalance(Hbar.from(75))
-                .addAccountAllowanceHook(1L, contractId);
+                .addHook(hook);
 
         // Build the protobuf
         var protoBody = transaction.build();

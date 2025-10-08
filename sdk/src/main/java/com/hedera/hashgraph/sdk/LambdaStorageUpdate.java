@@ -77,7 +77,7 @@ public abstract class LambdaStorageUpdate {
         }
 
         @Override
-        public com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
+        com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
             return com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder()
                     .setStorageSlot(com.hedera.hapi.node.hooks.legacy.LambdaStorageSlot.newBuilder()
                             .setKey(ByteString.copyFrom(key))
@@ -154,7 +154,7 @@ public abstract class LambdaStorageUpdate {
         }
 
         @Override
-        public com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
+        com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
             var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries.newBuilder()
                     .setMappingSlot(ByteString.copyFrom(mappingSlot));
 
