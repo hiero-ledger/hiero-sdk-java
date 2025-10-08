@@ -513,10 +513,8 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         requireNotFrozen();
         Objects.requireNonNull(contractId, "contractId cannot be null");
 
-        var evmHookSpec = new EvmHookSpec(contractId);
-        var hook = storageUpdates != null
-                ? new LambdaEvmHook(evmHookSpec, storageUpdates)
-                : new LambdaEvmHook(evmHookSpec);
+        var hook =
+                storageUpdates != null ? new LambdaEvmHook(contractId, storageUpdates) : new LambdaEvmHook(contractId);
 
         var hookDetails = adminKey != null
                 ? new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, hookId, hook, adminKey)

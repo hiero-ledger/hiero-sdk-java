@@ -22,8 +22,8 @@ public class LambdaEvmHook extends EvmHookSpec {
      *
      * @param spec the EVM hook specification
      */
-    public LambdaEvmHook(EvmHookSpec spec) {
-        this(spec, Collections.emptyList());
+    public LambdaEvmHook(ContractId contractId) {
+        this(contractId, Collections.emptyList());
     }
 
     /**
@@ -32,8 +32,8 @@ public class LambdaEvmHook extends EvmHookSpec {
      * @param spec the EVM hook specification
      * @param storageUpdates the initial storage updates for the lambda
      */
-    public LambdaEvmHook(EvmHookSpec spec, List<LambdaStorageUpdate> storageUpdates) {
-        super(Objects.requireNonNull(spec, "spec cannot be null").getContractId());
+    public LambdaEvmHook(ContractId contractId, List<LambdaStorageUpdate> storageUpdates) {
+        super(Objects.requireNonNull(contractId, "contractId cannot be null"));
         this.storageUpdates = new ArrayList<>(Objects.requireNonNull(storageUpdates, "storageUpdates cannot be null"));
     }
 
@@ -42,8 +42,8 @@ public class LambdaEvmHook extends EvmHookSpec {
      *
      * @return the hook specification
      */
-    public EvmHookSpec getSpec() {
-        return new EvmHookSpec(getContractId());
+    public ContractId getSpec() {
+        return getContractId();
     }
 
     /**
@@ -86,7 +86,7 @@ public class LambdaEvmHook extends EvmHookSpec {
             storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));
         }
 
-        return new LambdaEvmHook(EvmHookSpec.fromProtobuf(proto.getSpec()), storageUpdates);
+        return new LambdaEvmHook(ContractId.fromProtobuf(proto.getSpec().getContractId()), storageUpdates);
     }
 
     @Override

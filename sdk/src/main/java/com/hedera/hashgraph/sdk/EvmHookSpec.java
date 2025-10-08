@@ -11,7 +11,7 @@ import java.util.Objects;
  * Currently, hooks can only be implemented by referencing an existing contract
  * that implements the extension point API.
  */
-public class EvmHookSpec {
+public abstract class EvmHookSpec {
     private final ContractId contractId;
 
     /**
@@ -19,7 +19,7 @@ public class EvmHookSpec {
      *
      * @param contractId the ID of the contract that implements the hook
      */
-    public EvmHookSpec(ContractId contractId) {
+    protected EvmHookSpec(ContractId contractId) {
         this.contractId = Objects.requireNonNull(contractId, "contractId cannot be null");
     }
 
@@ -30,16 +30,6 @@ public class EvmHookSpec {
      */
     public ContractId getContractId() {
         return contractId;
-    }
-
-    /**
-     * Create an EvmHookSpec from a protobuf message.
-     *
-     * @param proto the protobuf EvmHookSpec
-     * @return a new EvmHookSpec instance
-     */
-    static EvmHookSpec fromProtobuf(com.hedera.hapi.node.hooks.legacy.EvmHookSpec proto) {
-        return new EvmHookSpec(ContractId.fromProtobuf(proto.getContractId()));
     }
 
     @Override

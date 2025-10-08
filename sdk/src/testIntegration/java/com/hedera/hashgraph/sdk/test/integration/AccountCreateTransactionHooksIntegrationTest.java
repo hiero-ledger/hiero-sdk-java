@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractId;
-import com.hedera.hashgraph.sdk.EvmHookSpec;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HookCreationDetails;
 import com.hedera.hashgraph.sdk.HookExtensionPoint;
@@ -30,8 +29,7 @@ class AccountCreateTransactionHooksIntegrationTest {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
             // Build a basic lambda EVM hook (no admin key, no storage updates)
-            var evmHookSpec = new EvmHookSpec(hookContractId);
-            var lambdaHook = new LambdaEvmHook(evmHookSpec);
+            var lambdaHook = new LambdaEvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var response = new AccountCreateTransaction()
@@ -51,12 +49,11 @@ class AccountCreateTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var evmHookSpec = new EvmHookSpec(hookContractId);
             var storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
             var mappingEntries = new LambdaStorageUpdate.LambdaMappingEntries(
                     new byte[] {0x10},
                     java.util.List.of(LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
-            var lambdaHook = new LambdaEvmHook(evmHookSpec, java.util.List.of(storageSlot, mappingEntries));
+            var lambdaHook = new LambdaEvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
 
             var response = new AccountCreateTransaction()
@@ -77,8 +74,7 @@ class AccountCreateTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Use a clearly non-existent contract num to force failure
             var invalidContractId = new ContractId(0, 0, 9_999_999L);
-            var evmHookSpec = new EvmHookSpec(invalidContractId);
-            var lambdaHook = new LambdaEvmHook(evmHookSpec);
+            var lambdaHook = new LambdaEvmHook(invalidContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaHook);
 
             try {
@@ -108,8 +104,7 @@ class AccountCreateTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var evmHookSpec = new EvmHookSpec(hookContractId);
-            var lambdaHook = new LambdaEvmHook(evmHookSpec);
+            var lambdaHook = new LambdaEvmHook(hookContractId);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
 
@@ -133,8 +128,7 @@ class AccountCreateTransactionHooksIntegrationTest {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
             var adminKey = PrivateKey.generateED25519();
-            var evmHookSpec = new EvmHookSpec(hookContractId);
-            var lambdaHook = new LambdaEvmHook(evmHookSpec);
+            var lambdaHook = new LambdaEvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(
                     HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 5L, lambdaHook, adminKey.getPublicKey());
 

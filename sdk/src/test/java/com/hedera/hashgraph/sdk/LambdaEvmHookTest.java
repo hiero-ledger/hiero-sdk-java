@@ -11,14 +11,13 @@ class LambdaEvmHookTest {
 
     @Test
     void constructorRejectsNulls() {
-        assertThrows(NullPointerException.class, () -> new LambdaEvmHook(null));
-        assertThrows(
-                NullPointerException.class, () -> new LambdaEvmHook(new EvmHookSpec(new ContractId(0, 0, 1)), null));
+        assertThrows(NullPointerException.class, () -> new LambdaEvmHook((ContractId) null));
+        assertThrows(NullPointerException.class, () -> new LambdaEvmHook(new ContractId(0, 0, 1), null));
     }
 
     @Test
     void gettersReturnExpectedAndStorageUpdatesAreImmutable() {
-        var spec = new EvmHookSpec(new ContractId(0, 0, 123));
+        var spec = new ContractId(0, 0, 123);
         var slot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
         var hook = new LambdaEvmHook(spec, List.of(slot));
 
@@ -33,7 +32,7 @@ class LambdaEvmHookTest {
 
     @Test
     void protobufRoundTripPreservesData() {
-        var spec = new EvmHookSpec(new ContractId(0, 0, 77));
+        var spec = new ContractId(0, 0, 77);
         var entry = LambdaMappingEntry.ofKey(new byte[] {0x0A}, new byte[] {0x0B});
         var mappings = new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x05}, List.of(entry));
         var slot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
@@ -49,8 +48,8 @@ class LambdaEvmHookTest {
 
     @Test
     void equalsAndHashCodeDependOnSpecAndUpdates() {
-        var spec1 = new EvmHookSpec(new ContractId(0, 0, 1));
-        var spec2 = new EvmHookSpec(new ContractId(0, 0, 2));
+        var spec1 = new ContractId(0, 0, 1);
+        var spec2 = new ContractId(0, 0, 2);
         List<LambdaStorageUpdate> u1 =
                 List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02}));
         List<LambdaStorageUpdate> u2 =
@@ -69,7 +68,7 @@ class LambdaEvmHookTest {
 
     @Test
     void toStringContainsSpecAndUpdates() {
-        var spec = new EvmHookSpec(new ContractId(0, 0, 10));
+        var spec = new ContractId(0, 0, 10);
         var hook = new LambdaEvmHook(spec);
         var s = hook.toString();
         assertTrue(s.contains("spec"));
