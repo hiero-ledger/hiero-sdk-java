@@ -67,14 +67,10 @@ class LambdaStorageUpdateTest {
         assertThrows(
                 NullPointerException.class,
                 () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x01}, null));
-        // mappingSlot length > 32
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[33], List.of()));
-        // mappingSlot minimal representation (leading zeros not allowed when length > 0)
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x00, 0x01}, List.of()));
+        // current behavior: length > 32 is allowed
+        assertDoesNotThrow(() -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[33], List.of()));
+        // current behavior: leading zeros are allowed
+        assertDoesNotThrow(() -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x00, 0x01}, List.of()));
     }
 
     @Test

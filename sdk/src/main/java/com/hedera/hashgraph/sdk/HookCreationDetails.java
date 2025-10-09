@@ -97,7 +97,7 @@ public class HookCreationDetails {
      *
      * @return the protobuf HookCreationDetails
      */
-    public com.hedera.hapi.node.hooks.legacy.HookCreationDetails toProtobuf() {
+    com.hedera.hapi.node.hooks.legacy.HookCreationDetails toProtobuf() {
         var builder = com.hedera.hapi.node.hooks.legacy.HookCreationDetails.newBuilder()
                 .setExtensionPoint(extensionPoint.getProtoValue())
                 .setHookId(hookId)

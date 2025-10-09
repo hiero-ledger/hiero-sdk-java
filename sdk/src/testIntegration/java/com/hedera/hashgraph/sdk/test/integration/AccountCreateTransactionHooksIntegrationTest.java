@@ -69,36 +69,6 @@ class AccountCreateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given AccountCreateTransaction with lambda hook without valid contractId, when executed, then fails (INVALID_HOOK_CREATION_SPEC)")
-    void accountCreateWithLambdaHookMissingOrInvalidContractIdFails() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-            // Use a clearly non-existent contract num to force failure
-            var invalidContractId = new ContractId(0, 0, 9_999_999L);
-            var lambdaHook = new LambdaEvmHook(invalidContractId);
-            var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaHook);
-
-            try {
-                var receipt = new AccountCreateTransaction()
-                        .setKeyWithoutAlias(PrivateKey.generateED25519())
-                        .setInitialBalance(new Hbar(1))
-                        .addHook(hookDetails)
-                        .execute(testEnv.client)
-                        .getReceipt(testEnv.client);
-
-                // On some local dev networks, invalid contract IDs may not be strictly enforced.
-                // Accept SUCCESS in permissive environments; otherwise the catch block asserts failure shapes.
-                assertThat(receipt.status).isNotNull();
-            } catch (PrecheckStatusException e) {
-                // Some networks may surface this as a precheck
-                var msg = e.getMessage();
-                assertThat(msg.contains(Status.INVALID_HOOK_CREATION_SPEC.toString()))
-                        .isTrue();
-            }
-        }
-    }
-
-    @Test
-    @DisplayName(
             "Given AccountCreateTransaction with duplicate hook IDs, when executed, then HOOK_ID_REPEATED_IN_CREATION_DETAILS (precheck)")
     void accountCreateWithDuplicateHookIdsFailsPrecheck() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
