@@ -97,7 +97,7 @@ public class LambdaMappingEntry {
      *
      * @return the protobuf LambdaMappingEntry
      */
-    public com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry toProtobuf() {
+    com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry toProtobuf() {
         var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry.newBuilder();
 
         if (key != null) {
