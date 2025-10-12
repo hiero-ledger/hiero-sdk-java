@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A transaction that transfers hbars and tokens between Hedera accounts. You can enter multiple transfers in a single
@@ -31,19 +32,44 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         final AccountId accountId;
         Hbar amount;
         boolean isApproved;
+        HookCall hookCall;
+        HookType hookType;
 
         HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved) {
             this.accountId = accountId;
             this.amount = amount;
             this.isApproved = isApproved;
+            this.hookCall = null;
+            this.hookType = null;
+        }
+
+        HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved, HookCall hookCall, HookType hookType) {
+            this.accountId = accountId;
+            this.amount = amount;
+            this.isApproved = isApproved;
+            this.hookCall = hookCall;
+            this.hookType = hookType;
         }
 
         AccountAmount toProtobuf() {
-            return AccountAmount.newBuilder()
+            var builder = AccountAmount.newBuilder()
                     .setAccountID(accountId.toProtobuf())
                     .setAmount(amount.toTinybars())
-                    .setIsApproval(isApproved)
-                    .build();
+                    .setIsApproval(isApproved);
+
+            // Add hook call if present
+            if (hookCall != null && hookType != null) {
+                switch (hookType) {
+                    case PRE_TX_ALLOWANCE_HOOK:
+                        builder.setPreTxAllowanceHook(hookCall.toProtobuf());
+                        break;
+                    case PRE_POST_TX_ALLOWANCE_HOOK:
+                        builder.setPrePostTxAllowanceHook(hookCall.toProtobuf());
+                        break;
+                }
+            }
+
+            return builder.build();
         }
 
         @Override
@@ -52,6 +78,8 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
                     .add("accountId", accountId)
                     .add("amount", amount)
                     .add("isApproved", isApproved)
+                    .add("hookCall", hookCall)
+                    .add("hookType", hookType)
                     .toString();
         }
     }
@@ -150,6 +178,39 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
     }
 
     /**
+     * Add an HBAR transfer with a hook.
+     *
+     * @param accountId the account id
+     * @param amount    the amount to transfer
+     * @param hookCall  the hook call to execute
+     * @param hookType  the type of hook (PRE_TX_ALLOWANCE_HOOK or PRE_POST_TX_ALLOWANCE_HOOK)
+     * @return the updated transaction
+     * @throws IllegalArgumentException if hookType is null or if hookCall is null
+     */
+    public TransferTransaction addHbarTransferWithHook(
+            AccountId accountId, Hbar amount, HookCall hookCall, HookType hookType) {
+        requireNotFrozen();
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        Objects.requireNonNull(amount, "amount cannot be null");
+        Objects.requireNonNull(hookCall, "hookCall cannot be null");
+        Objects.requireNonNull(hookType, "hookType cannot be null");
+
+        // Check if there's already a transfer for this account without a hook
+        for (var transfer : hbarTransfers) {
+            if (transfer.accountId.equals(accountId) && transfer.hookCall == null) {
+                // Update existing transfer to include hook
+                transfer.hookCall = hookCall;
+                transfer.hookType = hookType;
+                return this;
+            }
+        }
+
+        // Add new transfer with hook
+        hbarTransfers.add(new HbarTransfer(accountId, amount, false, hookCall, hookType));
+        return this;
+    }
+
+    /**
      * @param accountId  the account id
      * @param isApproved whether the transfer is approved
      * @return {@code this}
@@ -224,10 +285,31 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         var body = sourceTransactionBody.getCryptoTransfer();
 
         for (var transfer : body.getTransfers().getAccountAmountsList()) {
-            hbarTransfers.add(new HbarTransfer(
-                    AccountId.fromProtobuf(transfer.getAccountID()),
-                    Hbar.fromTinybars(transfer.getAmount()),
-                    transfer.getIsApproval()));
+            HookCall hookCall = null;
+            HookType hookType = null;
+
+            // Check for hook calls
+            if (transfer.hasPreTxAllowanceHook()) {
+                hookCall = HookCall.fromProtobuf(transfer.getPreTxAllowanceHook());
+                hookType = HookType.PRE_TX_ALLOWANCE_HOOK;
+            } else if (transfer.hasPrePostTxAllowanceHook()) {
+                hookCall = HookCall.fromProtobuf(transfer.getPrePostTxAllowanceHook());
+                hookType = HookType.PRE_POST_TX_ALLOWANCE_HOOK;
+            }
+
+            if (hookCall != null && hookType != null) {
+                hbarTransfers.add(new HbarTransfer(
+                        AccountId.fromProtobuf(transfer.getAccountID()),
+                        Hbar.fromTinybars(transfer.getAmount()),
+                        transfer.getIsApproval(),
+                        hookCall,
+                        hookType));
+            } else {
+                hbarTransfers.add(new HbarTransfer(
+                        AccountId.fromProtobuf(transfer.getAccountID()),
+                        Hbar.fromTinybars(transfer.getAmount()),
+                        transfer.getIsApproval()));
+            }
         }
 
         for (var tokenTransferList : body.getTokenTransfersList()) {
