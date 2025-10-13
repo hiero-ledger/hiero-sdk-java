@@ -178,6 +178,50 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
     }
 
     /**
+     * Add an NFT transfer with optional sender/receiver allowance hooks.
+     *
+     * @param nftId the NFT id
+     * @param senderAccountId the sender
+     * @param receiverAccountId the receiver
+     * @param hookCall the hook call specification
+     * @param senderHookType optional sender hook type
+     * @param receiverHookType optional receiver hook type
+     * @return the updated transaction
+     */
+    public TransferTransaction addNftTransferWithHook(
+            NftId nftId,
+            AccountId senderAccountId,
+            AccountId receiverAccountId,
+            HookCall hookCall,
+            NftHookType senderHookType,
+            NftHookType receiverHookType) {
+        Objects.requireNonNull(nftId, "nftId cannot be null");
+        Objects.requireNonNull(senderAccountId, "senderAccountId cannot be null");
+        Objects.requireNonNull(receiverAccountId, "receiverAccountId cannot be null");
+
+        HookCall senderCall = null;
+        HookCall receiverCall = null;
+
+        if (senderHookType == NftHookType.PRE_HOOK_SENDER || senderHookType == NftHookType.PRE_POST_HOOK_SENDER) {
+            senderCall = hookCall;
+        }
+        if (receiverHookType == NftHookType.PRE_HOOK_RECEIVER
+                || receiverHookType == NftHookType.PRE_POST_HOOK_RECEIVER) {
+            receiverCall = hookCall;
+        }
+
+        return doAddNftTransferWithHook(
+                nftId,
+                senderAccountId,
+                receiverAccountId,
+                false,
+                senderCall,
+                senderHookType,
+                receiverCall,
+                receiverHookType);
+    }
+
+    /**
      * Add an HBAR transfer with a hook.
      *
      * @param accountId the account id

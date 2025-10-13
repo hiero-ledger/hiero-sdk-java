@@ -36,6 +36,12 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     public boolean isApproved;
 
+    // Optional hook calls for sender/receiver
+    HookCall senderHookCall;
+    HookCall receiverHookCall;
+    NftHookType senderHookType;
+    NftHookType receiverHookType;
+
     /**
      * Constructor.
      *
@@ -51,6 +57,31 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         this.receiver = receiver;
         this.serial = serial;
         this.isApproved = isApproved;
+        this.senderHookCall = null;
+        this.receiverHookCall = null;
+        this.senderHookType = null;
+        this.receiverHookType = null;
+    }
+
+    TokenNftTransfer(
+            TokenId tokenId,
+            AccountId sender,
+            AccountId receiver,
+            long serial,
+            boolean isApproved,
+            HookCall senderHookCall,
+            NftHookType senderHookType,
+            HookCall receiverHookCall,
+            NftHookType receiverHookType) {
+        this.tokenId = tokenId;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.serial = serial;
+        this.isApproved = isApproved;
+        this.senderHookCall = senderHookCall;
+        this.senderHookType = senderHookType;
+        this.receiverHookCall = receiverHookCall;
+        this.receiverHookType = receiverHookType;
     }
 
     /**
@@ -100,12 +131,28 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      * @return the protobuf representation
      */
     NftTransfer toProtobuf() {
-        return NftTransfer.newBuilder()
+        var builder = NftTransfer.newBuilder()
                 .setSenderAccountID(sender.toProtobuf())
                 .setReceiverAccountID(receiver.toProtobuf())
                 .setSerialNumber(serial)
-                .setIsApproval(isApproved)
-                .build();
+                .setIsApproval(isApproved);
+
+        if (senderHookCall != null && senderHookType != null) {
+            switch (senderHookType) {
+                case PRE_HOOK_SENDER -> builder.setPreTxSenderAllowanceHook(senderHookCall.toProtobuf());
+                case PRE_POST_HOOK_SENDER -> builder.setPrePostTxSenderAllowanceHook(senderHookCall.toProtobuf());
+                default -> {}
+            }
+        }
+        if (receiverHookCall != null && receiverHookType != null) {
+            switch (receiverHookType) {
+                case PRE_HOOK_RECEIVER -> builder.setPreTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
+                case PRE_POST_HOOK_RECEIVER -> builder.setPrePostTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
+                default -> {}
+            }
+        }
+
+        return builder.build();
     }
 
     @Override

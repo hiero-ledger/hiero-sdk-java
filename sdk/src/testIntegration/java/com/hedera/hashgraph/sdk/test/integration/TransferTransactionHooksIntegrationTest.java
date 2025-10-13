@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hedera.hashgraph.sdk.*;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -87,6 +88,105 @@ class TransferTransactionHooksIntegrationTest {
                             new ArrayList<>(testEnv.client.getNetwork().values()))
                     .addHbarTransfer(testEnv.operatorId, new Hbar(-1))
                     .addHbarTransferWithHook(accountId, new Hbar(1), hookCall, HookType.PRE_POST_TX_ALLOWANCE_HOOK)
+                    .execute(testEnv.client);
+
+            var receipt = resp.getReceipt(testEnv.client);
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given an account has an NFT allowance hook configured, when a TransferTransaction attempts to transfer an NFT from that account, then the hook validates the NFT allowance and processes the transfer accordingly")
+    void nftTransferWithAllowanceHookSucceeds() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var hookContractId = new ContractId(0, 0, 1);
+
+            var hookDetails = new HookCreationDetails(
+                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+
+            var senderKey = PrivateKey.generateED25519();
+            var senderId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(senderKey)
+                    .setInitialBalance(new Hbar(2))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            var receiverKey = PrivateKey.generateED25519();
+            var receiverId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(receiverKey)
+                    .setInitialBalance(new Hbar(2))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            // Attach a hook to the sender (the owner of the NFT) to validate allowance
+            new AccountUpdateTransaction()
+                    .setAccountId(senderId)
+                    .addHookToCreate(hookDetails)
+                    .freezeWith(testEnv.client)
+                    .sign(senderKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Also attach the same hook to the receiver to allow receiver pre-hook validation
+            new AccountUpdateTransaction()
+                    .setAccountId(receiverId)
+                    .addHookToCreate(hookDetails)
+                    .freezeWith(testEnv.client)
+                    .sign(receiverKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Create and mint an NFT under the sender as treasury (matches Go test pattern)
+            var tokenId = new TokenCreateTransaction()
+                    .setTokenName("NFT-HOOK")
+                    .setTokenSymbol("NHK")
+                    .setTokenType(TokenType.NON_FUNGIBLE_UNIQUE)
+                    .setTreasuryAccountId(senderId)
+                    .setAdminKey(senderKey.getPublicKey())
+                    .setSupplyKey(senderKey.getPublicKey())
+                    .freezeWith(testEnv.client)
+                    .sign(senderKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .tokenId;
+
+            var firstMint = new TokenMintTransaction()
+                    .setTokenId(tokenId)
+                    .setMetadata(List.of(new byte[] {1}))
+                    .freezeWith(testEnv.client)
+                    .sign(senderKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Associate only the receiver with the NFT token (sender is treasury)
+            new TokenAssociateTransaction()
+                    .setAccountId(receiverId)
+                    .setTokenIds(List.of(tokenId))
+                    .freezeWith(testEnv.client)
+                    .sign(receiverKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Use the serial from first mint (sender already owns it as treasury)
+            var serial = firstMint.serials.get(0);
+
+            // Now perform sender -> receiver with a PRE sender allowance hook
+            var hookCall = new HookCall(2L, new EvmHookCall(new byte[] {}, 25_000L));
+            var resp = new TransferTransaction()
+                    .setNodeAccountIds(
+                            new ArrayList<>(testEnv.client.getNetwork().values()))
+                    .addNftTransferWithHook(
+                            tokenId.nft(serial),
+                            senderId,
+                            receiverId,
+                            hookCall,
+                            NftHookType.PRE_HOOK_SENDER,
+                            NftHookType.PRE_HOOK_RECEIVER)
+                    .freezeWith(testEnv.client)
+                    .sign(senderKey) // sender must sign for NFT transfer
                     .execute(testEnv.client);
 
             var receipt = resp.getReceipt(testEnv.client);
