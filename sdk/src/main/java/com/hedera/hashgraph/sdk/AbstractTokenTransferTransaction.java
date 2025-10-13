@@ -172,6 +172,33 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
     }
 
     /**
+     * Add a non-approved fungible token transfer with an allowance hook.
+     *
+     * @param tokenId the token id
+     * @param accountId the account id (sender if amount negative, receiver if positive)
+     * @param value the amount
+     * @param hookCall the hook call to execute
+     * @param hookType PRE_TX_ALLOWANCE_HOOK or PRE_POST_TX_ALLOWANCE_HOOK
+     * @return {@code this}
+     */
+    public T addTokenTransferWithHook(
+            TokenId tokenId, AccountId accountId, long value, HookCall hookCall, HookType hookType) {
+        requireNotFrozen();
+        for (var transfer : tokenTransfers) {
+            if (transfer.tokenId.equals(tokenId) && transfer.accountId.equals(accountId) && !transfer.isApproved) {
+                transfer.amount = transfer.amount + value;
+                transfer.hookCall = hookCall;
+                transfer.hookType = hookType;
+                // noinspection unchecked
+                return (T) this;
+            }
+        }
+        tokenTransfers.add(new TokenTransfer(tokenId, accountId, value, null, false, hookCall, hookType));
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
      * @param tokenId    the token id
      * @param accountId  the account id
      * @param isApproved whether the transfer is approved

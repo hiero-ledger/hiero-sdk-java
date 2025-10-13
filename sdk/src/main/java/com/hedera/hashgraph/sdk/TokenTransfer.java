@@ -23,6 +23,10 @@ public class TokenTransfer {
 
     boolean isApproved;
 
+    // Optional allowance hook for fungible token transfer (same semantics as HBAR AccountAmount)
+    HookCall hookCall;
+    HookType hookType;
+
     /**
      * Constructor.
      *
@@ -51,6 +55,25 @@ public class TokenTransfer {
         this.amount = amount;
         this.expectedDecimals = expectedDecimals;
         this.isApproved = isApproved;
+        this.hookCall = null;
+        this.hookType = null;
+    }
+
+    TokenTransfer(
+            TokenId tokenId,
+            AccountId accountId,
+            long amount,
+            @Nullable Integer expectedDecimals,
+            boolean isApproved,
+            HookCall hookCall,
+            HookType hookType) {
+        this.tokenId = tokenId;
+        this.accountId = accountId;
+        this.amount = amount;
+        this.expectedDecimals = expectedDecimals;
+        this.isApproved = isApproved;
+        this.hookCall = hookCall;
+        this.hookType = hookType;
     }
 
     /**
@@ -86,11 +109,20 @@ public class TokenTransfer {
      * @return                          an account amount protobuf
      */
     AccountAmount toProtobuf() {
-        return AccountAmount.newBuilder()
+        var builder = AccountAmount.newBuilder()
                 .setAccountID(accountId.toProtobuf())
                 .setAmount(amount)
-                .setIsApproval(isApproved)
-                .build();
+                .setIsApproval(isApproved);
+
+        if (hookCall != null && hookType != null) {
+            switch (hookType) {
+                case PRE_TX_ALLOWANCE_HOOK -> builder.setPreTxAllowanceHook(hookCall.toProtobuf());
+                case PRE_POST_TX_ALLOWANCE_HOOK -> builder.setPrePostTxAllowanceHook(hookCall.toProtobuf());
+                default -> {}
+            }
+        }
+
+        return builder.build();
     }
 
     @Override
