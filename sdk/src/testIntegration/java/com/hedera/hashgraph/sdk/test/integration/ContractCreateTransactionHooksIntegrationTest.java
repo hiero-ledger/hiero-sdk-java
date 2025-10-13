@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.ContractCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractId;
@@ -15,6 +16,7 @@ import com.hedera.hashgraph.sdk.LambdaStorageUpdate;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.Status;
+import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,9 +64,8 @@ class ContractCreateTransactionHooksIntegrationTest {
 
             var storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
             var mappingEntries = new LambdaStorageUpdate.LambdaMappingEntries(
-                    new byte[] {0x10},
-                    java.util.List.of(LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
-            var lambdaHook = new LambdaEvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
+                    new byte[] {0x10}, List.of(LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
+            var lambdaHook = new LambdaEvmHook(hookContractId, List.of(storageSlot, mappingEntries));
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
 
             var response = new ContractCreateTransaction()
@@ -93,7 +94,7 @@ class ContractCreateTransactionHooksIntegrationTest {
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
 
-            org.assertj.core.api.Assertions.assertThatExceptionOfType(PrecheckStatusException.class)
+            assertThatExceptionOfType(PrecheckStatusException.class)
                     .isThrownBy(() -> new ContractCreateTransaction()
                             .setAdminKey(testEnv.operatorKey)
                             .setGas(400000)
