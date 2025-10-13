@@ -167,7 +167,7 @@ public abstract class LambdaStorageUpdate {
                     .build();
         }
 
-        public static LambdaMappingEntries fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries proto) {
+        static LambdaMappingEntries fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries proto) {
             var entries = new java.util.ArrayList<LambdaMappingEntry>();
             for (var protoEntry : proto.getEntriesList()) {
                 entries.add(LambdaMappingEntry.fromProtobuf(protoEntry));
