@@ -295,6 +295,53 @@ class ContractUpdateTransactionHooksIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName(
+            "Given a contract exists with a hook that has been previously deleted, when a ContractUpdateTransaction attempts to delete the same hook again, then the transaction fails with a HOOK_NOT_FOUND error")
+    void contractUpdateWithAlreadyDeletedHookFails() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var fileId = createBytecodeFile(testEnv);
+            var createdContractId = new ContractCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setBytecodeFileId(fileId)
+                    .setGas(400000)
+                    .setInitialBalance(Hbar.fromTinybars(0))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .contractId;
+
+            ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
+            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
+
+            // Add the hook
+            new ContractUpdateTransaction()
+                    .setContractId(createdContractId)
+                    .addHookToCreate(hookDetails)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // First deletion - should succeed
+            var firstDeleteResponse = new ContractUpdateTransaction()
+                    .setContractId(createdContractId)
+                    .addHookToDelete(1L)
+                    .execute(testEnv.client);
+            var firstDeleteReceipt = firstDeleteResponse.getReceipt(testEnv.client);
+            assertThat(firstDeleteReceipt.status).isEqualTo(Status.SUCCESS);
+
+            // Second deletion - should fail with HOOK_DELETED
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> {
+                        var response = new ContractUpdateTransaction()
+                                .setContractId(createdContractId)
+                                .addHookToDelete(1L)
+                                .execute(testEnv.client);
+                        response.getReceipt(testEnv.client);
+                    })
+                    .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_NOT_FOUND));
+        }
+    }
+
     private FileId createBytecodeFile(final IntegrationTestEnv testEnv) throws Exception {
         var response = new FileCreateTransaction()
                 .setKeys(testEnv.operatorKey)
