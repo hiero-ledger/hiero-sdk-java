@@ -223,6 +223,17 @@ class TransferTransactionHooksIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
+            // Ensure the allowance hook is attached to the debited account (operator)
+            var hookDetails2 = new HookCreationDetails(
+                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            new AccountUpdateTransaction()
+                    .setAccountId(testEnv.operatorId)
+                    .addHookToCreate(hookDetails2)
+                    .freezeWith(testEnv.client)
+                    .signWithOperator(testEnv.client)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
             // Build transfer with PRE sender allowance hook (sender is operator)
             var hookCall = new HookCall(2L, new EvmHookCall(new byte[] {}, 25_000L));
             var resp = new TransferTransaction()
