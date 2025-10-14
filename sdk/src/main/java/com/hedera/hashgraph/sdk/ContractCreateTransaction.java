@@ -10,7 +10,9 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.Arrays;
@@ -97,6 +99,8 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
 
     @Nullable
     private AccountId autoRenewAccountId = null;
+
+    private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
      * Constructor.
@@ -559,6 +563,41 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
     }
 
     /**
+     * Get the hook creation details for this contract.
+     *
+     * @return a copy of the hook creation details list
+     */
+    public List<HookCreationDetails> getHooks() {
+        return new ArrayList<>(hookCreationDetails);
+    }
+
+    /**
+     * Add a hook creation detail to this contract.
+     *
+     * @param hookDetails the hook creation details to add
+     * @return {@code this}
+     */
+    public ContractCreateTransaction addHook(HookCreationDetails hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails.add(hookDetails);
+        return this;
+    }
+
+    /**
+     * Set the hook creation details for this contract.
+     *
+     * @param hookDetails the list of hook creation details
+     * @return {@code this}
+     */
+    public ContractCreateTransaction setHooks(List<HookCreationDetails> hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails = new ArrayList<>(hookDetails);
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link ContractCreateTransactionBody}
@@ -595,6 +634,10 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
 
         if (autoRenewAccountId != null) {
             builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
+        }
+
+        for (HookCreationDetails hookDetails : hookCreationDetails) {
+            builder.addHookCreationDetails(hookDetails.toProtobuf());
         }
 
         return builder;
@@ -657,6 +700,12 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
 
         if (body.hasAutoRenewAccountId()) {
             autoRenewAccountId = AccountId.fromProtobuf(body.getAutoRenewAccountId());
+        }
+
+        // Initialize hook creation details
+        hookCreationDetails.clear();
+        for (var protoHookDetails : body.getHookCreationDetailsList()) {
+            hookCreationDetails.add(HookCreationDetails.fromProtobuf(protoHookDetails));
         }
     }
 
