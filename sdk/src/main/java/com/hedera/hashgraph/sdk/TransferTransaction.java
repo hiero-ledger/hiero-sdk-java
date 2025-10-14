@@ -443,23 +443,77 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
             var token = TokenId.fromProtobuf(tokenTransferList.getToken());
 
             for (var transfer : tokenTransferList.getTransfersList()) {
-                tokenTransfers.add(new TokenTransfer(
-                        token,
-                        AccountId.fromProtobuf(transfer.getAccountID()),
-                        transfer.getAmount(),
-                        tokenTransferList.hasExpectedDecimals()
-                                ? tokenTransferList.getExpectedDecimals().getValue()
-                                : null,
-                        transfer.getIsApproval()));
+                HookCall hookCall = null;
+                HookType hookType = null;
+
+                if (transfer.hasPreTxAllowanceHook()) {
+                    hookCall = HookCall.fromProtobuf(transfer.getPreTxAllowanceHook());
+                    hookType = HookType.PRE_TX_ALLOWANCE_HOOK;
+                } else if (transfer.hasPrePostTxAllowanceHook()) {
+                    hookCall = HookCall.fromProtobuf(transfer.getPrePostTxAllowanceHook());
+                    hookType = HookType.PRE_POST_TX_ALLOWANCE_HOOK;
+                }
+
+                var acctId = AccountId.fromProtobuf(transfer.getAccountID());
+                Integer expectedDecimals = tokenTransferList.hasExpectedDecimals()
+                        ? tokenTransferList.getExpectedDecimals().getValue()
+                        : null;
+
+                if (hookCall != null && hookType != null) {
+                    tokenTransfers.add(new TokenTransfer(
+                            token,
+                            acctId,
+                            transfer.getAmount(),
+                            expectedDecimals,
+                            transfer.getIsApproval(),
+                            hookCall,
+                            hookType));
+                } else {
+                    tokenTransfers.add(new TokenTransfer(
+                            token, acctId, transfer.getAmount(), expectedDecimals, transfer.getIsApproval()));
+                }
             }
 
             for (var transfer : tokenTransferList.getNftTransfersList()) {
-                nftTransfers.add(new TokenNftTransfer(
-                        token,
-                        AccountId.fromProtobuf(transfer.getSenderAccountID()),
-                        AccountId.fromProtobuf(transfer.getReceiverAccountID()),
-                        transfer.getSerialNumber(),
-                        transfer.getIsApproval()));
+                HookCall senderHookCall = null;
+                NftHookType senderHookType = null;
+                HookCall receiverHookCall = null;
+                NftHookType receiverHookType = null;
+
+                if (transfer.hasPreTxSenderAllowanceHook()) {
+                    senderHookCall = HookCall.fromProtobuf(transfer.getPreTxSenderAllowanceHook());
+                    senderHookType = NftHookType.PRE_HOOK_SENDER;
+                } else if (transfer.hasPrePostTxSenderAllowanceHook()) {
+                    senderHookCall = HookCall.fromProtobuf(transfer.getPrePostTxSenderAllowanceHook());
+                    senderHookType = NftHookType.PRE_POST_HOOK_SENDER;
+                }
+
+                if (transfer.hasPreTxReceiverAllowanceHook()) {
+                    receiverHookCall = HookCall.fromProtobuf(transfer.getPreTxReceiverAllowanceHook());
+                    receiverHookType = NftHookType.PRE_HOOK_RECEIVER;
+                } else if (transfer.hasPrePostTxReceiverAllowanceHook()) {
+                    receiverHookCall = HookCall.fromProtobuf(transfer.getPrePostTxReceiverAllowanceHook());
+                    receiverHookType = NftHookType.PRE_POST_HOOK_RECEIVER;
+                }
+
+                var sender = AccountId.fromProtobuf(transfer.getSenderAccountID());
+                var receiver = AccountId.fromProtobuf(transfer.getReceiverAccountID());
+
+                if (senderHookCall != null || receiverHookCall != null) {
+                    nftTransfers.add(new TokenNftTransfer(
+                            token,
+                            sender,
+                            receiver,
+                            transfer.getSerialNumber(),
+                            transfer.getIsApproval(),
+                            senderHookCall,
+                            senderHookType,
+                            receiverHookCall,
+                            receiverHookType));
+                } else {
+                    nftTransfers.add(new TokenNftTransfer(
+                            token, sender, receiver, transfer.getSerialNumber(), transfer.getIsApproval()));
+                }
             }
         }
     }
