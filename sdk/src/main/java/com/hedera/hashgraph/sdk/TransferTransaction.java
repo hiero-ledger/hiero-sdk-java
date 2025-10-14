@@ -177,6 +177,89 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         return doAddHbarTransfer(accountId, value, true);
     }
 
+    // --- Unified fungible token transfer helper (local to TransferTransaction) ---
+    private TransferTransaction doAddTokenTransferUnified(
+            TokenId tokenId,
+            AccountId accountId,
+            long amount,
+            boolean isApproved,
+            Integer expectedDecimals,
+            HookCall hookCall,
+            HookType hookType) {
+        requireNotFrozen();
+
+        // Merge if same token/account/approval/decimals
+        for (var transfer : tokenTransfers) {
+            if (transfer.tokenId.equals(tokenId)
+                    && transfer.accountId.equals(accountId)
+                    && transfer.isApproved == isApproved) {
+                if (expectedDecimals != null) {
+                    if (transfer.expectedDecimals != null && !transfer.expectedDecimals.equals(expectedDecimals)) {
+                        throw new IllegalArgumentException("expected decimals for a token cannot be changed once set");
+                    }
+                    transfer.expectedDecimals = expectedDecimals;
+                }
+                transfer.amount += amount;
+                if (hookCall != null && hookType != null) {
+                    transfer.hookCall = hookCall;
+                    transfer.hookType = hookType;
+                }
+                return this;
+            }
+        }
+
+        // Create new record
+        var tt = new TokenTransfer(tokenId, accountId, amount, expectedDecimals, isApproved);
+        if (hookCall != null && hookType != null) {
+            tt.hookCall = hookCall;
+            tt.hookType = hookType;
+        }
+        tokenTransfers.add(tt);
+        return this;
+    }
+
+    // Public convenience: no hook, no decimals, not approved
+    @Override
+    public TransferTransaction addTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
+        Objects.requireNonNull(tokenId, "tokenId cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        return doAddTokenTransferUnified(tokenId, accountId, value, false, null, null, null);
+    }
+
+    // Public convenience: approved
+    @Override
+    public TransferTransaction addApprovedTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
+        Objects.requireNonNull(tokenId, "tokenId cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        return doAddTokenTransferUnified(tokenId, accountId, value, true, null, null, null);
+    }
+
+    // Public convenience: with decimals (unapproved)
+    @Override
+    public TransferTransaction addTokenTransferWithDecimals(
+            TokenId tokenId, AccountId accountId, long value, int decimals) {
+        Objects.requireNonNull(tokenId, "tokenId cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        return doAddTokenTransferUnified(tokenId, accountId, value, false, decimals, null, null);
+    }
+
+    // Public convenience: with decimals (approved)
+    @Override
+    public TransferTransaction addApprovedTokenTransferWithDecimals(
+            TokenId tokenId, AccountId accountId, long value, int decimals) {
+        Objects.requireNonNull(tokenId, "tokenId cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        return doAddTokenTransferUnified(tokenId, accountId, value, true, decimals, null, null);
+    }
+
+    // New: with hook (unapproved)
+    public TransferTransaction addTokenTransferWithHook(
+            TokenId tokenId, AccountId accountId, long value, HookCall hookCall, HookType hookType) {
+        Objects.requireNonNull(hookCall, "hookCall cannot be null");
+        Objects.requireNonNull(hookType, "hookType cannot be null");
+        return doAddTokenTransferUnified(tokenId, accountId, value, false, null, hookCall, hookType);
+    }
+
     /**
      * Add an NFT transfer with optional sender/receiver allowance hooks.
      *

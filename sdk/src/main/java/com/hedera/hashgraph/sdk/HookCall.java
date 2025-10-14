@@ -103,7 +103,7 @@ public class HookCall {
      * @param proto the protobuf HookCall
      * @return a new HookCall instance
      */
-    public static HookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.HookCall proto) {
+    static HookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.HookCall proto) {
         if (proto.hasFullHookId()) {
             return new HookCall(
                     HookId.fromProtobuf(proto.getFullHookId()), EvmHookCall.fromProtobuf(proto.getEvmHookCall()));

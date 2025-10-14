@@ -61,7 +61,7 @@ public class HookId {
      * @param proto the protobuf HookId
      * @return a new HookId instance
      */
-    public static HookId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookId proto) {
+    static HookId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookId proto) {
         return new HookId(HookEntityId.fromProtobuf(proto.getEntityId()), proto.getHookId());
     }
 

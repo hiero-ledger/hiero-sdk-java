@@ -61,7 +61,7 @@ public class EvmHookCall {
      * @param proto the protobuf EvmHookCall
      * @return a new EvmHookCall instance
      */
-    public static EvmHookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHookCall proto) {
+    static EvmHookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHookCall proto) {
         return new EvmHookCall(proto.getData().toByteArray(), proto.getGasLimit());
     }
 

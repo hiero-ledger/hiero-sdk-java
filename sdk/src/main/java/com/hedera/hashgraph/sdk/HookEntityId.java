@@ -93,7 +93,7 @@ public class HookEntityId {
      * @param proto the protobuf HookEntityId
      * @return a new HookEntityId instance
      */
-    public static HookEntityId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookEntityId proto) {
+    static HookEntityId fromProtobuf(com.hedera.hashgraph.sdk.proto.HookEntityId proto) {
         if (proto.hasAccountId()) {
             return new HookEntityId(AccountId.fromProtobuf(proto.getAccountId()));
         } else {
