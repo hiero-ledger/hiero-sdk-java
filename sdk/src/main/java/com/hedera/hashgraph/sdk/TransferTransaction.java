@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * A transaction that transfers hbars and tokens between Hedera accounts. You can enter multiple transfers in a single
@@ -125,17 +126,19 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         return transfers;
     }
 
-    private TransferTransaction doAddHbarTransfer(AccountId accountId, Hbar value, boolean isApproved) {
+    private TransferTransaction doAddHbarTransfer(
+            AccountId accountId, Hbar value, boolean isApproved, @Nullable FungibleHookCall hookCall) {
         requireNotFrozen();
 
         for (var transfer : hbarTransfers) {
             if (transfer.accountId.equals(accountId) && transfer.isApproved == isApproved) {
                 transfer.amount = Hbar.fromTinybars(transfer.amount.toTinybars() + value.toTinybars());
+                transfer.hookCall = hookCall;
                 return this;
             }
         }
 
-        hbarTransfers.add(new HbarTransfer(accountId, value, isApproved));
+        hbarTransfers.add(new HbarTransfer(accountId, value, false, hookCall));
         return this;
     }
 
@@ -148,7 +151,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      */
     public TransferTransaction addHbarTransfer(EvmAddress evmAddress, Hbar value) {
         AccountId accountId = AccountId.fromEvmAddress(evmAddress, 0, 0);
-        return doAddHbarTransfer(accountId, value, false);
+        return doAddHbarTransfer(accountId, value, false, null);
     }
 
     /**
@@ -159,7 +162,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @return the updated transaction
      */
     public TransferTransaction addHbarTransfer(AccountId accountId, Hbar value) {
-        return doAddHbarTransfer(accountId, value, false);
+        return doAddHbarTransfer(accountId, value, false, null);
     }
 
     /**
@@ -170,82 +173,23 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @return the updated transaction
      */
     public TransferTransaction addApprovedHbarTransfer(AccountId accountId, Hbar value) {
-        return doAddHbarTransfer(accountId, value, true);
+        return doAddHbarTransfer(accountId, value, true, null);
     }
 
-    // --- Unified fungible token transfer helper (local to TransferTransaction) ---
-    private TransferTransaction doAddTokenTransferUnified(
-            TokenId tokenId,
-            AccountId accountId,
-            long amount,
-            boolean isApproved,
-            Integer expectedDecimals,
-            FungibleHookCall hookCall) {
-        requireNotFrozen();
-
-        // Merge if same token/account/approval/decimals
-        for (var transfer : tokenTransfers) {
-            if (transfer.tokenId.equals(tokenId)
-                    && transfer.accountId.equals(accountId)
-                    && transfer.isApproved == isApproved) {
-                if (transfer.expectedDecimals != null && !transfer.expectedDecimals.equals(expectedDecimals)) {
-                    throw new IllegalArgumentException("expected decimals for a token cannot be changed once set");
-                }
-                transfer.expectedDecimals = expectedDecimals;
-                transfer.amount += amount;
-                transfer.hookCall = hookCall;
-                return this;
-            }
-        }
-
-        // Create new record
-        var tt = new TokenTransfer(tokenId, accountId, amount, expectedDecimals, isApproved);
-        tt.hookCall = hookCall;
-        tokenTransfers.add(tt);
-        return this;
-    }
-
-    // Public convenience: no hook, no decimals, not approved
-    @Override
-    public TransferTransaction addTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
-        Objects.requireNonNull(tokenId, "tokenId cannot be null");
-        Objects.requireNonNull(accountId, "accountId cannot be null");
-        return doAddTokenTransferUnified(tokenId, accountId, value, false, null, null);
-    }
-
-    // Public convenience: approved
-    @Override
-    public TransferTransaction addApprovedTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
-        Objects.requireNonNull(tokenId, "tokenId cannot be null");
-        Objects.requireNonNull(accountId, "accountId cannot be null");
-        return doAddTokenTransferUnified(tokenId, accountId, value, true, null, null);
-    }
-
-    // Public convenience: with decimals (unapproved)
-    @Override
-    public TransferTransaction addTokenTransferWithDecimals(
-            TokenId tokenId, AccountId accountId, long value, int decimals) {
-        Objects.requireNonNull(tokenId, "tokenId cannot be null");
-        Objects.requireNonNull(accountId, "accountId cannot be null");
-        return doAddTokenTransferUnified(tokenId, accountId, value, false, decimals, null);
-    }
-
-    // Public convenience: with decimals (approved)
-    @Override
-    public TransferTransaction addApprovedTokenTransferWithDecimals(
-            TokenId tokenId, AccountId accountId, long value, int decimals) {
-        Objects.requireNonNull(tokenId, "tokenId cannot be null");
-        Objects.requireNonNull(accountId, "accountId cannot be null");
-        return doAddTokenTransferUnified(tokenId, accountId, value, true, decimals, null);
-    }
-
-    // New: with typed fungible hook (unapproved)
+    /**
+     * TODO
+     * @param tokenId
+     * @param accountId
+     * @param value
+     * @param hookCall
+     * @return
+     */
     public TransferTransaction addTokenTransferWithHook(
             TokenId tokenId, AccountId accountId, long value, FungibleHookCall hookCall) {
         Objects.requireNonNull(tokenId, "tokenId cannot be null");
         Objects.requireNonNull(accountId, "accountId cannot be null");
         Objects.requireNonNull(hookCall, "hookCall cannot be null");
-        return doAddTokenTransferUnified(tokenId, accountId, value, false, null, hookCall);
+        return doAddTokenTransfer(tokenId, accountId, value, false, null, hookCall);
     }
 
     /**
@@ -267,9 +211,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         Objects.requireNonNull(nftId, "nftId cannot be null");
         Objects.requireNonNull(senderAccountId, "senderAccountId cannot be null");
         Objects.requireNonNull(receiverAccountId, "receiverAccountId cannot be null");
-
-        return doAddNftTransferWithHook(
-                nftId, senderAccountId, receiverAccountId, false, senderHookCall, receiverHookCall);
+        return doAddNftTransfer(nftId, senderAccountId, receiverAccountId, false, senderHookCall, receiverHookCall);
     }
 
     /**
@@ -286,19 +228,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         Objects.requireNonNull(accountId, "accountId cannot be null");
         Objects.requireNonNull(amount, "amount cannot be null");
         Objects.requireNonNull(hookCall, "hookCall cannot be null");
-
-        // Check if there's already a transfer for this account without a hook
-        for (var transfer : hbarTransfers) {
-            if (transfer.accountId.equals(accountId) && transfer.hookCall == null) {
-                // Update existing transfer to include hook
-                transfer.hookCall = hookCall;
-                return this;
-            }
-        }
-
-        // Add new transfer with hook
-        hbarTransfers.add(new HbarTransfer(accountId, amount, false, hookCall));
-        return this;
+        return doAddHbarTransfer(accountId, amount, false, hookCall);
     }
 
     /**
