@@ -219,6 +219,20 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
         return (T) this;
     }
 
+    protected T doAddNftTransferWithHook(
+            NftId nftId,
+            AccountId sender,
+            AccountId receiver,
+            boolean isApproved,
+            NftHookCall senderHookCall,
+            NftHookCall receiverHookCall) {
+        requireNotFrozen();
+        nftTransfers.add(new TokenNftTransfer(
+                nftId.tokenId, sender, receiver, nftId.serial, isApproved, senderHookCall, receiverHookCall));
+        // noinspection unchecked
+        return (T) this;
+    }
+
     /**
      * Add a non-approved nft transfer.
      *
