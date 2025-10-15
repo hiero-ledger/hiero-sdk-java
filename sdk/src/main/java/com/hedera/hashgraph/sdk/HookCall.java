@@ -13,7 +13,7 @@ import java.util.Objects;
  * For future extension points where the hook owner is not forced by the context, we include the option to fully
  * specify the hook id for the call.
  */
-public class HookCall {
+public abstract class HookCall {
     private final HookId fullHookId;
     private final Long hookId;
     private final EvmHookCall evmHookCall;
@@ -24,7 +24,7 @@ public class HookCall {
      * @param fullHookId the full ID of the hook to call
      * @param evmHookCall the EVM hook call details
      */
-    public HookCall(HookId fullHookId, EvmHookCall evmHookCall) {
+    protected HookCall(HookId fullHookId, EvmHookCall evmHookCall) {
         this.fullHookId = Objects.requireNonNull(fullHookId, "fullHookId cannot be null");
         this.hookId = null;
         this.evmHookCall = Objects.requireNonNull(evmHookCall, "evmHookCall cannot be null");
@@ -36,7 +36,7 @@ public class HookCall {
      * @param hookId the numeric ID of the hook to call
      * @param evmHookCall the EVM hook call details
      */
-    public HookCall(long hookId, EvmHookCall evmHookCall) {
+    protected HookCall(long hookId, EvmHookCall evmHookCall) {
         this.fullHookId = null;
         this.hookId = hookId;
         this.evmHookCall = Objects.requireNonNull(evmHookCall, "evmHookCall cannot be null");
@@ -106,9 +106,9 @@ public class HookCall {
     static HookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.HookCall proto) {
         if (proto.hasFullHookId()) {
             return new HookCall(
-                    HookId.fromProtobuf(proto.getFullHookId()), EvmHookCall.fromProtobuf(proto.getEvmHookCall()));
+                    HookId.fromProtobuf(proto.getFullHookId()), EvmHookCall.fromProtobuf(proto.getEvmHookCall())) {};
         } else {
-            return new HookCall(proto.getHookId(), EvmHookCall.fromProtobuf(proto.getEvmHookCall()));
+            return new HookCall(proto.getHookId(), EvmHookCall.fromProtobuf(proto.getEvmHookCall())) {};
         }
     }
 
