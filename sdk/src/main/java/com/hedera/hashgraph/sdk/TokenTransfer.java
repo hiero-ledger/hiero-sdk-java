@@ -23,6 +23,8 @@ public class TokenTransfer {
 
     boolean isApproved;
 
+    FungibleHookCall hookCall;
+
     /**
      * Constructor.
      *
@@ -51,6 +53,22 @@ public class TokenTransfer {
         this.amount = amount;
         this.expectedDecimals = expectedDecimals;
         this.isApproved = isApproved;
+        this.hookCall = null;
+    }
+
+    TokenTransfer(
+            TokenId tokenId,
+            AccountId accountId,
+            long amount,
+            @Nullable Integer expectedDecimals,
+            boolean isApproved,
+            FungibleHookCall hookCall) {
+        this.tokenId = tokenId;
+        this.accountId = accountId;
+        this.amount = amount;
+        this.expectedDecimals = expectedDecimals;
+        this.isApproved = isApproved;
+        this.hookCall = hookCall;
     }
 
     /**
@@ -86,11 +104,20 @@ public class TokenTransfer {
      * @return                          an account amount protobuf
      */
     AccountAmount toProtobuf() {
-        return AccountAmount.newBuilder()
+        var builder = AccountAmount.newBuilder()
                 .setAccountID(accountId.toProtobuf())
                 .setAmount(amount)
-                .setIsApproval(isApproved)
-                .build();
+                .setIsApproval(isApproved);
+
+        if (hookCall != null) {
+            switch (hookCall.getType()) {
+                case PRE_TX_ALLOWANCE_HOOK -> builder.setPreTxAllowanceHook(hookCall.toProtobuf());
+                case PRE_POST_TX_ALLOWANCE_HOOK -> builder.setPrePostTxAllowanceHook(hookCall.toProtobuf());
+                default -> {}
+            }
+        }
+
+        return builder.build();
     }
 
     @Override
