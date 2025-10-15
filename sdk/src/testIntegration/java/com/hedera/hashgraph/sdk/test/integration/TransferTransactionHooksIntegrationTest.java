@@ -164,91 +164,92 @@ class TransferTransactionHooksIntegrationTest {
         }
     }
 
-    //    @Test
-    //    @DisplayName(
-    //            "Given an account has an allowance hook for token transfers, when a TransferTransaction includes token
-    // transfers from that account, then the hook validates the token allowance and approves valid transfers")
-    //    void fungibleTokenTransferWithAllowanceHookSucceeds() throws Exception {
-    //        try (var testEnv = new IntegrationTestEnv(1)) {
-    //            var hookContractId = createContractId(testEnv);
-    //
-    //            var hookDetails = new HookCreationDetails(
-    //                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new LambdaEvmHook(hookContractId));
-    //
-    //            var receiverKey = PrivateKey.generateED25519();
-    //            var receiverId = new AccountCreateTransaction()
-    //                    .setKeyWithoutAlias(receiverKey)
-    //                    .setInitialBalance(new Hbar(2))
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client)
-    //                    .accountId;
-    //
-    //            // Attach allowance hook to operator (sender)
-    //            new AccountUpdateTransaction()
-    //                    .setAccountId(receiverId)
-    //                    .addHookToCreate(hookDetails)
-    //                    .freezeWith(testEnv.client)
-    //                    .sign(receiverKey)
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client);
-    //
-    //            // Create fungible token with operator as treasury
-    //            var tokenId = new TokenCreateTransaction()
-    //                    .setTokenName("FT-HOOK")
-    //                    .setTokenSymbol("FTH")
-    //                    .setTokenType(TokenType.FUNGIBLE_COMMON)
-    //                    .setDecimals(2)
-    //                    .setInitialSupply(10_000) // 100.00 units
-    //                    .setTreasuryAccountId(testEnv.operatorId)
-    //                    .setAdminKey(testEnv.operatorKey)
-    //                    .setSupplyKey(testEnv.operatorKey)
-    //                    .setKycKey(testEnv.operatorKey)
-    //                    .freezeWith(testEnv.client)
-    //                    .signWithOperator(testEnv.client)
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client)
-    //                    .tokenId;
-    //
-    //            // Associate + KYC receiver
-    //            new TokenAssociateTransaction()
-    //                    .setAccountId(receiverId)
-    //                    .setTokenIds(List.of(tokenId))
-    //                    .freezeWith(testEnv.client)
-    //                    .sign(receiverKey)
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client);
-    //
-    //            new TokenGrantKycTransaction()
-    //                    .setAccountId(receiverId)
-    //                    .setTokenId(tokenId)
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client);
-    //
-    //            // Ensure the allowance hook is attached to the debited account (operator)
-    //            var hookDetails2 = new HookCreationDetails(
-    //                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
-    //            new AccountUpdateTransaction()
-    //                    .setAccountId(testEnv.operatorId)
-    //                    .addHookToCreate(hookDetails2)
-    //                    .freezeWith(testEnv.client)
-    //                    .signWithOperator(testEnv.client)
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client);
-    //
-    //            // Build transfer with PRE sender allowance hook (sender is operator)
-    //            var hookCall = new FungibleHookCall(
-    //                    2L, new EvmHookCall(new byte[] {}, 25_000L), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
-    //            var resp = new TransferTransaction()
-    //                    .setNodeAccountIds(
-    //                            new ArrayList<>(testEnv.client.getNetwork().values()))
-    //                    .addTokenTransferWithHook(tokenId, testEnv.operatorId, -1_000, hookCall) // -10.00
-    //                    .addTokenTransfer(tokenId, receiverId, 1_000) // +10.00
-    //                    .execute(testEnv.client)
-    //                    .getReceipt(testEnv.client);
-    //
-    //            assertThat(resp.status).isEqualTo(Status.SUCCESS);
-    //        }
-    //    }
+    @Test
+    @DisplayName(
+            "Given an account has an allowance hook for token transfers, when a TransferTransaction includes token transfers from that account, then the hook validates the token allowance and approves valid transfers")
+    void fungibleTokenTransferWithAllowanceHookSucceeds() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            // Use a fresh operator account to avoid residual hooks (e.g., HOOK_ID_IN_USE on persistent operator)
+            testEnv.useThrowawayAccount();
+            var hookContractId = createContractId(testEnv);
+
+            var hookDetails = new HookCreationDetails(
+                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+
+            var receiverKey = PrivateKey.generateED25519();
+            var receiverId = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(receiverKey)
+                    .setInitialBalance(new Hbar(2))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .accountId;
+
+            // Attach allowance hook to operator (sender)
+            new AccountUpdateTransaction()
+                    .setAccountId(receiverId)
+                    .addHookToCreate(hookDetails)
+                    .freezeWith(testEnv.client)
+                    .sign(receiverKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Create fungible token with operator as treasury
+            var tokenId = new TokenCreateTransaction()
+                    .setTokenName("FT-HOOK")
+                    .setTokenSymbol("FTH")
+                    .setTokenType(TokenType.FUNGIBLE_COMMON)
+                    .setDecimals(2)
+                    .setInitialSupply(10_000) // 100.00 units
+                    .setTreasuryAccountId(testEnv.operatorId)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setSupplyKey(testEnv.operatorKey)
+                    .setKycKey(testEnv.operatorKey)
+                    .freezeWith(testEnv.client)
+                    .signWithOperator(testEnv.client)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .tokenId;
+
+            // Associate + KYC receiver
+            new TokenAssociateTransaction()
+                    .setAccountId(receiverId)
+                    .setTokenIds(List.of(tokenId))
+                    .freezeWith(testEnv.client)
+                    .sign(receiverKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new TokenGrantKycTransaction()
+                    .setAccountId(receiverId)
+                    .setTokenId(tokenId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Ensure the allowance hook is attached to the debited account (operator)
+            var hookDetails2 = new HookCreationDetails(
+                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            new AccountUpdateTransaction()
+                    .setAccountId(testEnv.operatorId)
+                    .addHookToCreate(hookDetails2)
+                    .freezeWith(testEnv.client)
+                    .signWithOperator(testEnv.client)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Build transfer with PRE sender allowance hook (sender is operator)
+            var hookCall = new FungibleHookCall(
+                    2L, new EvmHookCall(new byte[] {}, 25_000L), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+            var resp = new TransferTransaction()
+                    .setNodeAccountIds(
+                            new ArrayList<>(testEnv.client.getNetwork().values()))
+                    .addTokenTransferWithHook(tokenId, testEnv.operatorId, -1_000, hookCall) // -10.00
+                    .addTokenTransfer(tokenId, receiverId, 1_000) // +10.00
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            assertThat(resp.status).isEqualTo(Status.SUCCESS);
+        }
+    }
 
     @Test
     @DisplayName(
