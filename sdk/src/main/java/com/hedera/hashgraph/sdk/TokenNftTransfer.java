@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.hedera.hashgraph.sdk.TransferTransaction.toNftHook;
+
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.NftTransfer;
@@ -9,6 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * Internal utility class.
@@ -65,8 +68,8 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
             AccountId receiver,
             long serial,
             boolean isApproved,
-            NftHookCall senderHookCall,
-            NftHookCall receiverHookCall) {
+            @Nullable NftHookCall senderHookCall,
+            @Nullable NftHookCall receiverHookCall) {
         this.tokenId = tokenId;
         this.sender = sender;
         this.receiver = receiver;
@@ -76,29 +79,41 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         this.receiverHookCall = receiverHookCall;
     }
 
-    /**
-     * Create a list of token nft transfer records from a protobuf.
-     *
-     * @param tokenTransferList the protobuf
-     * @return the new list
-     */
-    static ArrayList<TokenNftTransfer> fromProtobuf(List<TokenTransferList> tokenTransferList) {
-        var transfers = new ArrayList<TokenNftTransfer>();
+    static List<TokenNftTransfer> fromProtobuf(TokenTransferList tokenTransferList) {
+        var token = TokenId.fromProtobuf(tokenTransferList.getToken());
+        var nftTransfers = new ArrayList<TokenNftTransfer>();
 
-        for (var tokenTransfer : tokenTransferList) {
-            var tokenId = TokenId.fromProtobuf(tokenTransfer.getToken());
+        for (var transfer : tokenTransferList.getNftTransfersList()) {
+            NftHookCall senderHookCall = null;
+            NftHookCall receiverHookCall = null;
 
-            for (var transfer : tokenTransfer.getNftTransfersList()) {
-                transfers.add(new TokenNftTransfer(
-                        tokenId,
-                        AccountId.fromProtobuf(transfer.getSenderAccountID()),
-                        AccountId.fromProtobuf(transfer.getReceiverAccountID()),
-                        transfer.getSerialNumber(),
-                        transfer.getIsApproval()));
+            if (transfer.hasPreTxSenderAllowanceHook()) {
+                senderHookCall = toNftHook(transfer.getPreTxSenderAllowanceHook(), NftHookType.PRE_HOOK_SENDER);
+            } else if (transfer.hasPrePostTxSenderAllowanceHook()) {
+                senderHookCall =
+                        toNftHook(transfer.getPrePostTxSenderAllowanceHook(), NftHookType.PRE_POST_HOOK_SENDER);
             }
-        }
 
-        return transfers;
+            if (transfer.hasPreTxReceiverAllowanceHook()) {
+                receiverHookCall = toNftHook(transfer.getPreTxReceiverAllowanceHook(), NftHookType.PRE_HOOK_RECEIVER);
+            } else if (transfer.hasPrePostTxReceiverAllowanceHook()) {
+                receiverHookCall =
+                        toNftHook(transfer.getPrePostTxReceiverAllowanceHook(), NftHookType.PRE_POST_HOOK_RECEIVER);
+            }
+
+            var sender = AccountId.fromProtobuf(transfer.getSenderAccountID());
+            var receiver = AccountId.fromProtobuf(transfer.getReceiverAccountID());
+
+            nftTransfers.add(new TokenNftTransfer(
+                    token,
+                    sender,
+                    receiver,
+                    transfer.getSerialNumber(),
+                    transfer.getIsApproval(),
+                    senderHookCall,
+                    receiverHookCall));
+        }
+        return nftTransfers;
     }
 
     /**
@@ -110,10 +125,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     @Deprecated
     public static TokenNftTransfer fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(List.of(TokenTransferList.newBuilder()
+        return fromProtobuf(TokenTransferList.newBuilder()
                         .setToken(TokenID.newBuilder().build())
                         .addNftTransfers(NftTransfer.parseFrom(bytes))
-                        .build()))
+                        .build())
                 .get(0);
     }
 
