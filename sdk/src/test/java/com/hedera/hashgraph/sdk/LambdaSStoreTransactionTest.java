@@ -79,18 +79,60 @@ public class LambdaSStoreTransactionTest {
         assertThrows(IllegalStateException.class, () -> frozen.setHookId(TEST_HOOK_ID));
         assertThrows(IllegalStateException.class, () -> frozen.setStorageUpdates(TEST_UPDATES));
         assertThrows(IllegalStateException.class, () -> frozen.addStorageUpdate(TEST_UPDATES.get(0)));
-        assertThrows(IllegalStateException.class, () -> frozen.clearStorageSlot(new byte[] {0x01}));
     }
 
     @Test
-    void clearStorageSlotAddsEmptyValueUpdate() {
-        var key = new byte[] {0x0A};
-        var tx = new LambdaSStoreTransaction().setHookId(TEST_HOOK_ID).clearStorageSlot(key);
-        assertThat(tx.getStorageUpdates()).hasSize(1);
-        var update = tx.getStorageUpdates().get(0);
-        assertThat(update).isInstanceOf(LambdaStorageUpdate.LambdaStorageSlot.class);
-        var slot = (LambdaStorageUpdate.LambdaStorageSlot) update;
-        assertThat(slot.getKey()).isEqualTo(key);
-        assertThat(slot.getValue()).isEqualTo(new byte[0]);
+    void validateChecksumsWithNullHookIdDoesNotThrow() throws Exception {
+        var client = Client.forTestnet();
+        var tx = new LambdaSStoreTransaction();
+
+        // Should not throw when hookId is null
+        tx.validateChecksums(client);
+    }
+
+    @Test
+    void validateChecksumsWithAccountHookIdValidatesAccountId() throws Exception {
+        var client = Client.forTestnet();
+        var accountId = AccountId.fromString("0.0.1234");
+        var hookId = new HookId(new HookEntityId(accountId), 1L);
+        var tx = new LambdaSStoreTransaction().setHookId(hookId);
+
+        // Should not throw with valid account ID
+        tx.validateChecksums(client);
+    }
+
+    @Test
+    void validateChecksumsWithContractHookIdValidatesContractId() throws Exception {
+        var client = Client.forTestnet();
+        var contractId = ContractId.fromString("0.0.5678");
+        var hookId = new HookId(new HookEntityId(contractId), 2L);
+        var tx = new LambdaSStoreTransaction().setHookId(hookId);
+
+        // Should not throw with valid contract ID
+        tx.validateChecksums(client);
+    }
+
+    @Test
+    void validateChecksumsWithInvalidAccountIdThrows() throws Exception {
+        var client = Client.forTestnet();
+        // Create an account ID with invalid checksum (using a known bad checksum from AccountIdTest)
+        var accountId = AccountId.fromString("0.0.123-ntjli");
+        var hookId = new HookId(new HookEntityId(accountId), 3L);
+        var tx = new LambdaSStoreTransaction().setHookId(hookId);
+
+        // Should throw BadEntityIdException for invalid checksum
+        assertThrows(BadEntityIdException.class, () -> tx.validateChecksums(client));
+    }
+
+    @Test
+    void validateChecksumsWithInvalidContractIdThrows() throws Exception {
+        var client = Client.forTestnet();
+        // Create a contract ID with invalid checksum (using a known bad checksum)
+        var contractId = ContractId.fromString("0.0.123-ntjli");
+        var hookId = new HookId(new HookEntityId(contractId), 4L);
+        var tx = new LambdaSStoreTransaction().setHookId(hookId);
+
+        // Should throw BadEntityIdException for invalid checksum
+        assertThrows(BadEntityIdException.class, () -> tx.validateChecksums(client));
     }
 }

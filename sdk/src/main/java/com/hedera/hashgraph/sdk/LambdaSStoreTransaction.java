@@ -85,18 +85,6 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
     }
 
     /**
-     * Convenience to clear a storage slot by key (set value to empty bytes).
-     *
-     * @param key the storage slot key
-     * @return this
-     */
-    public LambdaSStoreTransaction clearStorageSlot(byte[] key) {
-        requireNotFrozen();
-        this.storageUpdates.add(new LambdaStorageUpdate.LambdaStorageSlot(key, new byte[0]));
-        return this;
-    }
-
-    /**
      * Get the storage updates.
      *
      * @return list of updates
@@ -129,7 +117,14 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
 
     @Override
     void validateChecksums(Client client) throws BadEntityIdException {
-        // No checksum validation available for HookId; nothing to do
+        if (hookId != null) {
+            var entityId = hookId.getEntityId();
+            if (entityId.isAccount()) {
+                entityId.getAccountId().validateChecksum(client);
+            } else if (entityId.isContract()) {
+                entityId.getContractId().validateChecksum(client);
+            }
+        }
     }
 
     @Override
