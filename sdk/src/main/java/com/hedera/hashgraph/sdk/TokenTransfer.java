@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.hedera.hashgraph.sdk.TransferTransaction.toFungibleHook;
+
 import com.google.common.base.MoreObjects;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
+import com.hedera.hashgraph.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 
 /**
  * A token transfer record.
- *
+ * <p>
  * Internal utility class.
  */
 public class TokenTransfer {
@@ -28,10 +31,10 @@ public class TokenTransfer {
     /**
      * Constructor.
      *
-     * @param tokenId                   the token id
-     * @param accountId                 the account id
-     * @param amount                    the amount
-     * @param isApproved                is it approved
+     * @param tokenId    the token id
+     * @param accountId  the account id
+     * @param amount     the amount
+     * @param isApproved is it approved
      */
     TokenTransfer(TokenId tokenId, AccountId accountId, long amount, boolean isApproved) {
         this(tokenId, accountId, amount, null, isApproved);
@@ -40,11 +43,11 @@ public class TokenTransfer {
     /**
      * Constructor.
      *
-     * @param tokenId                   the token id
-     * @param accountId                 the account id
-     * @param amount                    the amount
-     * @param expectedDecimals          the expected decimals
-     * @param isApproved                is it approved
+     * @param tokenId          the token id
+     * @param accountId        the account id
+     * @param amount           the amount
+     * @param expectedDecimals the expected decimals
+     * @param isApproved       is it approved
      */
     TokenTransfer(
             TokenId tokenId, AccountId accountId, long amount, @Nullable Integer expectedDecimals, boolean isApproved) {
@@ -62,7 +65,7 @@ public class TokenTransfer {
             long amount,
             @Nullable Integer expectedDecimals,
             boolean isApproved,
-            FungibleHookCall hookCall) {
+            @Nullable FungibleHookCall hookCall) {
         this.tokenId = tokenId;
         this.accountId = accountId;
         this.amount = amount;
@@ -71,37 +74,34 @@ public class TokenTransfer {
         this.hookCall = hookCall;
     }
 
-    /**
-     * Create a list of token transfer records from a protobuf.
-     *
-     * @param tokenTransferLists        the protobuf
-     * @return                          the list of token transfer records
-     */
-    static List<TokenTransfer> fromProtobuf(List<com.hedera.hashgraph.sdk.proto.TokenTransferList> tokenTransferLists) {
-        var transfers = new ArrayList<TokenTransfer>();
+    static List<TokenTransfer> fromProtobuf(TokenTransferList tokenTransferList) {
+        var token = TokenId.fromProtobuf(tokenTransferList.getToken());
+        var tokenTransfers = new ArrayList<TokenTransfer>();
 
-        for (var tokenTransferList : tokenTransferLists) {
-            var tokenId = TokenId.fromProtobuf(tokenTransferList.getToken());
-
-            for (var transfer : tokenTransferList.getTransfersList()) {
-                transfers.add(new TokenTransfer(
-                        tokenId,
-                        AccountId.fromProtobuf(transfer.getAccountID()),
-                        transfer.getAmount(),
-                        tokenTransferList.hasExpectedDecimals()
-                                ? tokenTransferList.getExpectedDecimals().getValue()
-                                : null,
-                        transfer.getIsApproval()));
+        for (var transfer : tokenTransferList.getTransfersList()) {
+            FungibleHookCall typedHook = null;
+            if (transfer.hasPreTxAllowanceHook()) {
+                typedHook = toFungibleHook(transfer.getPreTxAllowanceHook(), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+            } else if (transfer.hasPrePostTxAllowanceHook()) {
+                typedHook = toFungibleHook(
+                        transfer.getPrePostTxAllowanceHook(), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
             }
-        }
 
-        return transfers;
+            var acctId = AccountId.fromProtobuf(transfer.getAccountID());
+            Integer expectedDecimals = tokenTransferList.hasExpectedDecimals()
+                    ? tokenTransferList.getExpectedDecimals().getValue()
+                    : null;
+
+            tokenTransfers.add(new TokenTransfer(
+                    token, acctId, transfer.getAmount(), expectedDecimals, transfer.getIsApproval(), typedHook));
+        }
+        return tokenTransfers;
     }
 
     /**
      * Create the protobuf.
      *
-     * @return                          an account amount protobuf
+     * @return an account amount protobuf
      */
     AccountAmount toProtobuf() {
         var builder = AccountAmount.newBuilder()

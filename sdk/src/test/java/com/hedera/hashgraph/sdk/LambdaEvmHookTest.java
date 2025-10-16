@@ -17,11 +17,11 @@ class LambdaEvmHookTest {
 
     @Test
     void gettersReturnExpectedAndStorageUpdatesAreImmutable() {
-        var spec = new ContractId(0, 0, 123);
+        var contractId = new ContractId(0, 0, 123);
         var slot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-        var hook = new LambdaEvmHook(spec, List.of(slot));
+        var hook = new LambdaEvmHook(contractId, List.of(slot));
 
-        assertEquals(spec, hook.getSpec());
+        assertEquals(contractId, hook.getContractId());
         var updates = hook.getStorageUpdates();
         assertEquals(1, updates.size());
         assertEquals(slot, updates.get(0));
@@ -42,7 +42,7 @@ class LambdaEvmHookTest {
         var restored = LambdaEvmHook.fromProtobuf(proto);
 
         assertEquals(original, restored);
-        assertEquals(original.getSpec(), restored.getSpec());
+        assertEquals(original.getContractId(), restored.getContractId());
         assertEquals(original.getStorageUpdates(), restored.getStorageUpdates());
     }
 
@@ -71,7 +71,7 @@ class LambdaEvmHookTest {
         var spec = new ContractId(0, 0, 10);
         var hook = new LambdaEvmHook(spec);
         var s = hook.toString();
-        assertTrue(s.contains("spec"));
+        assertTrue(s.contains("contractId"));
         assertTrue(s.contains("storageUpdates"));
     }
 }

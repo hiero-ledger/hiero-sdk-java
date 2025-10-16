@@ -95,7 +95,7 @@ public class TransferTransactionHooksTest {
 
         assertThat(result).isSameAs(tx);
         assertThat(tx.getHbarTransfers()).hasSize(1);
-        assertThat(tx.getHbarTransfers().get(accountId)).isEqualTo(amount);
+        assertThat(tx.getHbarTransfers().get(accountId)).isEqualTo(Hbar.fromTinybars(2000));
     }
 
     @Test
@@ -114,13 +114,8 @@ public class TransferTransactionHooksTest {
                 456L, new EvmHookCall(new byte[] {4, 5, 6}, 200000L), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
         tx.addHbarTransferWithHook(accountId, amount, hookCall2);
 
-        // getHbarTransfers() only shows the last transfer for each account (Map.put behavior)
-        // So we should see only the second transfer's amount
         assertThat(tx.getHbarTransfers()).hasSize(1);
-        assertThat(tx.getHbarTransfers().get(accountId)).isEqualTo(amount); // Only the last transfer's amount
-
-        // Note: Internally there are 2 HbarTransfer objects, but getHbarTransfers()
-        // uses Map.put() so only the last one's amount is visible
+        assertThat(tx.getHbarTransfers().get(accountId)).isEqualTo(Hbar.fromTinybars(2000));
     }
 
     @Test

@@ -36,7 +36,7 @@ class EvmHookSpecTest {
         var cid = new ContractId(0, 0, 42);
         var spec = new LambdaEvmHook(cid);
         var s = spec.toString();
-        assertTrue(s.contains("spec"));
+        assertTrue(s.contains("contractId"));
         assertTrue(s.contains("0.0.42"));
     }
 }
