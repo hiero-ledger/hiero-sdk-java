@@ -274,8 +274,8 @@ public final class TransactionRecord {
             var nftTransfersList = TokenNftTransfer.fromProtobuf(transferList);
             for (var transfer : tokenTransfersList) {
                 var current = tokenTransfers.containsKey(transfer.tokenId)
-                    ? tokenTransfers.get(transfer.tokenId)
-                    : new HashMap<AccountId, Long>();
+                        ? tokenTransfers.get(transfer.tokenId)
+                        : new HashMap<AccountId, Long>();
                 current.put(transfer.accountId, transfer.amount);
                 tokenTransfers.put(transfer.tokenId, current);
             }
@@ -283,13 +283,12 @@ public final class TransactionRecord {
 
             for (var transfer : nftTransfersList) {
                 var current = tokenNftTransfers.containsKey(transfer.tokenId)
-                    ? tokenNftTransfers.get(transfer.tokenId)
-                    : new ArrayList<TokenNftTransfer>();
+                        ? tokenNftTransfers.get(transfer.tokenId)
+                        : new ArrayList<TokenNftTransfer>();
                 current.add(transfer);
                 tokenNftTransfers.put(transfer.tokenId, current);
             }
         }
-
 
         var fees = new ArrayList<AssessedCustomFee>(transactionRecord.getAssessedCustomFeesCount());
         for (var fee : transactionRecord.getAssessedCustomFeesList()) {

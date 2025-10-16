@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.hedera.hashgraph.sdk.TransferTransaction.toFungibleHook;
+
 import com.google.common.base.MoreObjects;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
 import com.hedera.hashgraph.sdk.proto.TokenTransferList;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.hedera.hashgraph.sdk.TransferTransaction.toFungibleHook;
+import javax.annotation.Nullable;
 
 /**
  * A token transfer record.
@@ -51,7 +50,7 @@ public class TokenTransfer {
      * @param isApproved       is it approved
      */
     TokenTransfer(
-        TokenId tokenId, AccountId accountId, long amount, @Nullable Integer expectedDecimals, boolean isApproved) {
+            TokenId tokenId, AccountId accountId, long amount, @Nullable Integer expectedDecimals, boolean isApproved) {
         this.tokenId = tokenId;
         this.accountId = accountId;
         this.amount = amount;
@@ -61,12 +60,12 @@ public class TokenTransfer {
     }
 
     TokenTransfer(
-        TokenId tokenId,
-        AccountId accountId,
-        long amount,
-        @Nullable Integer expectedDecimals,
-        boolean isApproved,
-        @Nullable FungibleHookCall hookCall) {
+            TokenId tokenId,
+            AccountId accountId,
+            long amount,
+            @Nullable Integer expectedDecimals,
+            boolean isApproved,
+            @Nullable FungibleHookCall hookCall) {
         this.tokenId = tokenId;
         this.accountId = accountId;
         this.amount = amount;
@@ -82,25 +81,19 @@ public class TokenTransfer {
         for (var transfer : tokenTransferList.getTransfersList()) {
             FungibleHookCall typedHook = null;
             if (transfer.hasPreTxAllowanceHook()) {
-                typedHook =
-                    toFungibleHook(transfer.getPreTxAllowanceHook(), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+                typedHook = toFungibleHook(transfer.getPreTxAllowanceHook(), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
             } else if (transfer.hasPrePostTxAllowanceHook()) {
                 typedHook = toFungibleHook(
-                    transfer.getPrePostTxAllowanceHook(), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
+                        transfer.getPrePostTxAllowanceHook(), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
             }
 
             var acctId = AccountId.fromProtobuf(transfer.getAccountID());
             Integer expectedDecimals = tokenTransferList.hasExpectedDecimals()
-                ? tokenTransferList.getExpectedDecimals().getValue()
-                : null;
+                    ? tokenTransferList.getExpectedDecimals().getValue()
+                    : null;
 
-             tokenTransfers.add(new TokenTransfer(
-                token,
-                acctId,
-                transfer.getAmount(),
-                expectedDecimals,
-                transfer.getIsApproval(),
-                typedHook));
+            tokenTransfers.add(new TokenTransfer(
+                    token, acctId, transfer.getAmount(), expectedDecimals, transfer.getIsApproval(), typedHook));
         }
         return tokenTransfers;
     }
@@ -112,16 +105,15 @@ public class TokenTransfer {
      */
     AccountAmount toProtobuf() {
         var builder = AccountAmount.newBuilder()
-            .setAccountID(accountId.toProtobuf())
-            .setAmount(amount)
-            .setIsApproval(isApproved);
+                .setAccountID(accountId.toProtobuf())
+                .setAmount(amount)
+                .setIsApproval(isApproved);
 
         if (hookCall != null) {
             switch (hookCall.getType()) {
                 case PRE_TX_ALLOWANCE_HOOK -> builder.setPreTxAllowanceHook(hookCall.toProtobuf());
                 case PRE_POST_TX_ALLOWANCE_HOOK -> builder.setPrePostTxAllowanceHook(hookCall.toProtobuf());
-                default -> {
-                }
+                default -> {}
             }
         }
 
@@ -131,11 +123,11 @@ public class TokenTransfer {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("tokenId", tokenId)
-            .add("accountId", accountId)
-            .add("amount", amount)
-            .add("expectedDecimals", expectedDecimals)
-            .add("isApproved", isApproved)
-            .toString();
+                .add("tokenId", tokenId)
+                .add("accountId", accountId)
+                .add("amount", amount)
+                .add("expectedDecimals", expectedDecimals)
+                .add("isApproved", isApproved)
+                .toString();
     }
 }
