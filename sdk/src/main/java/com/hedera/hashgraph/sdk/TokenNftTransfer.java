@@ -6,9 +6,13 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.NftTransfer;
 import com.hedera.hashgraph.sdk.proto.TokenID;
 import com.hedera.hashgraph.sdk.proto.TokenTransferList;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.hedera.hashgraph.sdk.TransferTransaction.toNftHook;
 
 /**
  * Internal utility class.
@@ -60,13 +64,13 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
     }
 
     TokenNftTransfer(
-            TokenId tokenId,
-            AccountId sender,
-            AccountId receiver,
-            long serial,
-            boolean isApproved,
-            NftHookCall senderHookCall,
-            NftHookCall receiverHookCall) {
+        TokenId tokenId,
+        AccountId sender,
+        AccountId receiver,
+        long serial,
+        boolean isApproved,
+        @Nullable NftHookCall senderHookCall,
+        @Nullable NftHookCall receiverHookCall) {
         this.tokenId = tokenId;
         this.sender = sender;
         this.receiver = receiver;
@@ -76,29 +80,42 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         this.receiverHookCall = receiverHookCall;
     }
 
-    /**
-     * Create a list of token nft transfer records from a protobuf.
-     *
-     * @param tokenTransferList the protobuf
-     * @return the new list
-     */
-    static ArrayList<TokenNftTransfer> fromProtobuf(List<TokenTransferList> tokenTransferList) {
-        var transfers = new ArrayList<TokenNftTransfer>();
+    static List<TokenNftTransfer> fromProtobuf(TokenTransferList tokenTransferList) {
+        var token = TokenId.fromProtobuf(tokenTransferList.getToken());
+        var nftTransfers = new ArrayList<TokenNftTransfer>();
 
-        for (var tokenTransfer : tokenTransferList) {
-            var tokenId = TokenId.fromProtobuf(tokenTransfer.getToken());
+        for (var transfer : tokenTransferList.getNftTransfersList()) {
+            NftHookCall senderHookCall = null;
+            NftHookCall receiverHookCall = null;
 
-            for (var transfer : tokenTransfer.getNftTransfersList()) {
-                transfers.add(new TokenNftTransfer(
-                        tokenId,
-                        AccountId.fromProtobuf(transfer.getSenderAccountID()),
-                        AccountId.fromProtobuf(transfer.getReceiverAccountID()),
-                        transfer.getSerialNumber(),
-                        transfer.getIsApproval()));
+            if (transfer.hasPreTxSenderAllowanceHook()) {
+                senderHookCall = toNftHook(transfer.getPreTxSenderAllowanceHook(), NftHookType.PRE_HOOK_SENDER);
+            } else if (transfer.hasPrePostTxSenderAllowanceHook()) {
+                senderHookCall =
+                    toNftHook(transfer.getPrePostTxSenderAllowanceHook(), NftHookType.PRE_POST_HOOK_SENDER);
             }
-        }
 
-        return transfers;
+            if (transfer.hasPreTxReceiverAllowanceHook()) {
+                receiverHookCall =
+                    toNftHook(transfer.getPreTxReceiverAllowanceHook(), NftHookType.PRE_HOOK_RECEIVER);
+            } else if (transfer.hasPrePostTxReceiverAllowanceHook()) {
+                receiverHookCall =
+                    toNftHook(transfer.getPrePostTxReceiverAllowanceHook(), NftHookType.PRE_POST_HOOK_RECEIVER);
+            }
+
+            var sender = AccountId.fromProtobuf(transfer.getSenderAccountID());
+            var receiver = AccountId.fromProtobuf(transfer.getReceiverAccountID());
+
+            nftTransfers.add(new TokenNftTransfer(
+                token,
+                sender,
+                receiver,
+                transfer.getSerialNumber(),
+                transfer.getIsApproval(),
+                senderHookCall,
+                receiverHookCall));
+        }
+        return nftTransfers;
     }
 
     /**
@@ -110,11 +127,11 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     @Deprecated
     public static TokenNftTransfer fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(List.of(TokenTransferList.newBuilder()
-                        .setToken(TokenID.newBuilder().build())
-                        .addNftTransfers(NftTransfer.parseFrom(bytes))
-                        .build()))
-                .get(0);
+        return fromProtobuf(TokenTransferList.newBuilder()
+            .setToken(TokenID.newBuilder().build())
+            .addNftTransfers(NftTransfer.parseFrom(bytes))
+            .build())
+            .get(0);
     }
 
     /**
@@ -124,23 +141,25 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     NftTransfer toProtobuf() {
         var builder = NftTransfer.newBuilder()
-                .setSenderAccountID(sender.toProtobuf())
-                .setReceiverAccountID(receiver.toProtobuf())
-                .setSerialNumber(serial)
-                .setIsApproval(isApproved);
+            .setSenderAccountID(sender.toProtobuf())
+            .setReceiverAccountID(receiver.toProtobuf())
+            .setSerialNumber(serial)
+            .setIsApproval(isApproved);
 
         if (senderHookCall != null) {
             switch (senderHookCall.getType()) {
                 case PRE_HOOK_SENDER -> builder.setPreTxSenderAllowanceHook(senderHookCall.toProtobuf());
                 case PRE_POST_HOOK_SENDER -> builder.setPrePostTxSenderAllowanceHook(senderHookCall.toProtobuf());
-                default -> {}
+                default -> {
+                }
             }
         }
         if (receiverHookCall != null) {
             switch (receiverHookCall.getType()) {
                 case PRE_HOOK_RECEIVER -> builder.setPreTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
                 case PRE_POST_HOOK_RECEIVER -> builder.setPrePostTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
-                default -> {}
+                default -> {
+                }
             }
         }
 
@@ -150,12 +169,12 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("tokenId", tokenId)
-                .add("sender", sender)
-                .add("receiver", receiver)
-                .add("serial", serial)
-                .add("isApproved", isApproved)
-                .toString();
+            .add("tokenId", tokenId)
+            .add("sender", sender)
+            .add("receiver", receiver)
+            .add("serial", serial)
+            .add("isApproved", isApproved)
+            .toString();
     }
 
     /**
@@ -191,10 +210,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         }
         TokenNftTransfer that = (TokenNftTransfer) o;
         return serial == that.serial
-                && isApproved == that.isApproved
-                && tokenId.equals(that.tokenId)
-                && sender.equals(that.sender)
-                && receiver.equals(that.receiver);
+            && isApproved == that.isApproved
+            && tokenId.equals(that.tokenId)
+            && sender.equals(that.sender)
+            && receiver.equals(that.receiver);
     }
 
     @Override
