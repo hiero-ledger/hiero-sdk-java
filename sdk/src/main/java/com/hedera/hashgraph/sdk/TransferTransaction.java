@@ -193,13 +193,13 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
     }
 
     /**
-     * TODO
+     * Add an token transfer with allowance hook.
      *
-     * @param tokenId
-     * @param accountId
-     * @param value
-     * @param hookCall
-     * @return
+     * @param tokenId the tokenId
+     * @param accountId the accountId
+     * @param value the amount
+     * @param hookCall the hook
+     * @return the updated transaction
      */
     public TransferTransaction addTokenTransferWithHook(
             TokenId tokenId, AccountId accountId, long value, FungibleHookCall hookCall) {
