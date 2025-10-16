@@ -42,7 +42,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
             this.hookCall = null;
         }
 
-        HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved, FungibleHookCall hookCall) {
+        HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved, @Nullable FungibleHookCall hookCall) {
             this.accountId = accountId;
             this.amount = amount;
             this.isApproved = isApproved;
@@ -79,18 +79,11 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
                         transfer.getPrePostTxAllowanceHook(), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
             }
 
-            if (typedHook != null) {
-                return new HbarTransfer(
-                        AccountId.fromProtobuf(transfer.getAccountID()),
-                        Hbar.fromTinybars(transfer.getAmount()),
-                        transfer.getIsApproval(),
-                        typedHook);
-            } else {
-                return new HbarTransfer(
-                        AccountId.fromProtobuf(transfer.getAccountID()),
-                        Hbar.fromTinybars(transfer.getAmount()),
-                        transfer.getIsApproval());
-            }
+            return new HbarTransfer(
+                    AccountId.fromProtobuf(transfer.getAccountID()),
+                    Hbar.fromTinybars(transfer.getAmount()),
+                    transfer.getIsApproval(),
+                    typedHook);
         }
 
         @Override
@@ -161,7 +154,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
             }
         }
 
-        hbarTransfers.add(new HbarTransfer(accountId, value, false, hookCall));
+        hbarTransfers.add(new HbarTransfer(accountId, value, isApproved, hookCall));
         return this;
     }
 
