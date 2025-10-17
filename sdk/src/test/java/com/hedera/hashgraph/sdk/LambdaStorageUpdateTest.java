@@ -90,8 +90,8 @@ class LambdaStorageUpdateTest {
 
     @Test
     void fromProtobufWithoutUpdateThrows() {
-        var emptyProto = com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder()
-                .build();
+        var emptyProto =
+                com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder().build();
         assertThrows(IllegalArgumentException.class, () -> LambdaStorageUpdate.fromProtobuf(emptyProto));
     }
 }

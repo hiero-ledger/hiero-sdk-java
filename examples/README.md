@@ -40,6 +40,7 @@
 * [Staking](../examples/src/main/java/org/hiero/sdk/java/examples/StakingExample.java)
 * [Staking (with update)](../examples/src/main/java/org/hiero/sdk/java/examples/StakingWithUpdateExample.java)
 * [Multisig](../examples/src/main/java/org/hiero/sdk/java/examples/MultiSigOfflineExample.java)
+* [Add hooks to account](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/AddHooksToAccountExample.java)
 
 ### Consensus Service
 
@@ -105,6 +106,10 @@ for configuring the network. If the `HEDERA_NETWORK` is not set, it will default
 for configuring the logging. If the `SDK_LOG_LEVEL` is not set, it will default to `SILENT`.
 Important pre-requisite to see logs: set simple logger log level to same level as the `SDK_LOG_LEVEL`,
 for example via VM options: `-Dorg.slf4j.simpleLogger.log.org.hiero=trace`.
+
+For hook-related examples (like `AddHooksToAccountExample`), you also need to set the `HOOK_CONTRACT_ID` variable:
+- In our examples we use a bytecote from a specific smart contract which can be found in `/contracts/HieroHookContract.sol`.
+- Note: Hook functionality may not be available on all networks. The example will demonstrate the configuration even if hooks are not supported.
 
 Therefore, the format of the configuration file should be as follows:
 
