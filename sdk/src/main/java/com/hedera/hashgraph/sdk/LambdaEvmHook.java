@@ -51,12 +51,12 @@ public class LambdaEvmHook extends EvmHookSpec {
      *
      * @return the protobuf LambdaEvmHook
      */
-    com.hedera.hapi.node.hooks.legacy.LambdaEvmHook toProtobuf() {
-        var specProto = com.hedera.hapi.node.hooks.legacy.EvmHookSpec.newBuilder()
+    com.hedera.hashgraph.sdk.proto.LambdaEvmHook toProtobuf() {
+        var specProto = com.hedera.hashgraph.sdk.proto.EvmHookSpec.newBuilder()
                 .setContractId(getContractId().toProtobuf())
                 .build();
         var builder =
-                com.hedera.hapi.node.hooks.legacy.LambdaEvmHook.newBuilder().setSpec(specProto);
+                com.hedera.hashgraph.sdk.proto.LambdaEvmHook.newBuilder().setSpec(specProto);
 
         for (LambdaStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());
@@ -71,7 +71,7 @@ public class LambdaEvmHook extends EvmHookSpec {
      * @param proto the protobuf LambdaEvmHook
      * @return a new LambdaEvmHook instance
      */
-    public static LambdaEvmHook fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaEvmHook proto) {
+    public static LambdaEvmHook fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaEvmHook proto) {
         var storageUpdates = new ArrayList<LambdaStorageUpdate>();
         for (var protoUpdate : proto.getStorageUpdatesList()) {
             storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));

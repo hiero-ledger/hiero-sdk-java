@@ -17,11 +17,8 @@ module com.hedera.hashgraph.sdk {
     exports com.hedera.hashgraph.sdk;
     exports com.hedera.hashgraph.sdk.proto;
     exports com.hedera.hashgraph.sdk.logger;
-    exports com.hedera.hapi.node.hooks.legacy;
 
     opens com.hedera.hashgraph.sdk;
     // for reflective access e.g. by com.fasterxml.jackson.databind
     opens com.hedera.hashgraph.sdk.proto;
-    opens com.hedera.hapi.node.hooks.legacy to
-            com.google.protobuf;
 }

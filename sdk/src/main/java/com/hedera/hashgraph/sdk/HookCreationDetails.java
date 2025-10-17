@@ -97,8 +97,8 @@ public class HookCreationDetails {
      *
      * @return the protobuf HookCreationDetails
      */
-    com.hedera.hapi.node.hooks.legacy.HookCreationDetails toProtobuf() {
-        var builder = com.hedera.hapi.node.hooks.legacy.HookCreationDetails.newBuilder()
+    com.hedera.hashgraph.sdk.proto.HookCreationDetails toProtobuf() {
+        var builder = com.hedera.hashgraph.sdk.proto.HookCreationDetails.newBuilder()
                 .setExtensionPoint(extensionPoint.getProtoValue())
                 .setHookId(hookId)
                 .setLambdaEvmHook(hook.toProtobuf());
@@ -116,7 +116,7 @@ public class HookCreationDetails {
      * @param proto the protobuf HookCreationDetails
      * @return a new HookCreationDetails instance
      */
-    public static HookCreationDetails fromProtobuf(com.hedera.hapi.node.hooks.legacy.HookCreationDetails proto) {
+    public static HookCreationDetails fromProtobuf(com.hedera.hashgraph.sdk.proto.HookCreationDetails proto) {
         var adminKey = proto.hasAdminKey() ? Key.fromProtobufKey(proto.getAdminKey()) : null;
 
         return new HookCreationDetails(

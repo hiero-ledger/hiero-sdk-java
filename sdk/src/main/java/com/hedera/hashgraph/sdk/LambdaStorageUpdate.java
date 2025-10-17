@@ -20,7 +20,7 @@ public abstract class LambdaStorageUpdate {
      *
      * @return the protobuf LambdaStorageUpdate
      */
-    abstract com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf();
+    abstract com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf();
 
     /**
      * Create a LambdaStorageUpdate from a protobuf message.
@@ -28,7 +28,7 @@ public abstract class LambdaStorageUpdate {
      * @param proto the protobuf LambdaStorageUpdate
      * @return a new LambdaStorageUpdate instance
      */
-    static LambdaStorageUpdate fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate proto) {
+    static LambdaStorageUpdate fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate proto) {
         return switch (proto.getUpdateCase()) {
             case STORAGE_SLOT -> LambdaStorageSlot.fromProtobuf(proto.getStorageSlot());
             case MAPPING_ENTRIES -> LambdaMappingEntries.fromProtobuf(proto.getMappingEntries());
@@ -77,16 +77,16 @@ public abstract class LambdaStorageUpdate {
         }
 
         @Override
-        com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
-            return com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder()
-                    .setStorageSlot(com.hedera.hapi.node.hooks.legacy.LambdaStorageSlot.newBuilder()
+        com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf() {
+            return com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder()
+                    .setStorageSlot(com.hedera.hashgraph.sdk.proto.LambdaStorageSlot.newBuilder()
                             .setKey(ByteString.copyFrom(key))
                             .setValue(ByteString.copyFrom(value))
                             .build())
                     .build();
         }
 
-        public static LambdaStorageSlot fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaStorageSlot proto) {
+        public static LambdaStorageSlot fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaStorageSlot proto) {
             return new LambdaStorageSlot(
                     proto.getKey().toByteArray(), proto.getValue().toByteArray());
         }
@@ -154,20 +154,20 @@ public abstract class LambdaStorageUpdate {
         }
 
         @Override
-        com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate toProtobuf() {
-            var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries.newBuilder()
+        com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf() {
+            var builder = com.hedera.hashgraph.sdk.proto.LambdaMappingEntries.newBuilder()
                     .setMappingSlot(ByteString.copyFrom(mappingSlot));
 
             for (LambdaMappingEntry entry : entries) {
                 builder.addEntries(entry.toProtobuf());
             }
 
-            return com.hedera.hapi.node.hooks.legacy.LambdaStorageUpdate.newBuilder()
+            return com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder()
                     .setMappingEntries(builder.build())
                     .build();
         }
 
-        static LambdaMappingEntries fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntries proto) {
+        static LambdaMappingEntries fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaMappingEntries proto) {
             var entries = new java.util.ArrayList<LambdaMappingEntry>();
             for (var protoEntry : proto.getEntriesList()) {
                 entries.add(LambdaMappingEntry.fromProtobuf(protoEntry));

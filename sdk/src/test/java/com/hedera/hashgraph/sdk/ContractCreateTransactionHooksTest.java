@@ -103,7 +103,7 @@ public class ContractCreateTransactionHooksTest {
 
         var protoHook = protoBody.getHookCreationDetails(0);
         assertEquals(
-                com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+                com.hedera.hashgraph.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                 protoHook.getExtensionPoint());
         assertEquals(1L, protoHook.getHookId());
         assertTrue(protoHook.hasLambdaEvmHook());
