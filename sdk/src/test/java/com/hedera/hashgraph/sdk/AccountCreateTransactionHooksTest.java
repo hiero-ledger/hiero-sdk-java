@@ -120,7 +120,7 @@ public class AccountCreateTransactionHooksTest {
 
         var protoHookDetails = protoBody.getHookCreationDetails(0);
         assertEquals(
-                com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
+                com.hedera.hashgraph.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                 protoHookDetails.getExtensionPoint());
         assertEquals(1L, protoHookDetails.getHookId());
         assertTrue(protoHookDetails.hasLambdaEvmHook());

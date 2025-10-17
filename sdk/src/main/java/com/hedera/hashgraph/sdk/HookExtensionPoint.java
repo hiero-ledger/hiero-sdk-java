@@ -16,11 +16,11 @@ public enum HookExtensionPoint {
      * This hook allows accounts to define custom logic for approving or rejecting
      * token transfers, providing fine-grained control over allowance behavior.
      */
-    ACCOUNT_ALLOWANCE_HOOK(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK);
+    ACCOUNT_ALLOWANCE_HOOK(com.hedera.hashgraph.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK);
 
-    private final com.hedera.hapi.node.hooks.legacy.HookExtensionPoint protoValue;
+    private final com.hedera.hashgraph.sdk.proto.HookExtensionPoint protoValue;
 
-    HookExtensionPoint(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint protoValue) {
+    HookExtensionPoint(com.hedera.hashgraph.sdk.proto.HookExtensionPoint protoValue) {
         this.protoValue = protoValue;
     }
 
@@ -29,7 +29,7 @@ public enum HookExtensionPoint {
      *
      * @return the protobuf enum value
      */
-    public com.hedera.hapi.node.hooks.legacy.HookExtensionPoint getProtoValue() {
+    public com.hedera.hashgraph.sdk.proto.HookExtensionPoint getProtoValue() {
         return protoValue;
     }
 
@@ -40,7 +40,7 @@ public enum HookExtensionPoint {
      * @return the corresponding HookExtensionPoint
      * @throws IllegalArgumentException if the protobuf value is not recognized
      */
-    public static HookExtensionPoint fromProtobuf(com.hedera.hapi.node.hooks.legacy.HookExtensionPoint protoValue) {
+    public static HookExtensionPoint fromProtobuf(com.hedera.hashgraph.sdk.proto.HookExtensionPoint protoValue) {
         return switch (protoValue) {
             case ACCOUNT_ALLOWANCE_HOOK -> ACCOUNT_ALLOWANCE_HOOK;
             case UNRECOGNIZED -> throw new IllegalArgumentException("Unrecognized hook extension point: " + protoValue);

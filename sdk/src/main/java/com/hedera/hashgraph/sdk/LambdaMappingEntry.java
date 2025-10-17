@@ -97,8 +97,8 @@ public class LambdaMappingEntry {
      *
      * @return the protobuf LambdaMappingEntry
      */
-    com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry toProtobuf() {
-        var builder = com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry.newBuilder();
+    com.hedera.hashgraph.sdk.proto.LambdaMappingEntry toProtobuf() {
+        var builder = com.hedera.hashgraph.sdk.proto.LambdaMappingEntry.newBuilder();
 
         if (key != null) {
             builder.setKey(ByteString.copyFrom(key));
@@ -119,7 +119,7 @@ public class LambdaMappingEntry {
      * @param proto the protobuf LambdaMappingEntry
      * @return a new LambdaMappingEntry instance
      */
-    public static LambdaMappingEntry fromProtobuf(com.hedera.hapi.node.hooks.legacy.LambdaMappingEntry proto) {
+    public static LambdaMappingEntry fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaMappingEntry proto) {
         return switch (proto.getEntryKeyCase()) {
             case KEY ->
                 LambdaMappingEntry.ofKey(
