@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.hedera.hapi.node.hooks.legacy.LambdaSStoreTransactionBody;
+import com.hedera.hashgraph.sdk.proto.LambdaSStoreTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import java.time.Instant;
 import java.util.Arrays;
