@@ -40,7 +40,7 @@
 * [Staking](../examples/src/main/java/org/hiero/sdk/java/examples/StakingExample.java)
 * [Staking (with update)](../examples/src/main/java/org/hiero/sdk/java/examples/StakingWithUpdateExample.java)
 * [Multisig](../examples/src/main/java/org/hiero/sdk/java/examples/MultiSigOfflineExample.java)
-* [Add hooks to account](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/AddHooksToAccountExample.java)
+* [Account hooks](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/AccountHooksExample.java)
 
 ### Consensus Service
 
