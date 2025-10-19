@@ -76,6 +76,7 @@
 * [Create a stateful contract](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/CreateStatefulContractExample.java)
 * [Contract nonce (HIP-729)](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ContractNoncesExample.java)
 * [Interaction with a contract](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/SolidityPrecompileExample.java)
+* [Contract hooks](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ContractHooksExample.java)
 
 ### Miscellaneous
 
