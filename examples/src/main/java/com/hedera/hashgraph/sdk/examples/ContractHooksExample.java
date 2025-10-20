@@ -5,8 +5,6 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -114,12 +112,7 @@ class ContractHooksExample {
         ContractId contractId = receipt.contractId;
         Objects.requireNonNull(contractId);
         System.out.println("Created contract with ID: " + contractId);
-
-        if (receipt.status == Status.SUCCESS) {
-            System.out.println("Successfully created contract with basic lambda hook!");
-        } else {
-            System.err.println("Failed to create contract with hook. Status: " + receipt.status);
-        }
+        System.out.println("Successfully created contract with basic lambda hook!");
 
         return contractId;
     }
@@ -127,47 +120,27 @@ class ContractHooksExample {
     /**
      * Adds hooks to an existing contract.
      */
-    private static void addHooksToContract(Client client, ContractId hookContractId, ContractId targetContractId)
-            throws Exception {
+    private static void addHooksToContract(Client client, ContractId hookContractId, ContractId targetContractId) {
         System.out.println("Adding hooks to existing contract...");
 
-        // Admin key for the hooks
         Key adminKey = OPERATOR_KEY.getPublicKey();
 
         // Hook 3: Basic lambda hook with no storage updates (using ID 3 to avoid conflict with existing hook 1)
         LambdaEvmHook basicHook = new LambdaEvmHook(hookContractId);
         HookCreationDetails hook3 =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, basicHook, adminKey);
-
-        // Hook 4: Lambda hook with storage slot updates
-        byte[] storageKey = new byte[32];
-        Arrays.fill(storageKey, (byte) 0x01);
-        byte[] storageValue = new byte[32];
-        Arrays.fill(storageValue, (byte) 0x64);
-
-        List<LambdaStorageUpdate> storageUpdates =
-                Arrays.asList(new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue));
-
-        LambdaEvmHook storageHook = new LambdaEvmHook(hookContractId, storageUpdates);
-        HookCreationDetails hook4 =
-                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, storageHook, adminKey);
-
         try {
             TransactionResponse contractUpdateResponse = new ContractUpdateTransaction()
                     .setContractId(targetContractId)
                     .addHookToCreate(hook3)
-                    .addHookToCreate(hook4)
                     .freezeWith(client)
                     .sign(OPERATOR_KEY)
                     .execute(client);
 
-            TransactionReceipt contractUpdateReceipt = contractUpdateResponse.getReceipt(client);
+            contractUpdateResponse.getReceipt(client);
 
-            if (contractUpdateReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully added hooks to contract!");
-            } else {
-                System.err.println("Failed to add hooks to contract. Status: " + contractUpdateReceipt.status);
-            }
+            // Throws on failure; success if we reached here
+            System.out.println("Successfully added hooks to contract!");
         } catch (Exception e) {
             System.err.println("Failed to execute hook transaction: " + e.getMessage());
         }
@@ -189,19 +162,13 @@ class ContractHooksExample {
                     .sign(OPERATOR_KEY)
                     .execute(client);
 
-            TransactionReceipt deleteHookReceipt = deleteHookResponse.getReceipt(client);
+            deleteHookResponse.getReceipt(client);
 
-            if (deleteHookReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully deleted hooks with IDs: 1 and 3");
-            } else {
-                System.err.println("Failed to delete hooks. Status: " + deleteHookReceipt.status);
-            }
+            // Throws on failure; success if we reached here
+            System.out.println("Successfully deleted hooks with IDs: 1 and 3");
         } catch (Exception e) {
             System.err.println("Failed to execute hook deletion: " + e.getMessage());
         }
-
-        // Note: Hook 4 (with storage) may require special handling for deletion
-        // as hooks with storage slots need to be cleared before deletion.
     }
 
     private static FileId createBytecodeFile(Client client) throws Exception {
@@ -219,7 +186,7 @@ class ContractHooksExample {
 
         var response = new ContractCreateTransaction()
                 .setAdminKey(OPERATOR_KEY)
-                .setGas(1_000_000)
+                .setGas(500_000)
                 .setBytecodeFileId(fileId)
                 .execute(client);
 

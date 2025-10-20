@@ -7,7 +7,6 @@ import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -101,13 +100,8 @@ class LambdaSStoreExample {
                 .sign(accountKey)
                 .execute(client);
 
-        TransactionReceipt lambdaStoreReceipt = lambdaStoreResponse.getReceipt(client);
-
-        if (lambdaStoreReceipt.status == Status.SUCCESS) {
-            System.out.println("Successfully updated lambda hook storage!");
-        } else {
-            System.err.println("Failed to update lambda hook storage. Status: " + lambdaStoreReceipt.status);
-        }
+        lambdaStoreResponse.getReceipt(client);
+        System.out.println("Successfully updated lambda hook storage!");
 
         client.close();
         System.out.println("Lambda SStore Example Complete!");
@@ -131,25 +125,9 @@ class LambdaSStoreExample {
      * This is a prerequisite for the LambdaSStoreTransaction example.
      */
     private static AccountWithKey createAccountWithLambdaHook(Client client, ContractId contractId) throws Exception {
-        System.out.println("Creating account with lambda hook and initial storage (prerequisite)...");
-
-        // Create initial storage updates for the hook
-        byte[] storageKey1 = new byte[32];
-        Arrays.fill(storageKey1, (byte) 0x01);
-        byte[] storageValue1 = new byte[32];
-        Arrays.fill(storageValue1, (byte) 0x64); // 100 in decimal
-
-        byte[] storageKey2 = new byte[32];
-        Arrays.fill(storageKey2, (byte) 0x02);
-        byte[] storageValue2 = new byte[32];
-        Arrays.fill(storageValue2, (byte) 0x32); // 50 in decimal
-
-        List<LambdaStorageUpdate> initialStorageUpdates = Arrays.asList(
-                new LambdaStorageUpdate.LambdaStorageSlot(storageKey1, storageValue1),
-                new LambdaStorageUpdate.LambdaStorageSlot(storageKey2, storageValue2));
-
+        System.out.println("Creating account with lambda hook");
         // Create lambda hook with initial storage updates
-        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId, initialStorageUpdates);
+        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId);
 
         // Create hook creation details
         Key adminKey = OPERATOR_KEY.getPublicKey();
@@ -173,12 +151,7 @@ class LambdaSStoreExample {
             AccountId accountId = accountCreateReceipt.accountId;
             Objects.requireNonNull(accountId);
             System.out.println("Created account with ID: " + accountId);
-
-            if (accountCreateReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully created account with lambda hook and initial storage!");
-            } else {
-                System.err.println("Failed to create account with hook. Status: " + accountCreateReceipt.status);
-            }
+            System.out.println("Successfully created account with lambda hook and initial storage!");
 
             return new AccountWithKey(accountId, accountKey);
         } catch (Exception e) {
@@ -203,7 +176,7 @@ class LambdaSStoreExample {
 
         var response = new ContractCreateTransaction()
                 .setAdminKey(OPERATOR_KEY)
-                .setGas(1_000_000)
+                .setGas(500_000)
                 .setBytecodeFileId(fileId)
                 .execute(client);
 

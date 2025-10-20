@@ -97,23 +97,23 @@ class TransferTransactionHooksExample {
 
         // HBAR transfer with pre-tx allowance hook
         FungibleHookCall hbarHook = new FungibleHookCall(
-                1001L, new EvmHookCall(new byte[] {0x01, 0x02}, 50000L), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+                1001L, new EvmHookCall(new byte[] {0x01, 0x02}, 20000L), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
 
         // NFT sender hook (pre-hook)
         NftHookCall nftSenderHook =
-                new NftHookCall(1002L, new EvmHookCall(new byte[] {0x03, 0x04}, 60000L), NftHookType.PRE_HOOK_SENDER);
+                new NftHookCall(1002L, new EvmHookCall(new byte[] {0x03, 0x04}, 20000L), NftHookType.PRE_HOOK_SENDER);
 
         // NFT receiver hook (pre-hook)
         NftHookCall nftReceiverHook =
-                new NftHookCall(1003L, new EvmHookCall(new byte[] {0x05, 0x06}, 40000L), NftHookType.PRE_HOOK_RECEIVER);
+                new NftHookCall(1003L, new EvmHookCall(new byte[] {0x05, 0x06}, 20000L), NftHookType.PRE_HOOK_RECEIVER);
 
         // Fungible token transfer with pre-post allowance hook
         FungibleHookCall fungibleTokenHook = new FungibleHookCall(
-                1004L, new EvmHookCall(new byte[] {0x07, 0x08}, 70000L), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
+                1004L, new EvmHookCall(new byte[] {0x07, 0x08}, 20000L), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
 
         // Build TransferTransaction with hooks (demonstration)
         System.out.println("Building TransferTransaction with hooks...");
-        TransferTransaction transferTx = new TransferTransaction()
+        new TransferTransaction()
                 // HBAR transfers with hook
                 .addHbarTransferWithHook(senderAccountId, Hbar.from(-100), hbarHook)
                 .addHbarTransfer(receiverAccountId, Hbar.from(100))
@@ -144,14 +144,9 @@ class TransferTransactionHooksExample {
                     .addHbarTransfer(receiverAccountId, Hbar.from(1))
                     .execute(client);
 
-            TransactionReceipt simpleTransferReceipt = simpleTransferResponse.getReceipt(client);
-
-            if (simpleTransferReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully executed simple HBAR transfer!");
-                System.out.println("Transaction ID: " + simpleTransferResponse.transactionId);
-            } else {
-                System.err.println("Failed to execute simple transfer. Status: " + simpleTransferReceipt.status);
-            }
+            simpleTransferResponse.getReceipt(client);
+            System.out.println("Successfully executed simple HBAR transfer!");
+            System.out.println("Transaction ID: " + simpleTransferResponse.transactionId);
         } catch (Exception e) {
             System.err.println("Failed to execute simple transfer: " + e.getMessage());
         }
@@ -223,7 +218,7 @@ class TransferTransactionHooksExample {
                 .execute(client);
 
         TransactionReceipt mintReceipt = mintResponse.getReceipt(client);
-        long serialNumber = mintReceipt.serials.get(0);
+        long serialNumber = mintReceipt.serials.getFirst();
         NftId nftId = new NftId(tokenId, serialNumber);
 
         System.out.println("Minted NFT with ID: " + nftId);

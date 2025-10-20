@@ -6,8 +6,6 @@ import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -118,30 +116,12 @@ class AccountHooksExample {
     private static AccountWithKey createAccountWithHooks(Client client, ContractId contractId) throws Exception {
         System.out.println("Creating account with lambda EVM hook...");
 
-        // Create storage updates for the hook
-        byte[] storageKey1 = new byte[32];
-        Arrays.fill(storageKey1, (byte) 0x01);
-        byte[] storageValue1 = new byte[32];
-        Arrays.fill(storageValue1, (byte) 0x64);
+        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId);
 
-        byte[] storageKey2 = new byte[32];
-        Arrays.fill(storageKey2, (byte) 0x02);
-        byte[] storageValue2 = new byte[32];
-        Arrays.fill(storageValue2, (byte) 0x32);
-
-        List<LambdaStorageUpdate> storageUpdates = Arrays.asList(
-                new LambdaStorageUpdate.LambdaStorageSlot(storageKey1, storageValue1),
-                new LambdaStorageUpdate.LambdaStorageSlot(storageKey2, storageValue2));
-
-        // Create lambda hook with storage updates
-        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId, storageUpdates);
-
-        // Create hook creation details
         Key adminKey = OPERATOR_KEY.getPublicKey();
         HookCreationDetails hookDetails =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1002L, lambdaHook, adminKey);
 
-        // Create account with lambda hook
         PrivateKey accountKey = PrivateKey.generateED25519();
         PublicKey accountPublicKey = accountKey.getPublicKey();
 
@@ -158,12 +138,7 @@ class AccountHooksExample {
             AccountId accountId = accountCreateReceipt.accountId;
             Objects.requireNonNull(accountId);
             System.out.println("Created account with ID: " + accountId);
-
-            if (accountCreateReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully created account with lambda hook!");
-            } else {
-                System.err.println("Failed to create account with hook. Status: " + accountCreateReceipt.status);
-            }
+            System.out.println("Successfully created account with lambda hook!");
 
             return new AccountWithKey(accountId, accountKey);
         } catch (Exception e) {
@@ -179,26 +154,16 @@ class AccountHooksExample {
             Client client, ContractId contractId, AccountId accountId, PrivateKey accountKey) throws Exception {
         System.out.println("Adding hooks to existing account...");
 
-        // Admin key for the hooks
         Key adminKey = OPERATOR_KEY.getPublicKey();
 
-        // Hook 1: Basic lambda hook with no storage updates
+        // Create basic lambda hooks with no storage updates
         LambdaEvmHook basicHook = new LambdaEvmHook(contractId);
         HookCreationDetails hook1 =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, basicHook, adminKey);
 
-        // Hook 2: Lambda hook with storage slot updates
-        byte[] storageKey = new byte[32];
-        Arrays.fill(storageKey, (byte) 0x01);
-        byte[] storageValue = new byte[32];
-        Arrays.fill(storageValue, (byte) 0x64);
-
-        List<LambdaStorageUpdate> storageUpdates =
-                Arrays.asList(new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue));
-
-        LambdaEvmHook storageHook = new LambdaEvmHook(contractId, storageUpdates);
+        LambdaEvmHook basicHook2 = new LambdaEvmHook(contractId);
         HookCreationDetails hook2 =
-                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, storageHook, adminKey);
+                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, basicHook2, adminKey);
 
         try {
             TransactionResponse accountUpdateResponse = new AccountUpdateTransaction()
@@ -211,11 +176,8 @@ class AccountHooksExample {
 
             TransactionReceipt accountUpdateReceipt = accountUpdateResponse.getReceipt(client);
 
-            if (accountUpdateReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully added hooks to account!");
-            } else {
-                System.err.println("Failed to add hooks to account. Status: " + accountUpdateReceipt.status);
-            }
+            // Throws on failure; success if we reached here
+            System.out.println("Successfully added hooks to account!");
         } catch (Exception e) {
             System.err.println("Failed to execute hook transaction: " + e.getMessage());
         }
@@ -230,32 +192,26 @@ class AccountHooksExample {
     /**
      * Deletes hooks from an account.
      */
-    private static void deleteHooksFromAccount(Client client, AccountId accountId, PrivateKey accountKey)
-            throws Exception {
+    private static void deleteHooksFromAccount(Client client, AccountId accountId, PrivateKey accountKey) {
         System.out.println("Deleting hooks from account...");
 
-        // First, delete the basic hook (no storage)
+        // Delete the basic hooks (no storage)
         try {
             TransactionResponse deleteHookResponse = new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .addHookToDelete(1L) // Delete hook with ID 1 (basic hook without storage)
+                    .addHookToDelete(1L)
+                    .addHookToDelete(2L)
                     .freezeWith(client)
                     .sign(accountKey)
                     .execute(client);
 
-            TransactionReceipt deleteHookReceipt = deleteHookResponse.getReceipt(client);
+            deleteHookResponse.getReceipt(client);
 
-            if (deleteHookReceipt.status == Status.SUCCESS) {
-                System.out.println("Successfully deleted hook with ID: 1");
-            } else {
-                System.err.println("Failed to delete hook 1. Status: " + deleteHookReceipt.status);
-            }
+            // Throws on failure; success if we reached here
+            System.out.println("Successfully deleted hooks (IDs: 1, 2)");
         } catch (Exception e) {
             System.err.println("Failed to execute hook 1 deletion: " + e.getMessage());
         }
-
-        // Note: Hook 2 has storage and cannot be easily deleted without clearing storage first.
-        // This demonstrates that hooks with storage require special handling for deletion.
     }
 
     private static FileId createBytecodeFile(Client client) throws Exception {
@@ -274,7 +230,7 @@ class AccountHooksExample {
 
         var response = new ContractCreateTransaction()
                 .setAdminKey(OPERATOR_KEY)
-                .setGas(1_000_000)
+                .setGas(500_000)
                 .setBytecodeFileId(fileId)
                 .execute(client);
 
