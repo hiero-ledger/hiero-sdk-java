@@ -1404,6 +1404,18 @@ public final class Client implements AutoCloseable {
         return this;
     }
 
+    /**
+     * Trigger an immediate address book update to refresh the client's network with the latest node information.
+     * This is useful when encountering INVALID_NODE_ACCOUNT_ID errors to ensure subsequent transactions
+     * use the correct node account IDs.
+     *
+     * @return {@code this}
+     */
+    public synchronized Client updateNetworkFromAddressBook() {
+        scheduleNetworkUpdate(Duration.ZERO);
+        return this;
+    }
+
     public Logger getLogger() {
         return this.logger;
     }

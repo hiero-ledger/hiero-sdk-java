@@ -390,7 +390,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                 throw new TimeoutException();
             }
 
-            GrpcRequest grpcRequest = new GrpcRequest(client.network, attempt, currentTimeout);
+            GrpcRequest grpcRequest = new GrpcRequest(client.network, client, attempt, currentTimeout);
             Node node = grpcRequest.getNode();
             ResponseT response = null;
 
@@ -712,7 +712,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         var timeoutTime = Instant.now().plus(timeout);
 
         GrpcRequest grpcRequest =
-                new GrpcRequest(client.network, attempt, Duration.between(Instant.now(), timeoutTime));
+                new GrpcRequest(client.network, client, attempt, Duration.between(Instant.now(), timeoutTime));
 
         Supplier<CompletableFuture<Void>> afterUnhealthyDelay = () -> {
             return grpcRequest.getNode().isHealthy()
@@ -868,6 +868,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             case PLATFORM_NOT_ACTIVE:
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
+            case INVALID_NODE_ACCOUNT_ID:
                 return ExecutionState.RETRY;
             case OK:
                 return ExecutionState.SUCCESS;
@@ -880,6 +881,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
     class GrpcRequest {
         @Nullable
         private final Network network;
+
+        @Nullable
+        private final Client client;
 
         private final Node node;
         private final int attempt;
@@ -894,6 +898,22 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
         GrpcRequest(@Nullable Network network, int attempt, Duration grpcDeadline) {
             this.network = network;
+            this.client = null;
+            this.attempt = attempt;
+            this.grpcDeadline = grpcDeadline;
+            this.node = getNodeForExecute(attempt);
+            this.request = getRequestForExecute(); // node index gets incremented here
+            this.startAt = System.nanoTime();
+
+            // Exponential back-off for Delayer: 250ms, 500ms, 1s, 2s, 4s, 8s, ... 8s
+            delay = (long) Math.min(
+                    Objects.requireNonNull(minBackoff).toMillis() * Math.pow(2, attempt - 1.0),
+                    Objects.requireNonNull(maxBackoff).toMillis());
+        }
+
+        GrpcRequest(@Nullable Network network, @Nullable Client client, int attempt, Duration grpcDeadline) {
+            this.network = network;
+            this.client = client;
             this.attempt = attempt;
             this.grpcDeadline = grpcDeadline;
             this.node = getNodeForExecute(attempt);
@@ -974,7 +994,19 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         }
 
         void handleResponse(ResponseT response, Status status, ExecutionState executionState) {
-            node.decreaseBackoff();
+            // Special handling for INVALID_NODE_ACCOUNT_ID - mark node as unusable and update address book
+            if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                network.increaseBackoff(node);
+                logger.warn(
+                        "Node {} marked as unusable due to INVALID_NODE_ACCOUNT_ID during attempt #{}",
+                        node.getAccountId(),
+                        attempt);
+
+                // Trigger immediate address book update to get latest node account IDs
+                triggerImmediateAddressBookUpdate();
+            } else {
+                node.decreaseBackoff();
+            }
 
             this.response = Executable.this.responseListener.apply(response);
             this.responseStatus = status;
@@ -993,19 +1025,27 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             }
             switch (executionState) {
                 case RETRY -> {
+                    if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                        logger.warn(
+                                "Retrying with different node after INVALID_NODE_ACCOUNT_ID from node {} during attempt #{}",
+                                node.getAccountId(),
+                                attempt);
+                    } else {
+                        logger.warn(
+                                "Retrying in {} ms after failure with node {} during attempt #{}: {}",
+                                delay,
+                                node.getAccountId(),
+                                attempt,
+                                responseStatus);
+                    }
+                    verboseLog(node);
+                }
+                case SERVER_ERROR ->
                     logger.warn(
-                            "Retrying in {} ms after failure with node {} during attempt #{}: {}",
-                            delay,
+                            "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
                             node.getAccountId(),
                             attempt,
                             responseStatus);
-                    verboseLog(node);
-                }
-                case SERVER_ERROR -> logger.warn(
-                        "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
-                        node.getAccountId(),
-                        attempt,
-                        responseStatus);
                 default -> {}
             }
         }
@@ -1024,6 +1064,21 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                     ipAddress,
                     System.currentTimeMillis(),
                     this.getClass().getSimpleName());
+        }
+
+        /**
+         * Trigger an immediate address book update when INVALID_NODE_ACCOUNT_ID occurs.
+         * This ensures the client gets the latest node account IDs for subsequent transactions.
+         */
+        void triggerImmediateAddressBookUpdate() {
+            if (client != null) {
+                try {
+                    client.updateNetworkFromAddressBook();
+                    logger.info("Triggered immediate address book update after INVALID_NODE_ACCOUNT_ID");
+                } catch (Exception e) {
+                    logger.warn("Failed to trigger address book update after INVALID_NODE_ACCOUNT_ID", e);
+                }
+            }
         }
     }
 }
