@@ -390,7 +390,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                 throw new TimeoutException();
             }
 
-            GrpcRequest grpcRequest = new GrpcRequest(client.network, client, attempt, currentTimeout);
+            GrpcRequest grpcRequest = new GrpcRequest(client.network, attempt, currentTimeout);
             Node node = grpcRequest.getNode();
             ResponseT response = null;
 
@@ -433,7 +433,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
             var status = mapResponseStatus(response);
             var executionState = getExecutionState(status, response);
-            grpcRequest.handleResponse(response, status, executionState);
+            grpcRequest.handleResponse(response, status, executionState, client);
 
             switch (executionState) {
                 case SERVER_ERROR:
@@ -712,7 +712,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         var timeoutTime = Instant.now().plus(timeout);
 
         GrpcRequest grpcRequest =
-                new GrpcRequest(client.network, client, attempt, Duration.between(Instant.now(), timeoutTime));
+                new GrpcRequest(client.network, attempt, Duration.between(Instant.now(), timeoutTime));
 
         Supplier<CompletableFuture<Void>> afterUnhealthyDelay = () -> {
             return grpcRequest.getNode().isHealthy()
@@ -767,7 +767,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
                                     var status = mapResponseStatus(response);
                                     var executionState = getExecutionState(status, response);
-                                    grpcRequest.handleResponse(response, status, executionState);
+                                    grpcRequest.handleResponse(response, status, executionState, client);
 
                                     switch (executionState) {
                                         case SERVER_ERROR:
@@ -882,9 +882,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         @Nullable
         private final Network network;
 
-        @Nullable
-        private final Client client;
-
         private final Node node;
         private final int attempt;
         // private final ClientCall<ProtoRequestT, ResponseT> call;
@@ -898,22 +895,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
         GrpcRequest(@Nullable Network network, int attempt, Duration grpcDeadline) {
             this.network = network;
-            this.client = null;
-            this.attempt = attempt;
-            this.grpcDeadline = grpcDeadline;
-            this.node = getNodeForExecute(attempt);
-            this.request = getRequestForExecute(); // node index gets incremented here
-            this.startAt = System.nanoTime();
-
-            // Exponential back-off for Delayer: 250ms, 500ms, 1s, 2s, 4s, 8s, ... 8s
-            delay = (long) Math.min(
-                    Objects.requireNonNull(minBackoff).toMillis() * Math.pow(2, attempt - 1.0),
-                    Objects.requireNonNull(maxBackoff).toMillis());
-        }
-
-        GrpcRequest(@Nullable Network network, @Nullable Client client, int attempt, Duration grpcDeadline) {
-            this.network = network;
-            this.client = client;
             this.attempt = attempt;
             this.grpcDeadline = grpcDeadline;
             this.node = getNodeForExecute(attempt);
@@ -993,7 +974,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             return Executable.this.mapResponse(response, node.getAccountId(), request);
         }
 
-        void handleResponse(ResponseT response, Status status, ExecutionState executionState) {
+        void handleResponse(ResponseT response, Status status, ExecutionState executionState, @Nullable Client client) {
             // Special handling for INVALID_NODE_ACCOUNT_ID - mark node as unusable and update address book
             if (status == Status.INVALID_NODE_ACCOUNT_ID) {
                 network.increaseBackoff(node);
@@ -1003,7 +984,14 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                         attempt);
 
                 // Trigger immediate address book update to get latest node account IDs
-                triggerImmediateAddressBookUpdate();
+                if (client != null) {
+                    try {
+                        client.updateNetworkFromAddressBook();
+                        logger.info("Triggered immediate address book update after INVALID_NODE_ACCOUNT_ID");
+                    } catch (Exception e) {
+                        logger.warn("Failed to trigger address book update after INVALID_NODE_ACCOUNT_ID", e);
+                    }
+                }
             } else {
                 node.decreaseBackoff();
             }
@@ -1064,21 +1052,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                     ipAddress,
                     System.currentTimeMillis(),
                     this.getClass().getSimpleName());
-        }
-
-        /**
-         * Trigger an immediate address book update when INVALID_NODE_ACCOUNT_ID occurs.
-         * This ensures the client gets the latest node account IDs for subsequent transactions.
-         */
-        void triggerImmediateAddressBookUpdate() {
-            if (client != null) {
-                try {
-                    client.updateNetworkFromAddressBook();
-                    logger.info("Triggered immediate address book update after INVALID_NODE_ACCOUNT_ID");
-                } catch (Exception e) {
-                    logger.warn("Failed to trigger address book update after INVALID_NODE_ACCOUNT_ID", e);
-                }
-            }
         }
     }
 }
