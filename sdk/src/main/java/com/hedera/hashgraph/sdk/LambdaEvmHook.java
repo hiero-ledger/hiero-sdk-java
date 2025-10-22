@@ -55,8 +55,7 @@ public class LambdaEvmHook extends EvmHookSpec {
         var specProto = com.hedera.hashgraph.sdk.proto.EvmHookSpec.newBuilder()
                 .setContractId(getContractId().toProtobuf())
                 .build();
-        var builder =
-                com.hedera.hashgraph.sdk.proto.LambdaEvmHook.newBuilder().setSpec(specProto);
+        var builder = com.hedera.hashgraph.sdk.proto.LambdaEvmHook.newBuilder().setSpec(specProto);
 
         for (LambdaStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());

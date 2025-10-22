@@ -68,8 +68,8 @@ class LambdaMappingEntryTest {
 
     @Test
     void fromProtobufWithoutKeyThrows() {
-        var emptyProto = com.hedera.hashgraph.sdk.proto.LambdaMappingEntry.newBuilder()
-                .build();
+        var emptyProto =
+                com.hedera.hashgraph.sdk.proto.LambdaMappingEntry.newBuilder().build();
         assertThrows(IllegalArgumentException.class, () -> LambdaMappingEntry.fromProtobuf(emptyProto));
     }
 
