@@ -7,6 +7,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeCreateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.ServiceEndpointParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.NodeResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
@@ -27,6 +28,48 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createNode")
     public NodeResponse createNode(final NodeCreateParams params) throws Exception {
         NodeCreateTransaction tx = new NodeCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        params.getAccountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
+        params.getDescription().ifPresent(tx::setDescription);
+
+        params.getGossipEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setGossipEndpoints));
+
+        params.getServiceEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setServiceEndpoints));
+
+        params.getGossipCaCertificate().ifPresent(hex -> tx.setGossipCaCertificate(Hex.decode(hex)));
+
+        params.getGrpcCertificateHash().ifPresent(hex -> tx.setGrpcCertificateHash(Hex.decode(hex)));
+
+        params.getGrpcWebProxyEndpoint().ifPresent(ep -> tx.setGrpcWebProxyEndpoint(ep.toSdkEndpoint()));
+
+        params.getAdminKey().ifPresent(keyStr -> {
+            try {
+                tx.setAdminKey(KeyUtils.getKeyFromString(keyStr));
+            } catch (InvalidProtocolBufferException e) {
+                throw new IllegalArgumentException(e);
+            }
+        });
+
+        params.getDeclineReward().ifPresent(tx::setDeclineReward);
+
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
+
+        TransactionReceipt receipt = tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        String nodeId = receipt.nodeId > 0 ? Long.toString(receipt.nodeId) : "";
+        return new NodeResponse(nodeId, receipt.status);
+    }
+
+    @JSONRPC2Method("updateNode")
+    public NodeResponse updateNode(final NodeUpdateParams params) throws Exception {
+        NodeUpdateTransaction tx = new NodeUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        try {
+            params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
+        } catch (NumberFormatException e) {
+            // Set an invalid node ID to allow the network to return the proper error
+            tx.setNodeId(Long.MAX_VALUE);
+        }
 
         params.getAccountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
         params.getDescription().ifPresent(tx::setDescription);
