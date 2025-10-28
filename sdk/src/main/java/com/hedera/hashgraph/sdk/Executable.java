@@ -433,7 +433,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
             var status = mapResponseStatus(response);
             var executionState = getExecutionState(status, response);
-            grpcRequest.handleResponse(response, status, executionState);
+            grpcRequest.handleResponse(response, status, executionState, client);
 
             switch (executionState) {
                 case SERVER_ERROR:
@@ -767,7 +767,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
                                     var status = mapResponseStatus(response);
                                     var executionState = getExecutionState(status, response);
-                                    grpcRequest.handleResponse(response, status, executionState);
+                                    grpcRequest.handleResponse(response, status, executionState, client);
 
                                     switch (executionState) {
                                         case SERVER_ERROR:
@@ -868,6 +868,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             case PLATFORM_NOT_ACTIVE:
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
+            case INVALID_NODE_ACCOUNT_ID:
                 return ExecutionState.RETRY;
             case OK:
                 return ExecutionState.SUCCESS;
@@ -973,8 +974,27 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             return Executable.this.mapResponse(response, node.getAccountId(), request);
         }
 
-        void handleResponse(ResponseT response, Status status, ExecutionState executionState) {
-            node.decreaseBackoff();
+        void handleResponse(ResponseT response, Status status, ExecutionState executionState, @Nullable Client client) {
+            // Special handling for INVALID_NODE_ACCOUNT_ID - mark node as unusable and update address book
+            if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                network.increaseBackoff(node);
+                logger.warn(
+                        "Node {} marked as unusable due to INVALID_NODE_ACCOUNT_ID during attempt #{}",
+                        node.getAccountId(),
+                        attempt);
+
+                // Trigger immediate address book update to get latest node account IDs
+                if (client != null) {
+                    try {
+                        client.updateNetworkFromAddressBook();
+                        logger.info("Triggered immediate address book update after INVALID_NODE_ACCOUNT_ID");
+                    } catch (Exception e) {
+                        logger.warn("Failed to trigger address book update after INVALID_NODE_ACCOUNT_ID", e);
+                    }
+                }
+            } else {
+                node.decreaseBackoff();
+            }
 
             this.response = Executable.this.responseListener.apply(response);
             this.responseStatus = status;
@@ -993,19 +1013,27 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             }
             switch (executionState) {
                 case RETRY -> {
+                    if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                        logger.warn(
+                                "Retrying with different node after INVALID_NODE_ACCOUNT_ID from node {} during attempt #{}",
+                                node.getAccountId(),
+                                attempt);
+                    } else {
+                        logger.warn(
+                                "Retrying in {} ms after failure with node {} during attempt #{}: {}",
+                                delay,
+                                node.getAccountId(),
+                                attempt,
+                                responseStatus);
+                    }
+                    verboseLog(node);
+                }
+                case SERVER_ERROR ->
                     logger.warn(
-                            "Retrying in {} ms after failure with node {} during attempt #{}: {}",
-                            delay,
+                            "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
                             node.getAccountId(),
                             attempt,
                             responseStatus);
-                    verboseLog(node);
-                }
-                case SERVER_ERROR -> logger.warn(
-                        "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
-                        node.getAccountId(),
-                        attempt,
-                        responseStatus);
                 default -> {}
             }
         }
