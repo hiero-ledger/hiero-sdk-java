@@ -7,6 +7,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeCreateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.ServiceEndpointParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.NodeResponse;
@@ -93,6 +94,25 @@ public class NodeService extends AbstractJSONRPC2Service {
         });
 
         params.getDeclineReward().ifPresent(tx::setDeclineReward);
+
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
+
+        TransactionReceipt receipt = tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+
+        String nodeId = receipt.nodeId > 0 ? Long.toString(receipt.nodeId) : "";
+        return new NodeResponse(nodeId, receipt.status);
+    }
+
+    @JSONRPC2Method("deleteNode")
+    public NodeResponse deleteNode(final NodeDeleteParams params) throws Exception {
+        NodeDeleteTransaction tx = new NodeDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        try {
+            params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
+        } catch (NumberFormatException e) {
+            // Set an invalid node ID to allow the network to return the proper error
+            tx.setNodeId(Long.MAX_VALUE);
+        }
 
         params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
 
