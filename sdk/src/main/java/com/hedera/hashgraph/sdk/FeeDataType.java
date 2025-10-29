@@ -54,6 +54,7 @@ public enum FeeDataType {
      */
     SUBMIT_MESSAGE_WITH_CUSTOM_FEES(SubType.SUBMIT_MESSAGE_WITH_CUSTOM_FEES);
 
+
     final SubType code;
 
     FeeDataType(SubType code) {
