@@ -237,7 +237,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
             throw new IllegalArgumentException("Gossip endpoints list must not contain more than 10 entries");
         }
         for (Endpoint endpoint : gossipEndpoints) {
-            validateEndpoint(endpoint);
+            Endpoint.validateNoIpAndDomain(endpoint);
         }
         this.gossipEndpoints = new ArrayList<>(gossipEndpoints);
         return this;
@@ -295,7 +295,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
             throw new IllegalArgumentException("Service endpoints list must not contain more than 8 entries");
         }
         for (Endpoint endpoint : serviceEndpoints) {
-            validateEndpoint(endpoint);
+            Endpoint.validateNoIpAndDomain(endpoint);
         }
         this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
@@ -605,12 +605,5 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * @param endpoint the endpoint to validate
      * @throws IllegalArgumentException if endpoint contains both IP address and domain name
      */
-    private void validateEndpoint(Endpoint endpoint) {
-        if (endpoint.getAddress() != null) {
-            var domainName = endpoint.getDomainName();
-            if (domainName != null && !domainName.isEmpty()) {
-                throw new IllegalArgumentException("Endpoint must not contain both ipAddressV4 and domainName");
-            }
-        }
-    }
+    // validation moved to Endpoint.validateNoIpAndDomain
 }

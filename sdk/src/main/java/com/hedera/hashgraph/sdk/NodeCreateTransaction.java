@@ -190,13 +190,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
             throw new IllegalArgumentException("gossipEndpoints must not contain more than 10 entries");
         }
         for (Endpoint endpoint : gossipEndpoints) {
-            if (endpoint.getAddress() != null) {
-                var dn = endpoint.getDomainName();
-                if (dn != null && !dn.isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "gossip endpoint must not contain both ipAddressV4 and domainName");
-                }
-            }
+            Endpoint.validateNoIpAndDomain(endpoint);
         }
         this.gossipEndpoints = new ArrayList<>(gossipEndpoints);
         return this;
@@ -212,12 +206,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
         if (gossipEndpoints.size() >= 10) {
             throw new IllegalArgumentException("gossipEndpoints must not contain more than 10 entries");
         }
-        if (gossipEndpoint.getAddress() != null) {
-            var dn = gossipEndpoint.getDomainName();
-            if (dn != null && !dn.isEmpty()) {
-                throw new IllegalArgumentException("gossip endpoint must not contain both ipAddressV4 and domainName");
-            }
-        }
+        Endpoint.validateNoIpAndDomain(gossipEndpoint);
         gossipEndpoints.add(gossipEndpoint);
         return this;
     }
@@ -251,13 +240,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
             throw new IllegalArgumentException("serviceEndpoints must not contain more than 8 entries");
         }
         for (Endpoint endpoint : serviceEndpoints) {
-            if (endpoint.getAddress() != null) {
-                var dn = endpoint.getDomainName();
-                if (dn != null && !dn.isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "service endpoint must not contain both ipAddressV4 and domainName");
-                }
-            }
+            Endpoint.validateNoIpAndDomain(endpoint);
         }
         this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
@@ -273,12 +256,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
         if (serviceEndpoints.size() >= 8) {
             throw new IllegalArgumentException("serviceEndpoints must not contain more than 8 entries");
         }
-        if (serviceEndpoint.getAddress() != null) {
-            var dn = serviceEndpoint.getDomainName();
-            if (dn != null && !dn.isEmpty()) {
-                throw new IllegalArgumentException("service endpoint must not contain both ipAddressV4 and domainName");
-            }
-        }
+        Endpoint.validateNoIpAndDomain(serviceEndpoint);
         serviceEndpoints.add(serviceEndpoint);
         return this;
     }
