@@ -32,20 +32,20 @@ public class NodeUpdateTransactionTest {
 
     private static final String TEST_DESCRIPTION = "Test description";
 
-    private static final List<Endpoint> TEST_GOSSIP_ENDPOINTS =
-            List.of(spawnTestEndpoint((byte) 0), spawnTestEndpoint((byte) 1), spawnTestEndpoint((byte) 2));
+    private static final List<Endpoint> TEST_GOSSIP_ENDPOINTS = List.of(
+            spawnTestEndpointIpOnly((byte) 0), spawnTestEndpointIpOnly((byte) 1), spawnTestEndpointIpOnly((byte) 2));
 
     private static final List<Endpoint> TEST_SERVICE_ENDPOINTS = List.of(
-            spawnTestEndpoint((byte) 3),
-            spawnTestEndpoint((byte) 4),
-            spawnTestEndpoint((byte) 5),
-            spawnTestEndpoint((byte) 6));
+            spawnTestEndpointIpOnly((byte) 3),
+            spawnTestEndpointIpOnly((byte) 4),
+            spawnTestEndpointIpOnly((byte) 5),
+            spawnTestEndpointIpOnly((byte) 6));
 
-    private static final Endpoint TEST_GRPC_WEB_PROXY_ENDPOINT = spawnTestEndpoint((byte) 3);
+    private static final Endpoint TEST_GRPC_WEB_PROXY_ENDPOINT = spawnTestEndpointDomainOnly((byte) 3);
 
     private static final byte[] TEST_GOSSIP_CA_CERTIFICATE = new byte[] {0, 1, 2, 3, 4};
 
-    private static final byte[] TEST_GRPC_CERTIFICATE_HASH = new byte[] {5, 6, 7, 8, 9};
+    private static final byte[] TEST_GRPC_CERTIFICATE_HASH = new byte[48]; // SHA-384 hash (48 bytes)
 
     private static final PublicKey TEST_ADMIN_KEY = PrivateKey.fromString(
                     "302e020100300506032b65700422042062c4b69e9f45a554e5424fb5a6fe5e6ac1f19ead31dc7718c2d980fd1f998d4b")
@@ -68,11 +68,12 @@ public class NodeUpdateTransactionTest {
         SnapshotMatcher.expect(spawnTestTransaction().toString()).toMatchSnapshot();
     }
 
-    private static Endpoint spawnTestEndpoint(byte offset) {
-        return new Endpoint()
-                .setAddress(new byte[] {0x00, 0x01, 0x02, 0x03})
-                .setDomainName(offset + "unit.test.com")
-                .setPort(42 + offset);
+    private static Endpoint spawnTestEndpointIpOnly(byte offset) {
+        return new Endpoint().setAddress(new byte[] {0x00, 0x01, 0x02, 0x03}).setPort(42 + offset);
+    }
+
+    private static Endpoint spawnTestEndpointDomainOnly(byte offset) {
+        return new Endpoint().setDomainName(offset + "unit.test.com").setPort(42 + offset);
     }
 
     private NodeUpdateTransaction spawnTestTransaction() {
@@ -111,23 +112,21 @@ public class NodeUpdateTransactionTest {
     @Test
     void testUnrecognizedServicePort() throws Exception {
         var tx = new NodeUpdateTransaction()
-                .setServiceEndpoints(List.of(new Endpoint()
-                        .setAddress(new byte[] {0x00, 0x01, 0x02, 0x03})
-                        .setDomainName("unit.test.com")
-                        .setPort(50111)));
+                .setServiceEndpoints(
+                        List.of(new Endpoint().setDomainName("unit.test.com").setPort(50111)));
         var tx2 = NodeUpdateTransaction.fromBytes(tx.toBytes());
         assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
 
     @Test
     void testEmptyCertificates() throws Exception {
+        // Empty gRPC certificate hash is allowed (network validates it)
+        // But empty gossip CA certificate should throw
         var tx = new NodeUpdateTransaction()
-                .setGossipCaCertificate(new byte[] {})
                 .setGrpcCertificateHash(new byte[] {})
                 .setNodeId(0l);
         var tx2Bytes = tx.toBytes();
         NodeUpdateTransaction deserializedTx = (NodeUpdateTransaction) Transaction.fromBytes(tx2Bytes);
-        assertThat(deserializedTx.getGossipCaCertificate()).isEqualTo(new byte[] {});
         assertThat(deserializedTx.getGrpcCertificateHash()).isEqualTo(new byte[] {});
     }
 
@@ -136,7 +135,6 @@ public class NodeUpdateTransactionTest {
         new NodeUpdateTransaction()
                 .setDescription(null)
                 .setAccountId(null)
-                .setGossipCaCertificate(null)
                 .setGrpcCertificateHash(null)
                 .setAdminKey(null);
     }
@@ -384,5 +382,240 @@ public class NodeUpdateTransactionTest {
 
         var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
         assertThat(exception.getMessage()).isEqualTo("NodeUpdateTransaction: 'nodeId' has not been set");
+    }
+
+    // ===== Validation Tests =====
+
+    @Test
+    @DisplayName("should throw error when setting negative nodeId")
+    void shouldThrowErrorWhenSettingNegativeNodeId() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setNodeId(-1));
+        assertThat(exception.getMessage()).isEqualTo("nodeId must be non-negative");
+    }
+
+    @Test
+    @DisplayName("should allow setting nodeId to zero")
+    void shouldAllowSettingNodeIdToZero() {
+        var transaction = new NodeUpdateTransaction().setNodeId(0);
+        assertThat(transaction.getNodeId()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("should throw error when description exceeds 100 bytes in UTF-8")
+    void shouldThrowErrorWhenDescriptionExceeds100Bytes() {
+        var transaction = new NodeUpdateTransaction();
+        // Create a 101-byte UTF-8 string
+        var longDescription = "a".repeat(101);
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setDescription(longDescription));
+        assertThat(exception.getMessage()).isEqualTo("Description must not exceed 100 bytes when encoded as UTF-8");
+    }
+
+    @Test
+    @DisplayName("should allow description with exactly 100 bytes in UTF-8")
+    void shouldAllowDescriptionWith100Bytes() {
+        var transaction = new NodeUpdateTransaction();
+        var description = "a".repeat(100);
+
+        assertThatCode(() -> transaction.setDescription(description)).doesNotThrowAnyException();
+        assertThat(transaction.getDescription()).isEqualTo(description);
+    }
+
+    @Test
+    @DisplayName("should allow null description")
+    void shouldAllowNullDescription() {
+        var transaction = new NodeUpdateTransaction();
+        assertThatCode(() -> transaction.setDescription(null)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("should throw error when setting empty gossip endpoints list")
+    void shouldThrowErrorWhenSettingEmptyGossipEndpointsList() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setGossipEndpoints(List.of()));
+        assertThat(exception.getMessage()).isEqualTo("Gossip endpoints list must not be empty");
+    }
+
+    @Test
+    @DisplayName("should throw error when setting more than 10 gossip endpoints")
+    void shouldThrowErrorWhenSettingMoreThan10GossipEndpoints() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoints = List.of(
+                spawnTestEndpointIpOnly((byte) 0),
+                spawnTestEndpointIpOnly((byte) 1),
+                spawnTestEndpointIpOnly((byte) 2),
+                spawnTestEndpointIpOnly((byte) 3),
+                spawnTestEndpointIpOnly((byte) 4),
+                spawnTestEndpointIpOnly((byte) 5),
+                spawnTestEndpointIpOnly((byte) 6),
+                spawnTestEndpointIpOnly((byte) 7),
+                spawnTestEndpointIpOnly((byte) 8),
+                spawnTestEndpointIpOnly((byte) 9),
+                spawnTestEndpointIpOnly((byte) 10));
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setGossipEndpoints(endpoints));
+        assertThat(exception.getMessage()).isEqualTo("Gossip endpoints list must not contain more than 10 entries");
+    }
+
+    @Test
+    @DisplayName("should allow exactly 10 gossip endpoints")
+    void shouldAllowExactly10GossipEndpoints() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoints = List.of(
+                spawnTestEndpointIpOnly((byte) 0),
+                spawnTestEndpointIpOnly((byte) 1),
+                spawnTestEndpointIpOnly((byte) 2),
+                spawnTestEndpointIpOnly((byte) 3),
+                spawnTestEndpointIpOnly((byte) 4),
+                spawnTestEndpointIpOnly((byte) 5),
+                spawnTestEndpointIpOnly((byte) 6),
+                spawnTestEndpointIpOnly((byte) 7),
+                spawnTestEndpointIpOnly((byte) 8),
+                spawnTestEndpointIpOnly((byte) 9));
+
+        assertThatCode(() -> transaction.setGossipEndpoints(endpoints)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("should throw error when gossip endpoint has both IP and domain name")
+    void shouldThrowErrorWhenGossipEndpointHasBothIpAndDomain() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoint = new Endpoint()
+                .setAddress(new byte[] {127, 0, 0, 1})
+                .setDomainName("example.com")
+                .setPort(50211);
+
+        var exception =
+                assertThrows(IllegalArgumentException.class, () -> transaction.setGossipEndpoints(List.of(endpoint)));
+        assertThat(exception.getMessage()).isEqualTo("Endpoint must not contain both ipAddressV4 and domainName");
+    }
+
+    @Test
+    @DisplayName("should throw error when setting empty service endpoints list")
+    void shouldThrowErrorWhenSettingEmptyServiceEndpointsList() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setServiceEndpoints(List.of()));
+        assertThat(exception.getMessage()).isEqualTo("Service endpoints list must not be empty");
+    }
+
+    @Test
+    @DisplayName("should throw error when setting more than 8 service endpoints")
+    void shouldThrowErrorWhenSettingMoreThan8ServiceEndpoints() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoints = List.of(
+                spawnTestEndpointIpOnly((byte) 0),
+                spawnTestEndpointIpOnly((byte) 1),
+                spawnTestEndpointIpOnly((byte) 2),
+                spawnTestEndpointIpOnly((byte) 3),
+                spawnTestEndpointIpOnly((byte) 4),
+                spawnTestEndpointIpOnly((byte) 5),
+                spawnTestEndpointIpOnly((byte) 6),
+                spawnTestEndpointIpOnly((byte) 7),
+                spawnTestEndpointIpOnly((byte) 8));
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setServiceEndpoints(endpoints));
+        assertThat(exception.getMessage()).isEqualTo("Service endpoints list must not contain more than 8 entries");
+    }
+
+    @Test
+    @DisplayName("should allow exactly 8 service endpoints")
+    void shouldAllowExactly8ServiceEndpoints() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoints = List.of(
+                spawnTestEndpointIpOnly((byte) 0),
+                spawnTestEndpointIpOnly((byte) 1),
+                spawnTestEndpointIpOnly((byte) 2),
+                spawnTestEndpointIpOnly((byte) 3),
+                spawnTestEndpointIpOnly((byte) 4),
+                spawnTestEndpointIpOnly((byte) 5),
+                spawnTestEndpointIpOnly((byte) 6),
+                spawnTestEndpointIpOnly((byte) 7));
+
+        assertThatCode(() -> transaction.setServiceEndpoints(endpoints)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("should throw error when service endpoint has both IP and domain name")
+    void shouldThrowErrorWhenServiceEndpointHasBothIpAndDomain() {
+        var transaction = new NodeUpdateTransaction();
+        var endpoint = new Endpoint()
+                .setAddress(new byte[] {127, 0, 0, 1})
+                .setDomainName("example.com")
+                .setPort(50212);
+
+        var exception =
+                assertThrows(IllegalArgumentException.class, () -> transaction.setServiceEndpoints(List.of(endpoint)));
+        assertThat(exception.getMessage()).isEqualTo("Endpoint must not contain both ipAddressV4 and domainName");
+    }
+
+    @Test
+    @DisplayName("should throw error when setting null gossip CA certificate")
+    void shouldThrowErrorWhenSettingNullGossipCaCertificate() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setGossipCaCertificate(null));
+        assertThat(exception.getMessage()).isEqualTo("Gossip CA certificate must not be null or empty");
+    }
+
+    @Test
+    @DisplayName("should throw error when setting empty gossip CA certificate")
+    void shouldThrowErrorWhenSettingEmptyGossipCaCertificate() {
+        var transaction = new NodeUpdateTransaction();
+
+        var exception =
+                assertThrows(IllegalArgumentException.class, () -> transaction.setGossipCaCertificate(new byte[] {}));
+        assertThat(exception.getMessage()).isEqualTo("Gossip CA certificate must not be null or empty");
+    }
+
+    @Test
+    @DisplayName("should allow valid gossip CA certificate")
+    void shouldAllowValidGossipCaCertificate() {
+        var transaction = new NodeUpdateTransaction();
+        var cert = new byte[] {1, 2, 3, 4, 5};
+
+        assertThatCode(() -> transaction.setGossipCaCertificate(cert)).doesNotThrowAnyException();
+        assertThat(transaction.getGossipCaCertificate()).isEqualTo(cert);
+    }
+
+    @Test
+    @DisplayName("should throw error when setting gRPC certificate hash with wrong size")
+    void shouldThrowErrorWhenSettingGrpcCertificateHashWithWrongSize() {
+        var transaction = new NodeUpdateTransaction();
+        var wrongSizeHash = new byte[32]; // SHA-256 size, but we need SHA-384 (48 bytes)
+
+        var exception =
+                assertThrows(IllegalArgumentException.class, () -> transaction.setGrpcCertificateHash(wrongSizeHash));
+        assertThat(exception.getMessage()).isEqualTo("gRPC certificate hash must be exactly 48 bytes (SHA-384)");
+    }
+
+    @Test
+    @DisplayName("should allow gRPC certificate hash with 48 bytes (SHA-384)")
+    void shouldAllowGrpcCertificateHashWith48Bytes() {
+        var transaction = new NodeUpdateTransaction();
+        var validHash = new byte[48]; // SHA-384 size
+
+        assertThatCode(() -> transaction.setGrpcCertificateHash(validHash)).doesNotThrowAnyException();
+        assertThat(transaction.getGrpcCertificateHash()).isEqualTo(validHash);
+    }
+
+    @Test
+    @DisplayName("should allow null gRPC certificate hash")
+    void shouldAllowNullGrpcCertificateHash() {
+        var transaction = new NodeUpdateTransaction();
+
+        assertThatCode(() -> transaction.setGrpcCertificateHash(null)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("should allow empty gRPC certificate hash")
+    void shouldAllowEmptyGrpcCertificateHash() {
+        var transaction = new NodeUpdateTransaction();
+
+        // Empty is allowed because network will validate it
+        assertThatCode(() -> transaction.setGrpcCertificateHash(new byte[] {})).doesNotThrowAnyException();
     }
 }

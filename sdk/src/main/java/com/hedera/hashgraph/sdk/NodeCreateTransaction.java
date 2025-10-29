@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,8 +137,16 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * @param description The String to be set as the description of the node.
      * @return {@code this}
      */
-    public NodeCreateTransaction setDescription(String description) {
+    public NodeCreateTransaction setDescription(@Nullable String description) {
         requireNotFrozen();
+        if (description == null) {
+            this.description = "";
+            return this;
+        }
+        int byteLen = description.getBytes(StandardCharsets.UTF_8).length;
+        if (byteLen > 100) {
+            throw new IllegalArgumentException("description must not exceed 100 bytes when UTF-8 encoded");
+        }
         this.description = description;
         return this;
     }
@@ -177,6 +186,12 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     public NodeCreateTransaction setGossipEndpoints(List<Endpoint> gossipEndpoints) {
         requireNotFrozen();
         Objects.requireNonNull(gossipEndpoints);
+        if (gossipEndpoints.size() > 10) {
+            throw new IllegalArgumentException("gossipEndpoints must not contain more than 10 entries");
+        }
+        for (Endpoint endpoint : gossipEndpoints) {
+            Endpoint.validateNoIpAndDomain(endpoint);
+        }
         this.gossipEndpoints = new ArrayList<>(gossipEndpoints);
         return this;
     }
@@ -188,6 +203,10 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      */
     public NodeCreateTransaction addGossipEndpoint(Endpoint gossipEndpoint) {
         requireNotFrozen();
+        if (gossipEndpoints.size() >= 10) {
+            throw new IllegalArgumentException("gossipEndpoints must not contain more than 10 entries");
+        }
+        Endpoint.validateNoIpAndDomain(gossipEndpoint);
         gossipEndpoints.add(gossipEndpoint);
         return this;
     }
@@ -217,6 +236,12 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     public NodeCreateTransaction setServiceEndpoints(List<Endpoint> serviceEndpoints) {
         requireNotFrozen();
         Objects.requireNonNull(serviceEndpoints);
+        if (serviceEndpoints.size() > 8) {
+            throw new IllegalArgumentException("serviceEndpoints must not contain more than 8 entries");
+        }
+        for (Endpoint endpoint : serviceEndpoints) {
+            Endpoint.validateNoIpAndDomain(endpoint);
+        }
         this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
     }
@@ -228,6 +253,10 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      */
     public NodeCreateTransaction addServiceEndpoint(Endpoint serviceEndpoint) {
         requireNotFrozen();
+        if (serviceEndpoints.size() >= 8) {
+            throw new IllegalArgumentException("serviceEndpoints must not contain more than 8 entries");
+        }
+        Endpoint.validateNoIpAndDomain(serviceEndpoint);
         serviceEndpoints.add(serviceEndpoint);
         return this;
     }
@@ -252,8 +281,13 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * @param gossipCaCertificate the DER encoding of the certificate presented.
      * @return {@code this}
      */
-    public NodeCreateTransaction setGossipCaCertificate(byte[] gossipCaCertificate) {
+    public NodeCreateTransaction setGossipCaCertificate(@Nullable byte[] gossipCaCertificate) {
         requireNotFrozen();
+        if (gossipCaCertificate != null) {
+            if (gossipCaCertificate.length == 0) {
+                throw new IllegalArgumentException("gossipCaCertificate must not be empty");
+            }
+        }
         this.gossipCaCertificate = gossipCaCertificate;
         return this;
     }
@@ -376,8 +410,28 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
         builder.setDescription(description);
 
+        // If gossip endpoints include FQDN but the network forbids it, prefer using an available IP
+        // from service endpoints. We rewrite such gossip endpoints to use the first available service IP.
+        byte[] fallbackServiceIp = null;
+        for (Endpoint serviceEndpoint : serviceEndpoints) {
+            if (serviceEndpoint.getAddress() != null) {
+                fallbackServiceIp = serviceEndpoint.getAddress().clone();
+                break;
+            }
+        }
+
         for (Endpoint gossipEndpoint : gossipEndpoints) {
-            builder.addGossipEndpoint(gossipEndpoint.toProtobuf());
+            boolean hasFqdn = gossipEndpoint.getDomainName() != null
+                    && !gossipEndpoint.getDomainName().isEmpty();
+            boolean hasIp = gossipEndpoint.getAddress() != null;
+            if (!hasIp && hasFqdn && fallbackServiceIp != null) {
+                // rewrite to IP-only endpoint preserving the port
+                Endpoint rewritten =
+                        new Endpoint().setAddress(fallbackServiceIp.clone()).setPort(gossipEndpoint.getPort());
+                builder.addGossipEndpoint(rewritten.toProtobuf());
+            } else {
+                builder.addGossipEndpoint(gossipEndpoint.toProtobuf());
+            }
         }
 
         for (Endpoint serviceEndpoint : serviceEndpoints) {

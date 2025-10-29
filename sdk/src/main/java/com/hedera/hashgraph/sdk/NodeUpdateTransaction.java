@@ -112,9 +112,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param nodeId the consensus node identifier in the network state.
      * @return {@code this}
+     * @throws IllegalArgumentException if nodeId is negative
      */
     public NodeUpdateTransaction setNodeId(long nodeId) {
         requireNotFrozen();
+        if (nodeId < 0) {
+            throw new IllegalArgumentException("nodeId must be non-negative");
+        }
         this.nodeId = nodeId;
         return this;
     }
@@ -160,9 +164,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param description The String to be set as the description of the node.
      * @return {@code this}
+     * @throws IllegalArgumentException if description exceeds 100 bytes when encoded as UTF-8
      */
     public NodeUpdateTransaction setDescription(String description) {
         requireNotFrozen();
+        if (description != null && description.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 100) {
+            throw new IllegalArgumentException("Description must not exceed 100 bytes when encoded as UTF-8");
+        }
         this.description = description;
         return this;
     }
@@ -217,10 +225,20 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param gossipEndpoints the list of service endpoints for gossip.
      * @return {@code this}
+     * @throws IllegalArgumentException if the list is empty or contains more than 10 endpoints
      */
     public NodeUpdateTransaction setGossipEndpoints(List<Endpoint> gossipEndpoints) {
         requireNotFrozen();
         Objects.requireNonNull(gossipEndpoints);
+        if (gossipEndpoints.isEmpty()) {
+            throw new IllegalArgumentException("Gossip endpoints list must not be empty");
+        }
+        if (gossipEndpoints.size() > 10) {
+            throw new IllegalArgumentException("Gossip endpoints list must not contain more than 10 entries");
+        }
+        for (Endpoint endpoint : gossipEndpoints) {
+            Endpoint.validateNoIpAndDomain(endpoint);
+        }
         this.gossipEndpoints = new ArrayList<>(gossipEndpoints);
         return this;
     }
@@ -265,10 +283,20 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param serviceEndpoints list of service endpoints for gRPC calls.
      * @return {@code this}
+     * @throws IllegalArgumentException if the list is empty or contains more than 8 endpoints
      */
     public NodeUpdateTransaction setServiceEndpoints(List<Endpoint> serviceEndpoints) {
         requireNotFrozen();
         Objects.requireNonNull(serviceEndpoints);
+        if (serviceEndpoints.isEmpty()) {
+            throw new IllegalArgumentException("Service endpoints list must not be empty");
+        }
+        if (serviceEndpoints.size() > 8) {
+            throw new IllegalArgumentException("Service endpoints list must not contain more than 8 entries");
+        }
+        for (Endpoint endpoint : serviceEndpoints) {
+            Endpoint.validateNoIpAndDomain(endpoint);
+        }
         this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
     }
@@ -304,9 +332,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param gossipCaCertificate the DER encoding of the certificate presented.
      * @return {@code this}
+     * @throws IllegalArgumentException if gossipCaCertificate is null or empty
      */
     public NodeUpdateTransaction setGossipCaCertificate(byte[] gossipCaCertificate) {
         requireNotFrozen();
+        if (gossipCaCertificate == null || gossipCaCertificate.length == 0) {
+            throw new IllegalArgumentException("Gossip CA certificate must not be null or empty");
+        }
         this.gossipCaCertificate = gossipCaCertificate;
         return this;
     }
@@ -334,9 +366,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param grpcCertificateHash SHA-384 hash of the node gRPC TLS certificate.
      * @return {@code this}
+     * @throws IllegalArgumentException if grpcCertificateHash is not 48 bytes (SHA-384 size) when non-empty
      */
     public NodeUpdateTransaction setGrpcCertificateHash(byte[] grpcCertificateHash) {
         requireNotFrozen();
+        if (grpcCertificateHash != null && grpcCertificateHash.length > 0 && grpcCertificateHash.length != 48) {
+            throw new IllegalArgumentException("gRPC certificate hash must be exactly 48 bytes (SHA-384)");
+        }
         this.grpcCertificateHash = grpcCertificateHash;
         return this;
     }
@@ -562,4 +598,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
         this.grpcWebProxyEndpoint = new Endpoint();
         return this;
     }
+
+    /**
+     * Validates that an endpoint does not contain both IP address and domain name.
+     *
+     * @param endpoint the endpoint to validate
+     * @throws IllegalArgumentException if endpoint contains both IP address and domain name
+     */
+    // validation moved to Endpoint.validateNoIpAndDomain
 }

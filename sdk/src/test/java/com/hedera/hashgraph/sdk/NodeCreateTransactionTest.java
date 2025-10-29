@@ -62,10 +62,8 @@ public class NodeCreateTransactionTest {
     }
 
     private static Endpoint spawnTestEndpoint(byte offset) {
-        return new Endpoint()
-                .setAddress(new byte[] {0x00, 0x01, 0x02, 0x03})
-                .setDomainName(offset + "unit.test.com")
-                .setPort(42 + offset);
+        // Valid endpoint: use domainName only to comply with SDK validation
+        return new Endpoint().setDomainName(offset + "unit.test.com").setPort(42 + offset);
     }
 
     private NodeCreateTransaction spawnTestTransaction() {
@@ -114,10 +112,8 @@ public class NodeCreateTransactionTest {
     @Test
     void testUnrecognizedServicePort() throws Exception {
         var tx = new NodeCreateTransaction()
-                .setServiceEndpoints(List.of(new Endpoint()
-                        .setAddress(new byte[] {0x00, 0x01, 0x02, 0x03})
-                        .setDomainName("unit.test.com")
-                        .setPort(50111)));
+                .setServiceEndpoints(
+                        List.of(new Endpoint().setDomainName("unit.test.com").setPort(50111)));
         var tx2 = NodeCreateTransaction.fromBytes(tx.toBytes());
         assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
@@ -130,6 +126,151 @@ public class NodeCreateTransactionTest {
                 .setGossipCaCertificate(null)
                 .setGrpcCertificateHash(null)
                 .setAdminKey(null);
+    }
+
+    @Test
+    void setDescriptionRejectsOver100Utf8Bytes() {
+        var tx = new NodeCreateTransaction();
+        String tooLong = "a".repeat(101);
+        assertThrows(IllegalArgumentException.class, () -> tx.setDescription(tooLong));
+    }
+
+    @Test
+    void setDescriptionAcceptsExactly100Utf8Bytes() {
+        var tx = new NodeCreateTransaction();
+        String exact = "a".repeat(100);
+        tx.setDescription(exact);
+        assertThat(tx.getDescription()).isEqualTo(exact);
+    }
+
+    @Test
+    void setGossipEndpointsRejectsMoreThan10() {
+        var tx = new NodeCreateTransaction();
+        var endpoints = new java.util.ArrayList<Endpoint>();
+        for (int i = 0; i < 11; i++) {
+            endpoints.add(new Endpoint().setDomainName("gossip" + i + ".test").setPort(5000 + i));
+        }
+        assertThrows(IllegalArgumentException.class, () -> tx.setGossipEndpoints(endpoints));
+    }
+
+    @Test
+    void addGossipEndpointRejectsMoreThan10() {
+        var tx = new NodeCreateTransaction();
+        for (int i = 0; i < 10; i++) {
+            tx.addGossipEndpoint(
+                    new Endpoint().setDomainName("gossip" + i + ".test").setPort(5000 + i));
+        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tx.addGossipEndpoint(
+                        new Endpoint().setDomainName("gossipX.test").setPort(6000)));
+    }
+
+    @Test
+    void setGossipEndpointsRejectsIpAndDomainTogether() {
+        var tx = new NodeCreateTransaction();
+        var invalid = new Endpoint()
+                .setAddress(new byte[] {1, 2, 3, 4})
+                .setDomainName("both.test")
+                .setPort(5000);
+        assertThrows(IllegalArgumentException.class, () -> tx.setGossipEndpoints(List.of(invalid)));
+    }
+
+    @Test
+    void setServiceEndpointsRejectsMoreThan8() {
+        var tx = new NodeCreateTransaction();
+        var endpoints = new java.util.ArrayList<Endpoint>();
+        for (int i = 0; i < 9; i++) {
+            endpoints.add(new Endpoint().setDomainName("svc" + i + ".test").setPort(6000 + i));
+        }
+        assertThrows(IllegalArgumentException.class, () -> tx.setServiceEndpoints(endpoints));
+    }
+
+    @Test
+    void addServiceEndpointRejectsMoreThan8() {
+        var tx = new NodeCreateTransaction();
+        for (int i = 0; i < 8; i++) {
+            tx.addServiceEndpoint(
+                    new Endpoint().setDomainName("svc" + i + ".test").setPort(7000 + i));
+        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tx.addServiceEndpoint(
+                        new Endpoint().setDomainName("svcX.test").setPort(8000)));
+    }
+
+    @Test
+    void setServiceEndpointsRejectsIpAndDomainTogether() {
+        var tx = new NodeCreateTransaction();
+        var invalid = new Endpoint()
+                .setAddress(new byte[] {5, 6, 7, 8})
+                .setDomainName("both.test")
+                .setPort(6000);
+        assertThrows(IllegalArgumentException.class, () -> tx.setServiceEndpoints(List.of(invalid)));
+    }
+
+    @Test
+    void setGossipCaCertificateRejectsEmpty() {
+        var tx = new NodeCreateTransaction();
+        assertThrows(IllegalArgumentException.class, () -> tx.setGossipCaCertificate(new byte[] {}));
+    }
+
+    @Test
+    void buildRewritesGossipFqdnWithServiceIpFallback() {
+        byte[] serviceIp = new byte[] {10, 0, 0, 1};
+        Endpoint gossipFqdnOnly =
+                new Endpoint().setDomainName("fqdn.example.com").setPort(50211);
+        Endpoint serviceIpOnly = new Endpoint().setAddress(serviceIp).setPort(50211);
+
+        var tx = new NodeCreateTransaction()
+                .setGossipEndpoints(List.of(gossipFqdnOnly))
+                .setServiceEndpoints(List.of(serviceIpOnly));
+
+        var body = tx.build().build();
+        var rewritten = body.getGossipEndpoint(0);
+
+        // gossip endpoint should now carry IP and no domain
+        org.assertj.core.api.Assertions.assertThat(rewritten.getIpAddressV4().toByteArray())
+                .isEqualTo(serviceIp);
+        org.assertj.core.api.Assertions.assertThat(rewritten.getDomainName()).isEmpty();
+        org.assertj.core.api.Assertions.assertThat(rewritten.getPort()).isEqualTo(50211);
+    }
+
+    @Test
+    void buildDoesNotRewriteGossipWhenIpPresent() {
+        byte[] originalIp = new byte[] {127, 0, 0, 1};
+        Endpoint gossipIpOnly = new Endpoint().setAddress(originalIp).setPort(50212);
+        byte[] serviceIp = new byte[] {10, 0, 0, 2};
+        Endpoint serviceIpOnly = new Endpoint().setAddress(serviceIp).setPort(50211);
+
+        var tx = new NodeCreateTransaction()
+                .setGossipEndpoints(List.of(gossipIpOnly))
+                .setServiceEndpoints(List.of(serviceIpOnly));
+
+        var body = tx.build().build();
+        var ge = body.getGossipEndpoint(0);
+        org.assertj.core.api.Assertions.assertThat(ge.getIpAddressV4().toByteArray())
+                .isEqualTo(originalIp);
+        org.assertj.core.api.Assertions.assertThat(ge.getPort()).isEqualTo(50212);
+    }
+
+    @Test
+    void buildDoesNotRewriteWhenNoServiceIpAvailable() {
+        Endpoint gossipFqdnOnly =
+                new Endpoint().setDomainName("fqdn.example.com").setPort(50213);
+        Endpoint serviceFqdnOnly =
+                new Endpoint().setDomainName("svc.example.com").setPort(50211);
+
+        var tx = new NodeCreateTransaction()
+                .setGossipEndpoints(List.of(gossipFqdnOnly))
+                .setServiceEndpoints(List.of(serviceFqdnOnly));
+
+        var body = tx.build().build();
+        var ge = body.getGossipEndpoint(0);
+        org.assertj.core.api.Assertions.assertThat(ge.getIpAddressV4().isEmpty())
+                .isTrue();
+        org.assertj.core.api.Assertions.assertThat(ge.getDomainName()).isEqualTo("fqdn.example.com");
+        org.assertj.core.api.Assertions.assertThat(ge.getPort()).isEqualTo(50213);
     }
 
     @Test
