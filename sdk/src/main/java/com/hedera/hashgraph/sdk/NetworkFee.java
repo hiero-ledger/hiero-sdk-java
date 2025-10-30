@@ -49,8 +49,7 @@ public final class NetworkFee {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static NetworkFee fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.NetworkFee.parseFrom(bytes)
-                .toBuilder()
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.NetworkFee.parseFrom(bytes).toBuilder()
                 .build());
     }
 
@@ -101,4 +100,3 @@ public final class NetworkFee {
                 .toString();
     }
 }
-

@@ -42,8 +42,7 @@ public enum FeeEstimateMode {
         return switch (code) {
             case 0 -> STATE;
             case 1 -> INTRINSIC;
-            default -> throw new IllegalArgumentException(
-                    "(BUG) unhandled FeeEstimateMode code: " + code);
+            default -> throw new IllegalArgumentException("(BUG) unhandled FeeEstimateMode code: " + code);
         };
     }
 
@@ -55,4 +54,3 @@ public enum FeeEstimateMode {
         };
     }
 }
-

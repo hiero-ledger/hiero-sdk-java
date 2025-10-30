@@ -106,8 +106,7 @@ public final class FeeEstimateResponse {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static FeeEstimateResponse fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.parseFrom(bytes)
-                .toBuilder()
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.parseFrom(bytes).toBuilder()
                 .build());
     }
 
@@ -234,4 +233,3 @@ public final class FeeEstimateResponse {
         return Objects.hash(mode, network, node, notes, service, total);
     }
 }
-

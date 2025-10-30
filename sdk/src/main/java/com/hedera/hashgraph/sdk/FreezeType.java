@@ -115,7 +115,7 @@ public enum FreezeType {
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
-                    "network returned unrecognized response code; your SDK may be out of date");
+                        "network returned unrecognized response code; your SDK may be out of date");
         };
     }
 

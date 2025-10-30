@@ -226,31 +226,31 @@ public class FeeEstimateQuery {
      */
     void executeAsync(
             Client client, Deadline deadline, CompletableFuture<FeeEstimateResponse> returnFuture, int attempt) {
-        try {
-            var futureStub = NetworkServiceGrpc.newFutureStub(
-                            client.mirrorNetwork.getNextMirrorNode().getChannel())
-                    .withDeadline(deadline);
+        ClientCalls.asyncUnaryCall(
+                buildCall(client, deadline),
+                buildQuery(),
+                new io.grpc.stub.StreamObserver<com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse>() {
+                    @Override
+                    public void onNext(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse response) {
+                        returnFuture.complete(FeeEstimateResponse.fromProtobuf(response));
+                    }
 
-            var responseFuture = futureStub.getFeeEstimate(buildQuery());
-
-            FutureConverter.toCompletableFuture(responseFuture)
-                    .whenComplete((response, error) -> {
-                        if (error != null) {
-                            if (attempt >= maxAttempts || !shouldRetry(error)) {
-                                LOGGER.error("Error attempting to get fee estimate", error);
-                                returnFuture.completeExceptionally(error);
-                                return;
-                            }
-                            warnAndDelay(attempt, error);
-                            executeAsync(client, deadline, returnFuture, attempt + 1);
-                        } else {
-                            returnFuture.complete(FeeEstimateResponse.fromProtobuf(response));
+                    @Override
+                    public void onError(Throwable error) {
+                        if (attempt >= maxAttempts || !shouldRetry(error)) {
+                            LOGGER.error("Error attempting to get fee estimate", error);
+                            returnFuture.completeExceptionally(error);
+                            return;
                         }
-                    });
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            returnFuture.completeExceptionally(e);
-        }
+                        warnAndDelay(attempt, error);
+                        executeAsync(client, deadline, returnFuture, attempt + 1);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        // Response already handled in onNext
+                    }
+                });
     }
 
     /**
@@ -304,4 +304,3 @@ public class FeeEstimateQuery {
         }
     }
 }
-

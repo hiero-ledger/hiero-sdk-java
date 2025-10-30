@@ -89,8 +89,7 @@ public final class FeeExtra {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static FeeExtra fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeExtra.parseFrom(bytes)
-                .toBuilder()
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeExtra.parseFrom(bytes).toBuilder()
                 .build());
     }
 
@@ -211,4 +210,3 @@ public final class FeeExtra {
         return Objects.hash(charged, count, feePerUnit, included, name, subtotal);
     }
 }
-

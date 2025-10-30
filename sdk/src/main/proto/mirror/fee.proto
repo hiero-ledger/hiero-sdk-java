@@ -2,7 +2,6 @@
 
 syntax = "proto3";
 
-package proto.mirror;
 option java_package = "com.hedera.hashgraph.sdk.proto.mirror";
 option java_multiple_files = true;
 

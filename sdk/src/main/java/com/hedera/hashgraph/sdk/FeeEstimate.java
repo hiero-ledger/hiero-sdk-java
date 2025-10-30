@@ -57,8 +57,7 @@ public final class FeeEstimate {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static FeeEstimate fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.parseFrom(bytes)
-                .toBuilder()
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.parseFrom(bytes).toBuilder()
                 .build());
     }
 
@@ -86,7 +85,8 @@ public final class FeeEstimate {
      * @return the protobuf
      */
     com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate toProtobuf() {
-        var builder = com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.newBuilder().setBase(base);
+        var builder =
+                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.newBuilder().setBase(base);
 
         for (var extra : extras) {
             builder.addExtras(extra.toProtobuf());
@@ -128,4 +128,3 @@ public final class FeeEstimate {
         return Objects.hash(base, extras);
     }
 }
-
