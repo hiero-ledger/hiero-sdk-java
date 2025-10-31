@@ -45,6 +45,7 @@ public class FeeEstimateQuery {
             var description = statusRuntimeException.getStatus().getDescription();
 
             return (code == io.grpc.Status.Code.UNAVAILABLE)
+                    || (code == io.grpc.Status.Code.DEADLINE_EXCEEDED)
                     || (code == io.grpc.Status.Code.RESOURCE_EXHAUSTED)
                     || (code == Status.Code.INTERNAL
                             && description != null

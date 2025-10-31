@@ -104,14 +104,14 @@ class FeeEstimateQueryExample {
 
         // Network fee breakdown
         System.out.println("\nNetwork Fee:");
-        System.out.println("  Multiplier: " + stateEstimate.getNetwork().getMultiplier());
-        System.out.println("  Subtotal: " + stateEstimate.getNetwork().getSubtotal() + " tinycents");
+        System.out.println("  Multiplier: " + stateEstimate.getNetworkFee().getMultiplier());
+        System.out.println("  Subtotal: " + stateEstimate.getNetworkFee().getSubtotal() + " tinycents");
 
         // Node fee breakdown
         System.out.println("\nNode Fee:");
-        System.out.println("  Base: " + stateEstimate.getNode().getBase() + " tinycents");
-        long nodeTotal = stateEstimate.getNode().getBase();
-        for (FeeExtra extra : stateEstimate.getNode().getExtras()) {
+        System.out.println("  Base: " + stateEstimate.getNodeFee().getBase() + " tinycents");
+        long nodeTotal = stateEstimate.getNodeFee().getBase();
+        for (FeeExtra extra : stateEstimate.getNodeFee().getExtras()) {
             System.out.println("  Extra - " + extra.getName() + ": " + extra.getSubtotal() + " tinycents");
             nodeTotal += extra.getSubtotal();
         }
@@ -119,9 +119,9 @@ class FeeEstimateQueryExample {
 
         // Service fee breakdown
         System.out.println("\nService Fee:");
-        System.out.println("  Base: " + stateEstimate.getService().getBase() + " tinycents");
-        long serviceTotal = stateEstimate.getService().getBase();
-        for (FeeExtra extra : stateEstimate.getService().getExtras()) {
+        System.out.println("  Base: " + stateEstimate.getServiceFee().getBase() + " tinycents");
+        long serviceTotal = stateEstimate.getServiceFee().getBase();
+        for (FeeExtra extra : stateEstimate.getServiceFee().getExtras()) {
             System.out.println("  Extra - " + extra.getName() + ": " + extra.getSubtotal() + " tinycents");
             serviceTotal += extra.getSubtotal();
         }
@@ -153,9 +153,9 @@ class FeeEstimateQueryExample {
             .execute(client);
 
         System.out.println("Mode: " + intrinsicEstimate.getMode());
-        System.out.println("Network Fee Subtotal: " + intrinsicEstimate.getNetwork().getSubtotal() + " tinycents");
-        System.out.println("Node Fee Base: " + intrinsicEstimate.getNode().getBase() + " tinycents");
-        System.out.println("Service Fee Base: " + intrinsicEstimate.getService().getBase() + " tinycents");
+        System.out.println("Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
+        System.out.println("Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
+        System.out.println("Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
         System.out.println("Total Estimated Fee: " + intrinsicEstimate.getTotal() + " tinycents");
         System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate.getTotal() / 100));
 

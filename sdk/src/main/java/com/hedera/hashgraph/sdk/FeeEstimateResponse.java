@@ -26,7 +26,7 @@ public final class FeeEstimateResponse {
      * signature verifications, fee payment, and storage.
      */
     @Nullable
-    private final NetworkFee network;
+    private final NetworkFee networkFee;
 
     /**
      * The node fee component which is to be paid to the node that submitted the
@@ -35,7 +35,14 @@ public final class FeeEstimateResponse {
      * incentivizes the node to accept new transactions from users.
      */
     @Nullable
-    private final FeeEstimate node;
+    private final FeeEstimate nodeFee;
+
+    /**
+     * The service fee component which covers execution costs, state saved in the
+     * Merkle tree, and additional costs to the blockchain storage.
+     */
+    @Nullable
+    private final FeeEstimate serviceFee;
 
     /**
      * An array of strings for any caveats.
@@ -43,13 +50,6 @@ public final class FeeEstimateResponse {
      * For example: ["Fallback to worst-case due to missing state"]
      */
     private final List<String> notes;
-
-    /**
-     * The service fee component which covers execution costs, state saved in the
-     * Merkle tree, and additional costs to the blockchain storage.
-     */
-    @Nullable
-    private final FeeEstimate service;
 
     /**
      * The sum of the network, node, and service subtotals in tinycents.
@@ -60,24 +60,24 @@ public final class FeeEstimateResponse {
      * Constructor.
      *
      * @param mode    the fee estimate mode used
-     * @param network the network fee component
-     * @param node    the node fee estimate
+     * @param networkFee the network fee component
+     * @param nodeFee    the node fee estimate
      * @param notes   the list of notes/caveats
-     * @param service the service fee estimate
+     * @param serviceFee the service fee estimate
      * @param total   the total fee in tinycents
      */
     FeeEstimateResponse(
             FeeEstimateMode mode,
-            @Nullable NetworkFee network,
-            @Nullable FeeEstimate node,
+            @Nullable NetworkFee networkFee,
+            @Nullable FeeEstimate nodeFee,
             List<String> notes,
-            @Nullable FeeEstimate service,
+            @Nullable FeeEstimate serviceFee,
             long total) {
         this.mode = mode;
-        this.network = network;
-        this.node = node;
+        this.networkFee = networkFee;
+        this.nodeFee = nodeFee;
         this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
-        this.service = service;
+        this.serviceFee = serviceFee;
         this.total = total;
     }
 
@@ -125,8 +125,8 @@ public final class FeeEstimateResponse {
      * @return the network fee component, or null if not set
      */
     @Nullable
-    public NetworkFee getNetwork() {
-        return network;
+    public NetworkFee getNetworkFee() {
+        return networkFee;
     }
 
     /**
@@ -135,8 +135,8 @@ public final class FeeEstimateResponse {
      * @return the node fee estimate, or null if not set
      */
     @Nullable
-    public FeeEstimate getNode() {
-        return node;
+    public FeeEstimate getNodeFee() {
+        return nodeFee;
     }
 
     /**
@@ -154,8 +154,8 @@ public final class FeeEstimateResponse {
      * @return the service fee estimate, or null if not set
      */
     @Nullable
-    public FeeEstimate getService() {
-        return service;
+    public FeeEstimate getServiceFee() {
+        return serviceFee;
     }
 
     /**
@@ -178,14 +178,14 @@ public final class FeeEstimateResponse {
                 .setTotal(total)
                 .addAllNotes(notes);
 
-        if (network != null) {
-            builder.setNetwork(network.toProtobuf());
+        if (networkFee != null) {
+            builder.setNetwork(networkFee.toProtobuf());
         }
-        if (node != null) {
-            builder.setNode(node.toProtobuf());
+        if (nodeFee != null) {
+            builder.setNode(nodeFee.toProtobuf());
         }
-        if (service != null) {
-            builder.setService(service.toProtobuf());
+        if (serviceFee != null) {
+            builder.setService(serviceFee.toProtobuf());
         }
 
         return builder.build();
@@ -204,10 +204,10 @@ public final class FeeEstimateResponse {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("mode", mode)
-                .add("network", network)
-                .add("node", node)
+                .add("network", networkFee)
+                .add("node", nodeFee)
                 .add("notes", notes)
-                .add("service", service)
+                .add("service", serviceFee)
                 .add("total", total)
                 .toString();
     }
@@ -222,14 +222,14 @@ public final class FeeEstimateResponse {
         }
         return total == that.total
                 && mode == that.mode
-                && Objects.equals(network, that.network)
-                && Objects.equals(node, that.node)
+                && Objects.equals(networkFee, that.networkFee)
+                && Objects.equals(nodeFee, that.nodeFee)
                 && Objects.equals(notes, that.notes)
-                && Objects.equals(service, that.service);
+                && Objects.equals(serviceFee, that.serviceFee);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mode, network, node, notes, service, total);
+        return Objects.hash(mode, networkFee, nodeFee, notes, serviceFee, total);
     }
 }

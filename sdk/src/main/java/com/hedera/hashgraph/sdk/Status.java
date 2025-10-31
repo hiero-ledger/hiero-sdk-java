@@ -1908,7 +1908,13 @@ public enum Status {
      * The GRPC proxy endpoint is set in the NodeCreate or NodeUpdate transaction,
      * which the network does not support.
      */
-    GRPC_WEB_PROXY_NOT_SUPPORTED(ResponseCodeEnum.GRPC_WEB_PROXY_NOT_SUPPORTED);
+    GRPC_WEB_PROXY_NOT_SUPPORTED(ResponseCodeEnum.GRPC_WEB_PROXY_NOT_SUPPORTED),
+
+    /**
+     * An NFT transfers list referenced a token type other than NON_FUNGIBLE_UNIQUE.
+     */
+    NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(
+            ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE);
 
     final ResponseCodeEnum code;
 
@@ -2283,13 +2289,12 @@ public enum Status {
             case THROTTLE_GROUP_LCM_OVERFLOW -> THROTTLE_GROUP_LCM_OVERFLOW;
             case AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN -> AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN;
             case GRPC_WEB_PROXY_NOT_SUPPORTED -> GRPC_WEB_PROXY_NOT_SUPPORTED;
+            case NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE ->
+                NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
                         "network returned unrecognized response code; your SDK may be out of date");
-            default ->
-                throw new IllegalArgumentException(
-                        "unhandled response code: " + code + "; your SDK may be out of date");
         };
     }
 
