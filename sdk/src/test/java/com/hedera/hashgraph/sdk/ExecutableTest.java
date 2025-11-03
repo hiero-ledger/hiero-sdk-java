@@ -512,7 +512,9 @@ class ExecutableTest {
                 .isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.PLATFORM_NOT_ACTIVE, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.BUSY, null)).isEqualTo(ExecutionState.RETRY);
-        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT_ID, null)).isEqualTo(ExecutionState.RETRY);
+        // INVALID_NODE_ACCOUNT_ID now returns SERVER_ERROR to match Go SDK's executionStateRetryWithAnotherNode
+        // which immediately retries with another node without delay
+        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT_ID, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.OK, null)).isEqualTo(ExecutionState.SUCCESS);
         assertThat(tx.getExecutionState(Status.ACCOUNT_DELETED, null)).isEqualTo(ExecutionState.REQUEST_ERROR);
     }
