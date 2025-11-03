@@ -403,6 +403,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             if (node.channelFailedToConnect(timeoutTime)) {
                 logger.trace("Failed to connect channel for node {} for request #{}", node.getAccountId(), attempt);
                 lastException = grpcRequest.reactToConnectionFailure();
+                advanceRequest(); // Advance to next node before retrying
                 continue;
             }
 
@@ -425,6 +426,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
             if (response == null) {
                 if (grpcRequest.shouldRetryExceptionally(lastException)) {
+                    advanceRequest(); // Advance to next node before retrying
                     continue;
                 } else {
                     throw new RuntimeException(lastException);
@@ -438,6 +440,19 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             switch (executionState) {
                 case SERVER_ERROR:
                     lastException = grpcRequest.mapStatusException();
+                    advanceRequest(); // Advance to next node before retrying
+                    
+                    // Handle INVALID_NODE_ACCOUNT_ID after advancing (matches Go SDK's executionStateRetryWithAnotherNode)
+                    if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                        logger.trace(
+                                "Received INVALID_NODE_ACCOUNT_ID; updating address book and marking node {} as unhealthy, attempt #{}",
+                                node.getAccountId(),
+                                attempt);
+                        // Schedule async address book update (matches Go's defer client._UpdateAddressBook())
+                        client.updateNetworkFromAddressBook();
+                        // Mark this node as unhealthy
+                        client.network.increaseBackoff(node);
+                    }
                     continue;
                 case RETRY:
                     // Response is not ready yet from server, need to wait.
@@ -446,6 +461,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                         currentTimeout = Duration.between(Instant.now(), timeoutTime);
                         delay(Math.min(currentTimeout.toMillis(), grpcRequest.getDelay()));
                     }
+                    advanceRequest(); // Advance to next node before retrying
                     continue;
                 case REQUEST_ERROR:
                     throw grpcRequest.mapStatusException();
@@ -679,10 +695,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
     private ProtoRequestT getRequestForExecute() {
         var request = makeRequest();
 
-        // advance the internal index
-        // non-free queries and transactions map to more than 1 actual transaction and this will cause
-        // the next invocation of makeRequest to return the _next_ transaction
-        advanceRequest();
+        // NOTE: advanceRequest() is now called explicitly in the retry logic
+        // after we determine that a retry is needed, to match Go SDK behavior
+        // where node advancement happens AFTER error detection, not before
 
         return request;
     }
@@ -727,6 +742,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                     .thenAccept(connectionFailed -> {
                         if (connectionFailed) {
                             var connectionException = grpcRequest.reactToConnectionFailure();
+                            advanceRequest(); // Advance to next node before retrying
                             executeAsyncInternal(
                                     client,
                                     attempt + 1,
@@ -750,6 +766,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
                                     if (grpcRequest.shouldRetryExceptionally(error)) {
                                         // the transaction had a network failure reaching Hedera
+                                        advanceRequest(); // Advance to next node before retrying
                                         executeAsyncInternal(
                                                 client,
                                                 attempt + 1,
@@ -771,6 +788,20 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
                                     switch (executionState) {
                                         case SERVER_ERROR:
+                                            advanceRequest(); // Advance to next node before retrying
+                                            
+                                            // Handle INVALID_NODE_ACCOUNT_ID after advancing (matches Go SDK's executionStateRetryWithAnotherNode)
+                                            if (status == Status.INVALID_NODE_ACCOUNT_ID) {
+                                                logger.trace(
+                                                        "Received INVALID_NODE_ACCOUNT_ID; updating address book and marking node {} as unhealthy, attempt #{}",
+                                                        grpcRequest.getNode().getAccountId(),
+                                                        attempt);
+                                                // Schedule async address book update (matches Go's defer client._UpdateAddressBook())
+                                                client.updateNetworkFromAddressBook();
+                                                // Mark this node as unhealthy
+                                                client.network.increaseBackoff(grpcRequest.getNode());
+                                            }
+                                            
                                             executeAsyncInternal(
                                                     client,
                                                     attempt + 1,
@@ -779,6 +810,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                                                     Duration.between(Instant.now(), timeoutTime));
                                             break;
                                         case RETRY:
+                                            advanceRequest(); // Advance to next node before retrying
                                             Delayer.delayFor(
                                                             (attempt < maxAttempts) ? grpcRequest.getDelay() : 0,
                                                             client.executor)
@@ -868,8 +900,11 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             case PLATFORM_NOT_ACTIVE:
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
-            case INVALID_NODE_ACCOUNT_ID:
                 return ExecutionState.RETRY;
+            case INVALID_NODE_ACCOUNT_ID:
+                // Matches Go SDK's executionStateRetryWithAnotherNode behavior:
+                // immediately retry with next node without delay
+                return ExecutionState.SERVER_ERROR;
             case OK:
                 return ExecutionState.SUCCESS;
             default:
@@ -975,24 +1010,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         }
 
         void handleResponse(ResponseT response, Status status, ExecutionState executionState, @Nullable Client client) {
-            // Special handling for INVALID_NODE_ACCOUNT_ID - mark node as unusable and update address book
-            if (status == Status.INVALID_NODE_ACCOUNT_ID) {
-                network.increaseBackoff(node);
-                logger.warn(
-                        "Node {} marked as unusable due to INVALID_NODE_ACCOUNT_ID during attempt #{}",
-                        node.getAccountId(),
-                        attempt);
-
-                // Trigger immediate address book update to get latest node account IDs
-                if (client != null) {
-                    try {
-                        client.updateNetworkFromAddressBook();
-                        logger.info("Triggered immediate address book update after INVALID_NODE_ACCOUNT_ID");
-                    } catch (Exception e) {
-                        logger.warn("Failed to trigger address book update after INVALID_NODE_ACCOUNT_ID", e);
-                    }
-                }
-            } else {
+            // Note: For INVALID_NODE_ACCOUNT_ID, we don't mark the node as unhealthy here
+            // because we need to do it AFTER advancing the request, to match Go SDK behavior
+            if (status != Status.INVALID_NODE_ACCOUNT_ID) {
                 node.decreaseBackoff();
             }
 
@@ -1013,27 +1033,26 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             }
             switch (executionState) {
                 case RETRY -> {
-                    if (status == Status.INVALID_NODE_ACCOUNT_ID) {
-                        logger.warn(
-                                "Retrying with different node after INVALID_NODE_ACCOUNT_ID from node {} during attempt #{}",
-                                node.getAccountId(),
-                                attempt);
-                    } else {
-                        logger.warn(
-                                "Retrying in {} ms after failure with node {} during attempt #{}: {}",
-                                delay,
-                                node.getAccountId(),
-                                attempt,
-                                responseStatus);
-                    }
-                    verboseLog(node);
-                }
-                case SERVER_ERROR ->
                     logger.warn(
-                            "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
+                            "Retrying in {} ms after failure with node {} during attempt #{}: {}",
+                            delay,
                             node.getAccountId(),
                             attempt,
                             responseStatus);
+                    verboseLog(node);
+                }
+                case SERVER_ERROR -> {
+                    // Note: INVALID_NODE_ACCOUNT_ID is handled after advanceRequest() in execute methods
+                    // to match Go SDK's executionStateRetryWithAnotherNode behavior
+                    if (status != Status.INVALID_NODE_ACCOUNT_ID) {
+                        logger.warn(
+                                "Problem submitting request to node {} for attempt #{}, retry with new node: {}",
+                                node.getAccountId(),
+                                attempt,
+                                responseStatus);
+                        verboseLog(node);
+                    }
+                }
                 default -> {}
             }
         }
