@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.test.integration;
 
-import com.hedera.hashgraph.sdk.AccountId;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
+import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
@@ -10,13 +13,9 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.HashMap;
 import java.util.List;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Integration test for NodeUpdateTransaction functionality, specifically testing
@@ -69,19 +68,18 @@ class NodeUpdateAccountIdIntegrationTest {
                     .setTransactionMemo("Update node account ID for DAB testing");
 
             // Sign with both the node admin key and the new account key
-            nodeUpdateTransaction.freezeWith(client)
-                    .sign(nodeAdminKey)
-                    .sign(newAccountKey);
+            nodeUpdateTransaction.freezeWith(client).sign(nodeAdminKey).sign(newAccountKey);
 
             // Then: The transaction should succeed
             assertThatCode(() -> {
-                var response = nodeUpdateTransaction.execute(client);
-                assertThat(response).isNotNull();
+                        var response = nodeUpdateTransaction.execute(client);
+                        assertThat(response).isNotNull();
 
-                // Verify the transaction was successful by checking the receipt
-                var receipt = response.getReceipt(client);
-                assertThat(receipt.status).isEqualTo(Status.SUCCESS);
-            }).doesNotThrowAnyException();
+                        // Verify the transaction was successful by checking the receipt
+                        var receipt = response.getReceipt(client);
+                        assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+                    })
+                    .doesNotThrowAnyException();
         }
     }
 
@@ -91,10 +89,10 @@ class NodeUpdateAccountIdIntegrationTest {
         // Set the network
         var network = new HashMap<String, AccountId>();
         network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:50212", new AccountId(0, 0, 4));
+        network.put("localhost:51211", new AccountId(0, 0, 4));
 
-        try (var client = Client.forNetwork(network)
-                .setMirrorNetwork(List.of("localhost:5600"))) {
+        try (var client =
+                Client.forNetwork(network).setTransportSecurity(false).setMirrorNetwork(List.of("localhost:5600"))) {
 
             // Set the operator to be account 0.0.2
             var originalOperatorKey = PrivateKey.fromString(
@@ -127,9 +125,9 @@ class NodeUpdateAccountIdIntegrationTest {
             var newAccountKey = PrivateKey.generateED25519();
 
             // Submit to node 3 and node 4
-            // Node 3 will fail with INVALID_NODE_ACCOUNT_ID (because it now uses newNodeAccountID)
+            // Node 3 will fail with INVALID_NODE_ACCOUNT (because it now uses newNodeAccountID)
             // The SDK should automatically:
-            // 1. Detect INVALID_NODE_ACCOUNT_ID error
+            // 1. Detect INVALID_NODE_ACCOUNT error
             // 2. Advance to next node
             // 3. Update the address book asynchronously
             // 4. Mark node 3 as unhealthy

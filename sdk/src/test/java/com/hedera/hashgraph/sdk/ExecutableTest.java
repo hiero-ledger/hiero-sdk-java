@@ -512,9 +512,9 @@ class ExecutableTest {
                 .isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.PLATFORM_NOT_ACTIVE, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.BUSY, null)).isEqualTo(ExecutionState.RETRY);
-        // INVALID_NODE_ACCOUNT_ID now returns SERVER_ERROR to match Go SDK's executionStateRetryWithAnotherNode
+        // INVALID_NODE_ACCOUNT now returns SERVER_ERROR to match Go SDK's executionStateRetryWithAnotherNode
         // which immediately retries with another node without delay
-        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT_ID, null)).isEqualTo(ExecutionState.SERVER_ERROR);
+        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.OK, null)).isEqualTo(ExecutionState.SUCCESS);
         assertThat(tx.getExecutionState(Status.ACCOUNT_DELETED, null)).isEqualTo(ExecutionState.REQUEST_ERROR);
     }
@@ -542,22 +542,22 @@ class ExecutableTest {
         var tx = new DummyTransaction() {
             @Override
             Status mapResponseStatus(com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
-                return Status.INVALID_NODE_ACCOUNT_ID;
+                return Status.INVALID_NODE_ACCOUNT;
             }
         };
         var nodeAccountIds = Arrays.asList(new AccountId(0, 0, 3), new AccountId(0, 0, 4), new AccountId(0, 0, 5));
         tx.setNodeAccountIds(nodeAccountIds);
 
         var txResp = com.hedera.hashgraph.sdk.proto.TransactionResponse.newBuilder()
-                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT_ID)
+                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT)
                 .build();
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
 
-        // This should retry with a different node due to INVALID_NODE_ACCOUNT_ID
+        // This should retry with a different node due to INVALID_NODE_ACCOUNT
         assertThatExceptionOfType(MaxAttemptsExceededException.class).isThrownBy(() -> tx.execute(client));
 
-        // Verify that increaseBackoff was called on the network for each node that returned INVALID_NODE_ACCOUNT_ID
+        // Verify that increaseBackoff was called on the network for each node that returned INVALID_NODE_ACCOUNT
         verify(network, atLeastOnce()).increaseBackoff(any(Node.class));
     }
 
@@ -569,19 +569,19 @@ class ExecutableTest {
         var tx = new DummyTransaction() {
             @Override
             Status mapResponseStatus(com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
-                return Status.INVALID_NODE_ACCOUNT_ID;
+                return Status.INVALID_NODE_ACCOUNT;
             }
         };
         var nodeAccountIds = Arrays.asList(new AccountId(0, 0, 3));
         tx.setNodeAccountIds(nodeAccountIds);
 
         var txResp = com.hedera.hashgraph.sdk.proto.TransactionResponse.newBuilder()
-                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT_ID)
+                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT)
                 .build();
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
 
-        // This should trigger address book update due to INVALID_NODE_ACCOUNT_ID
+        // This should trigger address book update due to INVALID_NODE_ACCOUNT
         assertThatExceptionOfType(MaxAttemptsExceededException.class).isThrownBy(() -> tx.execute(client));
 
         // Verify that increaseBackoff was called (node marking)
