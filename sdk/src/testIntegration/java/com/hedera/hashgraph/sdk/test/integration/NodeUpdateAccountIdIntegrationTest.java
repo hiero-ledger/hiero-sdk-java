@@ -116,6 +116,10 @@ class NodeUpdateAccountIdIntegrationTest {
                     .setAccountId(newNodeAccountID)
                     .execute(client);
 
+            // Add before line 119 in your test
+            System.out.println("Transaction node: " + resp.nodeId);
+            System.out.println("Receipt query nodes: " + resp.getReceiptQuery().getNodeAccountIds());
+            System.out.println("Client network: " + client.getNetwork());
             receipt = resp.setValidateStatus(true).getReceipt(client);
             assertThat(receipt.status).isEqualTo(Status.SUCCESS);
 

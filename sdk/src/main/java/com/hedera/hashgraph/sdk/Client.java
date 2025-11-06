@@ -473,6 +473,40 @@ public final class Client implements AutoCloseable {
         return this;
     }
 
+    /**
+     * Trigger an immediate address book update.
+     * This will fetch the address book even if periodic updates are disabled.
+     */
+    public synchronized Client updateNetworkFromAddressBook() {
+        try {
+            var fileId = FileId.getAddressBookFileIdFor(this.shard, this.realm);
+
+            logger.debug("Fetching address book from file {}", fileId);
+            System.out.println("Fetching address book from file " + fileId);
+
+            // Execute synchronously - no async complexity
+            var addressBook = new AddressBookQuery()
+                .setFileId(fileId)
+                .execute(this);  // ← Synchronous!
+
+            logger.debug("Received address book with {} nodes", addressBook.nodeAddresses.size());
+            System.out.println("address book size: " + addressBook.nodeAddresses.size());
+
+            // Update the network
+            this.setNetworkFromAddressBook(addressBook);
+
+            logger.info("Address book update completed successfully");
+            System.out.println("Address book update completed successfully");
+
+        } catch (TimeoutException e) {
+            logger.warn("Failed to fetch address book: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Failed to update address book", e);
+        }
+
+        return this;
+    }
+
     private synchronized void scheduleNetworkUpdate(@Nullable Duration delay) {
         if (delay == null) {
             networkUpdateFuture = null;
@@ -1411,10 +1445,26 @@ public final class Client implements AutoCloseable {
      *
      * @return {@code this}
      */
-    public synchronized Client updateNetworkFromAddressBook() {
-        scheduleNetworkUpdate(Duration.ZERO);
-        return this;
-    }
+//    public synchronized Client updateNetworkFromAddressBook() {
+////        scheduleNetworkUpdate(Duration.ZERO);
+//        updateNetworkFromAddressBook2();
+//
+//        if (networkUpdateFuture != null) {
+//            try {
+//                networkUpdateFuture.get(30, TimeUnit.SECONDS);
+//                logger.debug("Address book update completed successfully");
+//            } catch (TimeoutException e) {
+//                logger.warn("Address book update timed out after 30 seconds", e);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                logger.warn("Address book update was interrupted", e);
+//            } catch (ExecutionException e) {
+//                logger.warn("Address book update failed", e);
+//            }
+//        }
+//
+//        return this;
+//    }
 
     public Logger getLogger() {
         return this.logger;
