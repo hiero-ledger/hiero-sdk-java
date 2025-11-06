@@ -171,4 +171,20 @@ public class NodeDeleteTransactionTest {
         var exception = assertThrows(IllegalStateException.class, () -> transaction.getNodeId());
         assertThat(exception.getMessage()).isEqualTo("NodeDeleteTransaction: 'nodeId' has not been set");
     }
+
+    @Test
+    @DisplayName("should throw error when setting negative nodeId")
+    void shouldThrowErrorWhenSettingNegativeNodeId() {
+        var transaction = new NodeDeleteTransaction();
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> transaction.setNodeId(-1));
+        assertThat(exception.getMessage()).isEqualTo("NodeDeleteTransaction: 'nodeId' must be non-negative");
+    }
+
+    @Test
+    @DisplayName("should allow setting nodeId to zero")
+    void shouldAllowSettingNodeIdToZero() {
+        var transaction = new NodeDeleteTransaction().setNodeId(0);
+        assertThat(transaction.getNodeId()).isEqualTo(0);
+    }
 }
