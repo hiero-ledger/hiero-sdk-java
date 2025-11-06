@@ -442,13 +442,13 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                     lastException = grpcRequest.mapStatusException();
                     advanceRequest(); // Advance to next node before retrying
 
-                    // Handle INVALID_NODE_ACCOUNT after advancing (matches Go SDK's executionStateRetryWithAnotherNode)
+                    // Handle INVALID_NODE_ACCOUNT after advancing
                     if (status == Status.INVALID_NODE_ACCOUNT) {
                         logger.trace(
                                 "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
                                 node.getAccountId(),
                                 attempt);
-                        // Schedule async address book update (matches Go's defer client._UpdateAddressBook())
+                        // Schedule async address book update
                         client.updateNetworkFromAddressBook();
                         // Mark this node as unhealthy
                         client.network.increaseBackoff(node);
@@ -613,7 +613,19 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         if (nodeAccountIds.size() == 1) {
             var nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
             if (nodeProxies == null || nodeProxies.isEmpty()) {
-                throw new IllegalStateException("Account ID did not map to valid node in the client's network");
+                logger.warn("Node {} not found in network, fetching latest address book",
+                    nodeAccountIds.get(0));
+
+                try {
+                    client.updateNetworkFromAddressBook();  // Synchronous update
+                    nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
+                } catch (Exception e) {
+                    logger.error("Failed to update address book", e);
+                }
+
+                if (nodeProxies == null || nodeProxies.isEmpty()) {
+                    throw new IllegalStateException("nodeProxies is null or empty");
+                }
             }
 
             nodes.addAll(nodeProxies).shuffle();
@@ -696,7 +708,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         var request = makeRequest();
 
         // NOTE: advanceRequest() is now called explicitly in the retry logic
-        // after we determine that a retry is needed, to match Go SDK behavior
+        // after we determine that a retry is needed
         // where node advancement happens AFTER error detection, not before
 
         return request;
@@ -903,12 +915,14 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
                 return ExecutionState.RETRY;
-            case INVALID_NODE_ACCOUNT:
-                // Matches Go SDK's executionStateRetryWithAnotherNode behavior:
-                // immediately retry with next node without delay
-                // This occurs when a node's account ID has changed
-                return ExecutionState.SERVER_ERROR;
-            case OK:
+                //TODO - use ExecutionState.SUCCESS otherwise there is issue with transaction receipt - raised status INVALID_NODE_ACCOUNT
+//            case INVALID_NODE_ACCOUNT:
+//                // Matches Go SDK's executionStateRetryWithAnotherNode behavior:
+//                // immediately retry with next node without delay
+//                // This occurs when a node's account ID has changed
+//                return ExecutionState.SERVER_ERROR;
+                case INVALID_NODE_ACCOUNT:
+                case OK:
                 return ExecutionState.SUCCESS;
             default:
                 return ExecutionState.REQUEST_ERROR; // user error
