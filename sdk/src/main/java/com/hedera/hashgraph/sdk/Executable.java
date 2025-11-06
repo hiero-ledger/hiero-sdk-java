@@ -613,11 +613,10 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         if (nodeAccountIds.size() == 1) {
             var nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
             if (nodeProxies == null || nodeProxies.isEmpty()) {
-                logger.warn("Node {} not found in network, fetching latest address book",
-                    nodeAccountIds.get(0));
+                logger.warn("Node {} not found in network, fetching latest address book", nodeAccountIds.get(0));
 
                 try {
-                    client.updateNetworkFromAddressBook();  // Synchronous update
+                    client.updateNetworkFromAddressBook(); // Synchronous update
                     nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
                 } catch (Exception e) {
                     logger.error("Failed to update address book", e);
@@ -915,14 +914,11 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
                 return ExecutionState.RETRY;
-                //TODO - use ExecutionState.SUCCESS otherwise there is issue with transaction receipt - raised status INVALID_NODE_ACCOUNT
-//            case INVALID_NODE_ACCOUNT:
-//                // Matches Go SDK's executionStateRetryWithAnotherNode behavior:
-//                // immediately retry with next node without delay
-//                // This occurs when a node's account ID has changed
-//                return ExecutionState.SERVER_ERROR;
-                case INVALID_NODE_ACCOUNT:
-                case OK:
+            case INVALID_NODE_ACCOUNT:
+                return ExecutionState
+                        .SERVER_ERROR; // immediately retry with next node without delay. This occurs when a node's
+            // account ID has changed
+            case OK:
                 return ExecutionState.SUCCESS;
             default:
                 return ExecutionState.REQUEST_ERROR; // user error
