@@ -214,15 +214,15 @@ jobs:
         uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911
 
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@vc5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
           java-version: "21.0.6"

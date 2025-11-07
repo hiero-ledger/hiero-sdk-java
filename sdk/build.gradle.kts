@@ -90,8 +90,6 @@ tasks.register<Exec>("updateProto") {
 
 tasks.withType<Test>().configureEach {
     if (project.hasProperty("skipNodeUpdateTest")) {
-        filter {
-            excludeTestsMatching("*NodeUpdateTransactionIntegrationTest")
-        }
+        filter { excludeTestsMatching("*NodeUpdateTransactionIntegrationTest") }
     }
 }
