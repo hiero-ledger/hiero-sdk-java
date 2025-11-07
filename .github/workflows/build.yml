@@ -201,8 +201,8 @@ jobs:
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
-  test-node-update-account-id:
-    name: NodeUpdateTransactionIntegrationTest (dual solo)
+  test-dab:
+    name: Test Dynamic Addressbook with 2 nodes
     runs-on: hiero-client-sdk-linux-medium
     needs:
       - build
@@ -229,14 +229,15 @@ jobs:
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
-        uses: hiero-ledger/hiero-solo-action@a5fdd9282834d985ae6928d9920404e026333078
+        uses: hiero-ledger/hiero-solo-action@2576140d0c1bb084c9be2ba59e82a4604c388e06
         with:
           installMirrorNode: true
+          dualMode: true
 
       - name: Build SDK
         run: ./gradlew assemble
 
-      - name: Run Only NodeUpdateTransactionIntegrationTest
+      - name: Run tests
         env:
           OPERATOR_KEY: "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
           OPERATOR_ID: "0.0.2"
