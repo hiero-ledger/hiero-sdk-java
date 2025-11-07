@@ -176,7 +176,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@b76850c1ac44466900f8e7412b309c3aa0f539c1 # v0.14
+        uses: hiero-ledger/hiero-solo-action@a5fdd9282834d985ae6928d9920404e026333078 # dual mode
         with:
           installMirrorNode: true
 
@@ -186,105 +186,16 @@ jobs:
       - name: Code Quality Checks
         run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
 
-      -   name: Run Unit and Integration Tests (excluding NodeUpdateAccountIdIntegrationTest)
-          run: |
-              ./gradlew \
-                -POPERATOR_ID=$OPERATOR_ID \
-                -POPERATOR_KEY=$OPERATOR_KEY \
-                -PHEDERA_NETWORK=$HEDERA_NETWORK \
-                :aggregation:testCodeCoverageReport \
-                --exclude-test "*NodeUpdateAccountIdIntegrationTest"
+      - name: Run ONLY NodeUpdateAccountIdIntegrationTest
+        env:
+                  OPERATOR_KEY: "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
+                  OPERATOR_ID: "0.0.2"
+                  HEDERA_NETWORK: "localhost"
+        run: |
+                  ./gradlew integrationTest --tests "*NodeUpdateAccountIdIntegrationTest"
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
         uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
-
-  run-examples:
-    name: Run Examples
-    runs-on: hiero-client-sdk-linux-medium
-    needs:
-      - build
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
-        with:
-          egress-policy: audit
-
-      - name: Checkout Code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 18
-
-      - name: Setup Java
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
-        with:
-          distribution: temurin
-          java-version: "21.0.6"
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
-
-      - name: Prepare Hiero Solo
-        id: solo
-        uses: hiero-ledger/hiero-solo-action@b76850c1ac44466900f8e7412b309c3aa0f539c1 # v0.14
-        with:
-          installMirrorNode: true
-
-      - name: Build SDK
-        run: ./gradlew assemble
-
-      - name: Build Android Example
-        run: ./gradlew -p example-android assemble
-
-      - name: Prepare .env for Examples
-        run: |
-          echo "OPERATOR_KEY=302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137" > examples/.env
-          echo "OPERATOR_ID=0.0.2" >> examples/.env
-          echo "HEDERA_NETWORK=localhost" >> examples/.env
-
-      - name: Run Examples
-        run: ./gradlew :examples:runAllExamples
-
-  test-tck:
-    name: TCK Tests
-    runs-on: hiero-client-sdk-linux-medium
-    needs:
-      - build
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
-        with:
-          egress-policy: audit
-
-      - name: Checkout Code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 18
-
-      - name: Setup Java
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
-        with:
-          distribution: temurin
-          java-version: "21.0.6"
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
-
-      - name: Build TCK
-        run: ./gradlew assemble
-
-      - name: Run TCK Unit Tests
-        run: ./gradlew :tck:test
