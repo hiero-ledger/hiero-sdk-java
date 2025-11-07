@@ -192,8 +192,11 @@ jobs:
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
-            :aggregation:testCodeCoverageReport \
-            --exclude-test "*NodeUpdateTransactionIntegrationTest"
+            test \
+            testIntegration \
+            -PskipNodeUpdateTest=true
+
+            ./gradlew :aggregation:testCodeCoverageReport
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
@@ -243,7 +246,12 @@ jobs:
           OPERATOR_ID: "0.0.2"
           HEDERA_NETWORK: "localhost"
         run: |
-          ./gradlew integrationTest --tests "*NodeUpdateTransactionIntegrationTest"
+          ./gradlew \
+            -POPERATOR_ID=$OPERATOR_ID \
+            -POPERATOR_KEY=$OPERATOR_KEY \
+            -PHEDERA_NETWORK=$HEDERA_NETWORK \
+            testIntegration \
+            --tests "*NodeUpdateTransactionIntegrationTest"
 
   run-examples:
     name: Run Examples
