@@ -201,6 +201,50 @@ jobs:
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
+  test-node-update-account-id:
+      name: NodeUpdateAccountIdIntegrationTest (dual solo)
+      runs-on: hiero-client-sdk-linux-medium
+      needs:
+          - build
+      steps:
+          -   name: Harden Runner
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911
+
+          -   name: Checkout Code
+              uses: actions/checkout@v4
+
+          -   name: Setup NodeJS
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+
+          -   name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: "21.0.6"
+
+          -   name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v5
+
+          -   name: Prepare Hiero Solo (DUAL MODE)
+              id: solo
+              uses: hiero-ledger/hiero-solo-action@a5fdd9282834d985ae6928d9920404e026333078
+              with:
+                  installMirrorNode: true
+
+          -   name: Build SDK
+              run: ./gradlew assemble
+
+          -   name: Run Only NodeUpdateAccountIdIntegrationTest
+              env:
+                  OPERATOR_KEY: "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
+                  OPERATOR_ID: "0.0.2"
+                  HEDERA_NETWORK: "localhost"
+              run: |
+                  ./gradlew integrationTest --tests "*NodeUpdateAccountIdIntegrationTest"
+
+
   run-examples:
     name: Run Examples
     runs-on: hiero-client-sdk-linux-medium
