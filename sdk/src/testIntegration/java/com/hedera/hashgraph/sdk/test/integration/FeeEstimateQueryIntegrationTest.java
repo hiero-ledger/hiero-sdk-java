@@ -2,8 +2,12 @@
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.*;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -267,6 +271,31 @@ class FeeEstimateQueryIntegrationTest {
 
             assertFeeComponentsPresent(response);
             assertComponentTotalsConsistent(response);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given a FeeEstimateQuery with a malformed transaction, when the query is executed, then it returns an INVALID_ARGUMENT error and does not retry")
+    void malformedTransactionReturnsInvalidArgumentError() throws Throwable {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            // Given: A malformed transaction payload (invalid signed bytes)
+            ByteString invalidBytes = ByteString.copyFrom(new byte[] {0x00, 0x01, 0x02, 0x03});
+            var malformedTransaction = com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                    .setSignedTransactionBytes(invalidBytes)
+                    .build();
+
+            waitForMirrorNodeSync();
+
+            // When/Then: Executing the fee estimate query should throw INVALID_ARGUMENT
+            assertThatThrownBy(() -> new FeeEstimateQuery()
+                            .setTransaction(malformedTransaction)
+                            .setMode(FeeEstimateMode.STATE)
+                            .execute(testEnv.client))
+                    .isInstanceOf(StatusRuntimeException.class)
+                    .extracting(ex -> ((StatusRuntimeException) ex).getStatus().getCode())
+                    .isEqualTo(Status.Code.INVALID_ARGUMENT);
         }
     }
 
