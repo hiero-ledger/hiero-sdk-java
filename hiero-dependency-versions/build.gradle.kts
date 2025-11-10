@@ -31,7 +31,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.19.2") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.20.1") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.18.0") { because("org.apache.commons.lang3") }
