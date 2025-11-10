@@ -87,3 +87,9 @@ tasks.register<Exec>("updateProto") {
     executable = File(rootDir, "scripts/update_protobufs.py").absolutePath
     args("main") // argument is the branch/tag
 }
+
+tasks.withType<Test>().configureEach {
+    if (project.hasProperty("skipNodeUpdateTest")) {
+        filter { excludeTestsMatching("*NodeUpdateTransactionIntegrationTest") }
+    }
+}
