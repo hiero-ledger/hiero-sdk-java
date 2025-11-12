@@ -248,6 +248,7 @@ jobs:
         with:
           installMirrorNode: true
           dualMode: true
+          hieroVersion: "v0.68.0"
 
       - name: Build SDK
         run: ./gradlew assemble
