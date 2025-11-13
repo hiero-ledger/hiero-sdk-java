@@ -613,18 +613,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         if (nodeAccountIds.size() == 1) {
             var nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
             if (nodeProxies == null || nodeProxies.isEmpty()) {
-                logger.warn("Node {} not found in network, fetching latest address book", nodeAccountIds.get(0));
-
-                try {
-                    client.updateNetworkFromAddressBook(); // Synchronous update
-                    nodeProxies = client.network.getNodeProxies(nodeAccountIds.get(0));
-                } catch (Exception e) {
-                    logger.error("Failed to update address book", e);
-                }
-
-                if (nodeProxies == null || nodeProxies.isEmpty()) {
-                    throw new IllegalStateException("nodeProxies is null or empty");
-                }
+                throw new IllegalStateException("Account ID did not map to valid node in the client's network");
             }
 
             nodes.addAll(nodeProxies).shuffle();
@@ -799,22 +788,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
                                     switch (executionState) {
                                         case SERVER_ERROR:
-                                            advanceRequest(); // Advance to next node before retrying
-
-                                            // Handle INVALID_NODE_ACCOUNT after advancing (matches Go SDK's
-                                            // executionStateRetryWithAnotherNode)
-                                            if (status == Status.INVALID_NODE_ACCOUNT) {
-                                                logger.trace(
-                                                        "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
-                                                        grpcRequest.getNode().getAccountId(),
-                                                        attempt);
-                                                // Schedule async address book update (matches Go's defer
-                                                // client._UpdateAddressBook())
-                                                client.updateNetworkFromAddressBook();
-                                                // Mark this node as unhealthy
-                                                client.network.increaseBackoff(grpcRequest.getNode());
-                                            }
-
                                             executeAsyncInternal(
                                                     client,
                                                     attempt + 1,
