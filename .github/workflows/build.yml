@@ -199,6 +199,7 @@ jobs:
             test \
             testIntegration \
             -PskipNodeUpdateTest=true
+            --rerun-tasks
 
             ./gradlew \
             -POPERATOR_ID=$OPERATOR_ID \
@@ -265,6 +266,7 @@ jobs:
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
             testIntegration \
             --tests "*NodeUpdateTransactionIntegrationTest"
+            --rerun-tasks
 
   run-examples:
     name: Run Examples
