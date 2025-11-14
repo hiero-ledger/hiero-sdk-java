@@ -20,12 +20,14 @@ import lombok.NoArgsConstructor;
 public class FileDeleteParams extends JSONRPC2Param {
     private Optional<String> fileId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public FileDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = Optional.ofNullable((String) jrpcParams.get("fileId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new FileDeleteParams(parsedFileId, parsedCommonTransactionParams);
+        return new FileDeleteParams(
+                parsedFileId, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

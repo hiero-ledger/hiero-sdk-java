@@ -30,6 +30,7 @@ public class UpdateTopicParams extends JSONRPC2Param {
     private Optional<String> autoRenewAccountId;
     private Optional<String> expirationTime;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -59,6 +60,7 @@ public class UpdateTopicParams extends JSONRPC2Param {
                 parsedAutoRenewPeriod,
                 parsedAutoRenewAccountId,
                 parsedExpirationTime,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

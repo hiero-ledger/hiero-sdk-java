@@ -32,6 +32,7 @@ public class CreateContractParams extends JSONRPC2Param {
     private Optional<Long> maxAutomaticTokenAssociations;
     private Optional<String> constructorParameters; // hex string
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public CreateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -65,6 +66,7 @@ public class CreateContractParams extends JSONRPC2Param {
                 parsedMemo,
                 parsedMaxAutomaticTokenAssociations,
                 parsedConstructorParameters,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

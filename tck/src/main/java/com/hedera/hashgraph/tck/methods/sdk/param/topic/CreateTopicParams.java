@@ -28,6 +28,7 @@ public class CreateTopicParams extends JSONRPC2Param {
     private Optional<List<String>> feeExemptKeys;
     private Optional<List<CustomFee>> customFees;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -53,6 +54,7 @@ public class CreateTopicParams extends JSONRPC2Param {
                 parsedFeeScheduleKey,
                 parsedFeeExemptKeys,
                 parsedCustomFees,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
