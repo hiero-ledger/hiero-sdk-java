@@ -19,6 +19,7 @@ class SetupParamsTest {
         jrpcParams.put("nodeIp", "testNodeIp");
         jrpcParams.put("nodeAccountId", "testNodeAccountId");
         jrpcParams.put("mirrorNetworkIp", "testMirrorNetworkIp");
+        jrpcParams.put("sessionId", "session-setup");
 
         // When
         SetupParams result = new SetupParams().parse(jrpcParams);

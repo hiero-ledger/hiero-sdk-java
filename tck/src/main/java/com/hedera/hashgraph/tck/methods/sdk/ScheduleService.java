@@ -26,6 +26,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createSchedule")
     public ScheduleResponse createSchedule(final ScheduleCreateParams params) throws Exception {
         ScheduleCreateTransaction transaction = new ScheduleCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduledTransaction().ifPresent(scheduledTx -> {
             try {
@@ -60,11 +61,10 @@ public class ScheduleService extends AbstractJSONRPC2Service {
 
         params.getWaitForExpiry().ifPresent(transaction::setWaitForExpiry);
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";
@@ -83,15 +83,15 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("signSchedule")
     public ScheduleResponse signSchedule(final ScheduleSignParams params) throws Exception {
         ScheduleSignTransaction transaction = new ScheduleSignTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduleId()
                 .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";
@@ -110,15 +110,15 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteSchedule")
     public ScheduleResponse deleteSchedule(final ScheduleDeleteParams params) throws Exception {
         ScheduleDeleteTransaction transaction = new ScheduleDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduleId()
                 .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";

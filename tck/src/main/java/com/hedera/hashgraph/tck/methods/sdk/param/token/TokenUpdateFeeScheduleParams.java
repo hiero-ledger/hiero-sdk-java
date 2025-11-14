@@ -20,6 +20,7 @@ public class TokenUpdateFeeScheduleParams extends JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<List<CustomFee>> customFees;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -29,6 +30,10 @@ public class TokenUpdateFeeScheduleParams extends JSONRPC2Param {
 
         var parsedCustomFees = JSONRPCParamParser.parseCustomFees(jrpcParams);
 
-        return new TokenUpdateFeeScheduleParams(parsedTokenId, parsedCustomFees, parsedCommonTransactionParams);
+        return new TokenUpdateFeeScheduleParams(
+                parsedTokenId,
+                parsedCustomFees,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

@@ -18,6 +18,7 @@ public class AssociateDisassociateTokenParams extends JSONRPC2Param {
     private Optional<String> accountId;
     private Optional<List<String>> tokenIds;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -26,6 +27,10 @@ public class AssociateDisassociateTokenParams extends JSONRPC2Param {
         var parsedTokenIds = Optional.ofNullable((List<String>) jrpcParams.get("tokenIds"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new AssociateDisassociateTokenParams(parsedAccountId, parsedTokenIds, parsedCommonTransactionParams);
+        return new AssociateDisassociateTokenParams(
+                parsedAccountId,
+                parsedTokenIds,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

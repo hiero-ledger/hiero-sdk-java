@@ -20,6 +20,7 @@ public class BurnTokenParams extends JSONRPC2Param {
     private Optional<List<String>> metadata;
     private Optional<List<String>> serialNumbers;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -30,6 +31,11 @@ public class BurnTokenParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new BurnTokenParams(
-                parsedTokenId, parsedAmount, parsedMetadata, parsedSerialNumbers, parsedCommonTransactionParams);
+                parsedTokenId,
+                parsedAmount,
+                parsedMetadata,
+                parsedSerialNumbers,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

@@ -23,6 +23,7 @@ public class FileAppendParams extends JSONRPC2Param {
     private Optional<Long> maxChunks;
     private Optional<Long> chunkSize;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public FileAppendParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -33,6 +34,11 @@ public class FileAppendParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new FileAppendParams(
-                parsedFileId, parsedContents, parsedMaxChunks, parsedChunkSize, parsedCommonTransactionParams);
+                parsedFileId,
+                parsedContents,
+                parsedMaxChunks,
+                parsedChunkSize,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

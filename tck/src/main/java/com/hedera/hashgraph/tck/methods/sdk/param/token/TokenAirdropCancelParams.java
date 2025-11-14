@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 public class TokenAirdropCancelParams extends JSONRPC2Param {
     private Optional<List<PendingAirdropParams>> pendingAirdrops;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -37,6 +38,7 @@ public class TokenAirdropCancelParams extends JSONRPC2Param {
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new TokenAirdropCancelParams(parsedPendingAirdrops, parsedCommonTransactionParams);
+        return new TokenAirdropCancelParams(
+                parsedPendingAirdrops, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
