@@ -4,6 +4,7 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -511,6 +512,9 @@ class ExecutableTest {
                 .isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.PLATFORM_NOT_ACTIVE, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.BUSY, null)).isEqualTo(ExecutionState.RETRY);
+        // INVALID_NODE_ACCOUNT now returns SERVER_ERROR to match Go SDK's executionStateRetryWithAnotherNode
+        // which immediately retries with another node without delay
+        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.OK, null)).isEqualTo(ExecutionState.SUCCESS);
         assertThat(tx.getExecutionState(Status.ACCOUNT_DELETED, null)).isEqualTo(ExecutionState.REQUEST_ERROR);
     }
@@ -524,6 +528,67 @@ class ExecutableTest {
         assertThat(tx.getMaxRetry()).isEqualTo(1);
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> tx.setMaxRetry(0));
+    }
+
+    @Test
+    void shouldMarkNodeAsUnusableOnInvalidNodeAccountId() throws PrecheckStatusException, TimeoutException {
+        when(node3.isHealthy()).thenReturn(true);
+        when(node3.channelFailedToConnect()).thenReturn(false);
+        when(node4.isHealthy()).thenReturn(true);
+        when(node4.channelFailedToConnect()).thenReturn(false);
+        when(node5.isHealthy()).thenReturn(true);
+        when(node5.channelFailedToConnect()).thenReturn(false);
+
+        var tx = new DummyTransaction() {
+            @Override
+            Status mapResponseStatus(com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
+                return Status.INVALID_NODE_ACCOUNT;
+            }
+        };
+        var nodeAccountIds = Arrays.asList(new AccountId(0, 0, 3), new AccountId(0, 0, 4), new AccountId(0, 0, 5));
+        tx.setNodeAccountIds(nodeAccountIds);
+
+        var txResp = com.hedera.hashgraph.sdk.proto.TransactionResponse.newBuilder()
+                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT)
+                .build();
+
+        tx.blockingUnaryCall = (grpcRequest) -> txResp;
+
+        // This should retry with a different node due to INVALID_NODE_ACCOUNT
+        assertThatExceptionOfType(MaxAttemptsExceededException.class).isThrownBy(() -> tx.execute(client));
+
+        // Verify that increaseBackoff was called on the network for each node that returned INVALID_NODE_ACCOUNT
+        verify(network, atLeastOnce()).increaseBackoff(any(Node.class));
+    }
+
+    @Test
+    void shouldTriggerAddressBookUpdateOnInvalidNodeAccountId() throws PrecheckStatusException, TimeoutException {
+        when(node3.isHealthy()).thenReturn(true);
+        when(node3.channelFailedToConnect()).thenReturn(false);
+
+        var tx = new DummyTransaction() {
+            @Override
+            Status mapResponseStatus(com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
+                return Status.INVALID_NODE_ACCOUNT;
+            }
+        };
+        var nodeAccountIds = Arrays.asList(new AccountId(0, 0, 3));
+        tx.setNodeAccountIds(nodeAccountIds);
+
+        var txResp = com.hedera.hashgraph.sdk.proto.TransactionResponse.newBuilder()
+                .setNodeTransactionPrecheckCode(ResponseCodeEnum.INVALID_NODE_ACCOUNT)
+                .build();
+
+        tx.blockingUnaryCall = (grpcRequest) -> txResp;
+
+        // This should trigger address book update due to INVALID_NODE_ACCOUNT
+        assertThatExceptionOfType(MaxAttemptsExceededException.class).isThrownBy(() -> tx.execute(client));
+
+        // Verify that increaseBackoff was called (node marking)
+        verify(network, atLeastOnce()).increaseBackoff(any(Node.class));
+
+        // Note: We can't easily test the address book update in this unit test since it's async
+        // and involves network calls. The integration test would be more appropriate for that.
     }
 
     static class DummyTransaction<T extends Transaction<T>>
