@@ -8,7 +8,7 @@ This document provides a comprehensive guide for migrating from the Hedera Java 
 
 The Maven group ID and artifact ID are being updated to reflect the new organization ownership:
 - **Group ID**: `com.hedera.hashgraph` → `org.hiero`
-- **Artifact ID**: `sdk` → `sdk-java`
+- **Artifact ID**: `sdk` → `sdk`
 - **Package namespace**: `com.hedera.hashgraph.sdk` → `org.hiero.sdk`
 
 The functionality, API, features, and codebase remain exactly the same - only the dependency coordinates and import statements need to be updated.
