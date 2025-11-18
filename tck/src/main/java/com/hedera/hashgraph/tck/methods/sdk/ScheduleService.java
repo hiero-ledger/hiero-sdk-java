@@ -12,6 +12,7 @@ import com.hedera.hashgraph.tck.methods.sdk.response.ScheduleResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 @JSONRPC2Service
@@ -30,7 +31,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
 
         params.getScheduledTransaction().ifPresent(scheduledTx -> {
             try {
-                Transaction<?> tx = buildScheduledTransaction(scheduledTx);
+                Transaction<?> tx = buildScheduledTransaction(scheduledTx, params.getSessionId());
                 transaction.setScheduledTransaction(tx);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to build scheduled transaction", e);
@@ -137,9 +138,12 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     /**
      * Builds a scheduled transaction from method name and parameters
      */
-    private Transaction<?> buildScheduledTransaction(ScheduleCreateParams.ScheduledTransaction scheduledTx) {
+    private Transaction<?> buildScheduledTransaction(
+            ScheduleCreateParams.ScheduledTransaction scheduledTx, String sessionId) {
         String method = scheduledTx.getMethod();
-        Map<String, Object> params = scheduledTx.getParams();
+        Map<String, Object> params = new HashMap<>(scheduledTx.getParams());
+        // Inject sessionId into params so nested param parsers can access it
+        params.put("sessionId", sessionId);
 
         return switch (method) {
             case "transferCrypto" -> TransactionBuilders.TransferBuilder.buildTransfer(params);
