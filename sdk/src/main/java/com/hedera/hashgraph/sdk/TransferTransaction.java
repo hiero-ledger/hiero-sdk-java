@@ -105,8 +105,10 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         requireNotFrozen();
 
         for (var transfer : hbarTransfers) {
-            if (transfer.accountId.equals(accountId) && transfer.isApproved == isApproved) {
-                transfer.amount = Hbar.fromTinybars(transfer.amount.toTinybars() + value.toTinybars());
+            if (transfer.accountId.equals(accountId)) {
+                long combinedTinybars = transfer.amount.toTinybars() + value.toTinybars();
+                transfer.amount = Hbar.fromTinybars(combinedTinybars);
+                transfer.isApproved = transfer.isApproved || isApproved;
                 return this;
             }
         }
