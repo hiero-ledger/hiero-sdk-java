@@ -27,6 +27,7 @@ class AccountCreateParamsTest {
         jrpcParams.put("stakedNodeId", "5");
         jrpcParams.put("declineStakingReward", true);
         jrpcParams.put("alias", "alias");
+        jrpcParams.put("sessionId", "session-all");
 
         JSONObject commonParamsJson = new JSONObject();
         commonParamsJson.put("transactionId", "txId");
@@ -74,6 +75,7 @@ class AccountCreateParamsTest {
     void testParseWithOptionalFieldsAbsent() throws Exception {
         Map<String, Object> jrpcParams = new HashMap<>();
         jrpcParams.put("key", "someKey");
+        jrpcParams.put("sessionId", "session-optional");
 
         AccountCreateParams params = new AccountCreateParams().parse(jrpcParams);
 
@@ -94,6 +96,7 @@ class AccountCreateParamsTest {
     void testParseWithInvalidFieldTypes() {
         Map<String, Object> jrpcParams = new HashMap<>();
         jrpcParams.put("key", 123); // Invalid type
+        jrpcParams.put("sessionId", "session-invalid");
 
         assertThrows(ClassCastException.class, () -> {
             new AccountCreateParams().parse(jrpcParams);
@@ -103,6 +106,7 @@ class AccountCreateParamsTest {
     @Test
     void testParseWithEmptyParams() throws Exception {
         Map<String, Object> jrpcParams = new HashMap<>();
+        jrpcParams.put("sessionId", "session-empty");
 
         AccountCreateParams params = new AccountCreateParams().parse(jrpcParams);
 

@@ -29,6 +29,7 @@ public class UpdateContractParams extends JSONRPC2Param {
     private Optional<Long> maxAutomaticTokenAssociations;
     private Optional<String> expirationTime;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public UpdateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -56,6 +57,7 @@ public class UpdateContractParams extends JSONRPC2Param {
                 parsedMemo,
                 parsedMaxAutomaticTokenAssociations,
                 parsedExpirationTime,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

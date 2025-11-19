@@ -25,13 +25,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createToken")
     public TokenResponse createToken(final TokenCreateParams params) throws Exception {
         TokenCreateTransaction tokenCreateTransaction = TransactionBuilders.TokenBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(tokenCreateTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(tokenCreateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                tokenCreateTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                tokenCreateTransaction.execute(client).getReceipt(client);
 
         String tokenId = "";
         if (transactionReceipt.status == Status.SUCCESS) {
@@ -44,13 +45,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateToken")
     public TokenResponse updateToken(final TokenUpdateParams params) throws Exception {
         TokenUpdateTransaction tokenUpdateTransaction = TransactionBuilders.TokenBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(tokenUpdateTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(tokenUpdateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                tokenUpdateTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                tokenUpdateTransaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", transactionReceipt.status);
     }
@@ -58,13 +60,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteToken")
     public TokenResponse deleteToken(final TokenDeleteParams params) throws Exception {
         TokenDeleteTransaction tokenDeleteTransaction = TransactionBuilders.TokenBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(tokenDeleteTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(tokenDeleteTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                tokenDeleteTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                tokenDeleteTransaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", transactionReceipt.status);
     }
@@ -72,11 +75,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateTokenFeeSchedule")
     public TokenResponse updateTokenFeeSchedule(TokenUpdateFeeScheduleParams params) throws Exception {
         TokenFeeScheduleUpdateTransaction transaction = TransactionBuilders.TokenBuilder.buildUpdateFeeSchedule(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -84,11 +88,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("freezeToken")
     public TokenResponse tokenFreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
         TokenFreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildFreeze(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -96,11 +101,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("unfreezeToken")
     public TokenResponse tokenUnfreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
         TokenUnfreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildUnfreeze(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -108,11 +114,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("associateToken")
     public TokenResponse associateToken(AssociateDisassociateTokenParams params) throws Exception {
         TokenAssociateTransaction transaction = TransactionBuilders.TokenBuilder.buildAssociate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -120,11 +127,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("dissociateToken")
     public TokenResponse dissociateToken(AssociateDisassociateTokenParams params) throws Exception {
         TokenDissociateTransaction transaction = TransactionBuilders.TokenBuilder.buildDissociate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -132,11 +140,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("pauseToken")
     public TokenResponse pauseToken(PauseUnpauseTokenParams params) throws Exception {
         TokenPauseTransaction transaction = TransactionBuilders.TokenBuilder.buildPause(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -144,11 +153,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("unpauseToken")
     public TokenResponse tokenUnpauseTransaction(PauseUnpauseTokenParams params) throws Exception {
         TokenUnpauseTransaction transaction = TransactionBuilders.TokenBuilder.buildUnpause(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -156,11 +166,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("grantTokenKyc")
     public TokenResponse grantTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
         TokenGrantKycTransaction transaction = TransactionBuilders.TokenBuilder.buildGrantKyc(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -168,11 +179,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("revokeTokenKyc")
     public TokenResponse revokeTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
         TokenRevokeKycTransaction transaction = TransactionBuilders.TokenBuilder.buildRevokeKyc(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenResponse("", receipt.status);
     }
@@ -180,11 +192,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("mintToken")
     public TokenMintResponse mintToken(MintTokenParams params) throws Exception {
         TokenMintTransaction transaction = TransactionBuilders.TokenBuilder.buildMint(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenMintResponse(
                 "",
@@ -196,11 +209,12 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("burnToken")
     public TokenBurnResponse burnToken(BurnTokenParams params) throws Exception {
         TokenBurnTransaction transaction = TransactionBuilders.TokenBuilder.buildBurn(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new TokenBurnResponse("", receipt.status, receipt.totalSupply.toString());
     }
@@ -208,13 +222,13 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("wipeToken")
     public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
         TokenWipeTransaction tokenWipeTransaction = TransactionBuilders.TokenBuilder.buildWipe(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(tokenWipeTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(tokenWipeTransaction, client));
 
-        TransactionReceipt receipt =
-                tokenWipeTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = tokenWipeTransaction.execute(client).getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
     }
@@ -222,13 +236,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("airdropToken")
     public Map<String, String> airdropToken(final TokenAirdropParams params) throws Exception {
         TokenAirdropTransaction tokenAirdropTransaction = TransactionBuilders.TokenBuilder.buildAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(tokenAirdropTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(tokenAirdropTransaction, client));
 
-        TransactionResponse txResponse = tokenAirdropTransaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = tokenAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
     }
@@ -237,13 +252,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     public Map<String, String> cancelAirdrop(final TokenAirdropCancelParams params) throws Exception {
         TokenCancelAirdropTransaction tokenCancelAirdropTransaction =
                 TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
-                        tokenCancelAirdropTransaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenCancelAirdropTransaction, client));
 
-        TransactionResponse txResponse = tokenCancelAirdropTransaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = tokenCancelAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
     }
@@ -252,13 +268,14 @@ public class TokenService extends AbstractJSONRPC2Service {
     public Map<String, String> claimToken(final TokenClaimAirdropParams params) throws Exception {
         TokenClaimAirdropTransaction tokenClaimAirdropTransaction =
                 TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(
-                        tokenClaimAirdropTransaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenClaimAirdropTransaction, client));
 
-        TransactionResponse txResponse = tokenClaimAirdropTransaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = tokenClaimAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
     }

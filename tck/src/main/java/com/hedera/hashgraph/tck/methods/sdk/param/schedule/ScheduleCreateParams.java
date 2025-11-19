@@ -25,6 +25,7 @@ public class ScheduleCreateParams extends JSONRPC2Param {
     private Optional<String> expirationTime;
     private Optional<Boolean> waitForExpiry;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public ScheduleCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -45,7 +46,8 @@ public class ScheduleCreateParams extends JSONRPC2Param {
                 parsedPayerAccountId,
                 parsedExpirationTime,
                 parsedWaitForExpiry,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 
     /**

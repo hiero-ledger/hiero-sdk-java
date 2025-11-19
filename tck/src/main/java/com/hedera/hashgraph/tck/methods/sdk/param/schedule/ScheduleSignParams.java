@@ -20,12 +20,14 @@ import lombok.NoArgsConstructor;
 public class ScheduleSignParams extends JSONRPC2Param {
     private Optional<String> scheduleId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public ScheduleSignParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduleId = Optional.ofNullable((String) jrpcParams.get("scheduleId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new ScheduleSignParams(parsedScheduleId, parsedCommonTransactionParams);
+        return new ScheduleSignParams(
+                parsedScheduleId, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
