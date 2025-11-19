@@ -24,6 +24,7 @@ public class TokenWipeParams extends JSONRPC2Param {
     private Optional<String> amount;
     private Optional<List<String>> serialNumbers;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -37,6 +38,11 @@ public class TokenWipeParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new TokenWipeParams(
-                parsedTokenId, parsedAccountId, parsedAmount, parsedSerialNumbers, parsedCommonTransactionParams);
+                parsedTokenId,
+                parsedAccountId,
+                parsedAmount,
+                parsedSerialNumbers,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

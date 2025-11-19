@@ -26,12 +26,13 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createTopic")
     public TopicResponse createTopic(final CreateTopicParams params) throws Exception {
         TopicCreateTransaction transaction = TransactionBuilders.TopicBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(client);
 
         String topicId = "";
         if (receipt.status == Status.SUCCESS && receipt.topicId != null) {
@@ -44,12 +45,13 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateTopic")
     public TopicResponse updateTopic(final UpdateTopicParams params) throws Exception {
         TopicUpdateTransaction transaction = TransactionBuilders.TopicBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(client);
 
         return new TopicResponse(null, receipt.status);
     }
@@ -57,12 +59,13 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteTopic")
     public TopicResponse deleteTopic(final DeleteTopicParams params) throws Exception {
         TopicDeleteTransaction transaction = TransactionBuilders.TopicBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(client);
 
         return new TopicResponse(null, receipt.status);
     }
@@ -70,12 +73,13 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("submitTopicMessage")
     public TopicResponse submitTopicMessage(final SubmitTopicMessageParams params) throws Exception {
         TopicMessageSubmitTransaction transaction = TransactionBuilders.TopicBuilder.buildSubmitMessage(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.setValidateStatus(true).getReceipt(client);
 
         return new TopicResponse(null, receipt.status);
     }

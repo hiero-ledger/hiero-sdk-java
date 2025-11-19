@@ -23,6 +23,7 @@ public class DeleteContractParams extends JSONRPC2Param {
     private Optional<String> transferContractId;
     private Optional<Boolean> permanentRemoval;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public DeleteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -38,6 +39,7 @@ public class DeleteContractParams extends JSONRPC2Param {
                 parsedTransferAccountId,
                 parsedTransferContractId,
                 parsedPermanentRemoval,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

@@ -19,6 +19,7 @@ public class MintTokenParams extends JSONRPC2Param {
     private Optional<String> amount;
     private Optional<List<String>> metadata;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -27,6 +28,11 @@ public class MintTokenParams extends JSONRPC2Param {
         var parsedMetadata = Optional.ofNullable((List<String>) jrpcParams.get("metadata"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new MintTokenParams(parsedTokenId, parsedAmount, parsedMetadata, parsedCommonTransactionParams);
+        return new MintTokenParams(
+                parsedTokenId,
+                parsedAmount,
+                parsedMetadata,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

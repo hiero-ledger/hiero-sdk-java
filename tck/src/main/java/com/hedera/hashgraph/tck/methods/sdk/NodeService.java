@@ -29,6 +29,7 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createNode")
     public NodeResponse createNode(final NodeCreateParams params) throws Exception {
         NodeCreateTransaction tx = new NodeCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getAccountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
         params.getDescription().ifPresent(tx::setDescription);
@@ -53,9 +54,9 @@ public class NodeService extends AbstractJSONRPC2Service {
 
         params.getDeclineReward().ifPresent(tx::setDeclineReward);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
-        TransactionReceipt receipt = tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 
         String nodeId = receipt.nodeId > 0 ? Long.toString(receipt.nodeId) : "";
         return new NodeResponse(nodeId, receipt.status);
@@ -64,6 +65,7 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateNode")
     public NodeResponse updateNode(final NodeUpdateParams params) throws Exception {
         NodeUpdateTransaction tx = new NodeUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         try {
             params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
@@ -95,9 +97,9 @@ public class NodeService extends AbstractJSONRPC2Service {
 
         params.getDeclineReward().ifPresent(tx::setDeclineReward);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
-        TransactionReceipt receipt = tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 
         String nodeId = receipt.nodeId > 0 ? Long.toString(receipt.nodeId) : "";
         return new NodeResponse(nodeId, receipt.status);
@@ -106,6 +108,7 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteNode")
     public NodeResponse deleteNode(final NodeDeleteParams params) throws Exception {
         NodeDeleteTransaction tx = new NodeDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         try {
             params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
@@ -114,9 +117,9 @@ public class NodeService extends AbstractJSONRPC2Service {
             tx.setNodeId(Long.MAX_VALUE);
         }
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
-        TransactionReceipt receipt = tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 
         String nodeId = receipt.nodeId > 0 ? Long.toString(receipt.nodeId) : "";
         return new NodeResponse(nodeId, receipt.status);
