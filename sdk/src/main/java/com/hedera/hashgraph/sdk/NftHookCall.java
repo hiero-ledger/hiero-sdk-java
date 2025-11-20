@@ -9,11 +9,6 @@ import java.util.Objects;
 public class NftHookCall extends HookCall {
     private final NftHookType type;
 
-    public NftHookCall(HookId fullHookId, EvmHookCall evmHookCall, NftHookType type) {
-        super(fullHookId, evmHookCall);
-        this.type = Objects.requireNonNull(type, "type cannot be null");
-    }
-
     public NftHookCall(long hookId, EvmHookCall evmHookCall, NftHookType type) {
         super(hookId, evmHookCall);
         this.type = Objects.requireNonNull(type, "type cannot be null");

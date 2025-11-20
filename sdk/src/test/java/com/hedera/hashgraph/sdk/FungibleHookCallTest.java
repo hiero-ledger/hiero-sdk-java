@@ -16,14 +16,6 @@ class FungibleHookCallTest {
     }
 
     @Test
-    void constructorWithFullHookIdAndType() {
-        var evm = new EvmHookCall(new byte[] {1}, 25_000L);
-        var fullId = new HookId(new HookEntityId(new AccountId(0, 0, 1111)), 7L);
-        var call = new FungibleHookCall(fullId, evm, FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
-        assertThat(call.getType()).isEqualTo(FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
-    }
-
-    @Test
     void nullTypeThrows() {
         var evm = new EvmHookCall(new byte[] {}, 1L);
         assertThatThrownBy(() -> new FungibleHookCall(1L, evm, null))

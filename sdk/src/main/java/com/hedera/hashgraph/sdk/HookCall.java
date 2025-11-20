@@ -14,21 +14,8 @@ import java.util.Objects;
  * specify the hook id for the call.
  */
 public abstract class HookCall {
-    private final HookId fullHookId;
     private final Long hookId;
     private final EvmHookCall evmHookCall;
-
-    /**
-     * Create a HookCall with a full hook ID.
-     *
-     * @param fullHookId the full ID of the hook to call
-     * @param evmHookCall the EVM hook call details
-     */
-    protected HookCall(HookId fullHookId, EvmHookCall evmHookCall) {
-        this.fullHookId = Objects.requireNonNull(fullHookId, "fullHookId cannot be null");
-        this.hookId = null;
-        this.evmHookCall = Objects.requireNonNull(evmHookCall, "evmHookCall cannot be null");
-    }
 
     /**
      * Create a HookCall with a numeric hook ID.
@@ -37,18 +24,8 @@ public abstract class HookCall {
      * @param evmHookCall the EVM hook call details
      */
     protected HookCall(long hookId, EvmHookCall evmHookCall) {
-        this.fullHookId = null;
         this.hookId = hookId;
         this.evmHookCall = Objects.requireNonNull(evmHookCall, "evmHookCall cannot be null");
-    }
-
-    /**
-     * Get the full hook ID.
-     *
-     * @return the full hook ID, or null if using numeric hook ID
-     */
-    public HookId getFullHookId() {
-        return fullHookId;
     }
 
     /**
@@ -70,15 +47,6 @@ public abstract class HookCall {
     }
 
     /**
-     * Check if this hook call uses a full hook ID.
-     *
-     * @return true if using full hook ID, false if using numeric hook ID
-     */
-    public boolean hasFullHookId() {
-        return fullHookId != null;
-    }
-
-    /**
      * Convert this HookCall to a protobuf message.
      *
      * @return the protobuf HookCall
@@ -86,9 +54,7 @@ public abstract class HookCall {
     com.hedera.hashgraph.sdk.proto.HookCall toProtobuf() {
         var builder = com.hedera.hashgraph.sdk.proto.HookCall.newBuilder();
 
-        if (fullHookId != null) {
-            builder.setFullHookId(fullHookId.toProtobuf());
-        } else {
+        if (hookId != null) {
             builder.setHookId(hookId);
         }
 
@@ -104,12 +70,7 @@ public abstract class HookCall {
      * @return a new HookCall instance
      */
     static HookCall fromProtobuf(com.hedera.hashgraph.sdk.proto.HookCall proto) {
-        if (proto.hasFullHookId()) {
-            return new HookCall(
-                    HookId.fromProtobuf(proto.getFullHookId()), EvmHookCall.fromProtobuf(proto.getEvmHookCall())) {};
-        } else {
-            return new HookCall(proto.getHookId(), EvmHookCall.fromProtobuf(proto.getEvmHookCall())) {};
-        }
+        return new HookCall(proto.getHookId(), EvmHookCall.fromProtobuf(proto.getEvmHookCall())) {};
     }
 
     @Override
@@ -118,15 +79,12 @@ public abstract class HookCall {
         if (o == null || getClass() != o.getClass()) return false;
 
         HookCall hookCall = (HookCall) o;
-        return Objects.equals(fullHookId, hookCall.fullHookId)
-                && Objects.equals(hookId, hookCall.hookId)
-                && evmHookCall.equals(hookCall.evmHookCall);
+        return Objects.equals(hookId, hookCall.hookId) && evmHookCall.equals(hookCall.evmHookCall);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(fullHookId);
-        result = 31 * result + Objects.hashCode(hookId);
+        int result = Objects.hashCode(hookId);
         result = 31 * result + evmHookCall.hashCode();
         return result;
     }
@@ -134,7 +92,6 @@ public abstract class HookCall {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("fullHookId", fullHookId)
                 .add("hookId", hookId)
                 .add("evmHookCall", evmHookCall)
                 .toString();

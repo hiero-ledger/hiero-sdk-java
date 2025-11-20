@@ -338,15 +338,11 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
 
     static FungibleHookCall toFungibleHook(com.hedera.hashgraph.sdk.proto.HookCall proto, FungibleHookType type) {
         var base = HookCall.fromProtobuf(proto);
-        return base.hasFullHookId()
-                ? new FungibleHookCall(base.getFullHookId(), base.getEvmHookCall(), type)
-                : new FungibleHookCall(base.getHookId(), base.getEvmHookCall(), type);
+        return new FungibleHookCall(base.getHookId(), base.getEvmHookCall(), type);
     }
 
     static NftHookCall toNftHook(com.hedera.hashgraph.sdk.proto.HookCall proto, NftHookType type) {
         var base = HookCall.fromProtobuf(proto);
-        return base.hasFullHookId()
-                ? new NftHookCall(base.getFullHookId(), base.getEvmHookCall(), type)
-                : new NftHookCall(base.getHookId(), base.getEvmHookCall(), type);
+        return new NftHookCall(base.getHookId(), base.getEvmHookCall(), type);
     }
 }

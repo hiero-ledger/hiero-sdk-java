@@ -35,6 +35,7 @@ class AccountCreateTransactionHooksIntegrationTest {
             var response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(PrivateKey.generateED25519())
                     .setInitialBalance(new Hbar(1))
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHook(hookDetails)
                     .execute(testEnv.client);
 
@@ -60,6 +61,7 @@ class AccountCreateTransactionHooksIntegrationTest {
                     .setKeyWithoutAlias(PrivateKey.generateED25519())
                     .setInitialBalance(new Hbar(1))
                     .addHook(hookDetails)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
@@ -82,6 +84,7 @@ class AccountCreateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> new AccountCreateTransaction()
                             .setKeyWithoutAlias(PrivateKey.generateED25519())
                             .setInitialBalance(new Hbar(1))
+                            .setMaxTransactionFee(Hbar.from(10))
                             .addHook(hookDetails1)
                             .addHook(hookDetails2)
                             .execute(testEnv.client)
@@ -104,6 +107,7 @@ class AccountCreateTransactionHooksIntegrationTest {
 
             var tx = new AccountCreateTransaction()
                     .setKeyWithoutAlias(PrivateKey.generateED25519())
+                    .setMaxTransactionFee(Hbar.from(10))
                     .setInitialBalance(new Hbar(1))
                     .addHook(hookDetails)
                     .freezeWith(testEnv.client)

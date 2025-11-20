@@ -42,6 +42,7 @@ class LambdaSStoreTransactionIntegrationTest {
             new AccountUpdateTransaction()
                     .setAccountId(ownerId)
                     .addHookToCreate(hookDetails)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .freezeWith(testEnv.client)
                     .sign(adminKey)
                     .execute(testEnv.client)
@@ -92,6 +93,7 @@ class LambdaSStoreTransactionIntegrationTest {
 
             new AccountUpdateTransaction()
                     .setAccountId(ownerId)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHookToCreate(hookDetails)
                     .freezeWith(testEnv.client)
                     .sign(adminKey)
@@ -179,6 +181,7 @@ class LambdaSStoreTransactionIntegrationTest {
             new AccountUpdateTransaction()
                     .setAccountId(ownerId)
                     .addHookToCreate(hookDetails)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .freezeWith(testEnv.client)
                     .sign(adminKey)
                     .execute(testEnv.client)

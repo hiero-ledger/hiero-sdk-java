@@ -48,6 +48,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
             var response = new ContractUpdateTransaction()
                     .setContractId(createdContractId)
+                    .setMaxTransactionFee(Hbar.from(20))
                     .addHookToCreate(hookDetails)
                     .execute(testEnv.client);
 
@@ -79,6 +80,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             assertThatExceptionOfType(PrecheckStatusException.class)
                     .isThrownBy(() -> new ContractUpdateTransaction()
                             .setContractId(createdContractId)
+                            .setMaxTransactionFee(Hbar.from(20))
                             .setHooksToCreate(java.util.List.of(hookDetails, hookDetails))
                             .execute(testEnv.client))
                     .withMessageContaining(Status.HOOK_ID_REPEATED_IN_CREATION_DETAILS.toString());
@@ -107,6 +109,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             new ContractUpdateTransaction()
                     .setContractId(createdContractId)
                     .addHookToCreate(hookDetails)
+                    .setMaxTransactionFee(Hbar.from(20))
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
@@ -115,6 +118,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                         var response = new ContractUpdateTransaction()
                                 .setContractId(createdContractId)
                                 .addHookToCreate(hookDetails)
+                                .setMaxTransactionFee(Hbar.from(20))
                                 .execute(testEnv.client);
                         response.getReceipt(testEnv.client);
                     })
@@ -144,6 +148,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
             var response = new ContractUpdateTransaction()
                     .setContractId(createdContractId)
+                    .setMaxTransactionFee(Hbar.from(20))
                     .addHookToCreate(hookDetails)
                     .execute(testEnv.client);
 
@@ -172,6 +177,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook1);
 
             new ContractUpdateTransaction()
+                    .setMaxTransactionFee(Hbar.from(20))
                     .setContractId(createdContractId)
                     .addHookToCreate(hookDetails1)
                     .execute(testEnv.client)
@@ -185,6 +191,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> new ContractUpdateTransaction()
                             .setContractId(createdContractId)
                             .addHookToCreate(hookDetails2)
+                            .setMaxTransactionFee(Hbar.from(20))
                             .execute(testEnv.client)
                             .getReceipt(testEnv.client))
                     .satisfies(e -> assertThat(e.receipt.status).isEqualTo(Status.HOOK_ID_IN_USE));
@@ -211,6 +218,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             new ContractUpdateTransaction()
+                    .setMaxTransactionFee(Hbar.from(20))
                     .setContractId(createdContractId)
                     .addHookToCreate(hookDetails)
                     .execute(testEnv.client)
@@ -218,6 +226,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
             var response = new ContractUpdateTransaction()
                     .setContractId(createdContractId)
+                    .setMaxTransactionFee(Hbar.from(20))
                     .addHookToDelete(1L)
                     .execute(testEnv.client);
 
@@ -246,6 +255,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             new ContractUpdateTransaction()
+                    .setMaxTransactionFee(Hbar.from(20))
                     .setContractId(createdContractId)
                     .addHookToCreate(hookDetails)
                     .execute(testEnv.client)
@@ -255,6 +265,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> {
                         var response = new ContractUpdateTransaction()
                                 .setContractId(createdContractId)
+                                .setMaxTransactionFee(Hbar.from(20))
                                 .addHookToDelete(123L)
                                 .execute(testEnv.client);
                         response.getReceipt(testEnv.client);
@@ -286,6 +297,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> {
                         var response = new ContractUpdateTransaction()
                                 .setContractId(createdContractId)
+                                .setMaxTransactionFee(Hbar.from(20))
                                 .setHooksToCreate(java.util.List.of(hookDetails))
                                 .addHookToDelete(1L)
                                 .execute(testEnv.client);
@@ -316,6 +328,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
             // Add the hook
             new ContractUpdateTransaction()
+                    .setMaxTransactionFee(Hbar.from(20))
                     .setContractId(createdContractId)
                     .addHookToCreate(hookDetails)
                     .execute(testEnv.client)
@@ -324,6 +337,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             // First deletion - should succeed
             var firstDeleteResponse = new ContractUpdateTransaction()
                     .setContractId(createdContractId)
+                    .setMaxTransactionFee(Hbar.from(20))
                     .addHookToDelete(1L)
                     .execute(testEnv.client);
             var firstDeleteReceipt = firstDeleteResponse.getReceipt(testEnv.client);
@@ -333,6 +347,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
             assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> {
                         var response = new ContractUpdateTransaction()
+                                .setMaxTransactionFee(Hbar.from(20))
                                 .setContractId(createdContractId)
                                 .addHookToDelete(1L)
                                 .execute(testEnv.client);

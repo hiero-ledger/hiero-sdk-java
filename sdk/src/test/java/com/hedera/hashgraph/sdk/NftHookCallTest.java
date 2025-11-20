@@ -16,14 +16,6 @@ class NftHookCallTest {
     }
 
     @Test
-    void constructorWithFullHookIdAndType() {
-        var evm = new EvmHookCall(new byte[] {1}, 25_000L);
-        var fullId = new HookId(new HookEntityId(new ContractId(0, 0, 9999)), 7L);
-        var call = new NftHookCall(fullId, evm, NftHookType.PRE_POST_HOOK_RECEIVER);
-        assertThat(call.getType()).isEqualTo(NftHookType.PRE_POST_HOOK_RECEIVER);
-    }
-
-    @Test
     void nullTypeThrows() {
         var evm = new EvmHookCall(new byte[] {}, 1L);
         assertThatThrownBy(() -> new NftHookCall(1L, evm, null))
