@@ -34,7 +34,7 @@ class NodeCreateTransactionIntegrationTest {
             client.setOperator(new AccountId(0, 0, 2), originalOperatorKey);
 
             // The account of the new node
-            var accountID = AccountId.fromString("0.0.4");
+            var accountID = AccountId.fromString("0.0.50");
 
             // Node description
             String description = "test";

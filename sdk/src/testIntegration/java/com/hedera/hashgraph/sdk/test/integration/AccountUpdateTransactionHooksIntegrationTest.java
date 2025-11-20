@@ -46,6 +46,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to add the hook
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHookToCreate(hookDetails)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
@@ -78,6 +79,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             assertThatExceptionOfType(PrecheckStatusException.class)
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
+                            .setMaxTransactionFee(Hbar.from(10))
                             .addHookToCreate(hookDetails1)
                             .addHookToCreate(hookDetails2)
                             .freezeWith(testEnv.client)
@@ -103,6 +105,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountId = new AccountCreateTransaction()
                     .setKeyWithoutAlias(accountKey)
                     .setInitialBalance(new Hbar(1))
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHook(hookDetails1)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
@@ -117,6 +120,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
                             .addHookToCreate(hookDetails2)
+                            .setMaxTransactionFee(Hbar.from(10))
                             .freezeWith(testEnv.client)
                             .sign(accountKey)
                             .execute(testEnv.client)
@@ -151,6 +155,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to add the hook with storage updates
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHookToCreate(hookDetails)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
@@ -175,6 +180,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountId = new AccountCreateTransaction()
                     .setKeyWithoutAlias(accountKey)
                     .setInitialBalance(new Hbar(1))
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHook(hookDetails1)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
@@ -189,6 +195,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
                             .addHookToCreate(hookDetails2)
+                            .setMaxTransactionFee(Hbar.from(10))
                             .freezeWith(testEnv.client)
                             .sign(accountKey)
                             .execute(testEnv.client)
@@ -212,6 +219,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountId = new AccountCreateTransaction()
                     .setKeyWithoutAlias(accountKey)
                     .setInitialBalance(new Hbar(1))
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHook(hookDetails)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
@@ -220,6 +228,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // Update the account to delete the hook
             var response = new AccountUpdateTransaction()
                     .setAccountId(accountId)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHookToDelete(1L)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
@@ -244,6 +253,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountId = new AccountCreateTransaction()
                     .setKeyWithoutAlias(accountKey)
                     .setInitialBalance(new Hbar(1))
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHook(hookDetails)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client)
@@ -253,6 +263,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
+                            .setMaxTransactionFee(Hbar.from(10))
                             .addHookToDelete(999L)
                             .freezeWith(testEnv.client)
                             .sign(accountKey)
@@ -285,6 +296,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
+                            .setMaxTransactionFee(Hbar.from(20))
                             .addHookToCreate(hookDetails)
                             .addHookToDelete(1L)
                             .freezeWith(testEnv.client)
@@ -309,6 +321,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             var accountId = new AccountCreateTransaction()
                     .setKeyWithoutAlias(accountKey)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .setInitialBalance(new Hbar(1))
                     .addHook(hookDetails)
                     .execute(testEnv.client)
@@ -318,6 +331,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             // First delete the hook
             var deleteResponse = new AccountUpdateTransaction()
                     .setAccountId(accountId)
+                    .setMaxTransactionFee(Hbar.from(10))
                     .addHookToDelete(1L)
                     .freezeWith(testEnv.client)
                     .sign(accountKey);
@@ -330,6 +344,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
                     .isThrownBy(() -> new AccountUpdateTransaction()
                             .setAccountId(accountId)
                             .addHookToDelete(1L)
+                            .setMaxTransactionFee(Hbar.from(10))
                             .freezeWith(testEnv.client)
                             .sign(accountKey)
                             .execute(testEnv.client)
