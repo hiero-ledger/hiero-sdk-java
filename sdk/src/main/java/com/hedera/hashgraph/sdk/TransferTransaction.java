@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * A transaction that transfers hbars and tokens between Hedera accounts. You can enter multiple transfers in a single
@@ -31,19 +33,57 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         final AccountId accountId;
         Hbar amount;
         boolean isApproved;
+        FungibleHookCall hookCall;
 
         HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved) {
             this.accountId = accountId;
             this.amount = amount;
             this.isApproved = isApproved;
+            this.hookCall = null;
+        }
+
+        HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved, @Nullable FungibleHookCall hookCall) {
+            this.accountId = accountId;
+            this.amount = amount;
+            this.isApproved = isApproved;
+            this.hookCall = hookCall;
         }
 
         AccountAmount toProtobuf() {
-            return AccountAmount.newBuilder()
+            var builder = AccountAmount.newBuilder()
                     .setAccountID(accountId.toProtobuf())
                     .setAmount(amount.toTinybars())
-                    .setIsApproval(isApproved)
-                    .build();
+                    .setIsApproval(isApproved);
+
+            // Add hook call if present
+            if (hookCall != null) {
+                switch (hookCall.getType()) {
+                    case PRE_TX_ALLOWANCE_HOOK:
+                        builder.setPreTxAllowanceHook(hookCall.toProtobuf());
+                        break;
+                    case PRE_POST_TX_ALLOWANCE_HOOK:
+                        builder.setPrePostTxAllowanceHook(hookCall.toProtobuf());
+                        break;
+                }
+            }
+
+            return builder.build();
+        }
+
+        static HbarTransfer fromProtobuf(AccountAmount transfer) {
+            FungibleHookCall typedHook = null;
+            if (transfer.hasPreTxAllowanceHook()) {
+                typedHook = toFungibleHook(transfer.getPreTxAllowanceHook(), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+            } else if (transfer.hasPrePostTxAllowanceHook()) {
+                typedHook = toFungibleHook(
+                        transfer.getPrePostTxAllowanceHook(), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
+            }
+
+            return new HbarTransfer(
+                    AccountId.fromProtobuf(transfer.getAccountID()),
+                    Hbar.fromTinybars(transfer.getAmount()),
+                    transfer.getIsApproval(),
+                    typedHook);
         }
 
         @Override
@@ -52,6 +92,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
                     .add("accountId", accountId)
                     .add("amount", amount)
                     .add("isApproved", isApproved)
+                    .add("hookCall", hookCall)
                     .toString();
         }
     }
@@ -101,7 +142,8 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         return transfers;
     }
 
-    private TransferTransaction doAddHbarTransfer(AccountId accountId, Hbar value, boolean isApproved) {
+    private TransferTransaction doAddHbarTransfer(
+            AccountId accountId, Hbar value, boolean isApproved, @Nullable FungibleHookCall hookCall) {
         requireNotFrozen();
 
         for (var transfer : hbarTransfers) {
@@ -113,7 +155,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
             }
         }
 
-        hbarTransfers.add(new HbarTransfer(accountId, value, isApproved));
+        hbarTransfers.add(new HbarTransfer(accountId, value, isApproved, hookCall));
         return this;
     }
 
@@ -126,7 +168,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      */
     public TransferTransaction addHbarTransfer(EvmAddress evmAddress, Hbar value) {
         AccountId accountId = AccountId.fromEvmAddress(evmAddress, 0, 0);
-        return doAddHbarTransfer(accountId, value, false);
+        return doAddHbarTransfer(accountId, value, false, null);
     }
 
     /**
@@ -137,7 +179,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @return the updated transaction
      */
     public TransferTransaction addHbarTransfer(AccountId accountId, Hbar value) {
-        return doAddHbarTransfer(accountId, value, false);
+        return doAddHbarTransfer(accountId, value, false, null);
     }
 
     /**
@@ -148,7 +190,63 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @return the updated transaction
      */
     public TransferTransaction addApprovedHbarTransfer(AccountId accountId, Hbar value) {
-        return doAddHbarTransfer(accountId, value, true);
+        return doAddHbarTransfer(accountId, value, true, null);
+    }
+
+    /**
+     * Add an token transfer with allowance hook.
+     *
+     * @param tokenId the tokenId
+     * @param accountId the accountId
+     * @param value the amount
+     * @param hookCall the hook
+     * @return the updated transaction
+     */
+    public TransferTransaction addTokenTransferWithHook(
+            TokenId tokenId, AccountId accountId, long value, FungibleHookCall hookCall) {
+        Objects.requireNonNull(tokenId, "tokenId cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        Objects.requireNonNull(hookCall, "hookCall cannot be null");
+        return doAddTokenTransfer(tokenId, accountId, value, false, null, hookCall);
+    }
+
+    /**
+     * Add an NFT transfer with optional sender/receiver allowance hooks.
+     *
+     * @param nftId             the NFT id
+     * @param senderAccountId   the sender
+     * @param receiverAccountId the receiver
+     * @param senderHookCall    optional sender hook call
+     * @param receiverHookCall  optional receiver hook call
+     * @return the updated transaction
+     */
+    public TransferTransaction addNftTransferWithHook(
+            NftId nftId,
+            AccountId senderAccountId,
+            AccountId receiverAccountId,
+            NftHookCall senderHookCall,
+            NftHookCall receiverHookCall) {
+        Objects.requireNonNull(nftId, "nftId cannot be null");
+        Objects.requireNonNull(senderAccountId, "senderAccountId cannot be null");
+        Objects.requireNonNull(receiverAccountId, "receiverAccountId cannot be null");
+        return doAddNftTransfer(nftId, senderAccountId, receiverAccountId, false, senderHookCall, receiverHookCall);
+    }
+
+    /**
+     * Add an HBAR transfer with a fungible hook.
+     *
+     * @param accountId the account id
+     * @param amount    the amount to transfer
+     * @param hookCall  the fungible hook call to execute
+     * @return the updated transaction
+     * @throws IllegalArgumentException if hookCall is null
+     */
+    public TransferTransaction addHbarTransferWithHook(AccountId accountId, Hbar amount, FungibleHookCall hookCall) {
+        requireNotFrozen();
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+        Objects.requireNonNull(amount, "amount cannot be null");
+        Objects.requireNonNull(hookCall, "hookCall cannot be null");
+        return doAddHbarTransfer(accountId, amount, false, hookCall);
     }
 
     /**
@@ -226,34 +324,25 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         var body = sourceTransactionBody.getCryptoTransfer();
 
         for (var transfer : body.getTransfers().getAccountAmountsList()) {
-            hbarTransfers.add(new HbarTransfer(
-                    AccountId.fromProtobuf(transfer.getAccountID()),
-                    Hbar.fromTinybars(transfer.getAmount()),
-                    transfer.getIsApproval()));
+            hbarTransfers.add(HbarTransfer.fromProtobuf(transfer));
         }
 
         for (var tokenTransferList : body.getTokenTransfersList()) {
-            var token = TokenId.fromProtobuf(tokenTransferList.getToken());
+            var fungibleTokenTransfers = TokenTransfer.fromProtobuf(tokenTransferList);
+            tokenTransfers.addAll(fungibleTokenTransfers);
 
-            for (var transfer : tokenTransferList.getTransfersList()) {
-                tokenTransfers.add(new TokenTransfer(
-                        token,
-                        AccountId.fromProtobuf(transfer.getAccountID()),
-                        transfer.getAmount(),
-                        tokenTransferList.hasExpectedDecimals()
-                                ? tokenTransferList.getExpectedDecimals().getValue()
-                                : null,
-                        transfer.getIsApproval()));
-            }
-
-            for (var transfer : tokenTransferList.getNftTransfersList()) {
-                nftTransfers.add(new TokenNftTransfer(
-                        token,
-                        AccountId.fromProtobuf(transfer.getSenderAccountID()),
-                        AccountId.fromProtobuf(transfer.getReceiverAccountID()),
-                        transfer.getSerialNumber(),
-                        transfer.getIsApproval()));
-            }
+            var nftTokenTransfers = TokenNftTransfer.fromProtobuf(tokenTransferList);
+            nftTransfers.addAll(nftTokenTransfers);
         }
+    }
+
+    static FungibleHookCall toFungibleHook(com.hedera.hashgraph.sdk.proto.HookCall proto, FungibleHookType type) {
+        var base = HookCall.fromProtobuf(proto);
+        return new FungibleHookCall(base.getHookId(), base.getEvmHookCall(), type);
+    }
+
+    static NftHookCall toNftHook(com.hedera.hashgraph.sdk.proto.HookCall proto, NftHookType type) {
+        var base = HookCall.fromProtobuf(proto);
+        return new NftHookCall(base.getHookId(), base.getEvmHookCall(), type);
     }
 }

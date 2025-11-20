@@ -179,6 +179,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
         with:
           installMirrorNode: true
+          hieroVersion: v0.69.0-alpha.1
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -301,6 +302,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
         with:
           installMirrorNode: true
+          hieroVersion: v0.69.0-alpha.1
 
       - name: Build SDK
         run: ./gradlew assemble
