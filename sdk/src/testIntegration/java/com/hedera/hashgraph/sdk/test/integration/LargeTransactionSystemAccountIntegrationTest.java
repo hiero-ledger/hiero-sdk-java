@@ -3,14 +3,19 @@ package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.hedera.hashgraph.sdk.AccountCreateTransaction;
+import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.FileCreateTransaction;
 import com.hedera.hashgraph.sdk.FileDeleteTransaction;
 import com.hedera.hashgraph.sdk.FileUpdateTransaction;
 import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.KeyList;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.PublicKey;
+import com.hedera.hashgraph.sdk.Status;
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.jupiter.api.Assumptions;
@@ -91,15 +96,12 @@ public class LargeTransactionSystemAccountIntegrationTest {
         }
     }
 
-    // TODO - adda a test for FileAppend
-
     @Test
     @DisplayName("Non-privileged account cannot create files larger than 6kb")
     void nonPrivilegedAccountCannotCreateLargeFile() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-            // Skip if this IS a privileged account
-            Assumptions.assumeFalse(
-                    isPrivilegedSystemAccount(testEnv.operatorId), "Test requires non-privileged account");
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount(new Hbar(50))) {
+            // useThrowawayAccount creates a non-privileged account for testing
+            // This ensures the test runs even if OPERATOR_ID is 0.0.2 or 0.0.50
 
             var largeContents = new byte[LARGE_CONTENT_SIZE_BYTES];
             Arrays.fill(largeContents, (byte) 1);
@@ -110,12 +112,49 @@ public class LargeTransactionSystemAccountIntegrationTest {
                     .setTransactionMemo("Should fail - too large for non-privileged")
                     .setMaxTransactionFee(new Hbar(20));
 
-            var exception = assertThrows(IllegalStateException.class, () -> {
+            var exception = assertThrows(PrecheckStatusException.class, () -> {
                 transaction.freezeWith(testEnv.client);
                 transaction.execute(testEnv.client);
             });
 
-            assertTrue(exception.getMessage().contains("exceeds the allowed limit"));
+            assertThat(exception.status).isEqualTo(Status.TRANSACTION_OVERSIZE);
+        }
+    }
+
+    @Test
+    @DisplayName("Non-privileged account cannot create account with large KeyList larger than 6kb")
+    void nonPrivilegedAccountCannotCreateAccountWithLargeKeyList() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount(new Hbar(50))) {
+            // useThrowawayAccount creates a non-privileged account for testing
+            // This ensures the test runs even if OPERATOR_ID is 0.0.2 or 0.0.50
+
+            // Generate 180 key pairs to ensure transaction size exceeds 6KB
+            var numberOfKeys = 180;
+            var publicKeys = new PublicKey[numberOfKeys];
+
+            for (int i = 0; i < numberOfKeys; i++) {
+                var key = PrivateKey.generateED25519();
+                publicKeys[i] = key.getPublicKey();
+            }
+
+            // Create a KeyList with all public keys
+            var keyList = new KeyList();
+            for (var publicKey : publicKeys) {
+                keyList.add(publicKey);
+            }
+
+            var transaction = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(keyList)
+                    .setInitialBalance(new Hbar(1))
+                    .setTransactionMemo("Should fail - too large for non-privileged")
+                    .setMaxTransactionFee(new Hbar(20));
+
+            var exception = assertThrows(PrecheckStatusException.class, () -> {
+                transaction.freezeWith(testEnv.client);
+                transaction.execute(testEnv.client);
+            });
+
+            assertThat(exception.status).isEqualTo(Status.TRANSACTION_OVERSIZE);
         }
     }
 
@@ -155,9 +194,9 @@ public class LargeTransactionSystemAccountIntegrationTest {
     @Test
     @DisplayName("Non-privileged account can create file under 6kb limit")
     void nonPrivilegedAccountCanCreateSmallFile() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-            Assumptions.assumeFalse(
-                    isPrivilegedSystemAccount(testEnv.operatorId), "Test requires non-privileged account");
+        try (var testEnv = new IntegrationTestEnv(1).useThrowawayAccount(new Hbar(50))) {
+            // useThrowawayAccount creates a non-privileged account for testing
+            // This ensures the test runs even if OPERATOR_ID is 0.0.2 or 0.0.50
 
             // Small content that stays well under 6KB
             var smallContents = new byte[2 * 1024]; // 2KB
@@ -173,38 +212,6 @@ public class LargeTransactionSystemAccountIntegrationTest {
 
             var serialized = transaction.toBytes();
             assertThat(serialized.length).isLessThan(SIZE_THRESHOLD_BYTES);
-
-            var receipt = transaction.execute(testEnv.client).getReceipt(testEnv.client);
-            assertThat(receipt.fileId).isNotNull();
-
-            new FileDeleteTransaction()
-                    .setFileId(Objects.requireNonNull(receipt.fileId))
-                    .execute(testEnv.client)
-                    .getReceipt(testEnv.client);
-        }
-    }
-
-    @Test
-    @DisplayName("Privileged system account (0.0.50) can create large files")
-    void systemAdminAccountCanCreateLargeFile() throws Exception {
-        try (var testEnv = createSystemAccountTestEnv()) {
-            // This test specifically validates 0.0.50 if that's the operator
-            Assumptions.assumeTrue(testEnv.operatorId.num == 50, "Test requires system admin account 0.0.50");
-
-            var largeContents = new byte[LARGE_CONTENT_SIZE_BYTES];
-            Arrays.fill(largeContents, (byte) 1);
-
-            var transaction = new FileCreateTransaction()
-                    .setKeys(testEnv.operatorKey)
-                    .setContents(largeContents)
-                    .setTransactionMemo("HIP-1300 test with 0.0.50")
-                    .setMaxTransactionFee(new Hbar(20));
-
-            transaction.freezeWith(testEnv.client);
-
-            var serialized = transaction.toBytes();
-            assertThat(serialized.length).isGreaterThan(SIZE_THRESHOLD_BYTES);
-            assertThat(serialized.length).isLessThan(EXTENDED_SIZE_LIMIT_BYTES);
 
             var receipt = transaction.execute(testEnv.client).getReceipt(testEnv.client);
             assertThat(receipt.fileId).isNotNull();
@@ -245,6 +252,59 @@ public class LargeTransactionSystemAccountIntegrationTest {
                     .setFileId(Objects.requireNonNull(receipt.fileId))
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Privileged system payer can create account with large KeyList (180 keys)")
+    void privilegedSystemAccountCanCreateAccountWithLargeKeyList() throws Exception {
+        try (var testEnv = createSystemAccountTestEnv()) {
+            // Generate 180 key pairs to ensure transaction size exceeds 6KB
+            // With 100 keys we got ~3709 bytes, so 180 keys should give us ~6676 bytes
+            var numberOfKeys = 180;
+            var privateKeys = new PrivateKey[numberOfKeys];
+            var publicKeys = new PublicKey[numberOfKeys];
+
+            for (int i = 0; i < numberOfKeys; i++) {
+                var key = PrivateKey.generateED25519();
+                privateKeys[i] = key;
+                publicKeys[i] = key.getPublicKey();
+            }
+
+            // Create a KeyList with all public keys
+            var keyList = new KeyList();
+            for (var publicKey : publicKeys) {
+                keyList.add(publicKey);
+            }
+
+            var transaction = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(keyList)
+                    .setInitialBalance(new Hbar(1))
+                    .setTransactionMemo("HIP-1300 create account with large KeyList")
+                    .setMaxTransactionFee(new Hbar(20));
+
+            transaction.freezeWith(testEnv.client);
+
+            var serialized = transaction.toBytes();
+            assertThat(serialized.length).isGreaterThan(SIZE_THRESHOLD_BYTES);
+            assertThat(serialized.length).isLessThan(EXTENDED_SIZE_LIMIT_BYTES);
+
+            var receipt = transaction.execute(testEnv.client).getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(receipt.accountId);
+            assertThat(accountId).isNotNull();
+
+            // Cleanup: Delete the account (requires all keys in the KeyList to sign)
+            var deleteTransaction = new AccountDeleteTransaction()
+                    .setAccountId(accountId)
+                    .setTransferAccountId(testEnv.operatorId)
+                    .freezeWith(testEnv.client);
+
+            // Sign with all private keys (required for simple KeyList)
+            for (var privateKey : privateKeys) {
+                deleteTransaction.sign(privateKey);
+            }
+
+            deleteTransaction.execute(testEnv.client).getReceipt(testEnv.client);
         }
     }
 
