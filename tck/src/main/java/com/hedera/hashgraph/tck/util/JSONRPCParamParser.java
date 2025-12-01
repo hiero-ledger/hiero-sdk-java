@@ -18,6 +18,14 @@ public class JSONRPCParamParser {
         return parseJsonObject(jrpcParams, "commonTransactionParams", CommonTransactionParams::parse);
     }
 
+    public static String parseSessionId(Map<String, Object> jrpcParams) {
+        Object sessionId = jrpcParams.get("sessionId");
+        if (sessionId instanceof String stringSessionId && !stringSessionId.isBlank()) {
+            return stringSessionId;
+        }
+        throw new IllegalArgumentException("sessionId is required and must be a non-empty string");
+    }
+
     public static Optional<List<AllowanceParams>> parseAllowances(Map<String, Object> jrpcParams) throws Exception {
         return parseJsonArray(jrpcParams, "allowances", AllowanceParams::parse);
     }

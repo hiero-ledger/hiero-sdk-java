@@ -35,6 +35,7 @@ public class TokenUpdateParams extends JSONRPC2Param {
     private Optional<String> memo;
     private Optional<String> metadata;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -76,6 +77,7 @@ public class TokenUpdateParams extends JSONRPC2Param {
                 parsedAutoRenewPeriod,
                 parsedMemo,
                 parsedMetadata,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

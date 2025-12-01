@@ -29,6 +29,7 @@ public class AccountCreateParams extends JSONRPC2Param {
     private Optional<Boolean> declineStakingReward;
     private Optional<String> alias;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public AccountCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -56,6 +57,7 @@ public class AccountCreateParams extends JSONRPC2Param {
                 parsedStakedNodeId,
                 parsedDeclineStakingReward,
                 parsedAlias,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

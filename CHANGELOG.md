@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.65.0
+
+### Added
+
+- Add Hiero Hooks: programmable Hiero extension points that let users customize the behavior of their entities. Focuses on EVM hooks and account allowance hooks as the first extension point. https://github.com/hiero-ledger/hiero-sdk-java/pull/2538
+
+### Changed
+
+- gRPC version updated from 1.74.0 to 1.75.0 - https://github.com/hiero-ledger/hiero-sdk-java/pull/2525
+- make tck server thread safe - https://github.com/hiero-ledger/hiero-sdk-java/pull/2536
+
 ## 2.64.0
 
 ### Fixed
@@ -14,10 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Make mirror node security protocol rely on port number - https://github.com/hiero-ledger/hiero-sdk-java/pull/2480
-- New TCK methods
-  - for Contract [Create](https://github.com/hiero-ledger/hiero-sdk-java/pull/2469) / [Update](https://github.com/hiero-ledger/hiero-sdk-java/pull/2477) / [Delete](https://github.com/hiero-ledger/hiero-sdk-java/pull/2470) / [Execute](https://github.com/hiero-ledger/hiero-sdk-java/pull/2476)
-  - for ScheduleCreateTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2478
-  - for ScheduleSignTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2485
 
 ## 2.63.0
 
