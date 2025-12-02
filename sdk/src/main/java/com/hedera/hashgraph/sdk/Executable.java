@@ -792,9 +792,11 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                                             if (status == com.hedera.hashgraph.sdk.Status.INVALID_NODE_ACCOUNT) {
                                                 if (logger.isEnabledForLevel(LogLevel.TRACE)) {
                                                     logger.trace(
-                                                        "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
-                                                        grpcRequest.getNode().getAccountId(),
-                                                        attempt);
+                                                            "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
+                                                            grpcRequest
+                                                                    .getNode()
+                                                                    .getAccountId(),
+                                                            attempt);
                                                 }
                                                 // Schedule async address book update
                                                 client.updateNetworkFromAddressBook();

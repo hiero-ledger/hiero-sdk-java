@@ -1416,19 +1416,16 @@ public final class Client implements AutoCloseable {
             var fileId = FileId.getAddressBookFileIdFor(this.shard, this.realm);
 
             logger.debug("Fetching address book from file {}", fileId);
-            System.out.println("Fetching address book from file " + fileId);
 
             // Execute synchronously - no async complexity
             var addressBook = new AddressBookQuery().setFileId(fileId).execute(this); // ← Synchronous!
 
             logger.debug("Received address book with {} nodes", addressBook.nodeAddresses.size());
-            System.out.println("address book size: " + addressBook.nodeAddresses.size());
 
             // Update the network
             this.setNetworkFromAddressBook(addressBook);
 
             logger.info("Address book update completed successfully");
-            System.out.println("Address book update completed successfully");
 
         } catch (TimeoutException e) {
             logger.warn("Failed to fetch address book: {}", e.getMessage());
