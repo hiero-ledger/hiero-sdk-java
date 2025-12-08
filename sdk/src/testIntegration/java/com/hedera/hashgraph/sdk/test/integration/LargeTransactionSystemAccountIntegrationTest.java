@@ -4,18 +4,8 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.FileCreateTransaction;
-import com.hedera.hashgraph.sdk.FileDeleteTransaction;
-import com.hedera.hashgraph.sdk.FileUpdateTransaction;
-import com.hedera.hashgraph.sdk.Hbar;
-import com.hedera.hashgraph.sdk.KeyList;
-import com.hedera.hashgraph.sdk.PrecheckStatusException;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.PublicKey;
-import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.*;
+
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.jupiter.api.Assumptions;
@@ -95,6 +85,44 @@ public class LargeTransactionSystemAccountIntegrationTest {
                     .getReceipt(testEnv.client);
         }
     }
+
+    @Test
+    @DisplayName("Privileged system payer can append to file making it larger than 6kb")
+    void privilegedSystemAccountCanAppendLargeFile() throws Exception {
+        try (var testEnv = createSystemAccountTestEnv()) {
+            // 1.  Create a small file
+            var fileId = new FileCreateTransaction()
+                .setKeys(testEnv.operatorKey)
+                .setContents("start".getBytes())
+                .execute(testEnv.client)
+                .getReceipt(testEnv.client)
+                .fileId;
+
+            Objects.requireNonNull(fileId);
+
+            // 2.  Append large content - need to set max chunks for content over default limit
+            var largeContents = new byte[LARGE_CONTENT_SIZE_BYTES];
+            Arrays.fill(largeContents, (byte) 3);
+
+            var transaction = new FileAppendTransaction()
+                .setFileId(fileId)
+                .setContents(largeContents)
+                .setMaxChunks(100)
+                .setMaxTransactionFee(new Hbar(20))
+                .setTransactionMemo("HIP-1300 append large file");
+
+            transaction.freezeWith(testEnv.client);
+            assertThat(transaction.toBytes().length).isLessThan(EXTENDED_SIZE_LIMIT_BYTES);
+            assertThat(transaction.toBytes().length).isGreaterThan(SIZE_THRESHOLD_BYTES);
+            transaction.execute(testEnv.client).getReceipt(testEnv.client);
+
+            new FileDeleteTransaction()
+                .setFileId(fileId)
+                .execute(testEnv.client)
+                .getReceipt(testEnv.client);
+        }
+    }
+
 
     @Test
     @DisplayName("Non-privileged account cannot create files larger than 6kb")
