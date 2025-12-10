@@ -66,6 +66,25 @@ public final class FeeExtra {
     }
 
     /**
+     * Create a FeeExtra from a JSON object returned by the mirror node REST API.
+     *
+     * @param feeExtra the JSON object
+     * @return the new FeeExtra
+     */
+    static FeeExtra fromJson(com.google.gson.JsonObject feeExtra) {
+        int charged = getInt(feeExtra, "charged");
+        int count = getInt(feeExtra, "count");
+        long feePerUnit = getLong(feeExtra, "fee_per_unit");
+        int included = getInt(feeExtra, "included");
+        String name = feeExtra.has("name") && !feeExtra.get("name").isJsonNull()
+                ? feeExtra.get("name").getAsString()
+                : null;
+        long subtotal = getLong(feeExtra, "subtotal");
+
+        return new FeeExtra(charged, count, feePerUnit, included, name, subtotal);
+    }
+
+    /**
      * Create a FeeExtra from a protobuf.
      *
      * @param feeExtra the protobuf
@@ -208,5 +227,13 @@ public final class FeeExtra {
     @Override
     public int hashCode() {
         return Objects.hash(charged, count, feePerUnit, included, name, subtotal);
+    }
+
+    private static int getInt(com.google.gson.JsonObject object, String key) {
+        return object.get(key).getAsInt();
+    }
+
+    private static long getLong(com.google.gson.JsonObject object, String key) {
+        return object.get(key).getAsLong();
     }
 }

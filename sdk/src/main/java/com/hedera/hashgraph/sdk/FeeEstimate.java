@@ -2,6 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +36,28 @@ public final class FeeEstimate {
     FeeEstimate(long base, List<FeeExtra> extras) {
         this.base = base;
         this.extras = Collections.unmodifiableList(new ArrayList<>(extras));
+    }
+
+    /**
+     * Create a FeeEstimate from a JSON object returned by the mirror node REST API.
+     *
+     * @param feeEstimate the JSON representation
+     * @return the new FeeEstimate
+     */
+    static FeeEstimate fromJson(JsonObject feeEstimate) {
+        long base = getLong(feeEstimate, "base", "base_fee");
+
+        List<FeeExtra> extras = new ArrayList<>();
+        if (feeEstimate.has("extras") && feeEstimate.get("extras").isJsonArray()) {
+            JsonArray extrasArray = feeEstimate.getAsJsonArray("extras");
+            for (JsonElement element : extrasArray) {
+                if (element.isJsonObject()) {
+                    extras.add(FeeExtra.fromJson(element.getAsJsonObject()));
+                }
+            }
+        }
+
+        return new FeeEstimate(base, extras);
     }
 
     /**
@@ -126,5 +151,15 @@ public final class FeeEstimate {
     @Override
     public int hashCode() {
         return Objects.hash(base, extras);
+    }
+
+    private static long getLong(JsonObject object, String primaryKey, String alternateKey) {
+        if (object.has(primaryKey)) {
+            return object.get(primaryKey).getAsLong();
+        }
+        if (object.has(alternateKey)) {
+            return object.get(alternateKey).getAsLong();
+        }
+        throw new IllegalArgumentException("Missing expected fee estimate field: " + primaryKey);
     }
 }

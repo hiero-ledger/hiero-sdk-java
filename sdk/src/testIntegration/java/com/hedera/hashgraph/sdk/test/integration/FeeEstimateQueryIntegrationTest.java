@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.*;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -293,9 +291,8 @@ class FeeEstimateQueryIntegrationTest {
                             .setTransaction(malformedTransaction)
                             .setMode(FeeEstimateMode.STATE)
                             .execute(testEnv.client))
-                    .isInstanceOf(StatusRuntimeException.class)
-                    .extracting(ex -> ((StatusRuntimeException) ex).getStatus().getCode())
-                    .isEqualTo(Status.Code.INVALID_ARGUMENT);
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("HTTP status");
         }
     }
 

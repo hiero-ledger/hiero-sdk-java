@@ -32,6 +32,21 @@ public enum FeeEstimateMode {
     }
 
     /**
+     * Convert a string value to the corresponding enum.
+     *
+     * @param value the string value of the mode
+     * @return the corresponding FeeEstimateMode
+     * @throws IllegalArgumentException if the value is not recognized
+     */
+    static FeeEstimateMode fromString(String value) {
+        return switch (value.toUpperCase()) {
+            case "STATE" -> STATE;
+            case "INTRINSIC" -> INTRINSIC;
+            default -> throw new IllegalArgumentException("(BUG) unhandled FeeEstimateMode: " + value);
+        };
+    }
+
+    /**
      * Convert a protobuf-encoded fee estimate mode value to the corresponding enum.
      *
      * @param code the protobuf-encoded value

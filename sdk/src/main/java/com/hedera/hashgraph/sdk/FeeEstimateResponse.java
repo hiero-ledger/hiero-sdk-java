@@ -2,6 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,6 +99,46 @@ public final class FeeEstimateResponse {
         var total = response.getTotal();
 
         return new FeeEstimateResponse(mode, network, node, notes, service, total);
+    }
+
+    /**
+     * Create a FeeEstimateResponse from a REST JSON payload.
+     *
+     * @param json         the raw JSON response
+     * @param defaultMode  the mode to fall back to when the response omits mode
+     * @return the new FeeEstimateResponse
+     */
+    static FeeEstimateResponse fromJson(String json, FeeEstimateMode defaultMode) {
+        JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+
+        FeeEstimateMode resolvedMode;
+        if (root.has("mode")) {
+            resolvedMode = FeeEstimateMode.fromString(root.get("mode").getAsString());
+        } else if (root.has("mode_used")) {
+            resolvedMode = FeeEstimateMode.fromString(root.get("mode_used").getAsString());
+        } else {
+            resolvedMode = defaultMode;
+        }
+
+        NetworkFee network = root.has("network") && root.get("network").isJsonObject()
+                ? NetworkFee.fromJson(root.getAsJsonObject("network"))
+                : null;
+        FeeEstimate node = root.has("node") && root.get("node").isJsonObject()
+                ? FeeEstimate.fromJson(root.getAsJsonObject("node"))
+                : null;
+        FeeEstimate service = root.has("service") && root.get("service").isJsonObject()
+                ? FeeEstimate.fromJson(root.getAsJsonObject("service"))
+                : null;
+
+        List<String> notes = new ArrayList<>();
+        if (root.has("notes") && root.get("notes").isJsonArray()) {
+            JsonArray notesArray = root.getAsJsonArray("notes");
+            notesArray.forEach(element -> notes.add(element.getAsString()));
+        }
+
+        long total = root.has("total") ? root.get("total").getAsLong() : 0L;
+
+        return new FeeEstimateResponse(resolvedMode, network, node, notes, service, total);
     }
 
     /**

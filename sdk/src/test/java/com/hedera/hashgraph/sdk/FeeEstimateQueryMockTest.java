@@ -4,17 +4,15 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.proto.mirror.NetworkServiceGrpc;
-import io.grpc.Server;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.stub.StreamObserver;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,39 +26,26 @@ class FeeEstimateQueryMockTest {
                     .build();
 
     private Client client;
-    private FeeEstimateServiceStub feeEstimateServiceStub;
-    private Server server;
+    private HttpServer server;
     private FeeEstimateQuery query;
+    private StubMirrorRestServer stub;
 
     @BeforeEach
     void setUp() throws Exception {
+        stub = new StubMirrorRestServer();
+        stub.start();
+
         client = Client.forNetwork(Collections.emptyMap());
         client.setRequestTimeout(Duration.ofSeconds(10));
-        // FIX: Use unique in-process server name for each test run
-        String serverName = "test-" + System.nanoTime();
-
-        client.setMirrorNetwork(Collections.singletonList("in-process:" + serverName));
-
-        feeEstimateServiceStub = new FeeEstimateServiceStub();
-        server = InProcessServerBuilder.forName(serverName) // FIX: unique name here
-                .addService(feeEstimateServiceStub)
-                .directExecutor()
-                .build()
-                .start();
+        client.setMirrorNetwork(Collections.singletonList("localhost:" + stub.getPort()));
 
         query = new FeeEstimateQuery();
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        // Verify the stub received and processed all requests
-        feeEstimateServiceStub.verify();
-
-        // FIX: ensure proper cleanup between tests
-        if (server != null) {
-            server.shutdownNow(); // FIX: force shutdown to avoid lingering registrations
-            server.awaitTermination(1, TimeUnit.SECONDS);
-        }
+        stub.verify();
+        stub.stop();
         if (client != null) {
             client.close();
         }
@@ -68,120 +53,132 @@ class FeeEstimateQueryMockTest {
 
     @Test
     @DisplayName(
-            "Given a FeeEstimateQuery is executed when the Mirror service is unavailable, when the query is executed, then it retries according to the existing query retry policy for UNAVAILABLE errors")
-    void retriesOnUnavailableErrors() {
+            "Given a FeeEstimateQuery is executed when the Mirror service is unavailable, when the query is executed, then it retries according to the existing query retry policy for HTTP 503 errors")
+    void retriesOnUnavailableErrors() throws IOException, InterruptedException {
         query.setTransaction(DUMMY_TRANSACTION).setMaxAttempts(3).setMaxBackoff(Duration.ofMillis(500));
 
-        var expectedRequest = com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery.newBuilder()
-                .setModeValue(FeeEstimateMode.STATE.code)
-                .setTransaction(DUMMY_TRANSACTION)
-                .build();
-
-        feeEstimateServiceStub.enqueueError(
-                expectedRequest, Status.UNAVAILABLE.withDescription("transient").asRuntimeException());
-        feeEstimateServiceStub.enqueue(expectedRequest, newSuccessResponse(FeeEstimateMode.STATE, 2, 6, 8));
+        stub.enqueue(new StubResponse(503, "transient error"));
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.STATE, 2, 6, 8)));
 
         var response = query.execute(client);
 
         assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(26);
-        assertThat(feeEstimateServiceStub.requestCount()).isEqualTo(2);
+        assertThat(stub.requestCount()).isEqualTo(2);
     }
 
     @Test
     @DisplayName(
-            "Given a FeeEstimateQuery times out, when the query is executed, then it retries according to the existing query retry policy for DEADLINE_EXCEEDED errors")
-    void retriesOnDeadlineExceededErrors() {
+            "Given a FeeEstimateQuery times out, when the query is executed, then it retries according to the existing query retry policy for HTTP timeouts")
+    void retriesOnDeadlineExceededErrors() throws IOException, InterruptedException {
         query.setTransaction(DUMMY_TRANSACTION).setMaxAttempts(3).setMaxBackoff(Duration.ofMillis(500));
 
-        var expectedRequest = com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery.newBuilder()
-                .setModeValue(FeeEstimateMode.STATE.code)
-                .setTransaction(DUMMY_TRANSACTION)
-                .build();
-
-        feeEstimateServiceStub.enqueueError(
-                expectedRequest,
-                Status.DEADLINE_EXCEEDED.withDescription("timeout").asRuntimeException());
-        feeEstimateServiceStub.enqueue(expectedRequest, newSuccessResponse(FeeEstimateMode.STATE, 4, 8, 20));
+        stub.enqueue(new StubResponse(504, "gateway timeout"));
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.STATE, 4, 8, 20)));
 
         var response = query.execute(client);
 
         assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(60);
-        assertThat(feeEstimateServiceStub.requestCount()).isEqualTo(2);
+        assertThat(stub.requestCount()).isEqualTo(2);
     }
 
-    private static com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse newSuccessResponse(
+    @Test
+    @DisplayName("Given a FeeEstimateQuery succeeds on first attempt, it returns the parsed fee response")
+    void succeedsOnFirstAttempt() throws IOException, InterruptedException {
+        query.setTransaction(DUMMY_TRANSACTION).setMode(FeeEstimateMode.INTRINSIC);
+
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.INTRINSIC, 3, 10, 20)));
+
+        var response = query.execute(client);
+
+        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
+        assertThat(response.getTotal()).isEqualTo(3 * 10 + 10 + 20);
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    private static String newSuccessResponse(
             FeeEstimateMode mode, int networkMultiplier, long nodeBase, long serviceBase) {
         long networkSubtotal = nodeBase * networkMultiplier;
         long total = networkSubtotal + nodeBase + serviceBase;
-        return com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.newBuilder()
-                .setModeValue(mode.code)
-                .setNetwork(com.hedera.hashgraph.sdk.proto.mirror.NetworkFee.newBuilder()
-                        .setMultiplier(networkMultiplier)
-                        .setSubtotal(networkSubtotal)
-                        .build())
-                .setNode(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.newBuilder()
-                        .setBase(nodeBase)
-                        .build())
-                .setService(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.newBuilder()
-                        .setBase(serviceBase)
-                        .build())
-                .setTotal(total)
-                .build();
+        return """
+                {
+                  "mode": "%s",
+                  "network": {"multiplier": %d, "subtotal": %d},
+                  "node": {"base": %d, "extras": []},
+                  "service": {"base": %d, "extras": []},
+                  "notes": [],
+                  "total": %d
+                }
+                """
+                .formatted(mode, networkMultiplier, networkSubtotal, nodeBase, serviceBase, total);
     }
 
-    private static class FeeEstimateServiceStub extends NetworkServiceGrpc.NetworkServiceImplBase {
-        private final Queue<com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery> expectedRequests =
-                new ArrayDeque<>();
-        private final Queue<Object> responses = new ArrayDeque<>();
-        private int observedRequests = 0;
+    private static final class StubResponse {
+        final int status;
+        final String body;
 
-        void enqueue(
-                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery request,
-                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse response) {
-            expectedRequests.add(request);
+        StubResponse(int status, String body) {
+            this.status = status;
+            this.body = body;
+        }
+    }
+
+    private static final class StubMirrorRestServer {
+        private final Queue<StubResponse> responses = new ArrayDeque<>();
+        private int observedRequests = 0;
+        private HttpServer server;
+        private int port;
+
+        void start() throws IOException {
+            server = HttpServer.create(new InetSocketAddress(0), 0);
+            port = server.getAddress().getPort();
+            server.createContext("/api/v1/network/fees", exchange -> {
+                observedRequests++;
+                var response = responses.poll();
+                assertThat(response)
+                        .as("response should be queued before invoking network fee estimation")
+                        .isNotNull();
+
+                // Validate request structure similar to JS implementation
+                assertThat(exchange.getRequestHeaders().getFirst("Content-Type")).isEqualTo("application/protobuf");
+                var queryParams = exchange.getRequestURI().getQuery();
+                assertThat(queryParams).contains("mode=");
+
+                byte[] requestBody = exchange.getRequestBody().readAllBytes();
+                assertThat(requestBody.length).isGreaterThan(0);
+
+                byte[] bodyBytes = response.body.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(response.status, bodyBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(bodyBytes);
+                }
+            });
+            server.start();
+        }
+
+        void enqueue(StubResponse response) {
             responses.add(response);
         }
 
-        void enqueueError(
-                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery request, StatusRuntimeException error) {
-            expectedRequests.add(request);
-            responses.add(error);
+        void stop() {
+            if (server != null) {
+                server.stop(0);
+            }
         }
 
         int requestCount() {
             return observedRequests;
         }
 
-        void verify() {
-            assertThat(expectedRequests).isEmpty();
-            assertThat(responses).isEmpty();
+        int getPort() {
+            return port;
         }
 
-        @Override
-        public void getFeeEstimate(
-                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateQuery request,
-                StreamObserver<com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse> responseObserver) {
-            observedRequests++;
-            var expected = expectedRequests.poll();
-            assertThat(expected)
-                    .as("expected request to be queued before invoking getFeeEstimate")
-                    .isNotNull();
-            assertThat(request).isEqualTo(expected);
-
-            var response = responses.poll();
-            assertThat(response)
-                    .as("response or error should be queued before invoking getFeeEstimate")
-                    .isNotNull();
-
-            if (response instanceof StatusRuntimeException error) {
-                responseObserver.onError(error);
-                return;
-            }
-
-            responseObserver.onNext((com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse) response);
-            responseObserver.onCompleted();
+        void verify() {
+            assertThat(responses)
+                    .as("all queued responses should have been served")
+                    .isEmpty();
         }
     }
 }

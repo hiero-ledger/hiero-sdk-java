@@ -32,6 +32,18 @@ public final class NetworkFee {
     }
 
     /**
+     * Create a NetworkFee from a JSON object returned by the mirror node REST API.
+     *
+     * @param networkFee the JSON representation
+     * @return the new NetworkFee
+     */
+    static NetworkFee fromJson(com.google.gson.JsonObject networkFee) {
+        int multiplier = networkFee.get("multiplier").getAsInt();
+        long subtotal = networkFee.get("subtotal").getAsLong();
+        return new NetworkFee(multiplier, subtotal);
+    }
+
+    /**
      * Create a NetworkFee from a protobuf.
      *
      * @param networkFee the protobuf
