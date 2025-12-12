@@ -14,30 +14,29 @@ public class EthereumTransactionDataEip7702Test {
     @Test
     public void eip7702ToFromBytes() {
         var authorizationTuple = new AuthorizationTuple(
-            Hex.decode("012a"),
-            Hex.decode("0102030405060708090a0b0c0d0e0f1011121314"),
-            Hex.decode("01"),
-            Hex.decode("00"),
-            Hex.decode("11"),
-            Hex.decode("12"));
+                Hex.decode("012a"),
+                Hex.decode("0102030405060708090a0b0c0d0e0f1011121314"),
+                Hex.decode("01"),
+                Hex.decode("00"),
+                Hex.decode("11"),
+                Hex.decode("12"));
+
+        var headerData = new EthereumTransactionDataEip7702.HeaderData(
+                Hex.decode("012a"),
+                Hex.decode("02"),
+                Hex.decode("2f"),
+                Hex.decode("2f"),
+                Hex.decode("018000"),
+                Hex.decode("7e3a9eaf9bcc39e2ffa38eb30bf7a93feacbc181"),
+                Hex.decode("0de0b6b3a7640000"));
 
         var signatureData = new EthereumTransactionDataEip7702.SignatureData(
-            Hex.decode("01"),
-            Hex.decode("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479"),
-            Hex.decode("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66"));
+                Hex.decode("01"),
+                Hex.decode("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479"),
+                Hex.decode("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66"));
 
         var data = new EthereumTransactionDataEip7702(
-            Hex.decode("012a"),
-            Hex.decode("02"),
-            Hex.decode("2f"),
-            Hex.decode("2f"),
-            Hex.decode("018000"),
-            Hex.decode("7e3a9eaf9bcc39e2ffa38eb30bf7a93feacbc181"),
-            Hex.decode("0de0b6b3a7640000"),
-            Hex.decode("123456"),
-            List.of(),
-            List.of(authorizationTuple),
-            signatureData);
+                headerData, Hex.decode("123456"), List.of(), List.of(authorizationTuple), signatureData);
 
         var encodedHex = Hex.toHexString(data.toBytes());
         var decoded = (EthereumTransactionDataEip7702) EthereumTransactionData.fromBytes(Hex.decode(encodedHex));
@@ -64,66 +63,65 @@ public class EthereumTransactionDataEip7702Test {
 
         assertThat(Hex.toHexString(decoded.recoveryId)).isEqualTo("01");
         assertThat(Hex.toHexString(decoded.r))
-            .isEqualTo("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479");
+                .isEqualTo("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479");
         assertThat(Hex.toHexString(decoded.s))
-            .isEqualTo("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66");
+                .isEqualTo("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66");
     }
 
     @Test
     void manualEncodingMatchesHeadlongSequence() {
         var authorizationTuple = new AuthorizationTuple(
-            Hex.decode("012a"),
-            Hex.decode("0102030405060708090a0b0c0d0e0f1011121314"),
-            Hex.decode("01"),
-            Hex.decode("00"),
-            Hex.decode("11"),
-            Hex.decode("12"));
+                Hex.decode("012a"),
+                Hex.decode("0102030405060708090a0b0c0d0e0f1011121314"),
+                Hex.decode("01"),
+                Hex.decode("00"),
+                Hex.decode("11"),
+                Hex.decode("12"));
+
+        var headerData = new EthereumTransactionDataEip7702.HeaderData(
+                Hex.decode("012a"),
+                Hex.decode("00"),
+                Hex.decode("00"),
+                Hex.decode("d1385c7bf0"),
+                Hex.decode("07a120"),
+                Hex.decode("7e3a9eaf9bcc39e2ffa38eb30bf7a93feacbc181"),
+                Hex.decode("00"));
 
         var signatureData = new EthereumTransactionDataEip7702.SignatureData(
-            Hex.decode("01"),
-            Hex.decode("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479"),
-            Hex.decode("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66"));
+                Hex.decode("01"),
+                Hex.decode("df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce911fd479"),
+                Hex.decode("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66"));
 
         var data = new EthereumTransactionDataEip7702(
-            Hex.decode("012a"),
-            Hex.decode("00"),
-            Hex.decode("00"),
-            Hex.decode("d1385c7bf0"),
-            Hex.decode("07a120"),
-            Hex.decode("7e3a9eaf9bcc39e2ffa38eb30bf7a93feacbc181"),
-            Hex.decode("00"),
-            Hex.decode("123456"),
-            List.of(),
-            List.of(authorizationTuple),
-            signatureData);
+                headerData, Hex.decode("123456"), List.of(), List.of(authorizationTuple), signatureData);
 
         var manualPayload = com.esaulpaugh.headlong.rlp.RLPEncoder.list(
-            data.chainId,
-            data.nonce,
-            data.maxPriorityGas,
-            data.maxGas,
-            data.gasLimit,
-            data.to,
-            data.value,
-            data.callData,
-            List.of(),
-            List.of(List.of(
-                authorizationTuple.chainId,
-                authorizationTuple.address,
-                authorizationTuple.nonce,
-                authorizationTuple.yParity,
-                authorizationTuple.r,
-                authorizationTuple.s)),
-            data.recoveryId,
-            data.r,
-            data.s);
+                data.chainId,
+                data.nonce,
+                data.maxPriorityGas,
+                data.maxGas,
+                data.gasLimit,
+                data.to,
+                data.value,
+                data.callData,
+                List.of(),
+                List.of(List.of(
+                        authorizationTuple.chainId,
+                        authorizationTuple.address,
+                        authorizationTuple.nonce,
+                        authorizationTuple.yParity,
+                        authorizationTuple.r,
+                        authorizationTuple.s)),
+                data.recoveryId,
+                data.r,
+                data.s);
 
         var manualBytes = Bytes.concat(new byte[] {0x04}, manualPayload);
 
         assertThat(data.toBytes()).containsExactly(manualBytes);
         assertThat(EthereumTransactionDataEip7702.fromBytes(manualBytes)).isNotNull();
         assertThat(EthereumTransactionDataEip7702.fromBytes(manualBytes).toBytes())
-            .containsExactly(manualBytes);
+                .containsExactly(manualBytes);
     }
 
     @Test
@@ -156,37 +154,33 @@ public class EthereumTransactionDataEip7702Test {
         assertThat(decodedAuth.r).containsExactly(originalAuth.r);
         assertThat(decodedAuth.s).containsExactly(originalAuth.s);
 
-        // Verify the byte array matches exactly
         assertThat(decoded.toBytes()).containsExactly(bytes);
     }
 
     private EthereumTransactionDataEip7702 createEip7702Data() {
-        var authTuple = new AuthorizationTuple(
-            Hex.decode("012a"),
-            Hex.decode("00000000000000000000000000000000000003f9"),
-            Hex.decode("00"),
-            Hex.decode("01"),
-            Hex.decode("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
-            Hex.decode("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890")
-        );
+        var authData = new EthereumTransactionDataEip7702.AuthorizationTuple(
+                Hex.decode("012a"),
+                Hex.decode("00000000000000000000000000000000000003f9"),
+                Hex.decode("00"),
+                Hex.decode("01"),
+                Hex.decode("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
+                Hex.decode("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"));
+
+        var headerData = new EthereumTransactionDataEip7702.HeaderData(
+                Hex.decode("012a"),
+                Hex.decode("00"),
+                Hex.decode("01"),
+                Hex.decode("d1385c7bf0"),
+                Hex.decode("07A120"),
+                Hex.decode("00000000000000000000000000000000000003f9"),
+                new byte[0]);
+
         var signatureData = new EthereumTransactionDataEip7702.SignatureData(
-            Hex.decode("01"),
-            Hex.decode("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"),
-            Hex.decode("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
-        );
+                Hex.decode("01"),
+                Hex.decode("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"),
+                Hex.decode("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"));
 
         return new EthereumTransactionDataEip7702(
-            Hex.decode("012a"),
-            Hex.decode("00"),
-            Hex.decode("01"),
-            Hex.decode("d1385c7bf0"),
-            Hex.decode("07A120"),
-            Hex.decode("00000000000000000000000000000000000003f9"),
-            new byte[0],
-            Hex.decode("123456"),
-            List.of(),
-            List.of(authTuple),
-            signatureData
-        );
+                headerData, Hex.decode("123456"), List.of(), List.of(authData), signatureData);
     }
 }
