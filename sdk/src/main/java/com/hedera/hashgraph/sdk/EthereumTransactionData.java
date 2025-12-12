@@ -24,7 +24,13 @@ public abstract class EthereumTransactionData {
         if (rlpItem.isList()) {
             return EthereumTransactionDataLegacy.fromBytes(bytes);
         } else {
-            return EthereumTransactionDataEip1559.fromBytes(bytes);
+            var typeByte = rlpItem.asByte();
+
+            return switch (typeByte) {
+                case 0x02 -> EthereumTransactionDataEip1559.fromBytes(bytes);
+                case 0x04 -> EthereumTransactionDataEip7702.fromBytes(bytes);
+                default -> throw new IllegalArgumentException("rlp type byte " + typeByte + "is not supported");
+            };
         }
     }
 
