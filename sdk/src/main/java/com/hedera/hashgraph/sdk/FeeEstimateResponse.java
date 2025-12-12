@@ -1,15 +1,14 @@
-// SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.sdk;
+// SPDX-License-Identifier:  Apache-2.0
+package com.hedera.hashgraph. sdk;
 
-import com.google.common.base.MoreObjects;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.common.base. MoreObjects;
+import com.google. gson.JsonObject;
+import com.google.gson. JsonParser;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java. util.Collections;
+import java. util.List;
+import java.util. Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -33,7 +32,7 @@ public final class FeeEstimateResponse {
 
     /**
      * The node fee component which is to be paid to the node that submitted the
-     * transaction to the network. This fee exists to compensate the node for the
+     * transaction to the network.  This fee exists to compensate the node for the
      * work it performed to pre-check the transaction before submitting it, and
      * incentivizes the node to accept new transactions from users.
      */
@@ -50,7 +49,7 @@ public final class FeeEstimateResponse {
     /**
      * An array of strings for any caveats.
      * <p>
-     * For example: ["Fallback to worst-case due to missing state"]
+     * For example:  ["Fallback to worst-case due to missing state"]
      */
     private final List<String> notes;
 
@@ -62,22 +61,22 @@ public final class FeeEstimateResponse {
     /**
      * Constructor.
      *
-     * @param mode    the fee estimate mode used
+     * @param mode       the fee estimate mode used
      * @param networkFee the network fee component
      * @param nodeFee    the node fee estimate
-     * @param notes   the list of notes/caveats
+     * @param notes      the list of notes/caveats
      * @param serviceFee the service fee estimate
-     * @param total   the total fee in tinycents
+     * @param total      the total fee in tinycents
      */
     FeeEstimateResponse(
-            FeeEstimateMode mode,
-            @Nullable NetworkFee networkFee,
-            @Nullable FeeEstimate nodeFee,
-            List<String> notes,
-            @Nullable FeeEstimate serviceFee,
-            long total) {
+        FeeEstimateMode mode,
+        @Nullable NetworkFee networkFee,
+        @Nullable FeeEstimate nodeFee,
+        List<String> notes,
+        @Nullable FeeEstimate serviceFee,
+        long total) {
         this.mode = mode;
-        this.networkFee = networkFee;
+        this. networkFee = networkFee;
         this.nodeFee = nodeFee;
         this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
         this.serviceFee = serviceFee;
@@ -90,7 +89,7 @@ public final class FeeEstimateResponse {
      * @param response the protobuf
      * @return the new FeeEstimateResponse
      */
-    static FeeEstimateResponse fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse response) {
+    static FeeEstimateResponse fromProtobuf(com.hedera.hashgraph. sdk.proto.mirror.FeeEstimateResponse response) {
         var mode = FeeEstimateMode.valueOf(response.getModeValue());
         var network = response.hasNetwork() ? NetworkFee.fromProtobuf(response.getNetwork()) : null;
         var node = response.hasNode() ? FeeEstimate.fromProtobuf(response.getNode()) : null;
@@ -104,41 +103,90 @@ public final class FeeEstimateResponse {
     /**
      * Create a FeeEstimateResponse from a REST JSON payload.
      *
-     * @param json         the raw JSON response
-     * @param defaultMode  the mode to fall back to when the response omits mode
+     * @param json        the raw JSON response
+     * @param defaultMode the mode to fall back to when the response omits mode
      * @return the new FeeEstimateResponse
      */
     static FeeEstimateResponse fromJson(String json, FeeEstimateMode defaultMode) {
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
-        FeeEstimateMode resolvedMode;
+        return new FeeEstimateResponse(
+            parseModeFromJson(root, defaultMode),
+            parseNetworkFeeFromJson(root),
+            parseFeeEstimateFromJson(root, "node"),
+            parseNotesFromJson(root),
+            parseFeeEstimateFromJson(root, "service"),
+            parseTotalFromJson(root));
+    }
+
+    /**
+     * Parse the fee estimate mode from JSON.
+     *
+     * @param root        the JSON object
+     * @param defaultMode the default mode if not present
+     * @return the parsed mode
+     */
+    private static FeeEstimateMode parseModeFromJson(JsonObject root, FeeEstimateMode defaultMode) {
         if (root.has("mode")) {
-            resolvedMode = FeeEstimateMode.fromString(root.get("mode").getAsString());
-        } else if (root.has("mode_used")) {
-            resolvedMode = FeeEstimateMode.fromString(root.get("mode_used").getAsString());
-        } else {
-            resolvedMode = defaultMode;
+            return FeeEstimateMode.fromString(root.get("mode").getAsString());
         }
+        if (root.has("mode_used")) {
+            return FeeEstimateMode.fromString(root.get("mode_used").getAsString());
+        }
+        return defaultMode;
+    }
 
-        NetworkFee network = root.has("network") && root.get("network").isJsonObject()
-                ? NetworkFee.fromJson(root.getAsJsonObject("network"))
-                : null;
-        FeeEstimate node = root.has("node") && root.get("node").isJsonObject()
-                ? FeeEstimate.fromJson(root.getAsJsonObject("node"))
-                : null;
-        FeeEstimate service = root.has("service") && root.get("service").isJsonObject()
-                ? FeeEstimate.fromJson(root.getAsJsonObject("service"))
-                : null;
+    /**
+     * Parse the network fee from JSON.
+     *
+     * @param root the JSON object
+     * @return the parsed NetworkFee or null
+     */
+    @Nullable
+    private static NetworkFee parseNetworkFeeFromJson(JsonObject root) {
+        if (root.has("network") && root.get("network").isJsonObject()) {
+            return NetworkFee. fromJson(root.getAsJsonObject("network"));
+        }
+        return null;
+    }
 
+    /**
+     * Parse a fee estimate from JSON by field name.
+     *
+     * @param root      the JSON object
+     * @param fieldName the field name to parse ("node" or "service")
+     * @return the parsed FeeEstimate or null
+     */
+    @Nullable
+    private static FeeEstimate parseFeeEstimateFromJson(JsonObject root, String fieldName) {
+        if (root.has(fieldName) && root.get(fieldName).isJsonObject()) {
+            return FeeEstimate.fromJson(root.getAsJsonObject(fieldName));
+        }
+        return null;
+    }
+
+    /**
+     * Parse notes from JSON.
+     *
+     * @param root the JSON object
+     * @return the list of notes
+     */
+    private static List<String> parseNotesFromJson(JsonObject root) {
         List<String> notes = new ArrayList<>();
         if (root.has("notes") && root.get("notes").isJsonArray()) {
-            JsonArray notesArray = root.getAsJsonArray("notes");
-            notesArray.forEach(element -> notes.add(element.getAsString()));
+            root.getAsJsonArray("notes").forEach(element -> notes.add(element. getAsString()));
         }
+        return notes;
+    }
 
-        long total = root.has("total") ? root.get("total").getAsLong() : 0L;
-
-        return new FeeEstimateResponse(resolvedMode, network, node, notes, service, total);
+    /**
+     * Parse total from JSON.
+     *
+     * @param root the JSON object
+     * @return the total value
+     */
+    private static long parseTotalFromJson(JsonObject root) {
+        return root.has("total") ? root.get("total").getAsLong() : 0L;
     }
 
     /**
@@ -149,8 +197,8 @@ public final class FeeEstimateResponse {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static FeeEstimateResponse fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(com.hedera.hashgraph.sdk. proto.mirror.FeeEstimateResponse.parseFrom(bytes).toBuilder()
+            .build());
     }
 
     /**
@@ -215,11 +263,11 @@ public final class FeeEstimateResponse {
      *
      * @return the protobuf
      */
-    com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse toProtobuf() {
-        var builder = com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.newBuilder()
-                .setModeValue(mode.code)
-                .setTotal(total)
-                .addAllNotes(notes);
+    com.hedera.hashgraph.sdk. proto.mirror.FeeEstimateResponse toProtobuf() {
+        var builder = com.hedera.hashgraph. sdk.proto.mirror.FeeEstimateResponse.newBuilder()
+            .setModeValue(mode.code)
+            .setTotal(total)
+            .addAllNotes(notes);
 
         if (networkFee != null) {
             builder.setNetwork(networkFee.toProtobuf());
@@ -246,13 +294,13 @@ public final class FeeEstimateResponse {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("mode", mode)
-                .add("network", networkFee)
-                .add("node", nodeFee)
-                .add("notes", notes)
-                .add("service", serviceFee)
-                .add("total", total)
-                .toString();
+            .add("mode", mode)
+            .add("network", networkFee)
+            .add("node", nodeFee)
+            .add("notes", notes)
+            .add("service", serviceFee)
+            .add("total", total)
+            .toString();
     }
 
     @Override
@@ -263,12 +311,12 @@ public final class FeeEstimateResponse {
         if (!(o instanceof FeeEstimateResponse that)) {
             return false;
         }
-        return total == that.total
-                && mode == that.mode
-                && Objects.equals(networkFee, that.networkFee)
-                && Objects.equals(nodeFee, that.nodeFee)
-                && Objects.equals(notes, that.notes)
-                && Objects.equals(serviceFee, that.serviceFee);
+        return total == that. total
+            && mode == that.mode
+            && Objects.equals(networkFee, that.networkFee)
+            && Objects.equals(nodeFee, that.nodeFee)
+            && Objects.equals(notes, that.notes)
+            && Objects.equals(serviceFee, that.serviceFee);
     }
 
     @Override

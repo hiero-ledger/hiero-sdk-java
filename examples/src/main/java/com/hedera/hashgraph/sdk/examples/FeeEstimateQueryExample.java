@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.sdk.examples;
+package com.hedera.hashgraph. sdk.examples;
 
-import com.hedera.hashgraph.sdk.*;
+import com.hedera.hashgraph. sdk.*;
 import com.hedera.hashgraph.sdk.logger.LogLevel;
-import com.hedera.hashgraph.sdk.logger.Logger;
+import com. hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 class FeeEstimateQueryExample {
 
     /*
-     * See .env.sample in the examples folder root for how to specify values below
+     * See . env. sample in the examples folder root for how to specify values below
      * or set environment variables with the same names.
      */
 
@@ -34,11 +34,11 @@ class FeeEstimateQueryExample {
      * Operator's private key.
      */
     private static final PrivateKey OPERATOR_KEY =
-        PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+        PrivateKey.fromString(Objects.requireNonNull(Dotenv. load().get("OPERATOR_KEY")));
 
     /**
      * HEDERA_NETWORK defaults to testnet if not specified in dotenv file.
-     * Network can be: localhost, testnet, previewnet or mainnet.
+     * Network can be:  localhost, testnet, previewnet or mainnet.
      */
     private static final String HEDERA_NETWORK = Dotenv.load().get("HEDERA_NETWORK", "testnet");
 
@@ -47,31 +47,34 @@ class FeeEstimateQueryExample {
      * Log levels can be: TRACE, DEBUG, INFO, WARN, ERROR, SILENT.
      * <p>
      * Important pre-requisite: set simple logger log level to same level as the SDK_LOG_LEVEL,
-     * for example via VM options: -Dorg.slf4j.simpleLogger.log.org.hiero=trace
+     * for example via VM options: -Dorg.slf4j. simpleLogger.log. org.hiero=trace
      */
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fee Estimate Example Start!");
 
-        /*
-         * Step 0:
-         * Create and configure the SDK Client.
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK);
-        // All generated transactions will be paid by this account and signed by this key.
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        // Attach logger to the SDK Client.
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        // Create a recipient account for the example
+        Client client = createAndConfigureClient();
         AccountId recipientId = AccountId.fromString("0.0.3");
 
-        /*
-         * Step 1:
-         * Create and freeze a transfer transaction.
-         * The transaction must be frozen before it can be estimated.
-         */
+        TransferTransaction tx = createTransferTransaction(client, recipientId);
+        FeeEstimateResponse stateEstimate = estimateWithStateMode(client, tx);
+        FeeEstimateResponse intrinsicEstimate = estimateWithIntrinsicMode(client, tx);
+        compareEstimates(stateEstimate, intrinsicEstimate);
+        demonstrateTokenCreationEstimate(client);
+
+        client.close();
+        System.out.println("\nExample complete!");
+    }
+
+    private static Client createAndConfigureClient() throws Exception {
+        Client client = ClientHelper.forName(HEDERA_NETWORK);
+        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
+        return client;
+    }
+
+    private static TransferTransaction createTransferTransaction(Client client, AccountId recipientId) {
         System.out.println("\n=== Creating Transfer Transaction ===");
         Hbar transferAmount = Hbar.from(1);
 
@@ -81,18 +84,15 @@ class FeeEstimateQueryExample {
             .setTransactionMemo("Fee estimate example")
             .freezeWith(client);
 
-        // Sign the transaction (required for accurate fee estimation)
         tx.signWithOperator(client);
 
-        System.out.println("Transaction created: Transfer " + transferAmount + " from "
+        System.out. println("Transaction created: Transfer " + transferAmount + " from "
             + OPERATOR_ID + " to " + recipientId);
+        return tx;
+    }
 
-        /*
-         * Step 2:
-         * Estimate fees with STATE mode (default).
-         * STATE mode considers the current network state (e.g., whether accounts exist,
-         * token associations, etc.) for more accurate fee estimation.
-         */
+    private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx)
+        throws Exception {
         System.out.println("\n=== Estimating Fees with STATE Mode ===");
 
         FeeEstimateResponse stateEstimate = new FeeEstimateQuery()
@@ -100,51 +100,60 @@ class FeeEstimateQueryExample {
             .setTransaction(tx)
             .execute(client);
 
-        System.out.println("Mode: " + stateEstimate.getMode());
+        System.out.println("Mode: " + stateEstimate. getMode());
+        printNetworkFee(stateEstimate);
+        printNodeFee(stateEstimate);
+        printServiceFee(stateEstimate);
+        printTotalFee(stateEstimate);
+        printNotes(stateEstimate);
 
-        // Network fee breakdown
+        return stateEstimate;
+    }
+
+    private static void printNetworkFee(FeeEstimateResponse estimate) {
         System.out.println("\nNetwork Fee:");
-        System.out.println("  Multiplier: " + stateEstimate.getNetworkFee().getMultiplier());
-        System.out.println("  Subtotal: " + stateEstimate.getNetworkFee().getSubtotal() + " tinycents");
+        System.out.println("  Multiplier: " + estimate.getNetworkFee().getMultiplier());
+        System.out.println("  Subtotal: " + estimate.getNetworkFee().getSubtotal() + " tinycents");
+    }
 
-        // Node fee breakdown
+    private static void printNodeFee(FeeEstimateResponse estimate) {
         System.out.println("\nNode Fee:");
-        System.out.println("  Base: " + stateEstimate.getNodeFee().getBase() + " tinycents");
-        long nodeTotal = stateEstimate.getNodeFee().getBase();
-        for (FeeExtra extra : stateEstimate.getNodeFee().getExtras()) {
-            System.out.println("  Extra - " + extra.getName() + ": " + extra.getSubtotal() + " tinycents");
+        System.out.println("  Base: " + estimate.getNodeFee().getBase() + " tinycents");
+        long nodeTotal = estimate.getNodeFee().getBase();
+        for (FeeExtra extra : estimate.getNodeFee().getExtras()) {
+            System.out.println("  Extra - " + extra. getName() + ": " + extra.getSubtotal() + " tinycents");
             nodeTotal += extra.getSubtotal();
         }
         System.out.println("  Node Total: " + nodeTotal + " tinycents");
+    }
 
-        // Service fee breakdown
-        System.out.println("\nService Fee:");
-        System.out.println("  Base: " + stateEstimate.getServiceFee().getBase() + " tinycents");
-        long serviceTotal = stateEstimate.getServiceFee().getBase();
-        for (FeeExtra extra : stateEstimate.getServiceFee().getExtras()) {
+    private static void printServiceFee(FeeEstimateResponse estimate) {
+        System.out. println("\nService Fee:");
+        System.out.println("  Base: " + estimate.getServiceFee().getBase() + " tinycents");
+        long serviceTotal = estimate.getServiceFee().getBase();
+        for (FeeExtra extra :  estimate.getServiceFee().getExtras()) {
             System.out.println("  Extra - " + extra.getName() + ": " + extra.getSubtotal() + " tinycents");
             serviceTotal += extra.getSubtotal();
         }
         System.out.println("  Service Total: " + serviceTotal + " tinycents");
+    }
 
-        // Total fee
-        System.out.println("\nTotal Estimated Fee: " + stateEstimate.getTotal() + " tinycents");
-        System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(stateEstimate.getTotal() / 100));
+    private static void printTotalFee(FeeEstimateResponse estimate) {
+        System.out.println("\nTotal Estimated Fee: " + estimate.getTotal() + " tinycents");
+        System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(estimate. getTotal() / 100));
+    }
 
-        // Display any notes/caveats
-        if (!stateEstimate.getNotes().isEmpty()) {
-            System.out.println("\nNotes:");
-            for (String note : stateEstimate.getNotes()) {
-                System.out.println("  - " + note);
+    private static void printNotes(FeeEstimateResponse estimate) {
+        if (!estimate.getNotes().isEmpty()) {
+            System.out. println("\nNotes:");
+            for (String note : estimate. getNotes()) {
+                System.out. println("  - " + note);
             }
         }
+    }
 
-        /*
-         * Step 3:
-         * Estimate fees with INTRINSIC mode.
-         * INTRINSIC mode only considers the transaction's inherent properties
-         * (size, signatures, keys) and ignores state-dependent factors.
-         */
+    private static FeeEstimateResponse estimateWithIntrinsicMode(Client client, TransferTransaction tx)
+        throws Exception {
         System.out.println("\n=== Estimating Fees with INTRINSIC Mode ===");
 
         FeeEstimateResponse intrinsicEstimate = new FeeEstimateQuery()
@@ -155,24 +164,22 @@ class FeeEstimateQueryExample {
         System.out.println("Mode: " + intrinsicEstimate.getMode());
         System.out.println("Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
         System.out.println("Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
-        System.out.println("Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
-        System.out.println("Total Estimated Fee: " + intrinsicEstimate.getTotal() + " tinycents");
-        System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate.getTotal() / 100));
+        System.out.println("Service Fee Base: " + intrinsicEstimate. getServiceFee().getBase() + " tinycents");
+        System.out. println("Total Estimated Fee: " + intrinsicEstimate. getTotal() + " tinycents");
+        System.out. println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate. getTotal() / 100));
 
-        /*
-         * Step 4:
-         * Compare STATE vs INTRINSIC mode estimates.
-         */
+        return intrinsicEstimate;
+    }
+
+    private static void compareEstimates(FeeEstimateResponse stateEstimate, FeeEstimateResponse intrinsicEstimate) {
         System.out.println("\n=== Comparison ===");
-        System.out.println("STATE mode total: " + stateEstimate.getTotal() + " tinycents");
+        System.out.println("STATE mode total:  " + stateEstimate.getTotal() + " tinycents");
         System.out.println("INTRINSIC mode total: " + intrinsicEstimate.getTotal() + " tinycents");
-        long difference = Math.abs(stateEstimate.getTotal() - intrinsicEstimate.getTotal());
+        long difference = Math. abs(stateEstimate.getTotal() - intrinsicEstimate.getTotal());
         System.out.println("Difference: " + difference + " tinycents");
+    }
 
-        /*
-         * Step 5:
-         * Demonstrate fee estimation for a token creation transaction.
-         */
+    private static void demonstrateTokenCreationEstimate(Client client) throws Exception {
         System.out.println("\n=== Estimating Token Creation Fees ===");
 
         TokenCreateTransaction tokenTx = new TokenCreateTransaction()
@@ -190,13 +197,7 @@ class FeeEstimateQueryExample {
             .setTransaction(tokenTx)
             .execute(client);
 
-        System.out.println("Token Creation Estimated Fee: " + tokenEstimate.getTotal() + " tinycents");
-        System.out.println("Token Creation Estimated Fee: " + Hbar.fromTinybars(tokenEstimate.getTotal() / 100));
-
-        /*
-         * Clean up:
-         */
-        client.close();
-        System.out.println("\nExample complete!");
+        System.out.println("Token Creation Estimated Fee:  " + tokenEstimate.getTotal() + " tinycents");
+        System.out.println("Token Creation Estimated Fee: " + Hbar. fromTinybars(tokenEstimate. getTotal() / 100));
     }
 }
