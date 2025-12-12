@@ -51,8 +51,9 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
         }
 
         if (isLocalHost(host)) {
-            // For localhost, always use port 5551 for general REST calls
-            return "http://" + host + ":5551/api/v1";
+            // For localhost, default to 5551 but honor an explicitly provided port
+            int effectivePort = port == 0 ? 5551 : port;
+            return "http://" + host + ":" + effectivePort + "/api/v1";
         }
 
         String scheme = chooseScheme(port);

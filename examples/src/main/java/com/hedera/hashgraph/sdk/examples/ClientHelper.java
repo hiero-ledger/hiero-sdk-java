@@ -12,6 +12,8 @@ public class ClientHelper {
 
     private static final String LOCAL_CONSENSUS_NODE_ENDPOINT = "127.0.0.1:50211";
 
+    // Local mirror REST port is 5551; 5600 is gRPC-only.
+    // private static final String LOCAL_MIRROR_NODE_GRPC_ENDPOINT = "127.0.0.1:5551";
     private static final String LOCAL_MIRROR_NODE_GRPC_ENDPOINT = "127.0.0.1:5600";
 
     private static final AccountId LOCAL_CONSENSUS_NODE_ACCOUNT_ID = new AccountId(0, 0, 3);
