@@ -80,26 +80,20 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
     public byte[] s;
 
     EthereumTransactionDataEip7702(
-        byte[] chainId,
-        byte[] nonce,
-        byte[] maxPriorityGas,
-        byte[] maxGas,
-        byte[] gasLimit,
-        byte[] to,
-        byte[] value,
-        byte[] callData,
-        List<byte[]> accessList,
-        List<AuthorizationTuple> authorizationList,
-        SignatureData signatureData) {
+            HeaderData headerData,
+            byte[] callData,
+            List<byte[]> accessList,
+            List<AuthorizationTuple> authorizationList,
+            SignatureData signatureData) {
         super(callData);
 
-        this.chainId = chainId;
-        this.nonce = nonce;
-        this.maxPriorityGas = maxPriorityGas;
-        this.maxGas = maxGas;
-        this.gasLimit = gasLimit;
-        this.to = to;
-        this.value = value;
+        this.chainId = headerData.chainId;
+        this.nonce = headerData.nonce;
+        this.maxPriorityGas = headerData.maxPriorityGas;
+        this.maxGas = headerData.maxGas;
+        this.gasLimit = headerData.gasLimit;
+        this.to = headerData.to;
+        this.value = headerData.value;
         this.accessList = accessList;
         this.authorizationList = authorizationList;
         this.recoveryId = signatureData.recoveryId;
@@ -143,78 +137,107 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
                 throw new IllegalArgumentException("invalid authorization list entry: must have 6 elements");
             }
             authorizationList.add(new AuthorizationTuple(
-                tupleElements.get(0).data(),
-                tupleElements.get(1).data(),
-                tupleElements.get(2).data(),
-                tupleElements.get(3).data(),
-                tupleElements.get(4).data(),
-                tupleElements.get(5).data()));
+                    tupleElements.get(0).data(),
+                    tupleElements.get(1).data(),
+                    tupleElements.get(2).data(),
+                    tupleElements.get(3).data(),
+                    tupleElements.get(4).data(),
+                    tupleElements.get(5).data()));
         }
 
+        var headerData = new HeaderData(
+                rlpList.get(0).data(),
+                rlpList.get(1).data(),
+                rlpList.get(2).data(),
+                rlpList.get(3).data(),
+                rlpList.get(4).data(),
+                rlpList.get(5).data(),
+                rlpList.get(6).data());
+
+        var signatureData = new SignatureData(
+                rlpList.get(10).data(), rlpList.get(11).data(), rlpList.get(12).data());
+
         return new EthereumTransactionDataEip7702(
-            rlpList.get(0).data(),
-            rlpList.get(1).data(),
-            rlpList.get(2).data(),
-            rlpList.get(3).data(),
-            rlpList.get(4).data(),
-            rlpList.get(5).data(),
-            rlpList.get(6).data(),
-            rlpList.get(7).data(),
-            accessList,
-            authorizationList,
-            new SignatureData(
-                rlpList.get(10).data(),
-                rlpList.get(11).data(),
-                rlpList.get(12).data()));
+                headerData, rlpList.get(7).data(), accessList, authorizationList, signatureData);
     }
 
     public byte[] toBytes() {
         List<Object> encodedAuthorizationList = new ArrayList<>();
         for (var tuple : authorizationList) {
             encodedAuthorizationList.add(
-                List.of(tuple.chainId, tuple.address, tuple.nonce, tuple.yParity, tuple.r, tuple.s));
+                    List.of(tuple.chainId, tuple.address, tuple.nonce, tuple.yParity, tuple.r, tuple.s));
         }
 
         List<Object> encodedAccessList = new ArrayList<>(accessList);
 
         return RLPEncoder.sequence(
-            Integers.toBytes(0x04),
-            List.of(
-                chainId,
-                nonce,
-                maxPriorityGas,
-                maxGas,
-                gasLimit,
-                to,
-                value,
-                callData,
-                encodedAccessList,
-                encodedAuthorizationList,
-                recoveryId,
-                r,
-                s));
+                Integers.toBytes(0x04),
+                List.of(
+                        chainId,
+                        nonce,
+                        maxPriorityGas,
+                        maxGas,
+                        gasLimit,
+                        to,
+                        value,
+                        callData,
+                        encodedAccessList,
+                        encodedAuthorizationList,
+                        recoveryId,
+                        r,
+                        s));
     }
 
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("chainId", Hex.toHexString(chainId))
-            .add("nonce", Hex.toHexString(nonce))
-            .add("maxPriorityGas", Hex.toHexString(maxPriorityGas))
-            .add("maxGas", Hex.toHexString(maxGas))
-            .add("gasLimit", Hex.toHexString(gasLimit))
-            .add("to", Hex.toHexString(to))
-            .add("value", Hex.toHexString(value))
-            .add("callData", Hex.toHexString(callData))
-            .add("accessList", accessList.stream().map(Hex::toHexString).collect(Collectors.toList()))
-            .add(
-                "authorizationList",
-                authorizationList.stream()
-                    .map(AuthorizationTuple::toString)
-                    .collect(Collectors.toList()))
-            .add("recoveryId", Hex.toHexString(recoveryId))
-            .add("r", Hex.toHexString(r))
-            .add("s", Hex.toHexString(s))
-            .toString();
+                .add("chainId", Hex.toHexString(chainId))
+                .add("nonce", Hex.toHexString(nonce))
+                .add("maxPriorityGas", Hex.toHexString(maxPriorityGas))
+                .add("maxGas", Hex.toHexString(maxGas))
+                .add("gasLimit", Hex.toHexString(gasLimit))
+                .add("to", Hex.toHexString(to))
+                .add("value", Hex.toHexString(value))
+                .add("callData", Hex.toHexString(callData))
+                .add("accessList", accessList.stream().map(Hex::toHexString).collect(Collectors.toList()))
+                .add(
+                        "authorizationList",
+                        authorizationList.stream()
+                                .map(AuthorizationTuple::toString)
+                                .collect(Collectors.toList()))
+                .add("recoveryId", Hex.toHexString(recoveryId))
+                .add("r", Hex.toHexString(r))
+                .add("s", Hex.toHexString(s))
+                .toString();
+    }
+
+    /**
+     * A helper class to hold core transaction fields for EIP-7702 transactions.
+     */
+    static class HeaderData {
+        public byte[] chainId;
+        public byte[] nonce;
+        public byte[] maxPriorityGas;
+        public byte[] maxGas;
+        public byte[] gasLimit;
+        public byte[] to;
+        public byte[] value;
+
+        public HeaderData(
+                byte[] chainId,
+                byte[] nonce,
+                byte[] maxPriorityGas,
+                byte[] maxGas,
+                byte[] gasLimit,
+                byte[] to,
+                byte[] value) {
+            this.chainId = chainId;
+            this.nonce = nonce;
+            this.maxPriorityGas = maxPriorityGas;
+            this.maxGas = maxGas;
+            this.gasLimit = gasLimit;
+            this.to = to;
+            this.value = value;
+        }
     }
 
     /**
@@ -255,13 +278,13 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
-                .add("chainId", Hex.toHexString(chainId))
-                .add("address", Hex.toHexString(address))
-                .add("nonce", Hex.toHexString(nonce))
-                .add("yParity", Hex.toHexString(yParity))
-                .add("r", Hex.toHexString(r))
-                .add("s", Hex.toHexString(s))
-                .toString();
+                    .add("chainId", Hex.toHexString(chainId))
+                    .add("address", Hex.toHexString(address))
+                    .add("nonce", Hex.toHexString(nonce))
+                    .add("yParity", Hex.toHexString(yParity))
+                    .add("r", Hex.toHexString(r))
+                    .add("s", Hex.toHexString(s))
+                    .toString();
         }
     }
 }
