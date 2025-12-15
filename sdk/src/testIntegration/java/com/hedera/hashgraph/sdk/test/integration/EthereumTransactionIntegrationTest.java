@@ -260,31 +260,23 @@ public class EthereumTransactionIntegrationTest {
             var fileId = createdEntities.fileId;
             var contractId = createdEntities.contractId;
 
-            int nonce = 0;
-            byte[] chainId = Hex.decode("012a");
-            byte[] maxPriorityGas = Hex.decode("00");
-            byte[] maxGas = Hex.decode("d1385c7bf0");
-            byte[] gasLimitBytes = Hex.decode("07A120");
-            byte[] to = Hex.decode(contractId.toEvmAddress());
-            byte[] value = Integers.toBytesUnsigned(BigInteger.ONE);
-            byte[] callData = new ContractExecuteTransaction()
-                    .setFunction("test", new ContractFunctionParameters())
-                    .getFunctionParameters()
-                    .toByteArray();
+            var params = new EthereumTransactionParams(
+                    Hex.decode("012a"),
+                    0,
+                    Hex.decode("00"),
+                    Hex.decode("d1385c7bf0"),
+                    Hex.decode("07A120"),
+                    Hex.decode(contractId.toEvmAddress()),
+                    Integers.toBytesUnsigned(BigInteger.ONE),
+                    new ContractExecuteTransaction()
+                            .setFunction("test", new ContractFunctionParameters())
+                            .getFunctionParameters()
+                            .toByteArray());
 
-            List<Object> encodedAuthorizationList = createSignedAuthorizationList(privateKey, chainId, to, nonce);
+            List<Object> encodedAuthorizationList =
+                    createSignedAuthorizationList(privateKey, params.chainId, params.to, params.nonce);
 
-            byte[] ethereumData = createSignedEthereumTransactionData(
-                    privateKey,
-                    chainId,
-                    nonce,
-                    maxPriorityGas,
-                    maxGas,
-                    gasLimitBytes,
-                    to,
-                    value,
-                    callData,
-                    encodedAuthorizationList);
+            byte[] ethereumData = createSignedEthereumTransactionData(privateKey, params, encodedAuthorizationList);
 
             EthereumTransaction ethereumTransaction = new EthereumTransaction().setEthereumData(ethereumData);
             var ethereumTransactionResponse = ethereumTransaction.execute(testEnv.client);
@@ -293,16 +285,7 @@ public class EthereumTransactionIntegrationTest {
             assertThat(ethereumTransactionRecord.contractFunctionResult.signerNonce)
                     .isEqualTo(1);
 
-            new ContractDeleteTransaction()
-                    .setTransferAccountId(testEnv.operatorId)
-                    .setContractId(contractId)
-                    .execute(testEnv.client)
-                    .getReceipt(testEnv.client);
-
-            new FileDeleteTransaction()
-                    .setFileId(fileId)
-                    .execute(testEnv.client)
-                    .getReceipt(testEnv.client);
+            cleanup(testEnv, contractId, fileId);
         }
     }
 
@@ -328,6 +311,16 @@ public class EthereumTransactionIntegrationTest {
         return new ContractCreationResult(fileId, contractId);
     }
 
+    private void cleanup(IntegrationTestEnv testEnv, ContractId contractId, FileId fileId) throws Exception {
+        new ContractDeleteTransaction()
+                .setTransferAccountId(testEnv.operatorId)
+                .setContractId(contractId)
+                .execute(testEnv.client)
+                .getReceipt(testEnv.client);
+
+        new FileDeleteTransaction().setFileId(fileId).execute(testEnv.client).getReceipt(testEnv.client);
+    }
+
     private List<Object> createSignedAuthorizationList(PrivateKey privateKey, byte[] chainId, byte[] to, int nonce) {
         byte[] authorizationNonce = Integers.toBytesUnsigned(BigInteger.valueOf(nonce));
         byte[] authorizationPayload = RLPEncoder.sequence(chainId, to, authorizationNonce);
@@ -346,28 +339,19 @@ public class EthereumTransactionIntegrationTest {
     }
 
     private byte[] createSignedEthereumTransactionData(
-            PrivateKey privateKey,
-            byte[] chainId,
-            int nonce,
-            byte[] maxPriorityGas,
-            byte[] maxGas,
-            byte[] gasLimitBytes,
-            byte[] to,
-            byte[] value,
-            byte[] callData,
-            List<Object> encodedAuthorizationList) {
+            PrivateKey privateKey, EthereumTransactionParams params, List<Object> encodedAuthorizationList) {
 
         var sequence = RLPEncoder.sequence(
                 Integers.toBytes(4),
                 List.of(
-                        chainId,
-                        Integers.toBytes(nonce),
-                        maxPriorityGas,
-                        maxGas,
-                        gasLimitBytes,
-                        to,
-                        value,
-                        callData,
+                        params.chainId,
+                        Integers.toBytes(params.nonce),
+                        params.maxPriorityGas,
+                        params.maxGas,
+                        params.gasLimit,
+                        params.to,
+                        params.value,
+                        params.callData,
                         List.of(),
                         encodedAuthorizationList));
 
@@ -379,19 +363,49 @@ public class EthereumTransactionIntegrationTest {
         return RLPEncoder.sequence(
                 Integers.toBytes(0x04),
                 List.of(
-                        chainId,
-                        Integers.toBytes(nonce),
-                        maxPriorityGas,
-                        maxGas,
-                        gasLimitBytes,
-                        to,
-                        value,
-                        callData,
+                        params.chainId,
+                        Integers.toBytes(params.nonce),
+                        params.maxPriorityGas,
+                        params.maxGas,
+                        params.gasLimit,
+                        params.to,
+                        params.value,
+                        params.callData,
                         List.of(),
                         encodedAuthorizationList,
                         Integers.toBytes(recId),
                         r,
                         s));
+    }
+
+    private static class EthereumTransactionParams {
+        final byte[] chainId;
+        final int nonce;
+        final byte[] maxPriorityGas;
+        final byte[] maxGas;
+        final byte[] gasLimit;
+        final byte[] to;
+        final byte[] value;
+        final byte[] callData;
+
+        EthereumTransactionParams(
+                byte[] chainId,
+                int nonce,
+                byte[] maxPriorityGas,
+                byte[] maxGas,
+                byte[] gasLimit,
+                byte[] to,
+                byte[] value,
+                byte[] callData) {
+            this.chainId = chainId;
+            this.nonce = nonce;
+            this.maxPriorityGas = maxPriorityGas;
+            this.maxGas = maxGas;
+            this.gasLimit = gasLimit;
+            this.to = to;
+            this.value = value;
+            this.callData = callData;
+        }
     }
 
     private static class ContractCreationResult {
