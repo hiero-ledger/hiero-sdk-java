@@ -197,7 +197,7 @@ jobs:
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
-            -PskipNodeUpdateTest=true
+            -PskipNodeUpdateTest=true \
             test \
             testIntegration
 
