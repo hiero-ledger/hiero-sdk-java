@@ -199,14 +199,16 @@ jobs:
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
             -PskipNodeUpdateTest=true \
             test \
-            testIntegration
+            testIntegration \
+            --rerun-tasks
 
             ./gradlew \
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
             -PskipNodeUpdateTest=true \
-            :aggregation:testCodeCoverageReport
+            :aggregation:testCodeCoverageReport \
+            --rerun-tasks
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
