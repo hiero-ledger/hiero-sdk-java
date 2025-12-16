@@ -205,6 +205,7 @@ jobs:
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
+            -PskipNodeUpdateTest=true \
             :aggregation:testCodeCoverageReport
 
       - name: Upload coverage to Codecov
