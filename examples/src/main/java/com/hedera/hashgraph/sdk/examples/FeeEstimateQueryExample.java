@@ -5,7 +5,6 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -93,19 +92,16 @@ class FeeEstimateQueryExample {
 
         tx.signWithOperator(client);
 
-        System.out.println("Transaction created: Transfer " + transferAmount + " from "
-            + OPERATOR_ID + " to " + recipientId);
+        System.out.println(
+            "Transaction created: Transfer " + transferAmount + " from " + OPERATOR_ID + " to " + recipientId);
         return tx;
     }
 
-    private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx)
-        throws Exception {
+    private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx) throws Exception {
         System.out.println("\n=== Estimating Fees with STATE Mode ===");
 
-        FeeEstimateResponse stateEstimate = new FeeEstimateQuery()
-            .setMode(FeeEstimateMode.STATE)
-            .setTransaction(tx)
-            .execute(client);
+        FeeEstimateResponse stateEstimate =
+            new FeeEstimateQuery().setMode(FeeEstimateMode.STATE).setTransaction(tx).execute(client);
 
         System.out.println("Mode: " + stateEstimate.getMode());
         printNetworkFee(stateEstimate);
@@ -138,7 +134,7 @@ class FeeEstimateQueryExample {
         System.out.println("\nService Fee:");
         System.out.println("  Base: " + estimate.getServiceFee().getBase() + " tinycents");
         long serviceTotal = estimate.getServiceFee().getBase();
-        for (FeeExtra extra :  estimate.getServiceFee().getExtras()) {
+        for (FeeExtra extra : estimate.getServiceFee().getExtras()) {
             System.out.println("  Extra - " + extra.getName() + ": " + extra.getSubtotal() + " tinycents");
             serviceTotal += extra.getSubtotal();
         }
@@ -169,9 +165,12 @@ class FeeEstimateQueryExample {
             .execute(client);
 
         System.out.println("Mode: " + intrinsicEstimate.getMode());
-        System.out.println("Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
-        System.out.println("Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
-        System.out.println("Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
+        System.out.println(
+            "Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
+        System.out.println(
+            "Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
+        System.out.println(
+            "Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
         System.out.println("Total Estimated Fee: " + intrinsicEstimate.getTotal() + " tinycents");
         System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate.getTotal() / 100));
 
