@@ -5,6 +5,8 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
+
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -69,6 +71,11 @@ class FeeEstimateQueryExample {
 
     private static Client createAndConfigureClient() throws Exception {
         Client client = ClientHelper.forName(HEDERA_NETWORK);
+
+        if ("localhost".equals(HEDERA_NETWORK)) {
+            client.setMirrorNetwork(List.of("127.0.0.1:8084"));
+        }
+
         client.setOperator(OPERATOR_ID, OPERATOR_KEY);
         client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
         return client;
