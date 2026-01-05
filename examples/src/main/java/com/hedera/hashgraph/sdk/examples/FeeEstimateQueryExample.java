@@ -29,13 +29,13 @@ class FeeEstimateQueryExample {
      * Used to sign and pay for operations on Hedera.
      */
     private static final AccountId OPERATOR_ID =
-        AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
+            AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
 
     /**
      * Operator's private key.
      */
     private static final PrivateKey OPERATOR_KEY =
-        PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+            PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
 
     /**
      * HEDERA_NETWORK defaults to testnet if not specified in dotenv file.
@@ -85,23 +85,25 @@ class FeeEstimateQueryExample {
         Hbar transferAmount = Hbar.from(1);
 
         TransferTransaction tx = new TransferTransaction()
-            .addHbarTransfer(OPERATOR_ID, transferAmount.negated())
-            .addHbarTransfer(recipientId, transferAmount)
-            .setTransactionMemo("Fee estimate example")
-            .freezeWith(client);
+                .addHbarTransfer(OPERATOR_ID, transferAmount.negated())
+                .addHbarTransfer(recipientId, transferAmount)
+                .setTransactionMemo("Fee estimate example")
+                .freezeWith(client);
 
         tx.signWithOperator(client);
 
         System.out.println(
-            "Transaction created: Transfer " + transferAmount + " from " + OPERATOR_ID + " to " + recipientId);
+                "Transaction created: Transfer " + transferAmount + " from " + OPERATOR_ID + " to " + recipientId);
         return tx;
     }
 
     private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx) throws Exception {
         System.out.println("\n=== Estimating Fees with STATE Mode ===");
 
-        FeeEstimateResponse stateEstimate =
-            new FeeEstimateQuery().setMode(FeeEstimateMode.STATE).setTransaction(tx).execute(client);
+        FeeEstimateResponse stateEstimate = new FeeEstimateQuery()
+                .setMode(FeeEstimateMode.STATE)
+                .setTransaction(tx)
+                .execute(client);
 
         System.out.println("Mode: " + stateEstimate.getMode());
         printNetworkFee(stateEstimate);
@@ -156,21 +158,20 @@ class FeeEstimateQueryExample {
     }
 
     private static FeeEstimateResponse estimateWithIntrinsicMode(Client client, TransferTransaction tx)
-        throws Exception {
+            throws Exception {
         System.out.println("\n=== Estimating Fees with INTRINSIC Mode ===");
 
         FeeEstimateResponse intrinsicEstimate = new FeeEstimateQuery()
-            .setMode(FeeEstimateMode.INTRINSIC)
-            .setTransaction(tx)
-            .execute(client);
+                .setMode(FeeEstimateMode.INTRINSIC)
+                .setTransaction(tx)
+                .execute(client);
 
         System.out.println("Mode: " + intrinsicEstimate.getMode());
         System.out.println(
-            "Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
+                "Network Fee Subtotal: " + intrinsicEstimate.getNetworkFee().getSubtotal() + " tinycents");
+        System.out.println("Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
         System.out.println(
-            "Node Fee Base: " + intrinsicEstimate.getNodeFee().getBase() + " tinycents");
-        System.out.println(
-            "Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
+                "Service Fee Base: " + intrinsicEstimate.getServiceFee().getBase() + " tinycents");
         System.out.println("Total Estimated Fee: " + intrinsicEstimate.getTotal() + " tinycents");
         System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate.getTotal() / 100));
 
@@ -189,19 +190,19 @@ class FeeEstimateQueryExample {
         System.out.println("\n=== Estimating Token Creation Fees ===");
 
         TokenCreateTransaction tokenTx = new TokenCreateTransaction()
-            .setTokenName("Example Token")
-            .setTokenSymbol("EXT")
-            .setDecimals(3)
-            .setInitialSupply(1000000)
-            .setTreasuryAccountId(OPERATOR_ID)
-            .setAdminKey(OPERATOR_KEY)
-            .freezeWith(client)
-            .signWithOperator(client);
+                .setTokenName("Example Token")
+                .setTokenSymbol("EXT")
+                .setDecimals(3)
+                .setInitialSupply(1000000)
+                .setTreasuryAccountId(OPERATOR_ID)
+                .setAdminKey(OPERATOR_KEY)
+                .freezeWith(client)
+                .signWithOperator(client);
 
         FeeEstimateResponse tokenEstimate = new FeeEstimateQuery()
-            .setMode(FeeEstimateMode.STATE)
-            .setTransaction(tokenTx)
-            .execute(client);
+                .setMode(FeeEstimateMode.STATE)
+                .setTransaction(tokenTx)
+                .execute(client);
 
         System.out.println("Token Creation Estimated Fee:  " + tokenEstimate.getTotal() + " tinycents");
         System.out.println("Token Creation Estimated Fee: " + Hbar.fromTinybars(tokenEstimate.getTotal() / 100));
