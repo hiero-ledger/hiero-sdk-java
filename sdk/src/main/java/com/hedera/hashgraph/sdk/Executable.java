@@ -461,7 +461,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                         currentTimeout = Duration.between(Instant.now(), timeoutTime);
                         delay(Math.min(currentTimeout.toMillis(), grpcRequest.getDelay()));
                     }
-                    advanceRequest(); // Advance to next node before retrying
                     continue;
                 case REQUEST_ERROR:
                     throw grpcRequest.mapStatusException();
@@ -694,11 +693,6 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
     private ProtoRequestT getRequestForExecute() {
         var request = makeRequest();
-
-        // NOTE: advanceRequest() is now called explicitly in the retry logic
-        // after we determine that a retry is needed
-        // where node advancement happens AFTER error detection, not before
-
         return request;
     }
 
