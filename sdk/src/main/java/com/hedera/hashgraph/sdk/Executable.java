@@ -342,6 +342,26 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
     }
 
     /**
+     * Updates the client's network from the address book if a mirror network is configured.
+     * Logs any errors at TRACE level without throwing exceptions.
+     *
+     * @param client The client whose network should be updated
+     */
+    private void updateNetworkFromAddressBook(Client client) {
+        try {
+            if (client.getMirrorNetwork() != null && !client.getMirrorNetwork().isEmpty()) {
+                client.updateNetworkFromAddressBook();
+            }
+        } catch (Exception updateError) {
+            if (logger.isEnabledForLevel(LogLevel.TRACE)) {
+                logger.trace(
+                        "failed to update client address book after INVALID_NODE_ACCOUNT_ID: {}",
+                        updateError.getMessage());
+            }
+        }
+    }
+
+    /**
      * Execute this transaction or query
      *
      * @param client The client with which this will be executed.
@@ -438,29 +458,30 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             grpcRequest.handleResponse(response, status, executionState, client);
 
             switch (executionState) {
-                case SERVER_ERROR:
-                    lastException = grpcRequest.mapStatusException();
-                    advanceRequest(); // Advance to next node before retrying
-
-                    // Handle INVALID_NODE_ACCOUNT after advancing
+                case RETRY:
+                    // Response is not ready yet from server, need to wait.
+                    // Handle INVALID_NODE_ACCOUNT: mark node as unusable and update network
                     if (status == Status.INVALID_NODE_ACCOUNT) {
-                        logger.trace(
-                                "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
-                                node.getAccountId(),
-                                attempt);
+                        if (logger.isEnabledForLevel(LogLevel.TRACE)) {
+                            logger.trace(
+                                    "Received INVALID_NODE_ACCOUNT; updating address book and marking node {} as unhealthy, attempt #{}",
+                                    node.getAccountId(),
+                                    attempt);
+                        }
                         // Schedule async address book update
-                        client.updateNetworkFromAddressBook();
+                        updateNetworkFromAddressBook(client);
                         // Mark this node as unhealthy
                         client.network.increaseBackoff(node);
                     }
-                    continue;
-                case RETRY:
-                    // Response is not ready yet from server, need to wait.
                     lastException = grpcRequest.mapStatusException();
                     if (attempt < maxAttempts) {
                         currentTimeout = Duration.between(Instant.now(), timeoutTime);
                         delay(Math.min(currentTimeout.toMillis(), grpcRequest.getDelay()));
                     }
+                    continue;
+                case SERVER_ERROR:
+                    lastException = grpcRequest.mapStatusException();
+                    advanceRequest(); // Advance to next node before retrying
                     continue;
                 case REQUEST_ERROR:
                     throw grpcRequest.mapStatusException();
@@ -781,8 +802,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                                     grpcRequest.handleResponse(response, status, executionState, client);
 
                                     switch (executionState) {
-                                        case SERVER_ERROR:
-                                            advanceRequest();
+                                        case RETRY:
+                                            // Response is not ready yet from server, need to wait.
+                                            // Handle INVALID_NODE_ACCOUNT: mark node as unusable and update network
                                             if (status == com.hedera.hashgraph.sdk.Status.INVALID_NODE_ACCOUNT) {
                                                 if (logger.isEnabledForLevel(LogLevel.TRACE)) {
                                                     logger.trace(
@@ -793,19 +815,10 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                                                             attempt);
                                                 }
                                                 // Schedule async address book update
-                                                client.updateNetworkFromAddressBook();
+                                                updateNetworkFromAddressBook(client);
                                                 // Mark this node as unhealthy
                                                 client.network.increaseBackoff(grpcRequest.getNode());
                                             }
-                                            executeAsyncInternal(
-                                                    client,
-                                                    attempt + 1,
-                                                    grpcRequest.mapStatusException(),
-                                                    returnFuture,
-                                                    Duration.between(Instant.now(), timeoutTime));
-                                            break;
-                                        case RETRY:
-                                            advanceRequest(); // Advance to next node before retrying
                                             Delayer.delayFor(
                                                             (attempt < maxAttempts) ? grpcRequest.getDelay() : 0,
                                                             client.executor)
@@ -815,6 +828,15 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
                                                             grpcRequest.mapStatusException(),
                                                             returnFuture,
                                                             Duration.between(Instant.now(), timeoutTime)));
+                                            break;
+                                        case SERVER_ERROR:
+                                            advanceRequest(); // Advance to next node before retrying
+                                            executeAsyncInternal(
+                                                    client,
+                                                    attempt + 1,
+                                                    grpcRequest.mapStatusException(),
+                                                    returnFuture,
+                                                    Duration.between(Instant.now(), timeoutTime));
                                             break;
                                         case REQUEST_ERROR:
                                             returnFuture.completeExceptionally(
@@ -895,11 +917,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
             case PLATFORM_NOT_ACTIVE:
                 return ExecutionState.SERVER_ERROR;
             case BUSY:
-                return ExecutionState.RETRY;
             case INVALID_NODE_ACCOUNT:
                 return ExecutionState
-                        .SERVER_ERROR; // immediately retry with next node without delay. This occurs when a node's
-            // account ID has changed
+                        .RETRY; // INVALID_NODE_ACCOUNT retries with special handling for node account update
             case OK:
                 return ExecutionState.SUCCESS;
             default:

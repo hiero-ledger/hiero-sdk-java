@@ -476,8 +476,9 @@ class ExecutableTest {
         tx.blockingUnaryCall = (grpcRequest) -> resp;
         tx.execute(client);
 
-        verify(node3).channelFailedToConnect(any(Instant.class));
-        verify(node4).channelFailedToConnect(any(Instant.class));
+        // RETRY case doesn't advance to next node, so it checks the same node twice: once for first attempt, once for
+        // retry attempt
+        verify(node3, times(2)).channelFailedToConnect(any(Instant.class));
     }
 
     @Test
@@ -512,9 +513,7 @@ class ExecutableTest {
                 .isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.PLATFORM_NOT_ACTIVE, null)).isEqualTo(ExecutionState.SERVER_ERROR);
         assertThat(tx.getExecutionState(Status.BUSY, null)).isEqualTo(ExecutionState.RETRY);
-        // INVALID_NODE_ACCOUNT now returns SERVER_ERROR to match Go SDK's executionStateRetryWithAnotherNode
-        // which immediately retries with another node without delay
-        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT, null)).isEqualTo(ExecutionState.SERVER_ERROR);
+        assertThat(tx.getExecutionState(Status.INVALID_NODE_ACCOUNT, null)).isEqualTo(ExecutionState.RETRY);
         assertThat(tx.getExecutionState(Status.OK, null)).isEqualTo(ExecutionState.SUCCESS);
         assertThat(tx.getExecutionState(Status.ACCOUNT_DELETED, null)).isEqualTo(ExecutionState.REQUEST_ERROR);
     }
@@ -554,10 +553,10 @@ class ExecutableTest {
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
 
-        // This should retry with a different node due to INVALID_NODE_ACCOUNT
+        // INVALID_NODE_ACCOUNT maps to RETRY, so it retries on the same node (doesn't advance)
         assertThatExceptionOfType(MaxAttemptsExceededException.class).isThrownBy(() -> tx.execute(client));
 
-        // Verify that increaseBackoff was called on the network for each node that returned INVALID_NODE_ACCOUNT
+        // Verify that increaseBackoff was called on the network for the node that returned INVALID_NODE_ACCOUNT
         verify(network, atLeastOnce()).increaseBackoff(any(Node.class));
     }
 
