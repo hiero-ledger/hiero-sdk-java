@@ -90,6 +90,8 @@ tasks.register<Exec>("updateProto") {
 
 tasks.withType<Test>().configureEach {
     if (project.hasProperty("skipNodeUpdateTest")) {
-        filter { excludeTestsMatching("*NodeUpdateTransactionIntegrationTest") }
+        exclude(
+            "com/hedera/hashgraph/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class"
+        )
     }
 }

@@ -33,7 +33,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-medium
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -151,7 +151,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -176,7 +176,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.144.0
@@ -198,15 +198,18 @@ jobs:
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
+            -PskipNodeUpdateTest=true \
             test \
             testIntegration \
-            -PskipNodeUpdateTest=true
+            --rerun-tasks
 
             ./gradlew \
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
-            :aggregation:testCodeCoverageReport
+            -PskipNodeUpdateTest=true \
+            :aggregation:testCodeCoverageReport \
+            --rerun-tasks
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
@@ -221,7 +224,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -246,10 +249,12 @@ jobs:
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           dualMode: true
+          hieroVersion: v0.68.0
+          mirrorNodeVersion: v0.142.0
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -274,7 +279,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -300,7 +305,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.144.0
@@ -328,7 +333,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
