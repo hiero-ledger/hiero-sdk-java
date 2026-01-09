@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.github.jsonSnapshot.SnapshotMatcher;
@@ -169,5 +170,20 @@ class TransactionIdTest {
         var txIdString = "0.0.4163533@1681876267.054802581";
         var txId = TransactionId.fromString(txIdString);
         assertThat(txId).hasToString(txIdString);
+    }
+
+    @Test
+    void equalsHashCodeContractWithNonce() {
+        AccountId accountId = new AccountId(0, 0, 1000);
+        Instant now = Instant.now();
+
+        TransactionId txnId1 = TransactionId.withValidStart(accountId, now);
+        TransactionId txnId2 = TransactionId.withValidStart(accountId, now);
+
+        txnId2.setNonce(0);
+
+        assertFalse(
+                txnId1.equals(txnId2) && txnId1.hashCode() != txnId2.hashCode(),
+                "equals/hashCode contract violation: equal objects must have same hashCode");
     }
 }
