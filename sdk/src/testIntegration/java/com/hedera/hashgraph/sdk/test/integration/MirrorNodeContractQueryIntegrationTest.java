@@ -263,7 +263,7 @@ class MirrorNodeContractQueryIntegrationTest {
 
             new ContractExecuteTransaction()
                     .setContractId(contractId)
-                    .setGas(gas)
+                    .setGas(300_000)
                     .setPayableAmount(new Hbar(1))
                     .setFunction("addOwnerAndTransfer", new ContractFunctionParameters().addAddress(receiverEvmAddress))
                     .execute(testEnv.client)
