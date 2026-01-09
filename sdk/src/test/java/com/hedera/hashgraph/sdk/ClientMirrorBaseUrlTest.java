@@ -54,22 +54,20 @@ public class ClientMirrorBaseUrlTest {
     }
 
     @Test
-    void localNetwork_regularQuery_uses5551_http() {
+    void localNetwork_regularQuery_swaps5600to5551() {
         var network = Network.forNetwork(executor, new HashMap<>());
-        var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of("localhost:8080"));
+        var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of("localhost:5600"));
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
-        // No ledger id -> local
 
         String base = client.getMirrorRestBaseUrl();
         assertThat(base).isEqualTo("http://localhost:5551/api/v1");
     }
 
     @Test
-    void localNetwork_contractCall_uses5551_http() {
+    void localNetwork_contractCall_swaps5600to5551() {
         var network = Network.forNetwork(executor, new HashMap<>());
-        var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of("127.0.0.1:8080"));
+        var mirrorNetwork = MirrorNetwork.forNetwork(executor, List.of("127.0.0.1:5600"));
         var client = new Client(executor, network, mirrorNetwork, null, true, null, 0, 0);
-        // No ledger id -> local
 
         String base = client.getMirrorRestBaseUrl();
         assertThat(base).isEqualTo("http://127.0.0.1:5551/api/v1");
