@@ -176,7 +176,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
@@ -198,15 +198,16 @@ jobs:
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
+            -PskipNodeUpdateTest=true \
             test \
             testIntegration \
-            -PskipNodeUpdateTest=true \
             --rerun-tasks
 
             ./gradlew \
             -POPERATOR_ID=$OPERATOR_ID \
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
+            -PskipNodeUpdateTest=true \
             :aggregation:testCodeCoverageReport \
             --rerun-tasks
 
@@ -248,10 +249,12 @@ jobs:
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           dualMode: true
+          hieroVersion: v0.68.0
+          mirrorNodeVersion: v0.142.0
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -303,7 +306,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@dd0048139ef1e40fd6067f01bf94eb42a67294f4 # v0.15
+        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
