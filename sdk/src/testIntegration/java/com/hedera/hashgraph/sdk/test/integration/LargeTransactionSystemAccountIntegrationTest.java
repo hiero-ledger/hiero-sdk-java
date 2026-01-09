@@ -318,19 +318,6 @@ public class LargeTransactionSystemAccountIntegrationTest {
             var receipt = transaction.execute(testEnv.client).getReceipt(testEnv.client);
             var accountId = Objects.requireNonNull(receipt.accountId);
             assertThat(accountId).isNotNull();
-
-            // Cleanup: Delete the account (requires all keys in the KeyList to sign)
-            var deleteTransaction = new AccountDeleteTransaction()
-                    .setAccountId(accountId)
-                    .setTransferAccountId(testEnv.operatorId)
-                    .freezeWith(testEnv.client);
-
-            // Sign with all private keys (required for simple KeyList)
-            for (var privateKey : privateKeys) {
-                deleteTransaction.sign(privateKey);
-            }
-
-            deleteTransaction.execute(testEnv.client).getReceipt(testEnv.client);
         }
     }
 
