@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,23 +80,6 @@ public final class FeeEstimateResponse {
         this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
         this.serviceFee = serviceFee;
         this.total = total;
-    }
-
-    /**
-     * Create a FeeEstimateResponse from a protobuf.
-     *
-     * @param response the protobuf
-     * @return the new FeeEstimateResponse
-     */
-    static FeeEstimateResponse fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse response) {
-        var mode = FeeEstimateMode.valueOf(response.getModeValue());
-        var network = response.hasNetwork() ? NetworkFee.fromProtobuf(response.getNetwork()) : null;
-        var node = response.hasNode() ? FeeEstimate.fromProtobuf(response.getNode()) : null;
-        var notes = new ArrayList<>(response.getNotesList());
-        var service = response.hasService() ? FeeEstimate.fromProtobuf(response.getService()) : null;
-        var total = response.getTotal();
-
-        return new FeeEstimateResponse(mode, network, node, notes, service, total);
     }
 
     /**
@@ -190,18 +172,6 @@ public final class FeeEstimateResponse {
     }
 
     /**
-     * Create a FeeEstimateResponse from a byte array.
-     *
-     * @param bytes the byte array
-     * @return the new FeeEstimateResponse
-     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
-     */
-    public static FeeEstimateResponse fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.parseFrom(bytes).toBuilder()
-                .build());
-    }
-
-    /**
      * Extract the fee estimate mode used.
      *
      * @return the fee estimate mode
@@ -256,39 +226,6 @@ public final class FeeEstimateResponse {
      */
     public long getTotal() {
         return total;
-    }
-
-    /**
-     * Convert the fee estimate response to a protobuf.
-     *
-     * @return the protobuf
-     */
-    com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse toProtobuf() {
-        var builder = com.hedera.hashgraph.sdk.proto.mirror.FeeEstimateResponse.newBuilder()
-                .setModeValue(mode.code)
-                .setTotal(total)
-                .addAllNotes(notes);
-
-        if (networkFee != null) {
-            builder.setNetwork(networkFee.toProtobuf());
-        }
-        if (nodeFee != null) {
-            builder.setNode(nodeFee.toProtobuf());
-        }
-        if (serviceFee != null) {
-            builder.setService(serviceFee.toProtobuf());
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * Convert the fee estimate response to a byte array.
-     *
-     * @return the byte array
-     */
-    public byte[] toBytes() {
-        return toProtobuf().toByteArray();
     }
 
     @Override

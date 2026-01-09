@@ -5,7 +5,6 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,32 +60,6 @@ public final class FeeEstimate {
     }
 
     /**
-     * Create a FeeEstimate from a protobuf.
-     *
-     * @param feeEstimate the protobuf
-     * @return the new FeeEstimate
-     */
-    static FeeEstimate fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate feeEstimate) {
-        List<FeeExtra> extras = new ArrayList<>(feeEstimate.getExtrasCount());
-        for (var extraProto : feeEstimate.getExtrasList()) {
-            extras.add(FeeExtra.fromProtobuf(extraProto));
-        }
-        return new FeeEstimate(feeEstimate.getBase(), extras);
-    }
-
-    /**
-     * Create a FeeEstimate from a byte array.
-     *
-     * @param bytes the byte array
-     * @return the new FeeEstimate
-     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
-     */
-    public static FeeEstimate fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.parseFrom(bytes).toBuilder()
-                .build());
-    }
-
-    /**
      * Extract the base fee price in tinycents.
      *
      * @return the base fee price in tinycents
@@ -102,31 +75,6 @@ public final class FeeEstimate {
      */
     public List<FeeExtra> getExtras() {
         return extras;
-    }
-
-    /**
-     * Convert the fee estimate to a protobuf.
-     *
-     * @return the protobuf
-     */
-    com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate toProtobuf() {
-        var builder =
-                com.hedera.hashgraph.sdk.proto.mirror.FeeEstimate.newBuilder().setBase(base);
-
-        for (var extra : extras) {
-            builder.addExtras(extra.toProtobuf());
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * Convert the fee estimate to a byte array.
-     *
-     * @return the byte array
-     */
-    public byte[] toBytes() {
-        return toProtobuf().toByteArray();
     }
 
     @Override

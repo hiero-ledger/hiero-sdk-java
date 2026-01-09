@@ -2,7 +2,6 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * The network fee component which covers the cost of gossip, consensus,
@@ -44,28 +43,6 @@ public final class NetworkFee {
     }
 
     /**
-     * Create a NetworkFee from a protobuf.
-     *
-     * @param networkFee the protobuf
-     * @return the new NetworkFee
-     */
-    static NetworkFee fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.NetworkFee networkFee) {
-        return new NetworkFee(networkFee.getMultiplier(), networkFee.getSubtotal());
-    }
-
-    /**
-     * Create a NetworkFee from a byte array.
-     *
-     * @param bytes the byte array
-     * @return the new NetworkFee
-     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
-     */
-    public static NetworkFee fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.NetworkFee.parseFrom(bytes).toBuilder()
-                .build());
-    }
-
-    /**
      * Extract the network fee multiplier.
      *
      * @return the network fee multiplier
@@ -81,27 +58,6 @@ public final class NetworkFee {
      */
     public long getSubtotal() {
         return subtotal;
-    }
-
-    /**
-     * Convert the network fee to a protobuf.
-     *
-     * @return the protobuf
-     */
-    com.hedera.hashgraph.sdk.proto.mirror.NetworkFee toProtobuf() {
-        return com.hedera.hashgraph.sdk.proto.mirror.NetworkFee.newBuilder()
-                .setMultiplier(multiplier)
-                .setSubtotal(subtotal)
-                .build();
-    }
-
-    /**
-     * Convert the network fee to a byte array.
-     *
-     * @return the byte array
-     */
-    public byte[] toBytes() {
-        return toProtobuf().toByteArray();
     }
 
     @Override

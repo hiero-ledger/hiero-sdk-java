@@ -2,7 +2,6 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -85,34 +84,6 @@ public final class FeeExtra {
     }
 
     /**
-     * Create a FeeExtra from a protobuf.
-     *
-     * @param feeExtra the protobuf
-     * @return the new FeeExtra
-     */
-    static FeeExtra fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeExtra feeExtra) {
-        return new FeeExtra(
-                feeExtra.getCharged(),
-                feeExtra.getCount(),
-                feeExtra.getFeePerUnit(),
-                feeExtra.getIncluded(),
-                feeExtra.getName().isEmpty() ? null : feeExtra.getName(),
-                feeExtra.getSubtotal());
-    }
-
-    /**
-     * Create a FeeExtra from a byte array.
-     *
-     * @param bytes the byte array
-     * @return the new FeeExtra
-     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
-     */
-    public static FeeExtra fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.mirror.FeeExtra.parseFrom(bytes).toBuilder()
-                .build());
-    }
-
-    /**
      * Extract the charged count of items.
      *
      * @return the charged count of items
@@ -165,35 +136,6 @@ public final class FeeExtra {
      */
     public long getSubtotal() {
         return subtotal;
-    }
-
-    /**
-     * Convert the fee extra to a protobuf.
-     *
-     * @return the protobuf
-     */
-    com.hedera.hashgraph.sdk.proto.mirror.FeeExtra toProtobuf() {
-        var builder = com.hedera.hashgraph.sdk.proto.mirror.FeeExtra.newBuilder()
-                .setCharged(charged)
-                .setCount(count)
-                .setFeePerUnit(feePerUnit)
-                .setIncluded(included)
-                .setSubtotal(subtotal);
-
-        if (name != null) {
-            builder.setName(name);
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * Convert the fee extra to a byte array.
-     *
-     * @return the byte array
-     */
-    public byte[] toBytes() {
-        return toProtobuf().toByteArray();
     }
 
     @Override
