@@ -7,43 +7,43 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Abstract base class for lambda storage updates.
+ * Abstract base class for EVM hook storage updates.
  * <p>
- * Storage updates define how to modify the storage of a lambda EVM hook.
+ * Storage updates define how to modify the storage of an EVM hook.
  * This can be done either by directly specifying storage slots or by
  * updating Solidity mapping entries.
  */
-public abstract class LambdaStorageUpdate {
+public abstract class EvmHookStorageUpdate {
 
     /**
      * Convert this storage update to a protobuf message.
      *
-     * @return the protobuf LambdaStorageUpdate
+     * @return the protobuf EvmHookStorageUpdate
      */
-    abstract com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf();
+    abstract com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate toProtobuf();
 
     /**
-     * Create a LambdaStorageUpdate from a protobuf message.
+     * Create an EvmHookStorageUpdate from a protobuf message.
      *
-     * @param proto the protobuf LambdaStorageUpdate
-     * @return a new LambdaStorageUpdate instance
+     * @param proto the protobuf EvmHookStorageUpdate
+     * @return a new EvmHookStorageUpdate instance
      */
-    static LambdaStorageUpdate fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate proto) {
+    static EvmHookStorageUpdate fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate proto) {
         return switch (proto.getUpdateCase()) {
-            case STORAGE_SLOT -> LambdaStorageSlot.fromProtobuf(proto.getStorageSlot());
-            case MAPPING_ENTRIES -> LambdaMappingEntries.fromProtobuf(proto.getMappingEntries());
+            case STORAGE_SLOT -> EvmHookStorageSlot.fromProtobuf(proto.getStorageSlot());
+            case MAPPING_ENTRIES -> EvmHookMappingEntries.fromProtobuf(proto.getMappingEntries());
             case UPDATE_NOT_SET ->
                 throw new IllegalArgumentException(
-                        "LambdaStorageUpdate must have either storage_slot or mapping_entries set");
+                        "EvmHookStorageUpdate must have either storage_slot or mapping_entries set");
         };
     }
 
     /**
      * Represents a direct storage slot update.
      * <p>
-     * This class allows direct manipulation of storage slots in the lambda's storage.
+     * This class allows direct manipulation of storage slots in the EVM hook's storage.
      */
-    public static class LambdaStorageSlot extends LambdaStorageUpdate {
+    public static class EvmHookStorageSlot extends EvmHookStorageUpdate {
         private final byte[] key;
         private final byte[] value;
 
@@ -53,7 +53,7 @@ public abstract class LambdaStorageUpdate {
          * @param key the storage slot key (max 32 bytes, minimal representation)
          * @param value the storage slot value (max 32 bytes, minimal representation)
          */
-        public LambdaStorageSlot(byte[] key, byte[] value) {
+        public EvmHookStorageSlot(byte[] key, byte[] value) {
             this.key = Objects.requireNonNull(key, "key cannot be null").clone();
             this.value = value != null ? value.clone() : new byte[0];
         }
@@ -77,17 +77,17 @@ public abstract class LambdaStorageUpdate {
         }
 
         @Override
-        com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf() {
-            return com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder()
-                    .setStorageSlot(com.hedera.hashgraph.sdk.proto.LambdaStorageSlot.newBuilder()
+        com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate toProtobuf() {
+            return com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate.newBuilder()
+                    .setStorageSlot(com.hedera.hashgraph.sdk.proto.EvmHookStorageSlot.newBuilder()
                             .setKey(ByteString.copyFrom(key))
                             .setValue(ByteString.copyFrom(value))
                             .build())
                     .build();
         }
 
-        public static LambdaStorageSlot fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaStorageSlot proto) {
-            return new LambdaStorageSlot(
+        public static EvmHookStorageSlot fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHookStorageSlot proto) {
+            return new EvmHookStorageSlot(
                     proto.getKey().toByteArray(), proto.getValue().toByteArray());
         }
 
@@ -96,7 +96,7 @@ public abstract class LambdaStorageUpdate {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            LambdaStorageSlot that = (LambdaStorageSlot) o;
+            EvmHookStorageSlot that = (EvmHookStorageSlot) o;
             return Arrays.equals(key, that.key) && Arrays.equals(value, that.value);
         }
 
@@ -107,7 +107,7 @@ public abstract class LambdaStorageUpdate {
 
         @Override
         public String toString() {
-            return "LambdaStorageSlot{key=" + java.util.Arrays.toString(key) + ", value="
+            return "EvmHookStorageSlot{key=" + java.util.Arrays.toString(key) + ", value="
                     + java.util.Arrays.toString(value) + "}";
         }
     }
@@ -119,9 +119,9 @@ public abstract class LambdaStorageUpdate {
      * entries rather than raw storage slots, making it easier to work with
      * high-level data structures.
      */
-    public static class LambdaMappingEntries extends LambdaStorageUpdate {
+    public static class EvmHookMappingEntries extends EvmHookStorageUpdate {
         private final byte[] mappingSlot;
-        private final java.util.List<LambdaMappingEntry> entries;
+        private final java.util.List<EvmHookMappingEntry> entries;
 
         /**
          * Create a new mapping entries update.
@@ -129,7 +129,7 @@ public abstract class LambdaStorageUpdate {
          * @param mappingSlot the slot that corresponds to the Solidity mapping (minimal representation)
          * @param entries the entries to update in the mapping
          */
-        public LambdaMappingEntries(byte[] mappingSlot, java.util.List<LambdaMappingEntry> entries) {
+        public EvmHookMappingEntries(byte[] mappingSlot, java.util.List<EvmHookMappingEntry> entries) {
             this.mappingSlot = Objects.requireNonNull(mappingSlot, "mappingSlot cannot be null")
                     .clone();
             this.entries = new java.util.ArrayList<>(Objects.requireNonNull(entries, "entries cannot be null"));
@@ -149,31 +149,31 @@ public abstract class LambdaStorageUpdate {
          *
          * @return a copy of the entries list
          */
-        public java.util.List<LambdaMappingEntry> getEntries() {
+        public java.util.List<EvmHookMappingEntry> getEntries() {
             return new java.util.ArrayList<>(entries);
         }
 
         @Override
-        com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate toProtobuf() {
-            var builder = com.hedera.hashgraph.sdk.proto.LambdaMappingEntries.newBuilder()
+        com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate toProtobuf() {
+            var builder = com.hedera.hashgraph.sdk.proto.EvmHookMappingEntries.newBuilder()
                     .setMappingSlot(ByteString.copyFrom(mappingSlot));
 
-            for (LambdaMappingEntry entry : entries) {
+            for (EvmHookMappingEntry entry : entries) {
                 builder.addEntries(entry.toProtobuf());
             }
 
-            return com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder()
+            return com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate.newBuilder()
                     .setMappingEntries(builder.build())
                     .build();
         }
 
-        static LambdaMappingEntries fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaMappingEntries proto) {
-            var entries = new java.util.ArrayList<LambdaMappingEntry>();
+        static EvmHookMappingEntries fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHookMappingEntries proto) {
+            var entries = new java.util.ArrayList<EvmHookMappingEntry>();
             for (var protoEntry : proto.getEntriesList()) {
-                entries.add(LambdaMappingEntry.fromProtobuf(protoEntry));
+                entries.add(EvmHookMappingEntry.fromProtobuf(protoEntry));
             }
 
-            return new LambdaMappingEntries(proto.getMappingSlot().toByteArray(), entries);
+            return new EvmHookMappingEntries(proto.getMappingSlot().toByteArray(), entries);
         }
 
         @Override
@@ -181,7 +181,7 @@ public abstract class LambdaStorageUpdate {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            LambdaMappingEntries that = (LambdaMappingEntries) o;
+            EvmHookMappingEntries that = (EvmHookMappingEntries) o;
             return Arrays.equals(mappingSlot, that.mappingSlot) && entries.equals(that.entries);
         }
 
@@ -192,8 +192,8 @@ public abstract class LambdaStorageUpdate {
 
         @Override
         public String toString() {
-            return "LambdaMappingEntries{mappingSlot=" + java.util.Arrays.toString(mappingSlot) + ", entries=" + entries
-                    + "}";
+            return "EvmHookMappingEntries{mappingSlot=" + java.util.Arrays.toString(mappingSlot) + ", entries="
+                    + entries + "}";
         }
     }
 }

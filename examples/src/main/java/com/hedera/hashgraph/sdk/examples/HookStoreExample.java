@@ -10,13 +10,13 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * How to work with LambdaSStoreTransaction.
+ * How to work with HookStoreTransaction.
  * <p>
- * This example demonstrates how to update storage slots of existing lambda hooks using LambdaSStoreTransaction.
- * The example includes prerequisite setup (creating a hook contract and account with lambda hook)
- * to demonstrate the LambdaSStoreTransaction functionality.
+ * This example demonstrates how to update storage slots of existing EVM hooks using HookStoreTransaction.
+ * The example includes prerequisite setup (creating a hook contract and account with EVM hook)
+ * to demonstrate the HookStoreTransaction functionality.
  */
-class LambdaSStoreExample {
+class HookStoreExample {
 
     /*
      * See .env.sample in the examples folder root for how to specify values below
@@ -52,7 +52,7 @@ class LambdaSStoreExample {
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Lambda SStore Example Start!");
+        System.out.println("Hook Store Example Start!");
 
         /*
          * Step 0:
@@ -66,8 +66,8 @@ class LambdaSStoreExample {
 
         /*
          * Step 1:
-         * Set up prerequisites: Create hook contract and account with lambda hook.
-         * Note: This is not part of LambdaSStoreTransaction itself, but required for the example.
+         * Set up prerequisites: Create hook contract and account with EVM hook.
+         * Note: This is not part of HookStoreTransaction itself, but required for the example.
          */
         System.out.println("Setting up prerequisites...");
         ContractId contractId = createContractId(client);
@@ -77,9 +77,9 @@ class LambdaSStoreExample {
 
         /*
          * Step 2:
-         * Demonstrate LambdaSStoreTransaction - the core functionality.
+         * Demonstrate HookStoreTransaction - the core functionality.
          */
-        System.out.println("\n=== LambdaSStoreTransaction Example ===");
+        System.out.println("\n=== HookStoreTransaction Example ===");
 
         // Create storage update (equivalent to TypeScript sample)
         byte[] storageKey = new byte[32];
@@ -87,24 +87,24 @@ class LambdaSStoreExample {
         byte[] storageValue = new byte[32];
         Arrays.fill(storageValue, (byte) 200);
 
-        LambdaStorageUpdate storageUpdate = new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue);
+        EvmHookStorageUpdate storageUpdate = new EvmHookStorageUpdate.EvmHookStorageSlot(storageKey, storageValue);
 
         // Create HookId for the existing hook (accountId with hook ID 1)
         HookId hookId = new HookId(new HookEntityId(accountId), 1L);
 
-        // Execute LambdaSStoreTransaction (matches TypeScript pattern)
-        TransactionResponse lambdaStoreResponse = new LambdaSStoreTransaction()
+        // Execute HookStoreTransaction (matches TypeScript pattern)
+        TransactionResponse hookStoreResponse = new HookStoreTransaction()
                 .setHookId(hookId)
                 .addStorageUpdate(storageUpdate)
                 .freezeWith(client)
                 .sign(accountKey)
                 .execute(client);
 
-        lambdaStoreResponse.getReceipt(client);
-        System.out.println("Successfully updated lambda hook storage!");
+        hookStoreResponse.getReceipt(client);
+        System.out.println("Successfully updated EVM hook storage!");
 
         client.close();
-        System.out.println("Lambda SStore Example Complete!");
+        System.out.println("Hook Store Example Complete!");
     }
 
     /**
@@ -121,18 +121,18 @@ class LambdaSStoreExample {
     }
 
     /**
-     * Creates an account with a lambda hook that has initial storage.
-     * This is a prerequisite for the LambdaSStoreTransaction example.
+     * Creates an account with an EVM hook that has initial storage.
+     * This is a prerequisite for the HookStoreTransaction example.
      */
     private static AccountWithKey createAccountWithLambdaHook(Client client, ContractId contractId) throws Exception {
-        System.out.println("Creating account with lambda hook");
-        // Create lambda hook with initial storage updates
-        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId);
+        System.out.println("Creating account with EVM hook");
+        // Create EVM hook with initial storage updates
+        EvmHook evmHook = new EvmHook(contractId);
 
         // Create hook creation details
         Key adminKey = OPERATOR_KEY.getPublicKey();
         HookCreationDetails hookDetails =
-                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook, adminKey);
+                new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, evmHook, adminKey);
 
         // Create account with lambda hook
         PrivateKey accountKey = PrivateKey.generateED25519();
@@ -151,7 +151,7 @@ class LambdaSStoreExample {
             AccountId accountId = accountCreateReceipt.accountId;
             Objects.requireNonNull(accountId);
             System.out.println("Created account with ID: " + accountId);
-            System.out.println("Successfully created account with lambda hook and initial storage!");
+            System.out.println("Successfully created account with EVM hook and initial storage!");
 
             return new AccountWithKey(accountId, accountKey);
         } catch (Exception e) {

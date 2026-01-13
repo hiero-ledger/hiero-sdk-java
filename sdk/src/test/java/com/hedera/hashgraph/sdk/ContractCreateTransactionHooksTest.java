@@ -20,8 +20,8 @@ public class ContractCreateTransactionHooksTest {
         // Create storage updates
         byte[] storageKey = {0x01, 0x02};
         byte[] storageValue = {0x03, 0x04};
-        LambdaStorageUpdate storageUpdate = new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue);
-        List<LambdaStorageUpdate> storageUpdates = Collections.singletonList(storageUpdate);
+        EvmHookStorageUpdate storageUpdate = new EvmHookStorageUpdate.EvmHookStorageSlot(storageKey, storageValue);
+        List<EvmHookStorageUpdate> storageUpdates = Collections.singletonList(storageUpdate);
 
         // Build two hooks, one with admin key and storage, one simple
         ContractCreateTransaction tx = new ContractCreateTransaction()
@@ -30,10 +30,10 @@ public class ContractCreateTransactionHooksTest {
                 .addHook(new HookCreationDetails(
                         HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                         1L,
-                        new LambdaEvmHook(targetContractId, storageUpdates),
+                        new EvmHook(targetContractId, storageUpdates),
                         adminKey.getPublicKey()))
                 .addHook(new HookCreationDetails(
-                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(targetContractId)));
+                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(targetContractId)));
 
         var hooks = tx.getHooks();
         assertEquals(2, hooks.size());
@@ -57,7 +57,7 @@ public class ContractCreateTransactionHooksTest {
     public void testContractCreateTransactionSetHooks() {
         ContractId targetContractId = new ContractId(200);
 
-        var lambdaHook = new LambdaEvmHook(targetContractId);
+        var lambdaHook = new EvmHook(targetContractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
         var tx = new ContractCreateTransaction()
@@ -78,9 +78,9 @@ public class ContractCreateTransactionHooksTest {
                 .setGas(250_000)
                 .setInitialBalance(Hbar.from(3))
                 .addHook(new HookCreationDetails(
-                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new LambdaEvmHook(targetContractId)))
+                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new EvmHook(targetContractId)))
                 .addHook(new HookCreationDetails(
-                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new LambdaEvmHook(targetContractId)));
+                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new EvmHook(targetContractId)));
 
         var proto = tx.build();
         assertEquals(2, proto.getHookCreationDetailsCount());
@@ -96,7 +96,7 @@ public class ContractCreateTransactionHooksTest {
                 .setGas(750_000)
                 .setInitialBalance(Hbar.from(7))
                 .addHook(new HookCreationDetails(
-                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new LambdaEvmHook(targetContractId)));
+                        HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, new EvmHook(targetContractId)));
 
         var protoBody = tx.build();
         assertEquals(1, protoBody.getHookCreationDetailsCount());
@@ -106,7 +106,7 @@ public class ContractCreateTransactionHooksTest {
                 com.hedera.hashgraph.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                 protoHook.getExtensionPoint());
         assertEquals(1L, protoHook.getHookId());
-        assertTrue(protoHook.hasLambdaEvmHook());
+        assertTrue(protoHook.hasEvmHook());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ContractCreateTransactionHooksTest {
     public void testContractCreateTransactionHooksPersistThroughBytesRoundTrip()
             throws com.google.protobuf.InvalidProtocolBufferException {
         ContractId targetContractId = new ContractId(500);
-        var lambdaHook = new LambdaEvmHook(targetContractId);
+        var lambdaHook = new EvmHook(targetContractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaHook);
 
         var original = new ContractCreateTransaction()

@@ -2,7 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.proto.LambdaSStoreTransactionBody;
+import com.hedera.hashgraph.sdk.proto.HookStoreTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
@@ -14,37 +14,37 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Adds or removes key/value pairs in the storage of a lambda.
+ * Adds or removes key/value pairs in the storage of an EVM hook.
  */
-public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction> {
+public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
 
     private HookId hookId;
-    private List<LambdaStorageUpdate> storageUpdates = new ArrayList<>();
+    private List<EvmHookStorageUpdate> storageUpdates = new ArrayList<>();
 
     /**
-     * Create a new empty LambdaSStoreTransaction.
+     * Create a new empty HookStoreTransaction.
      */
-    public LambdaSStoreTransaction() {}
+    public HookStoreTransaction() {}
 
-    LambdaSStoreTransaction(
+    HookStoreTransaction(
             LinkedHashMap<TransactionId, LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
     }
 
-    LambdaSStoreTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) {
+    HookStoreTransaction(com.hedera.hashgraph.sdk.proto.TransactionBody txBody) {
         super(txBody);
         initFromTransactionBody();
     }
 
     /**
-     * Set the id of the lambda whose storage is being updated.
+     * Set the id of the EVM hook whose storage is being updated.
      *
      * @param hookId the hook id
      * @return this
      */
-    public LambdaSStoreTransaction setHookId(HookId hookId) {
+    public HookStoreTransaction setHookId(HookId hookId) {
         requireNotFrozen();
         this.hookId = Objects.requireNonNull(hookId);
         return this;
@@ -65,7 +65,7 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
      * @param updates list of updates
      * @return this
      */
-    public LambdaSStoreTransaction setStorageUpdates(List<LambdaStorageUpdate> updates) {
+    public HookStoreTransaction setStorageUpdates(List<EvmHookStorageUpdate> updates) {
         requireNotFrozen();
         Objects.requireNonNull(updates);
         this.storageUpdates = new ArrayList<>(updates);
@@ -78,7 +78,7 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
      * @param update the update to add
      * @return this
      */
-    public LambdaSStoreTransaction addStorageUpdate(LambdaStorageUpdate update) {
+    public HookStoreTransaction addStorageUpdate(EvmHookStorageUpdate update) {
         requireNotFrozen();
         this.storageUpdates.add(Objects.requireNonNull(update));
         return this;
@@ -89,12 +89,12 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
      *
      * @return list of updates
      */
-    public List<LambdaStorageUpdate> getStorageUpdates() {
+    public List<EvmHookStorageUpdate> getStorageUpdates() {
         return storageUpdates;
     }
 
-    LambdaSStoreTransactionBody build() {
-        var builder = LambdaSStoreTransactionBody.newBuilder();
+    HookStoreTransactionBody build() {
+        var builder = HookStoreTransactionBody.newBuilder();
         if (hookId != null) {
             builder.setHookId(hookId.toProtobuf());
         }
@@ -105,13 +105,13 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
     }
 
     void initFromTransactionBody() {
-        var body = sourceTransactionBody.getLambdaSstore();
+        var body = sourceTransactionBody.getHookStore();
         if (body.hasHookId()) {
             this.hookId = HookId.fromProtobuf(body.getHookId());
         }
         this.storageUpdates = new ArrayList<>();
         for (var protoUpdate : body.getStorageUpdatesList()) {
-            this.storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));
+            this.storageUpdates.add(EvmHookStorageUpdate.fromProtobuf(protoUpdate));
         }
     }
 
@@ -134,11 +134,11 @@ public class LambdaSStoreTransaction extends Transaction<LambdaSStoreTransaction
 
     @Override
     void onFreeze(TransactionBody.Builder bodyBuilder) {
-        bodyBuilder.setLambdaSstore(build());
+        bodyBuilder.setHookStore(build());
     }
 
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
-        throw new UnsupportedOperationException("cannot schedule LambdaSStoreTransaction");
+        throw new UnsupportedOperationException("cannot schedule HookStoreTransaction");
     }
 }

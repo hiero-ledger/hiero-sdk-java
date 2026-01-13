@@ -116,7 +116,7 @@ class AccountHooksExample {
     private static AccountWithKey createAccountWithHooks(Client client, ContractId contractId) throws Exception {
         System.out.println("Creating account with lambda EVM hook...");
 
-        LambdaEvmHook lambdaHook = new LambdaEvmHook(contractId);
+        EvmHook lambdaHook = new EvmHook(contractId);
 
         Key adminKey = OPERATOR_KEY.getPublicKey();
         HookCreationDetails hookDetails =
@@ -157,11 +157,11 @@ class AccountHooksExample {
         Key adminKey = OPERATOR_KEY.getPublicKey();
 
         // Create basic lambda hooks with no storage updates
-        LambdaEvmHook basicHook = new LambdaEvmHook(contractId);
+        EvmHook basicHook = new EvmHook(contractId);
         HookCreationDetails hook1 =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, basicHook, adminKey);
 
-        LambdaEvmHook basicHook2 = new LambdaEvmHook(contractId);
+        EvmHook basicHook2 = new EvmHook(contractId);
         HookCreationDetails hook2 =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, basicHook2, adminKey);
 

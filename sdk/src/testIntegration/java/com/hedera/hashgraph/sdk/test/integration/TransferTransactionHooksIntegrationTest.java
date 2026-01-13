@@ -22,8 +22,8 @@ class TransferTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var hookContractId = createContractId(testEnv);
 
-            var hookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             var accountKey = PrivateKey.generateED25519();
             var accountId = new AccountCreateTransaction()
@@ -65,10 +65,10 @@ class TransferTransactionHooksIntegrationTest {
             var hookContractId = createContractId(testEnv);
 
             // Two different hook ids for two different accounts
-            var hookDetails1 = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
-            var hookDetails2 = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails1 =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
+            var hookDetails2 =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             // Create two recipient accounts, each with its own hook
             var key1 = PrivateKey.generateED25519();
@@ -133,8 +133,8 @@ class TransferTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var hookContractId = createContractId(testEnv);
 
-            var hookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             var accountKey = PrivateKey.generateED25519();
             var accountId = new AccountCreateTransaction()
@@ -178,8 +178,8 @@ class TransferTransactionHooksIntegrationTest {
             testEnv.useThrowawayAccount();
             var hookContractId = createContractId(testEnv);
 
-            var hookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             var receiverKey = PrivateKey.generateED25519();
             var receiverId = new AccountCreateTransaction()
@@ -233,8 +233,8 @@ class TransferTransactionHooksIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // Ensure the allowance hook is attached to the debited account (operator)
-            var hookDetails2 = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails2 =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
             new AccountUpdateTransaction()
                     .setAccountId(testEnv.operatorId)
                     .addHookToCreate(hookDetails2)
@@ -266,8 +266,8 @@ class TransferTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var hookContractId = createContractId(testEnv);
 
-            var hookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var hookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             var senderKey = PrivateKey.generateED25519();
             var senderId = new AccountCreateTransaction()
@@ -365,10 +365,10 @@ class TransferTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var hookContractId = createContractId(testEnv);
 
-            var senderHookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
-            var receiverHookDetails = new HookCreationDetails(
-                    HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new LambdaEvmHook(hookContractId));
+            var senderHookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
+            var receiverHookDetails =
+                    new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, new EvmHook(hookContractId));
 
             var senderKey = PrivateKey.generateED25519();
             var senderId = new AccountCreateTransaction()

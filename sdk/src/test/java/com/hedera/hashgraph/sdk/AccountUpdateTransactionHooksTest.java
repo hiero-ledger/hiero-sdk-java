@@ -13,7 +13,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldAddHookToCreate() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
         var result = tx.addHookToCreate(hookDetails);
@@ -27,7 +27,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldSetHooksToCreate() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
         var hooks = List.of(hookDetails1, hookDetails2);
@@ -67,7 +67,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldGetHooksToCreate() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         tx.addHookToCreate(hookDetails);
 
@@ -102,7 +102,7 @@ public class AccountUpdateTransactionHooksTest {
                 AccountId.fromString("0.0.5006"), java.time.Instant.ofEpochSecond(1554158542)));
         tx.freeze();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
         assertThatThrownBy(() -> tx.addHookToCreate(hookDetails))
@@ -118,7 +118,7 @@ public class AccountUpdateTransactionHooksTest {
                 AccountId.fromString("0.0.5006"), java.time.Instant.ofEpochSecond(1554158542)));
         tx.freeze();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
         assertThatThrownBy(() -> tx.setHooksToCreate(List.of(hookDetails)))
@@ -192,7 +192,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldSerializeHooksInBuild() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         tx.addHookToCreate(hookDetails);
         tx.addHookToDelete(123L);
@@ -208,7 +208,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldDeserializeHooksFromTransactionBody() throws Exception {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         tx.addHookToCreate(hookDetails);
         tx.addHookToDelete(123L);
@@ -237,7 +237,7 @@ public class AccountUpdateTransactionHooksTest {
     void shouldSupportMultipleHooks() {
         var tx = new AccountUpdateTransaction();
         var contractId = new ContractId(0, 0, 1);
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
 
         var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
