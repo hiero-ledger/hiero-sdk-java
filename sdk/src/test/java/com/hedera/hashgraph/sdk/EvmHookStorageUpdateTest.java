@@ -6,14 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class LambdaStorageUpdateTest {
+class EvmHookStorageUpdateTest {
 
     @Test
     void lambdaStorageSlotConstructsAndDefensiveCopies() {
         byte[] key = new byte[] {0x01, 0x02};
         byte[] value = new byte[] {0x03, 0x04};
 
-        var slot = new LambdaStorageUpdate.LambdaStorageSlot(key, value);
+        var slot = new EvmHookStorageUpdate.EvmHookStorageSlot(key, value);
 
         assertArrayEquals(key, slot.getKey());
         assertArrayEquals(value, slot.getValue());
@@ -27,12 +27,12 @@ class LambdaStorageUpdateTest {
 
     @Test
     void lambdaStorageSlotProtobufRoundTrip() {
-        var original = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x0A}, new byte[] {0x0B});
+        var original = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x0A}, new byte[] {0x0B});
         var proto = original.toProtobuf();
-        var restored = LambdaStorageUpdate.fromProtobuf(proto);
+        var restored = EvmHookStorageUpdate.fromProtobuf(proto);
         assertEquals(original, restored);
-        assertTrue(restored instanceof LambdaStorageUpdate.LambdaStorageSlot);
-        var restoredSlot = (LambdaStorageUpdate.LambdaStorageSlot) restored;
+        assertTrue(restored instanceof EvmHookStorageUpdate.EvmHookStorageSlot);
+        var restoredSlot = (EvmHookStorageUpdate.EvmHookStorageSlot) restored;
         assertArrayEquals(new byte[] {0x0A}, restoredSlot.getKey());
         assertArrayEquals(new byte[] {0x0B}, restoredSlot.getValue());
         assertTrue(original.toString().contains("key"));
@@ -41,8 +41,8 @@ class LambdaStorageUpdateTest {
     @Test
     void lambdaMappingEntriesConstructsValidatesAndCopies() {
         byte[] mappingSlot = new byte[] {0x05};
-        var entry = LambdaMappingEntry.ofKey(new byte[] {0x10}, new byte[] {0x20});
-        var updates = new LambdaStorageUpdate.LambdaMappingEntries(mappingSlot, List.of(entry));
+        var entry = EvmHookMappingEntry.ofKey(new byte[] {0x10}, new byte[] {0x20});
+        var updates = new EvmHookStorageUpdate.EvmHookMappingEntries(mappingSlot, List.of(entry));
 
         assertArrayEquals(mappingSlot, updates.getMappingSlot());
         assertEquals(1, updates.getEntries().size());
@@ -62,27 +62,27 @@ class LambdaStorageUpdateTest {
     @Test
     void lambdaMappingEntriesValidation() {
         // mappingSlot cannot be null
-        assertThrows(NullPointerException.class, () -> new LambdaStorageUpdate.LambdaMappingEntries(null, List.of()));
+        assertThrows(NullPointerException.class, () -> new EvmHookStorageUpdate.EvmHookMappingEntries(null, List.of()));
         // entries cannot be null
         assertThrows(
                 NullPointerException.class,
-                () -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x01}, null));
+                () -> new EvmHookStorageUpdate.EvmHookMappingEntries(new byte[] {0x01}, null));
         // current behavior: length > 32 is allowed
-        assertDoesNotThrow(() -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[33], List.of()));
+        assertDoesNotThrow(() -> new EvmHookStorageUpdate.EvmHookMappingEntries(new byte[33], List.of()));
         // current behavior: leading zeros are allowed
-        assertDoesNotThrow(() -> new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x00, 0x01}, List.of()));
+        assertDoesNotThrow(() -> new EvmHookStorageUpdate.EvmHookMappingEntries(new byte[] {0x00, 0x01}, List.of()));
     }
 
     @Test
     void lambdaMappingEntriesProtobufRoundTrip() {
-        var entry1 = LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x22});
-        var entry2 = LambdaMappingEntry.withPreimage(new byte[] {0x33}, new byte[] {0x44});
-        var original = new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x09}, List.of(entry1, entry2));
+        var entry1 = EvmHookMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x22});
+        var entry2 = EvmHookMappingEntry.withPreimage(new byte[] {0x33}, new byte[] {0x44});
+        var original = new EvmHookStorageUpdate.EvmHookMappingEntries(new byte[] {0x09}, List.of(entry1, entry2));
         var proto = original.toProtobuf();
-        var restored = LambdaStorageUpdate.fromProtobuf(proto);
+        var restored = EvmHookStorageUpdate.fromProtobuf(proto);
         assertEquals(original, restored);
-        assertTrue(restored instanceof LambdaStorageUpdate.LambdaMappingEntries);
-        var restoredME = (LambdaStorageUpdate.LambdaMappingEntries) restored;
+        assertTrue(restored instanceof EvmHookStorageUpdate.EvmHookMappingEntries);
+        var restoredME = (EvmHookStorageUpdate.EvmHookMappingEntries) restored;
         assertArrayEquals(new byte[] {0x09}, restoredME.getMappingSlot());
         assertEquals(List.of(entry1, entry2), restoredME.getEntries());
         assertTrue(original.toString().contains("mappingSlot"));
@@ -91,7 +91,7 @@ class LambdaStorageUpdateTest {
     @Test
     void fromProtobufWithoutUpdateThrows() {
         var emptyProto =
-                com.hedera.hashgraph.sdk.proto.LambdaStorageUpdate.newBuilder().build();
-        assertThrows(IllegalArgumentException.class, () -> LambdaStorageUpdate.fromProtobuf(emptyProto));
+                com.hedera.hashgraph.sdk.proto.EvmHookStorageUpdate.newBuilder().build();
+        assertThrows(IllegalArgumentException.class, () -> EvmHookStorageUpdate.fromProtobuf(emptyProto));
     }
 }

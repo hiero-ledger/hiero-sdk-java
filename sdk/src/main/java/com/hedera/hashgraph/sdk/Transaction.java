@@ -414,7 +414,7 @@ public abstract class Transaction<T extends Transaction<T>>
             case CRYPTOAPPROVEALLOWANCE -> new AccountAllowanceApproveTransaction(txs);
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
             case ATOMIC_BATCH -> new BatchTransaction(txs);
-            case LAMBDA_SSTORE -> new LambdaSStoreTransaction(txs);
+            case HOOK_STORE -> new HookStoreTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }

@@ -7,13 +7,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.hedera.hashgraph.sdk.ContractCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.ContractUpdateTransaction;
+import com.hedera.hashgraph.sdk.EvmHook;
+import com.hedera.hashgraph.sdk.EvmHookStorageUpdate;
 import com.hedera.hashgraph.sdk.FileCreateTransaction;
 import com.hedera.hashgraph.sdk.FileId;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HookCreationDetails;
 import com.hedera.hashgraph.sdk.HookExtensionPoint;
-import com.hedera.hashgraph.sdk.LambdaEvmHook;
-import com.hedera.hashgraph.sdk.LambdaStorageUpdate;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.Status;
@@ -28,7 +28,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given a contract exists without hooks, when a ContractUpdateTransaction adds a basic lambda EVM hook with valid signatures, then the hook is successfully attached to the contract")
+            "Given a contract exists without hooks, when a ContractUpdateTransaction adds a basic EVM hook with valid signatures, then the hook is successfully attached to the contract")
     void contractUpdateWithBasicLambdaHookSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
@@ -43,7 +43,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .getReceipt(testEnv.client)
                     .contractId;
 
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var response = new ContractUpdateTransaction()
@@ -74,7 +74,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             assertThatExceptionOfType(PrecheckStatusException.class)
@@ -103,7 +103,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             new ContractUpdateTransaction()
@@ -128,7 +128,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given a contract exists without hooks, when a ContractUpdateTransaction adds a lambda EVM hook with initial storage updates, then the hook is attached and storage is initialized correctly")
+            "Given a contract exists without hooks, when a ContractUpdateTransaction adds an EVM hook with initial storage updates, then the hook is attached and storage is initialized correctly")
     void contractUpdateWithLambdaHookAndStorageUpdatesSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var fileId = createBytecodeFile(testEnv);
@@ -142,8 +142,8 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-            var lambdaHook = new LambdaEvmHook(targetHookContractId, java.util.List.of(storageSlot));
+            var storageSlot = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02});
+            var lambdaHook = new EvmHook(targetHookContractId, java.util.List.of(storageSlot));
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var response = new ContractUpdateTransaction()
@@ -173,7 +173,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId1 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook1 = new LambdaEvmHook(targetHookContractId1);
+            var lambdaHook1 = new EvmHook(targetHookContractId1);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook1);
 
             new ContractUpdateTransaction()
@@ -184,7 +184,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .getReceipt(testEnv.client);
 
             ContractId targetHookContractId2 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook2 = new LambdaEvmHook(targetHookContractId2);
+            var lambdaHook2 = new EvmHook(targetHookContractId2);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook2);
 
             assertThatExceptionOfType(ReceiptStatusException.class)
@@ -214,7 +214,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             new ContractUpdateTransaction()
@@ -251,7 +251,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             new ContractUpdateTransaction()
@@ -290,7 +290,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             assertThatExceptionOfType(ReceiptStatusException.class)
@@ -323,7 +323,7 @@ class ContractUpdateTransactionHooksIntegrationTest {
                     .contractId;
 
             ContractId targetHookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook = new LambdaEvmHook(targetHookContractId);
+            var lambdaHook = new EvmHook(targetHookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             // Add the hook

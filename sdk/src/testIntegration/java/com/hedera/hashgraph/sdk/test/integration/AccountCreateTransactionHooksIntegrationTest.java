@@ -6,12 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.hedera.hashgraph.sdk.EvmHook;
+import com.hedera.hashgraph.sdk.EvmHookMappingEntry;
+import com.hedera.hashgraph.sdk.EvmHookStorageUpdate;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HookCreationDetails;
 import com.hedera.hashgraph.sdk.HookExtensionPoint;
-import com.hedera.hashgraph.sdk.LambdaEvmHook;
-import com.hedera.hashgraph.sdk.LambdaMappingEntry;
-import com.hedera.hashgraph.sdk.LambdaStorageUpdate;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.Status;
@@ -21,15 +21,14 @@ import org.junit.jupiter.api.Test;
 class AccountCreateTransactionHooksIntegrationTest {
 
     @Test
-    @DisplayName(
-            "Given AccountCreateTransaction with basic lambda EVM hook, when executed, then receipt status is SUCCESS")
+    @DisplayName("Given AccountCreateTransaction with basic EVM hook, when executed, then receipt status is SUCCESS")
     void accountCreateWithBasicLambdaHookSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Deploy a simple contract to act as the lambda hook target
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            // Build a basic lambda EVM hook (no admin key, no storage updates)
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            // Build a basic EVM hook (no admin key, no storage updates)
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var response = new AccountCreateTransaction()
@@ -45,16 +44,16 @@ class AccountCreateTransactionHooksIntegrationTest {
     }
 
     @Test
-    @DisplayName("Given AccountCreateTransaction with lambda hook and storage updates, when executed, then SUCCESS")
+    @DisplayName("Given AccountCreateTransaction with an EVM hook and storage updates, when executed, then SUCCESS")
     void accountCreateWithLambdaHookAndStorageUpdatesSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-            var mappingEntries = new LambdaStorageUpdate.LambdaMappingEntries(
+            var storageSlot = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02});
+            var mappingEntries = new EvmHookStorageUpdate.EvmHookMappingEntries(
                     new byte[] {0x10},
-                    java.util.List.of(LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
-            var lambdaHook = new LambdaEvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
+                    java.util.List.of(EvmHookMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
+            var lambdaHook = new EvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, lambdaHook);
 
             var response = new AccountCreateTransaction()
@@ -76,7 +75,7 @@ class AccountCreateTransactionHooksIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 4L, lambdaHook);
 
@@ -95,13 +94,13 @@ class AccountCreateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given AccountCreateTransaction with lambda hook and admin key, when executed with admin signature, then SUCCESS")
+            "Given AccountCreateTransaction with an EVM hook and admin key, when executed with admin signature, then SUCCESS")
     void accountCreateWithLambdaHookAndAdminKeySucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
             var adminKey = PrivateKey.generateED25519();
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(
                     HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 5L, lambdaHook, adminKey.getPublicKey());
 

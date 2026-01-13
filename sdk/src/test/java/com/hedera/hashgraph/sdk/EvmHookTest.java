@@ -7,19 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class LambdaEvmHookTest {
+class EvmHookTest {
 
     @Test
     void constructorRejectsNulls() {
-        assertThrows(NullPointerException.class, () -> new LambdaEvmHook((ContractId) null));
-        assertThrows(NullPointerException.class, () -> new LambdaEvmHook(new ContractId(0, 0, 1), null));
+        assertThrows(NullPointerException.class, () -> new EvmHook((ContractId) null));
+        assertThrows(NullPointerException.class, () -> new EvmHook(new ContractId(0, 0, 1), null));
     }
 
     @Test
     void gettersReturnExpectedAndStorageUpdatesAreImmutable() {
         var contractId = new ContractId(0, 0, 123);
-        var slot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-        var hook = new LambdaEvmHook(contractId, List.of(slot));
+        var slot = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02});
+        var hook = new EvmHook(contractId, List.of(slot));
 
         assertEquals(contractId, hook.getContractId());
         var updates = hook.getStorageUpdates();
@@ -33,13 +33,13 @@ class LambdaEvmHookTest {
     @Test
     void protobufRoundTripPreservesData() {
         var spec = new ContractId(0, 0, 77);
-        var entry = LambdaMappingEntry.ofKey(new byte[] {0x0A}, new byte[] {0x0B});
-        var mappings = new LambdaStorageUpdate.LambdaMappingEntries(new byte[] {0x05}, List.of(entry));
-        var slot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-        var original = new LambdaEvmHook(spec, List.of(slot, mappings));
+        var entry = EvmHookMappingEntry.ofKey(new byte[] {0x0A}, new byte[] {0x0B});
+        var mappings = new EvmHookStorageUpdate.EvmHookMappingEntries(new byte[] {0x05}, List.of(entry));
+        var slot = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02});
+        var original = new EvmHook(spec, List.of(slot, mappings));
 
         var proto = original.toProtobuf();
-        var restored = LambdaEvmHook.fromProtobuf(proto);
+        var restored = EvmHook.fromProtobuf(proto);
 
         assertEquals(original, restored);
         assertEquals(original.getContractId(), restored.getContractId());
@@ -50,15 +50,15 @@ class LambdaEvmHookTest {
     void equalsAndHashCodeDependOnSpecAndUpdates() {
         var spec1 = new ContractId(0, 0, 1);
         var spec2 = new ContractId(0, 0, 2);
-        List<LambdaStorageUpdate> u1 =
-                List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02}));
-        List<LambdaStorageUpdate> u2 =
-                List.of(new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x03}, new byte[] {0x04}));
+        List<EvmHookStorageUpdate> u1 =
+                List.of(new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02}));
+        List<EvmHookStorageUpdate> u2 =
+                List.of(new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x03}, new byte[] {0x04}));
 
-        var a = new LambdaEvmHook(spec1, u1);
-        var b = new LambdaEvmHook(spec1, new ArrayList<LambdaStorageUpdate>(u1));
-        var c = new LambdaEvmHook(spec2, u1);
-        var d = new LambdaEvmHook(spec1, u2);
+        var a = new EvmHook(spec1, u1);
+        var b = new EvmHook(spec1, new ArrayList<EvmHookStorageUpdate>(u1));
+        var c = new EvmHook(spec2, u1);
+        var d = new EvmHook(spec1, u2);
 
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
@@ -69,7 +69,7 @@ class LambdaEvmHookTest {
     @Test
     void toStringContainsSpecAndUpdates() {
         var spec = new ContractId(0, 0, 10);
-        var hook = new LambdaEvmHook(spec);
+        var hook = new EvmHook(spec);
         var s = hook.toString();
         assertTrue(s.contains("contractId"));
         assertTrue(s.contains("storageUpdates"));

@@ -7,12 +7,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.hedera.hashgraph.sdk.EvmHook;
+import com.hedera.hashgraph.sdk.EvmHookMappingEntry;
+import com.hedera.hashgraph.sdk.EvmHookStorageUpdate;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.HookCreationDetails;
 import com.hedera.hashgraph.sdk.HookExtensionPoint;
-import com.hedera.hashgraph.sdk.LambdaEvmHook;
-import com.hedera.hashgraph.sdk.LambdaMappingEntry;
-import com.hedera.hashgraph.sdk.LambdaStorageUpdate;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
@@ -24,7 +24,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given an account exists without hooks, when an AccountUpdateTransaction adds a basic lambda EVM hook, then the hook is successfully attached to the account")
+            "Given an account exists without hooks, when an AccountUpdateTransaction adds a basic EVM hook, then the hook is successfully attached to the account")
     void accountUpdateWithBasicLambdaHookSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Create an account without hooks first
@@ -36,11 +36,11 @@ class AccountUpdateTransactionHooksIntegrationTest {
                     .getReceipt(testEnv.client)
                     .accountId;
 
-            // Deploy a simple contract to act as the lambda hook target
+            // Deploy a simple contract to act as the EVM hook target
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            // Build a basic lambda EVM hook (no admin key, no storage updates)
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            // Build a basic EVM hook (no admin key, no storage updates)
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             // Update the account to add the hook
@@ -72,7 +72,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
@@ -99,7 +99,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountKey = PrivateKey.generateED25519();
             ContractId hookContractId1 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook1 = new LambdaEvmHook(hookContractId1);
+            var lambdaHook1 = new EvmHook(hookContractId1);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook1);
 
             var accountId = new AccountCreateTransaction()
@@ -113,7 +113,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             // Try to add another hook with the same ID
             ContractId hookContractId2 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook2 = new LambdaEvmHook(hookContractId2);
+            var lambdaHook2 = new EvmHook(hookContractId2);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook2);
 
             assertThatExceptionOfType(ReceiptStatusException.class)
@@ -131,7 +131,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given an account exists without hooks, when an AccountUpdateTransaction adds a lambda EVM hook with initial storage updates, then the hook is attached and storage is initialized correctly")
+            "Given an account exists without hooks, when an AccountUpdateTransaction adds an EVM hook with initial storage updates, then the hook is attached and storage is initialized correctly")
     void accountUpdateWithLambdaHookAndStorageUpdatesSucceeds() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Create an account without hooks first
@@ -145,11 +145,11 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var storageSlot = new LambdaStorageUpdate.LambdaStorageSlot(new byte[] {0x01}, new byte[] {0x02});
-            var mappingEntries = new LambdaStorageUpdate.LambdaMappingEntries(
+            var storageSlot = new EvmHookStorageUpdate.EvmHookStorageSlot(new byte[] {0x01}, new byte[] {0x02});
+            var mappingEntries = new EvmHookStorageUpdate.EvmHookMappingEntries(
                     new byte[] {0x10},
-                    java.util.List.of(LambdaMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
-            var lambdaHook = new LambdaEvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
+                    java.util.List.of(EvmHookMappingEntry.ofKey(new byte[] {0x11}, new byte[] {0x12})));
+            var lambdaHook = new EvmHook(hookContractId, java.util.List.of(storageSlot, mappingEntries));
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             // Update the account to add the hook with storage updates
@@ -174,7 +174,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountKey = PrivateKey.generateED25519();
             ContractId hookContractId1 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook1 = new LambdaEvmHook(hookContractId1);
+            var lambdaHook1 = new EvmHook(hookContractId1);
             var hookDetails1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook1);
 
             var accountId = new AccountCreateTransaction()
@@ -188,7 +188,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             // Try to add another hook with the same ID (1L)
             ContractId hookContractId2 = EntityHelper.createContract(testEnv, testEnv.operatorKey);
-            var lambdaHook2 = new LambdaEvmHook(hookContractId2);
+            var lambdaHook2 = new EvmHook(hookContractId2);
             var hookDetails2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook2);
 
             assertThatExceptionOfType(ReceiptStatusException.class)
@@ -213,7 +213,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountKey = PrivateKey.generateED25519();
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var accountId = new AccountCreateTransaction()
@@ -247,7 +247,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountKey = PrivateKey.generateED25519();
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var accountId = new AccountCreateTransaction()
@@ -289,7 +289,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
 
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             // Try to add and delete the same hook ID in the same transaction
@@ -316,7 +316,7 @@ class AccountUpdateTransactionHooksIntegrationTest {
             var accountKey = PrivateKey.generateED25519();
             ContractId hookContractId = EntityHelper.createContract(testEnv, testEnv.operatorKey);
 
-            var lambdaHook = new LambdaEvmHook(hookContractId);
+            var lambdaHook = new EvmHook(hookContractId);
             var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
             var accountId = new AccountCreateTransaction()

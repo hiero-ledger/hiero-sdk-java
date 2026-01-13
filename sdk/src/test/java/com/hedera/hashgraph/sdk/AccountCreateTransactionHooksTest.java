@@ -20,14 +20,14 @@ public class AccountCreateTransactionHooksTest {
         // Create storage updates
         byte[] storageKey = {0x01, 0x02};
         byte[] storageValue = {0x03, 0x04};
-        LambdaStorageUpdate storageUpdate = new LambdaStorageUpdate.LambdaStorageSlot(storageKey, storageValue);
-        List<LambdaStorageUpdate> storageUpdates = Collections.singletonList(storageUpdate);
+        EvmHookStorageUpdate storageUpdate = new EvmHookStorageUpdate.EvmHookStorageSlot(storageKey, storageValue);
+        List<EvmHookStorageUpdate> storageUpdates = Collections.singletonList(storageUpdate);
 
         // Create account create transaction with hooks
-        var lambdaHookWithStorage = new LambdaEvmHook(contractId, storageUpdates);
+        var lambdaHookWithStorage = new EvmHook(contractId, storageUpdates);
         var hookWithAdmin = new HookCreationDetails(
                 HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHookWithStorage, adminKey.getPublicKey());
-        var simpleLambdaHook = new LambdaEvmHook(contractId);
+        var simpleLambdaHook = new EvmHook(contractId);
         var simpleHook = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 2L, simpleLambdaHook);
 
         AccountCreateTransaction transaction = new AccountCreateTransaction()
@@ -62,7 +62,7 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(200);
 
         // Create hook details manually
-        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(contractId);
+        EvmHook lambdaEvmHook = new EvmHook(contractId);
         HookCreationDetails hookDetails =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaEvmHook);
 
@@ -83,7 +83,7 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(300);
 
         // Test duplicate hook IDs
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hook1 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         var hook2 = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook); // Duplicate ID
 
@@ -105,7 +105,7 @@ public class AccountCreateTransactionHooksTest {
         ContractId contractId = new ContractId(400);
 
         // Create transaction with hooks
-        var lambdaHook = new LambdaEvmHook(contractId);
+        var lambdaHook = new EvmHook(contractId);
         var hook = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
         AccountCreateTransaction transaction = new AccountCreateTransaction()
                 .setKey(PrivateKey.generateED25519().getPublicKey())
@@ -123,7 +123,7 @@ public class AccountCreateTransactionHooksTest {
                 com.hedera.hashgraph.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
                 protoHookDetails.getExtensionPoint());
         assertEquals(1L, protoHookDetails.getHookId());
-        assertTrue(protoHookDetails.hasLambdaEvmHook());
+        assertTrue(protoHookDetails.hasEvmHook());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class AccountCreateTransactionHooksTest {
             throws com.google.protobuf.InvalidProtocolBufferException {
         // Create contract and hook details
         ContractId contractId = new ContractId(500);
-        LambdaEvmHook lambdaEvmHook = new LambdaEvmHook(contractId);
+        EvmHook lambdaEvmHook = new EvmHook(contractId);
         HookCreationDetails hookDetails =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, lambdaEvmHook);
 
