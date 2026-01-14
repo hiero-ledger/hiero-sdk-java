@@ -179,7 +179,8 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
-          hieroVersion: v0.69.0-alpha.1
+          mirrorNodeVersion: v0.145.2
+          hieroVersion: v0.69.0
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -269,7 +270,8 @@ jobs:
             -POPERATOR_KEY=$OPERATOR_KEY \
             -PHEDERA_NETWORK=$HEDERA_NETWORK \
             testIntegration \
-            --tests "*NodeUpdateTransactionIntegrationTest"
+            --tests "*NodeUpdateTransactionIntegrationTest" \
+            --rerun-tasks
 
   run-examples:
     name: Run Examples
@@ -307,8 +309,8 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
         with:
           installMirrorNode: true
-          hieroVersion: v0.69.0-alpha.1
-          mirrorNodeVersion: v0.142.0
+          mirrorNodeVersion: v0.145.2
+          hieroVersion: v0.69.0
 
       - name: Build SDK
         run: ./gradlew assemble
