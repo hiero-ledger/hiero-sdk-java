@@ -277,7 +277,7 @@ class Network extends BaseNetwork<Network, AccountId, Node> {
         if (maxNodesPerRequest != null) {
             return Math.min(maxNodesPerRequest, network.size());
         } else {
-            return (network.size() + 3 - 1) / 3;
+            return (network.size());
         }
     }
 
