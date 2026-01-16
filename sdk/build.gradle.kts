@@ -30,6 +30,7 @@ testModuleInfo {
     requires("org.junit.jupiter.api")
     requires("org.junit.jupiter.params")
     requires("org.mockito")
+    requires("jdk.httpserver")
 
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("org.slf4j.simple")
@@ -90,6 +91,8 @@ tasks.register<Exec>("updateProto") {
 
 tasks.withType<Test>().configureEach {
     if (project.hasProperty("skipNodeUpdateTest")) {
-        filter { excludeTestsMatching("*NodeUpdateTransactionIntegrationTest") }
+        exclude(
+            "com/hedera/hashgraph/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class"
+        )
     }
 }
