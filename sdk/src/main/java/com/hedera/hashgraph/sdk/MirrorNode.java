@@ -51,10 +51,11 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
         }
 
         if (isLocalHost(host)) {
-            // For localhost, always use port 5551 for general REST calls
-            return "http://" + host + ":5551/api/v1";
+            // If the user configured the standard gRPC port (5600), map it to the standard REST port (5551).
+            // Otherwise, honor the explicitly configured port (e.g., 8084 for Fee Estimates).
+            int effectivePort = (port == 5600) ? 5551 : port;
+            return "http://" + host + ":" + effectivePort + "/api/v1";
         }
-
         String scheme = chooseScheme(port);
 
         StringBuilder base = new StringBuilder();
