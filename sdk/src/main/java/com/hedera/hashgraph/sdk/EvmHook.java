@@ -8,56 +8,56 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Definition of a lambda EVM hook.
+ * Definition of an EVM hook.
  * <p>
  * This class represents a hook implementation that is programmed in EVM bytecode
  * and can access state or interact with external contracts. It includes the
  * hook specification and any initial storage updates.
  */
-public class LambdaEvmHook extends EvmHookSpec {
-    private final List<LambdaStorageUpdate> storageUpdates;
+public class EvmHook extends EvmHookSpec {
+    private final List<EvmHookStorageUpdate> storageUpdates;
 
     /**
-     * Create a new LambdaEvmHook with no initial storage updates.
+     * Create a new EvmHook with no initial storage updates.
      *
      * @param contractId underlying contract of the hook
      */
-    public LambdaEvmHook(ContractId contractId) {
+    public EvmHook(ContractId contractId) {
         this(contractId, Collections.emptyList());
     }
 
     /**
-     * Create a new LambdaEvmHook with initial storage updates.
+     * Create a new EvmHook with initial storage updates.
      *
      * @param contractId underlying contract of the hook
-     * @param storageUpdates the initial storage updates for the lambda
+     * @param storageUpdates the initial storage updates for the EVM hook
      */
-    public LambdaEvmHook(ContractId contractId, List<LambdaStorageUpdate> storageUpdates) {
+    public EvmHook(ContractId contractId, List<EvmHookStorageUpdate> storageUpdates) {
         super(Objects.requireNonNull(contractId, "contractId cannot be null"));
         this.storageUpdates = new ArrayList<>(Objects.requireNonNull(storageUpdates, "storageUpdates cannot be null"));
     }
 
     /**
-     * Get the initial storage updates for this lambda.
+     * Get the initial storage updates for this EVM hook.
      *
      * @return an immutable list of storage updates
      */
-    public List<LambdaStorageUpdate> getStorageUpdates() {
+    public List<EvmHookStorageUpdate> getStorageUpdates() {
         return Collections.unmodifiableList(storageUpdates);
     }
 
     /**
-     * Convert this LambdaEvmHook to a protobuf message.
+     * Convert this EvmHook to a protobuf message.
      *
-     * @return the protobuf LambdaEvmHook
+     * @return the protobuf EvmHook
      */
-    com.hedera.hashgraph.sdk.proto.LambdaEvmHook toProtobuf() {
+    com.hedera.hashgraph.sdk.proto.EvmHook toProtobuf() {
         var specProto = com.hedera.hashgraph.sdk.proto.EvmHookSpec.newBuilder()
                 .setContractId(getContractId().toProtobuf())
                 .build();
-        var builder = com.hedera.hashgraph.sdk.proto.LambdaEvmHook.newBuilder().setSpec(specProto);
+        var builder = com.hedera.hashgraph.sdk.proto.EvmHook.newBuilder().setSpec(specProto);
 
-        for (LambdaStorageUpdate update : storageUpdates) {
+        for (EvmHookStorageUpdate update : storageUpdates) {
             builder.addStorageUpdates(update.toProtobuf());
         }
 
@@ -65,18 +65,18 @@ public class LambdaEvmHook extends EvmHookSpec {
     }
 
     /**
-     * Create a LambdaEvmHook from a protobuf message.
+     * Create an EvmHook from a protobuf message.
      *
-     * @param proto the protobuf LambdaEvmHook
-     * @return a new LambdaEvmHook instance
+     * @param proto the protobuf EvmHook
+     * @return a new EvmHook instance
      */
-    public static LambdaEvmHook fromProtobuf(com.hedera.hashgraph.sdk.proto.LambdaEvmHook proto) {
-        var storageUpdates = new ArrayList<LambdaStorageUpdate>();
+    public static EvmHook fromProtobuf(com.hedera.hashgraph.sdk.proto.EvmHook proto) {
+        var storageUpdates = new ArrayList<EvmHookStorageUpdate>();
         for (var protoUpdate : proto.getStorageUpdatesList()) {
-            storageUpdates.add(LambdaStorageUpdate.fromProtobuf(protoUpdate));
+            storageUpdates.add(EvmHookStorageUpdate.fromProtobuf(protoUpdate));
         }
 
-        return new LambdaEvmHook(ContractId.fromProtobuf(proto.getSpec().getContractId()), storageUpdates);
+        return new EvmHook(ContractId.fromProtobuf(proto.getSpec().getContractId()), storageUpdates);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class LambdaEvmHook extends EvmHookSpec {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LambdaEvmHook that = (LambdaEvmHook) o;
+        EvmHook that = (EvmHook) o;
         return super.equals(o) && storageUpdates.equals(that.storageUpdates);
     }
 
@@ -95,6 +95,6 @@ public class LambdaEvmHook extends EvmHookSpec {
 
     @Override
     public String toString() {
-        return "LambdaEvmHook{contractId=" + getContractId() + ", storageUpdates=" + storageUpdates + "}";
+        return "EvmHook{contractId=" + getContractId() + ", storageUpdates=" + storageUpdates + "}";
     }
 }

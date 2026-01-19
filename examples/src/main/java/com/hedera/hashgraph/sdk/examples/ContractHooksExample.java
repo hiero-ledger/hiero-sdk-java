@@ -98,7 +98,7 @@ class ContractHooksExample {
         System.out.println("Creating contract with lambda EVM hook...");
 
         // Build a basic lambda EVM hook (no admin key, no storage updates) - like the integration test
-        var lambdaHook = new LambdaEvmHook(hookContractId);
+        var lambdaHook = new EvmHook(hookContractId);
         var hookDetails = new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 1L, lambdaHook);
 
         var response = new ContractCreateTransaction()
@@ -126,7 +126,7 @@ class ContractHooksExample {
         Key adminKey = OPERATOR_KEY.getPublicKey();
 
         // Hook 3: Basic lambda hook with no storage updates (using ID 3 to avoid conflict with existing hook 1)
-        LambdaEvmHook basicHook = new LambdaEvmHook(hookContractId);
+        EvmHook basicHook = new EvmHook(hookContractId);
         HookCreationDetails hook3 =
                 new HookCreationDetails(HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, 3L, basicHook, adminKey);
         try {

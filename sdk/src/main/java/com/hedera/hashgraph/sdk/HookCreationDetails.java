@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 public class HookCreationDetails {
     private final HookExtensionPoint extensionPoint;
     private final long hookId;
-    private final LambdaEvmHook hook;
+    private final EvmHook hook;
 
     @Nullable
     private final Key adminKey;
@@ -27,8 +27,7 @@ public class HookCreationDetails {
      * @param hook the hook implementation
      * @param adminKey the admin key for managing the hook
      */
-    public HookCreationDetails(
-            HookExtensionPoint extensionPoint, long hookId, LambdaEvmHook hook, @Nullable Key adminKey) {
+    public HookCreationDetails(HookExtensionPoint extensionPoint, long hookId, EvmHook hook, @Nullable Key adminKey) {
         this.extensionPoint = Objects.requireNonNull(extensionPoint, "extensionPoint cannot be null");
         this.hookId = hookId;
         this.hook = Objects.requireNonNull(hook, "hook cannot be null");
@@ -42,7 +41,7 @@ public class HookCreationDetails {
      * @param hookId the ID to create the hook at
      * @param hook the hook implementation
      */
-    public HookCreationDetails(HookExtensionPoint extensionPoint, long hookId, LambdaEvmHook hook) {
+    public HookCreationDetails(HookExtensionPoint extensionPoint, long hookId, EvmHook hook) {
         this(extensionPoint, hookId, hook, null);
     }
 
@@ -69,7 +68,7 @@ public class HookCreationDetails {
      *
      * @return the hook implementation
      */
-    public LambdaEvmHook getHook() {
+    public EvmHook getHook() {
         return hook;
     }
 
@@ -101,7 +100,7 @@ public class HookCreationDetails {
         var builder = com.hedera.hashgraph.sdk.proto.HookCreationDetails.newBuilder()
                 .setExtensionPoint(extensionPoint.getProtoValue())
                 .setHookId(hookId)
-                .setLambdaEvmHook(hook.toProtobuf());
+                .setEvmHook(hook.toProtobuf());
 
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
@@ -122,7 +121,7 @@ public class HookCreationDetails {
         return new HookCreationDetails(
                 HookExtensionPoint.fromProtobuf(proto.getExtensionPoint()),
                 proto.getHookId(),
-                LambdaEvmHook.fromProtobuf(proto.getLambdaEvmHook()),
+                EvmHook.fromProtobuf(proto.getEvmHook()),
                 adminKey);
     }
 
