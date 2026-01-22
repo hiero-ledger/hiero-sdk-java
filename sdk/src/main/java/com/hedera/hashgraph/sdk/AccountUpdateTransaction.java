@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.BoolValue;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
@@ -80,6 +81,9 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
     private List<Long> hookIdsToDelete = new ArrayList<>();
 
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
+
+    @Nullable
+    private EvmAddress delegationAddress = null;
 
     /**
      * Constructor.
@@ -563,6 +567,36 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         return new ArrayList<>(hookIdsToDelete);
     }
 
+    /**
+     * Get the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     *
+     * @return the delegation address, or null if not set
+     */
+    @Nullable
+    public EvmAddress getDelegationAddress() {
+        return delegationAddress;
+    }
+
+    /**
+     * Set the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     *
+     * @param delegationAddress the delegation address
+     * @return {@code this}
+     */
+    public AccountUpdateTransaction setDelegationAddress(EvmAddress delegationAddress) {
+        requireNotFrozen();
+        this.delegationAddress = delegationAddress;
+        return this;
+    }
+
     @Override
     void validateChecksums(Client client) throws BadEntityIdException {
         if (accountId != null) {
@@ -629,6 +663,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
 
         hookIdsToDelete.clear();
         hookIdsToDelete.addAll(body.getHookIdsToDeleteList());
+
+        if (body.getDelegationAddress() != null && !body.getDelegationAddress().isEmpty()) {
+            delegationAddress = EvmAddress.fromBytes(body.getDelegationAddress().toByteArray());
+        }
     }
 
     @Override
@@ -688,6 +726,13 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
 
         if (!hookIdsToDelete.isEmpty()) {
             builder.addAllHookIdsToDelete(hookIdsToDelete);
+        }
+
+        if (delegationAddress != null) {
+            builder.setDelegationAddress(ByteString.copyFrom(delegationAddress.toBytes()));
+        } else {
+            // Setting to empty ByteString clears the delegation (matching Go SDK behavior)
+            builder.setDelegationAddress(ByteString.EMPTY);
         }
 
         return builder;

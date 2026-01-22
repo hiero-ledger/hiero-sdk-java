@@ -4,13 +4,7 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.AccountInfoQuery;
-import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
-import com.hedera.hashgraph.sdk.Hbar;
-import com.hedera.hashgraph.sdk.PrecheckStatusException;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.*;
 import java.time.Duration;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
@@ -70,6 +64,69 @@ class AccountUpdateIntegrationTest {
                         new AccountUpdateTransaction().execute(testEnv.client).getReceipt(testEnv.client);
                     })
                     .withMessageContaining(Status.ACCOUNT_ID_DOES_NOT_EXIST.toString());
+        }
+    }
+
+    // HIP-1340: EOA Code Delegation
+
+    @Test
+    @DisplayName("Can update account with delegation address")
+    void canUpdateAccountWithDelegationAddress() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddr = "0x1111111111111111111111111111111111111111";
+            var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+            var createResponse = new AccountCreateTransaction().setKey(key).execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(createResponse.getReceipt(testEnv.client).accountId);
+
+            new AccountUpdateTransaction()
+                    .setAccountId(accountId)
+                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.delegationAddress).isNotNull();
+            assertThat(info.delegationAddress.toBytes()).isEqualTo(expectedBytes);
+        }
+    }
+
+    @Test
+    @DisplayName("Can clear delegation address by setting to null")
+    void canClearDelegationAddress() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddr = "0x2222222222222222222222222222222222222222";
+
+            var createResponse = new AccountCreateTransaction()
+                    .setKey(key)
+                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(createResponse.getReceipt(testEnv.client).accountId);
+
+            // Verify delegation address is set
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+            assertThat(info.delegationAddress).isNotNull();
+
+            // Clear delegation address by not setting it (null)
+            new AccountUpdateTransaction()
+                    .setAccountId(accountId)
+                    .setDelegationAddress(null)
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            // Verify delegation address is cleared
+            info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+            assertThat(info.delegationAddress).isNull();
         }
     }
 }

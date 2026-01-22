@@ -52,6 +52,9 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     @Nullable
     private EvmAddress alias = null;
 
+    @Nullable
+    private EvmAddress delegationAddress = null;
+
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
@@ -460,6 +463,36 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
+     * Get the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     *
+     * @return the delegation address, or null if not set
+     */
+    @Nullable
+    public EvmAddress getDelegationAddress() {
+        return delegationAddress;
+    }
+
+    /**
+     * Set the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     *
+     * @param delegationAddress the delegation address
+     * @return {@code this}
+     */
+    public AccountCreateTransaction setDelegationAddress(EvmAddress delegationAddress) {
+        requireNotFrozen();
+        this.delegationAddress = delegationAddress;
+        return this;
+    }
+
+    /**
      * Get the hook creation details for this account.
      *
      * @return a copy of the hook creation details list
@@ -530,6 +563,10 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
             builder.addHookCreationDetails(hookDetails.toProtobuf());
         }
 
+        if (delegationAddress != null) {
+            builder.setDelegationAddress(ByteString.copyFrom(delegationAddress.toBytes()));
+        }
+
         return builder;
     }
 
@@ -574,6 +611,10 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         }
 
         alias = EvmAddress.fromAliasBytes(body.getAlias());
+
+        if (body.getDelegationAddress() != null && !body.getDelegationAddress().isEmpty()) {
+            delegationAddress = EvmAddress.fromBytes(body.getDelegationAddress().toByteArray());
+        }
 
         // Initialize hook creation details
         hookCreationDetails.clear();
