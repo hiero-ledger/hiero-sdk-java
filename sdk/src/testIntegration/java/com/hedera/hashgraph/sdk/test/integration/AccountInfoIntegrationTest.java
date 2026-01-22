@@ -135,7 +135,7 @@ class AccountInfoIntegrationTest {
             var response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key.getPublicKey())
                     .setInitialBalance(new Hbar(2))
-                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .setDelegationAddress(delegationAddr)
                     .execute(testEnv.client);
 
             var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);

@@ -117,7 +117,7 @@ public class AccountUpdateTransactionTest {
         var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
 
         var tx = new AccountUpdateTransaction();
-        tx.setDelegationAddress(EvmAddress.fromString(delegationAddr));
+        tx.setDelegationAddress(delegationAddr);
 
         var retrievedAddr = tx.getDelegationAddress();
         assertThat(retrievedAddr).isNotNull();
@@ -130,7 +130,7 @@ public class AccountUpdateTransactionTest {
         var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
 
         var tx = new AccountUpdateTransaction();
-        tx.setDelegationAddress(EvmAddress.fromString(delegationAddr));
+        tx.setDelegationAddress(delegationAddr);
 
         var retrievedAddr = tx.getDelegationAddress();
         assertThat(retrievedAddr).isNotNull();
@@ -145,7 +145,7 @@ public class AccountUpdateTransactionTest {
         };
 
         var tx = new AccountUpdateTransaction();
-        tx.setDelegationAddress(EvmAddress.fromBytes(delegationAddrBytes));
+        tx.setDelegationAddress(delegationAddrBytes);
 
         var retrievedAddr = tx.getDelegationAddress();
         assertThat(retrievedAddr).isNotNull();
@@ -164,7 +164,7 @@ public class AccountUpdateTransactionTest {
         var delegationAddr = "0x4444444444444444444444444444444444444444";
         var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
 
-        var tx = new AccountUpdateTransaction().setDelegationAddress(EvmAddress.fromString(delegationAddr));
+        var tx = new AccountUpdateTransaction().setDelegationAddress(delegationAddr);
 
         var proto = tx.build();
         assertThat(proto.getDelegationAddress().toByteArray()).isEqualTo(expectedBytes);
@@ -183,7 +183,7 @@ public class AccountUpdateTransactionTest {
         var delegationAddr = "0x5555555555555555555555555555555555555555";
         var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
 
-        var tx = new AccountUpdateTransaction().setDelegationAddress(EvmAddress.fromString(delegationAddr));
+        var tx = new AccountUpdateTransaction().setDelegationAddress(delegationAddr);
 
         var bytes = tx.toBytes();
         var txFromBytes = (AccountUpdateTransaction) AccountUpdateTransaction.fromBytes(bytes);
@@ -199,8 +199,7 @@ public class AccountUpdateTransactionTest {
                 .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
                 .freeze();
         assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() ->
-                        tx.setDelegationAddress(EvmAddress.fromString("0x1111111111111111111111111111111111111111")))
+                .isThrownBy(() -> tx.setDelegationAddress("0x1111111111111111111111111111111111111111"))
                 .withMessageContaining("transaction is immutable");
     }
 

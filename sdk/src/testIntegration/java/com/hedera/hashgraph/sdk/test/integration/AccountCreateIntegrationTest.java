@@ -570,7 +570,7 @@ class AccountCreateIntegrationTest {
             var response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
                     .setInitialBalance(new Hbar(2))
-                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .setDelegationAddress(delegationAddr)
                     .execute(testEnv.client);
 
             var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
@@ -594,7 +594,7 @@ class AccountCreateIntegrationTest {
             var response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
                     .setInitialBalance(new Hbar(2))
-                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .setDelegationAddress(delegationAddr)
                     .execute(testEnv.client);
 
             var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
@@ -620,7 +620,7 @@ class AccountCreateIntegrationTest {
             var response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(key)
                     .setInitialBalance(new Hbar(2))
-                    .setDelegationAddress(EvmAddress.fromBytes(delegationAddrBytes))
+                    .setDelegationAddress(delegationAddrBytes)
                     .execute(testEnv.client);
 
             var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);

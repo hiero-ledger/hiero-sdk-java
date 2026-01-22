@@ -83,7 +83,7 @@ class AccountUpdateIntegrationTest {
 
             new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .setDelegationAddress(delegationAddr)
                     .freezeWith(testEnv.client)
                     .sign(key)
                     .execute(testEnv.client)
@@ -106,7 +106,7 @@ class AccountUpdateIntegrationTest {
 
             var createResponse = new AccountCreateTransaction()
                     .setKey(key)
-                    .setDelegationAddress(EvmAddress.fromString(delegationAddr))
+                    .setDelegationAddress(delegationAddr)
                     .execute(testEnv.client);
 
             var accountId = Objects.requireNonNull(createResponse.getReceipt(testEnv.client).accountId);
@@ -115,10 +115,9 @@ class AccountUpdateIntegrationTest {
             var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
             assertThat(info.delegationAddress).isNotNull();
 
-            // Clear delegation address by not setting it (null)
             new AccountUpdateTransaction()
                     .setAccountId(accountId)
-                    .setDelegationAddress(null)
+                    .setDelegationAddress((String) null)
                     .freezeWith(testEnv.client)
                     .sign(key)
                     .execute(testEnv.client)

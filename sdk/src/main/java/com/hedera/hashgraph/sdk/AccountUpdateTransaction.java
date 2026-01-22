@@ -587,13 +587,88 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * The delegated contract address for the account.
      * If this field is set, a call to the account's address within a smart contract will
      * result in the code of the authorized contract being executed.
+     * <p>
+     * The address must be exactly 20 bytes. It can be provided as:
+     * <ul>
+     *   <li>A hex string (with or without "0x" prefix)</li>
+     *   <li>A byte array (must be exactly 20 bytes)</li>
+     * </ul>
+     * Setting to a zero address (all zeros) also clears any existing delegation.
      *
-     * @param delegationAddress the delegation address
+     * @param delegationAddressHex the delegation address as a hex string (with or without "0x" prefix)
      * @return {@code this}
+     * @throws IllegalArgumentException if the address format is invalid
      */
-    public AccountUpdateTransaction setDelegationAddress(EvmAddress delegationAddress) {
+    public AccountUpdateTransaction setDelegationAddress(String delegationAddressHex) {
         requireNotFrozen();
-        this.delegationAddress = delegationAddress;
+        if (delegationAddressHex == null) {
+            this.delegationAddress = null;
+            return this;
+        }
+        try {
+            byte[] addressBytes = EntityIdHelper.decodeEvmAddress(delegationAddressHex);
+            // Check if it's zero address (clears delegation)
+            boolean isZero = true;
+            for (byte b : addressBytes) {
+                if (b != 0) {
+                    isZero = false;
+                    break;
+                }
+            }
+            if (isZero) {
+                this.delegationAddress = null;
+                return this;
+            }
+            this.delegationAddress = EvmAddress.fromBytes(addressBytes);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid delegation address format: " + e.getMessage(), e);
+        }
+        return this;
+    }
+
+    /**
+     * Set the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     * <p>
+     * The address must be exactly 20 bytes. It can be provided as:
+     * <ul>
+     *   <li>A hex string (with or without "0x" prefix)</li>
+     *   <li>A byte array (must be exactly 20 bytes)</li>
+     * </ul>
+     * Setting to 20 zero-bytes also clears any existing delegation.
+     *
+     * @param delegationAddressBytes the delegation address as a byte array (must be exactly 20 bytes)
+     * @return {@code this}
+     * @throws IllegalArgumentException if the address is not exactly 20 bytes
+     */
+    public AccountUpdateTransaction setDelegationAddress(byte[] delegationAddressBytes) {
+        requireNotFrozen();
+        if (delegationAddressBytes == null) {
+            this.delegationAddress = null;
+            return this;
+        }
+        if (delegationAddressBytes.length != 20) {
+            throw new IllegalArgumentException(
+                    "Delegation address must be exactly 20 bytes, got " + delegationAddressBytes.length + " bytes");
+        }
+        boolean isZero = true;
+        for (byte b : delegationAddressBytes) {
+            if (b != 0) {
+                isZero = false;
+                break;
+            }
+        }
+        if (isZero) {
+            this.delegationAddress = null;
+            return this;
+        }
+        byte[] addressBytes = new byte[20];
+        System.arraycopy(delegationAddressBytes, 0, addressBytes, 0, 20);
+
+        this.delegationAddress = EvmAddress.fromBytes(addressBytes);
         return this;
     }
 
