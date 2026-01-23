@@ -618,4 +618,66 @@ public class TransactionTest {
             }
         }
     }
+
+    @Test
+    void highVolumeDefaultsToFalse() {
+        var transaction = new AccountCreateTransaction();
+
+        assertThat(transaction.getHighVolume()).isFalse();
+    }
+
+    @Test
+    void highVolumeCanBeSerialized() throws InvalidProtocolBufferException {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setHighVolume(true);
+
+        var transactionFromBytes = Transaction.fromBytes(transaction.toBytes());
+
+        assertThat(transactionFromBytes).isInstanceOf(AccountCreateTransaction.class);
+        assertThat(((AccountCreateTransaction) transactionFromBytes).getHighVolume())
+                .isTrue();
+    }
+
+    @Test
+    void highVolumeCannotChangeAfterFreeze() {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        assertThrows(IllegalStateException.class, () -> transaction.setHighVolume(true));
+    }
+
+    @Test
+    void highVolumeIsIncludedInProtobufOutput() throws InvalidProtocolBufferException {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .setHighVolume(true)
+                .freeze();
+
+        List<Transaction.SignableNodeTransactionBodyBytes> signableBodies = transaction.getSignableNodeBodyBytesList();
+        assertThat(signableBodies).isNotEmpty();
+
+        // Parse the first body and verify high_volume is set
+        TransactionBody body = TransactionBody.parseFrom(signableBodies.get(0).getBody());
+        assertThat(body.getHighVolume()).isTrue();
+
+        // Test with highVolume set to false
+        var transactionFalse = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .setHighVolume(false)
+                .freeze();
+
+        List<Transaction.SignableNodeTransactionBodyBytes> signableBodiesFalse =
+                transactionFalse.getSignableNodeBodyBytesList();
+        TransactionBody bodyFalse =
+                TransactionBody.parseFrom(signableBodiesFalse.get(0).getBody());
+        assertThat(bodyFalse.getHighVolume()).isFalse();
+    }
 }

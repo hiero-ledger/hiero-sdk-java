@@ -241,6 +241,13 @@ message TransactionBody {
     string memo = 6;
 
     /**
+     * If set to true, this transaction uses high-volume throttles and pricing
+     * for entity creation. It only affects supported transaction types; otherwise,
+     * it is ignored.
+     */
+    bool high_volume = 77;
+
+    /**
      * The <b>public key</b> of the trusted batch assembler.
      */
     Key batch_key = 73;
