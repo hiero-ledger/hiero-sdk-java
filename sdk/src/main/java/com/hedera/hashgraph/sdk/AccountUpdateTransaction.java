@@ -13,7 +13,9 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -74,6 +76,10 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
 
     @Nullable
     private Boolean declineStakingReward = null;
+
+    private List<Long> hookIdsToDelete = new ArrayList<>();
+
+    private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
      * Constructor.
@@ -487,6 +493,76 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         return this;
     }
 
+    /**
+     * Add a hook to be created for the account.
+     *
+     * @param hookDetails the hook creation details to add
+     * @return {@code this}
+     */
+    public AccountUpdateTransaction addHookToCreate(HookCreationDetails hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails.add(hookDetails);
+        return this;
+    }
+
+    /**
+     * Set hooks to be created with the account.
+     *
+     * @param hookDetails list of hook creation details
+     * @return {@code this}
+     */
+    public AccountUpdateTransaction setHooksToCreate(List<HookCreationDetails> hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails = new ArrayList<>(hookDetails);
+        return this;
+    }
+
+    /**
+     * Mark a hook for deletion from the account.
+     *
+     * @param hookId the hook id to delete
+     * @return {@code this}
+     */
+    public AccountUpdateTransaction addHookToDelete(Long hookId) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookId, "hookId cannot be null");
+        this.hookIdsToDelete.add(hookId);
+        return this;
+    }
+
+    /**
+     * Mark hooks for deletion from the account.
+     *
+     * @param hookIds list of hook ids to delete
+     * @return {@code this}
+     */
+    public AccountUpdateTransaction setHooksToDelete(List<Long> hookIds) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookIds, "hookIds cannot be null");
+        this.hookIdsToDelete = new ArrayList<>(hookIds);
+        return this;
+    }
+
+    /**
+     * Get the list of hooks to be created.
+     *
+     * @return a copy of the hook creation details list
+     */
+    public List<HookCreationDetails> getHooksToCreate() {
+        return new ArrayList<>(hookCreationDetails);
+    }
+
+    /**
+     * Get the list of hook IDs to be deleted.
+     *
+     * @return a copy of the hook IDs list
+     */
+    public List<Long> getHooksToDelete() {
+        return new ArrayList<>(hookIdsToDelete);
+    }
+
     @Override
     void validateChecksums(Client client) throws BadEntityIdException {
         if (accountId != null) {
@@ -544,6 +620,15 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         if (body.hasStakedNodeId()) {
             stakedNodeId = body.getStakedNodeId();
         }
+
+        // Initialize hook create/delete details
+        hookCreationDetails.clear();
+        for (var protoHookDetails : body.getHookCreationDetailsList()) {
+            hookCreationDetails.add(HookCreationDetails.fromProtobuf(protoHookDetails));
+        }
+
+        hookIdsToDelete.clear();
+        hookIdsToDelete.addAll(body.getHookIdsToDeleteList());
     }
 
     @Override
@@ -595,6 +680,14 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         if (declineStakingReward != null) {
             builder.setDeclineReward(
                     BoolValue.newBuilder().setValue(declineStakingReward).build());
+        }
+
+        for (HookCreationDetails hookDetails : hookCreationDetails) {
+            builder.addHookCreationDetails(hookDetails.toProtobuf());
+        }
+
+        if (!hookIdsToDelete.isEmpty()) {
+            builder.addAllHookIdsToDelete(hookIdsToDelete);
         }
 
         return builder;

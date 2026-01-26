@@ -20,6 +20,7 @@ public class TokenClaimAirdropParams extends JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<List<String>> serialNumbers;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -34,6 +35,7 @@ public class TokenClaimAirdropParams extends JSONRPC2Param {
                 parsedReceiverAccountId,
                 parsedTokenId,
                 parsedSerialNumbers,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

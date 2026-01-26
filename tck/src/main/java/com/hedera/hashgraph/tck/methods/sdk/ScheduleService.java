@@ -12,24 +12,66 @@ import com.hedera.hashgraph.tck.methods.sdk.response.ScheduleResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @JSONRPC2Service
 public class ScheduleService extends AbstractJSONRPC2Service {
     private static final Duration DEFAULT_GRPC_DEADLINE = Duration.ofSeconds(10L);
+    private static final Map<String, Function<Map<String, Object>, Transaction<?>>> SCHEDULED_TRANSACTION_BUILDERS;
     private final SdkService sdkService;
 
     public ScheduleService(SdkService sdkService) {
         this.sdkService = sdkService;
     }
 
+    static {
+        Map<String, Function<Map<String, Object>, Transaction<?>>> builders = new HashMap<>();
+        builders.put("transferCrypto", TransactionBuilders.TransferBuilder::buildTransfer);
+        builders.put("submitMessage", TransactionBuilders.TopicBuilder::buildSubmitMessage);
+        builders.put("burnToken", TransactionBuilders.TokenBuilder::buildBurn);
+        builders.put("mintToken", TransactionBuilders.TokenBuilder::buildMint);
+        builders.put("approveAllowance", TransactionBuilders.AccountBuilder::buildApproveAllowance);
+        builders.put("createAccount", TransactionBuilders.AccountBuilder::buildCreate);
+        builders.put("createToken", TransactionBuilders.TokenBuilder::buildCreate);
+        builders.put("createTopic", TransactionBuilders.TopicBuilder::buildCreate);
+        builders.put("createFile", TransactionBuilders.FileBuilder::buildCreate);
+        builders.put("updateAccount", TransactionBuilders.AccountBuilder::buildUpdate);
+        builders.put("updateToken", TransactionBuilders.TokenBuilder::buildUpdate);
+        builders.put("updateTopic", TransactionBuilders.TopicBuilder::buildUpdate);
+        builders.put("updateFile", TransactionBuilders.FileBuilder::buildUpdate);
+        builders.put("deleteAccount", TransactionBuilders.AccountBuilder::buildDelete);
+        builders.put("deleteToken", TransactionBuilders.TokenBuilder::buildDelete);
+        builders.put("deleteTopic", TransactionBuilders.TopicBuilder::buildDelete);
+        builders.put("deleteFile", TransactionBuilders.FileBuilder::buildDelete);
+        builders.put("associateToken", TransactionBuilders.TokenBuilder::buildAssociate);
+        builders.put("dissociateToken", TransactionBuilders.TokenBuilder::buildDissociate);
+        builders.put("freezeToken", TransactionBuilders.TokenBuilder::buildFreeze);
+        builders.put("unfreezeToken", TransactionBuilders.TokenBuilder::buildUnfreeze);
+        builders.put("grantKyc", TransactionBuilders.TokenBuilder::buildGrantKyc);
+        builders.put("revokeKyc", TransactionBuilders.TokenBuilder::buildRevokeKyc);
+        builders.put("pauseToken", TransactionBuilders.TokenBuilder::buildPause);
+        builders.put("unpauseToken", TransactionBuilders.TokenBuilder::buildUnpause);
+        builders.put("wipeToken", TransactionBuilders.TokenBuilder::buildWipe);
+        builders.put("updateTokenFeeSchedule", TransactionBuilders.TokenBuilder::buildUpdateFeeSchedule);
+        builders.put("airdropToken", TransactionBuilders.TokenBuilder::buildAirdrop);
+        builders.put("cancelAirdrop", TransactionBuilders.TokenBuilder::buildCancelAirdrop);
+        builders.put("claimToken", TransactionBuilders.TokenBuilder::buildClaimAirdrop);
+        builders.put("deleteAllowance", TransactionBuilders.AccountBuilder::buildDeleteAllowance);
+        builders.put("appendFile", TransactionBuilders.FileBuilder::buildAppend);
+        SCHEDULED_TRANSACTION_BUILDERS = Collections.unmodifiableMap(builders);
+    }
+
     @JSONRPC2Method("createSchedule")
     public ScheduleResponse createSchedule(final ScheduleCreateParams params) throws Exception {
         ScheduleCreateTransaction transaction = new ScheduleCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduledTransaction().ifPresent(scheduledTx -> {
             try {
-                Transaction<?> tx = buildScheduledTransaction(scheduledTx);
+                Transaction<?> tx = buildScheduledTransaction(scheduledTx, params.getSessionId());
                 transaction.setScheduledTransaction(tx);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to build scheduled transaction", e);
@@ -60,11 +102,10 @@ public class ScheduleService extends AbstractJSONRPC2Service {
 
         params.getWaitForExpiry().ifPresent(transaction::setWaitForExpiry);
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";
@@ -83,15 +124,15 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("signSchedule")
     public ScheduleResponse signSchedule(final ScheduleSignParams params) throws Exception {
         ScheduleSignTransaction transaction = new ScheduleSignTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduleId()
                 .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";
@@ -110,15 +151,15 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteSchedule")
     public ScheduleResponse deleteSchedule(final ScheduleDeleteParams params) throws Exception {
         ScheduleDeleteTransaction transaction = new ScheduleDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getScheduleId()
                 .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String scheduleId = "";
         String transactionId = "";
@@ -137,44 +178,16 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     /**
      * Builds a scheduled transaction from method name and parameters
      */
-    private Transaction<?> buildScheduledTransaction(ScheduleCreateParams.ScheduledTransaction scheduledTx) {
-        String method = scheduledTx.getMethod();
-        Map<String, Object> params = scheduledTx.getParams();
+    private Transaction<?> buildScheduledTransaction(
+            ScheduleCreateParams.ScheduledTransaction scheduledTx, String sessionId) {
+        Map<String, Object> params = new HashMap<>(scheduledTx.getParams());
+        params.put("sessionId", sessionId);
 
-        return switch (method) {
-            case "transferCrypto" -> TransactionBuilders.TransferBuilder.buildTransfer(params);
-            case "submitMessage" -> TransactionBuilders.TopicBuilder.buildSubmitMessage(params);
-            case "burnToken" -> TransactionBuilders.TokenBuilder.buildBurn(params);
-            case "mintToken" -> TransactionBuilders.TokenBuilder.buildMint(params);
-            case "approveAllowance" -> TransactionBuilders.AccountBuilder.buildApproveAllowance(params);
-            case "createAccount" -> TransactionBuilders.AccountBuilder.buildCreate(params);
-            case "createToken" -> TransactionBuilders.TokenBuilder.buildCreate(params);
-            case "createTopic" -> TransactionBuilders.TopicBuilder.buildCreate(params);
-            case "createFile" -> TransactionBuilders.FileBuilder.buildCreate(params);
-            case "updateAccount" -> TransactionBuilders.AccountBuilder.buildUpdate(params);
-            case "updateToken" -> TransactionBuilders.TokenBuilder.buildUpdate(params);
-            case "updateTopic" -> TransactionBuilders.TopicBuilder.buildUpdate(params);
-            case "updateFile" -> TransactionBuilders.FileBuilder.buildUpdate(params);
-            case "deleteAccount" -> TransactionBuilders.AccountBuilder.buildDelete(params);
-            case "deleteToken" -> TransactionBuilders.TokenBuilder.buildDelete(params);
-            case "deleteTopic" -> TransactionBuilders.TopicBuilder.buildDelete(params);
-            case "deleteFile" -> TransactionBuilders.FileBuilder.buildDelete(params);
-            case "associateToken" -> TransactionBuilders.TokenBuilder.buildAssociate(params);
-            case "dissociateToken" -> TransactionBuilders.TokenBuilder.buildDissociate(params);
-            case "freezeToken" -> TransactionBuilders.TokenBuilder.buildFreeze(params);
-            case "unfreezeToken" -> TransactionBuilders.TokenBuilder.buildUnfreeze(params);
-            case "grantKyc" -> TransactionBuilders.TokenBuilder.buildGrantKyc(params);
-            case "revokeKyc" -> TransactionBuilders.TokenBuilder.buildRevokeKyc(params);
-            case "pauseToken" -> TransactionBuilders.TokenBuilder.buildPause(params);
-            case "unpauseToken" -> TransactionBuilders.TokenBuilder.buildUnpause(params);
-            case "wipeToken" -> TransactionBuilders.TokenBuilder.buildWipe(params);
-            case "updateTokenFeeSchedule" -> TransactionBuilders.TokenBuilder.buildUpdateFeeSchedule(params);
-            case "airdropToken" -> TransactionBuilders.TokenBuilder.buildAirdrop(params);
-            case "cancelAirdrop" -> TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
-            case "claimToken" -> TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
-            case "deleteAllowance" -> TransactionBuilders.AccountBuilder.buildDeleteAllowance(params);
-            case "appendFile" -> TransactionBuilders.FileBuilder.buildAppend(params);
-            default -> throw new IllegalArgumentException("Unsupported scheduled transaction method: " + method);
-        };
+        Function<Map<String, Object>, Transaction<?>> builder =
+                SCHEDULED_TRANSACTION_BUILDERS.get(scheduledTx.getMethod());
+        if (builder == null) {
+            throw new IllegalArgumentException("Unsupported scheduled transaction method: " + scheduledTx.getMethod());
+        }
+        return builder.apply(params);
     }
 }

@@ -23,6 +23,7 @@ public class FileCreateParams extends JSONRPC2Param {
     private Optional<String> expirationTime;
     private Optional<String> memo;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public FileCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -33,7 +34,12 @@ public class FileCreateParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new FileCreateParams(
-                parsedKeys, parsedContents, parsedExpirationTime, parsedMemo, parsedCommonTransactionParams);
+                parsedKeys,
+                parsedContents,
+                parsedExpirationTime,
+                parsedMemo,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 
     @SuppressWarnings("unchecked")

@@ -16,12 +16,14 @@ import lombok.NoArgsConstructor;
 public class PauseUnpauseTokenParams extends JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new PauseUnpauseTokenParams(parsedTokenId, parsedCommonTransactionParams);
+        return new PauseUnpauseTokenParams(
+                parsedTokenId, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

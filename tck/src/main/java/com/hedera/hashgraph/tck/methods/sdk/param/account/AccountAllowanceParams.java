@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class AccountAllowanceParams extends JSONRPC2Param {
     private Optional<List<AllowanceParams>> allowances;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -24,6 +25,7 @@ public class AccountAllowanceParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
         var parsedAllowances = JSONRPCParamParser.parseAllowances(jrpcParams);
 
-        return new AccountAllowanceParams(parsedAllowances, parsedCommonTransactionParams);
+        return new AccountAllowanceParams(
+                parsedAllowances, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

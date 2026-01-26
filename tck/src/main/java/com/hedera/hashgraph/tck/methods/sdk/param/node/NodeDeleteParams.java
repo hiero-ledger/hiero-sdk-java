@@ -17,12 +17,13 @@ import lombok.NoArgsConstructor;
 public class NodeDeleteParams extends JSONRPC2Param {
     private Optional<String> nodeId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public NodeDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedNodeId = Optional.ofNullable((String) jrpcParams.get("nodeId"));
         var parsedCommonTx = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new NodeDeleteParams(parsedNodeId, parsedCommonTx);
+        return new NodeDeleteParams(parsedNodeId, parsedCommonTx, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

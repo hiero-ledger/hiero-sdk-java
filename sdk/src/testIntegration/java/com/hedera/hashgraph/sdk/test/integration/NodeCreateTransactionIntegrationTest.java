@@ -3,12 +3,7 @@ package com.hedera.hashgraph.sdk.test.integration;
 
 import static com.hedera.hashgraph.sdk.test.integration.IntegrationTestEnv.LOCAL_CONSENSUS_NODE_ACCOUNT_ID;
 
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.Client;
-import com.hedera.hashgraph.sdk.Endpoint;
-import com.hedera.hashgraph.sdk.NodeCreateTransaction;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.PrivateKeyECDSA;
+import com.hedera.hashgraph.sdk.*;
 import java.util.HashMap;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
@@ -34,7 +29,12 @@ class NodeCreateTransactionIntegrationTest {
             client.setOperator(new AccountId(0, 0, 2), originalOperatorKey);
 
             // The account of the new node
-            var accountID = AccountId.fromString("0.0.4");
+            var accountID = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(PrivateKey.generateECDSA().getPublicKey())
+                    .setInitialBalance(Hbar.from(1))
+                    .execute(client)
+                    .getReceipt(client)
+                    .accountId;
 
             // Node description
             String description = "test";

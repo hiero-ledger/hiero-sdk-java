@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.66.0
+
+### Added
+
+- HIP-1299: Refine Node Account ID Management in the Dynamic Address Book (DAB) - https://github.com/hiero-ledger/hiero-sdk-java/pull/2557
+- HIP-1261: Simplified Fee Model for Hiero Networks: enables accurate fee estimation by the SDK - https://github.com/hiero-ledger/hiero-sdk-java/pull/2559
+- HIP-1300: Add integration tests for Increased Transaction Size for Governance Accounts - https://github.com/hiero-ledger/hiero-sdk-java/pull/2560
+
+### Changed
+
+- Update network size logic - https://github.com/hiero-ledger/hiero-sdk-java/pull/2564
+- Update Lambda names - https://github.com/hiero-ledger/hiero-sdk-java/pull/2565
+
+### Fixed
+
+- Include nonce in TransactionId equals method - https://github.com/hiero-ledger/hiero-sdk-java/pull/2555
+
+## 2.65.0
+
+### Added
+
+- Add Hiero Hooks: programmable Hiero extension points that let users customize the behavior of their entities. Focuses on EVM hooks and account allowance hooks as the first extension point. https://github.com/hiero-ledger/hiero-sdk-java/pull/2538
+
+### Changed
+
+- gRPC version updated from 1.74.0 to 1.75.0 - https://github.com/hiero-ledger/hiero-sdk-java/pull/2525
+- make tck server thread safe - https://github.com/hiero-ledger/hiero-sdk-java/pull/2536
+
 ## 2.64.0
 
 ### Fixed
@@ -14,10 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Make mirror node security protocol rely on port number - https://github.com/hiero-ledger/hiero-sdk-java/pull/2480
-- New TCK methods
-  - for Contract [Create](https://github.com/hiero-ledger/hiero-sdk-java/pull/2469) / [Update](https://github.com/hiero-ledger/hiero-sdk-java/pull/2477) / [Delete](https://github.com/hiero-ledger/hiero-sdk-java/pull/2470) / [Execute](https://github.com/hiero-ledger/hiero-sdk-java/pull/2476)
-  - for ScheduleCreateTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2478
-  - for ScheduleSignTransaction - https://github.com/hiero-ledger/hiero-sdk-java/pull/2485
 
 ## 2.63.0
 

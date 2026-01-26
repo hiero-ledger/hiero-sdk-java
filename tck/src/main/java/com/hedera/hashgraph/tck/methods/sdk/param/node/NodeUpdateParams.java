@@ -29,6 +29,7 @@ public class NodeUpdateParams extends JSONRPC2Param {
     private Optional<String> adminKey;
     private Optional<Boolean> declineReward;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public NodeUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -76,6 +77,7 @@ public class NodeUpdateParams extends JSONRPC2Param {
                 parsedGrpcWebProxy,
                 parsedAdminKey,
                 parsedDeclineReward,
-                parsedCommonTx);
+                parsedCommonTx,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

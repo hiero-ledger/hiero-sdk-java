@@ -26,13 +26,14 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createAccount")
     public AccountResponse createAccount(final AccountCreateParams params) throws Exception {
         AccountCreateTransaction accountCreateTransaction = TransactionBuilders.AccountBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(accountCreateTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(accountCreateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                accountCreateTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                accountCreateTransaction.execute(client).getReceipt(client);
 
         String stringAccountId = "";
         if (transactionReceipt.status == Status.SUCCESS) {
@@ -45,13 +46,14 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateAccount")
     public AccountResponse updateAccount(final AccountUpdateParams params) throws Exception {
         AccountUpdateTransaction accountUpdateTransaction = TransactionBuilders.AccountBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(accountUpdateTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(accountUpdateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                accountUpdateTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                accountUpdateTransaction.execute(client).getReceipt(client);
 
         return new AccountResponse(null, transactionReceipt.status);
     }
@@ -59,13 +61,14 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteAccount")
     public AccountResponse deleteAccount(final AccountDeleteParams params) throws Exception {
         AccountDeleteTransaction accountDeleteTransaction = TransactionBuilders.AccountBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
                 .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(accountDeleteTransaction, sdkService.getClient()));
+                        commonTransactionParams.fillOutTransaction(accountDeleteTransaction, client));
 
         TransactionReceipt transactionReceipt =
-                accountDeleteTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+                accountDeleteTransaction.execute(client).getReceipt(client);
 
         return new AccountResponse(null, transactionReceipt.status);
     }
@@ -73,24 +76,22 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("approveAllowance")
     public AccountAllowanceResponse approveAllowance(final AccountAllowanceParams params) throws Exception {
         AccountAllowanceApproveTransaction tx = TransactionBuilders.AccountBuilder.buildApproveAllowance(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
-        params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(tx, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
 
-        TransactionReceipt transactionReceipt =
-                tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt transactionReceipt = tx.execute(client).getReceipt(client);
         return new AccountAllowanceResponse(transactionReceipt.status);
     }
 
     @JSONRPC2Method("deleteAllowance")
     public AccountAllowanceResponse deleteAllowance(final AccountAllowanceParams params) throws Exception {
         AccountAllowanceDeleteTransaction tx = TransactionBuilders.AccountBuilder.buildDeleteAllowance(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
-        params.getCommonTransactionParams()
-                .ifPresent(commonParams -> commonParams.fillOutTransaction(tx, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
 
-        TransactionReceipt transactionReceipt =
-                tx.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt transactionReceipt = tx.execute(client).getReceipt(client);
         return new AccountAllowanceResponse(transactionReceipt.status);
     }
 
@@ -104,13 +105,12 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("transferCrypto")
     public Map<String, String> transferCrypto(final TransferCryptoParams params) throws Exception {
         TransferTransaction transferTransaction = TransactionBuilders.TransferBuilder.buildTransfer(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(
-                        commonParams -> commonParams.fillOutTransaction(transferTransaction, sdkService.getClient()));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transferTransaction, client));
 
-        TransactionReceipt receipt =
-                transferTransaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transferTransaction.execute(client).getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
     }

@@ -23,6 +23,7 @@ public class ExecuteContractParams extends JSONRPC2Param {
     private Optional<String> amount;
     private Optional<String> functionParameters; // hex string
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public ExecuteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -33,6 +34,11 @@ public class ExecuteContractParams extends JSONRPC2Param {
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
         return new ExecuteContractParams(
-                parsedContractId, parsedGas, parsedAmount, parsedFunctionParameters, parsedCommonTransactionParams);
+                parsedContractId,
+                parsedGas,
+                parsedAmount,
+                parsedFunctionParameters,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
