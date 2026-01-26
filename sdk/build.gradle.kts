@@ -30,6 +30,7 @@ testModuleInfo {
     requires("org.junit.jupiter.api")
     requires("org.junit.jupiter.params")
     requires("org.mockito")
+    requires("jdk.httpserver")
 
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("org.slf4j.simple")
@@ -86,4 +87,12 @@ tasks.register<Delete>("updateSnapshots") {
 tasks.register<Exec>("updateProto") {
     executable = File(rootDir, "scripts/update_protobufs.py").absolutePath
     args("main") // argument is the branch/tag
+}
+
+tasks.withType<Test>().configureEach {
+    if (project.hasProperty("skipNodeUpdateTest")) {
+        exclude(
+            "com/hedera/hashgraph/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class"
+        )
+    }
 }

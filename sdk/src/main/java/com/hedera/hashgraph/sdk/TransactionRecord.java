@@ -267,24 +267,27 @@ public final class TransactionRecord {
 
         var tokenTransfers = new HashMap<TokenId, Map<AccountId, Long>>();
         var tokenNftTransfers = new HashMap<TokenId, List<TokenNftTransfer>>();
+        var allTokenTransfers = new ArrayList<TokenTransfer>();
 
-        var tokenTransfersList = TokenTransfer.fromProtobuf(transactionRecord.getTokenTransferListsList());
-        var nftTransfersList = TokenNftTransfer.fromProtobuf(transactionRecord.getTokenTransferListsList());
+        for (var transferList : transactionRecord.getTokenTransferListsList()) {
+            var tokenTransfersList = TokenTransfer.fromProtobuf(transferList);
+            var nftTransfersList = TokenNftTransfer.fromProtobuf(transferList);
+            for (var transfer : tokenTransfersList) {
+                var current = tokenTransfers.containsKey(transfer.tokenId)
+                        ? tokenTransfers.get(transfer.tokenId)
+                        : new HashMap<AccountId, Long>();
+                current.put(transfer.accountId, transfer.amount);
+                tokenTransfers.put(transfer.tokenId, current);
+            }
+            allTokenTransfers.addAll(tokenTransfersList);
 
-        for (var transfer : tokenTransfersList) {
-            var current = tokenTransfers.containsKey(transfer.tokenId)
-                    ? tokenTransfers.get(transfer.tokenId)
-                    : new HashMap<AccountId, Long>();
-            current.put(transfer.accountId, transfer.amount);
-            tokenTransfers.put(transfer.tokenId, current);
-        }
-
-        for (var transfer : nftTransfersList) {
-            var current = tokenNftTransfers.containsKey(transfer.tokenId)
-                    ? tokenNftTransfers.get(transfer.tokenId)
-                    : new ArrayList<TokenNftTransfer>();
-            current.add(transfer);
-            tokenNftTransfers.put(transfer.tokenId, current);
+            for (var transfer : nftTransfersList) {
+                var current = tokenNftTransfers.containsKey(transfer.tokenId)
+                        ? tokenNftTransfers.get(transfer.tokenId)
+                        : new ArrayList<TokenNftTransfer>();
+                current.add(transfer);
+                tokenNftTransfers.put(transfer.tokenId, current);
+            }
         }
 
         var fees = new ArrayList<AssessedCustomFee>(transactionRecord.getAssessedCustomFeesCount());
@@ -326,7 +329,7 @@ public final class TransactionRecord {
                 contractFunctionResult,
                 transfers,
                 tokenTransfers,
-                tokenTransfersList,
+                allTokenTransfers,
                 tokenNftTransfers,
                 transactionRecord.hasScheduleRef() ? ScheduleId.fromProtobuf(transactionRecord.getScheduleRef()) : null,
                 fees,

@@ -10,7 +10,9 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -49,6 +51,8 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
 
     @Nullable
     private EvmAddress alias = null;
+
+    private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
      * Constructor.
@@ -456,6 +460,41 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
+     * Get the hook creation details for this account.
+     *
+     * @return a copy of the hook creation details list
+     */
+    public List<HookCreationDetails> getHooks() {
+        return new ArrayList<>(hookCreationDetails);
+    }
+
+    /**
+     * Add a hook creation detail to this account.
+     *
+     * @param hookDetails the hook creation details to add
+     * @return {@code this}
+     */
+    public AccountCreateTransaction addHook(HookCreationDetails hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails.add(hookDetails);
+        return this;
+    }
+
+    /**
+     * Set the hook creation details for this account.
+     *
+     * @param hookDetails the list of hook creation details
+     * @return {@code this}
+     */
+    public AccountCreateTransaction setHooks(List<HookCreationDetails> hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails = new ArrayList<>(hookDetails);
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.CryptoCreateTransactionBody}
@@ -485,6 +524,10 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
             builder.setStakedAccountId(stakedAccountId.toProtobuf());
         } else if (stakedNodeId != null) {
             builder.setStakedNodeId(stakedNodeId);
+        }
+
+        for (HookCreationDetails hookDetails : hookCreationDetails) {
+            builder.addHookCreationDetails(hookDetails.toProtobuf());
         }
 
         return builder;
@@ -531,6 +574,12 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
         }
 
         alias = EvmAddress.fromAliasBytes(body.getAlias());
+
+        // Initialize hook creation details
+        hookCreationDetails.clear();
+        for (var protoHookDetails : body.getHookCreationDetailsList()) {
+            hookCreationDetails.add(HookCreationDetails.fromProtobuf(protoHookDetails));
+        }
     }
 
     private EvmAddress extractAlias(Key key) {

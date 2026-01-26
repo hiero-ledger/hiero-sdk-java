@@ -28,6 +28,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createContract")
     public ContractResponse createContract(final CreateContractParams params) throws Exception {
         ContractCreateTransaction transaction = new ContractCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getAdminKey().ifPresent(key -> {
             try {
@@ -66,10 +67,9 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getConstructorParameters().ifPresent(hex -> transaction.setConstructorParameters(Hex.decode(hex)));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         String contractId = "";
         if (receipt.status == Status.SUCCESS && receipt.contractId != null) {
@@ -83,6 +83,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     public ContractResponse executeContract(final ExecuteContractParams params) throws Exception {
         ContractExecuteTransaction transaction =
                 new ContractExecuteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         if (params.getContractId() != null) {
             transaction.setContractId(ContractId.fromString(params.getContractId()));
@@ -96,10 +97,9 @@ public class ContractService extends AbstractJSONRPC2Service {
         params.getFunctionParameters()
                 .ifPresent(hex -> transaction.setFunctionParameters(ByteString.copyFrom(Hex.decode(hex))));
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new ContractResponse("", receipt.status);
     }
@@ -107,6 +107,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateContract")
     public ContractResponse updateContract(final UpdateContractParams params) throws Exception {
         ContractUpdateTransaction transaction = new ContractUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getContractId()
                 .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
@@ -146,10 +147,9 @@ public class ContractService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new ContractResponse(null, receipt.status);
     }
@@ -157,6 +157,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteContract")
     public ContractResponse deleteContract(final DeleteContractParams params) throws Exception {
         ContractDeleteTransaction transaction = new ContractDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getContractId()
                 .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
@@ -177,10 +178,9 @@ public class ContractService extends AbstractJSONRPC2Service {
 
         params.getPermanentRemoval().ifPresent(transaction::setPermanentRemoval);
 
-        params.getCommonTransactionParams()
-                .ifPresent(common -> common.fillOutTransaction(transaction, sdkService.getClient()));
+        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
-        TransactionReceipt receipt = transaction.execute(sdkService.getClient()).getReceipt(sdkService.getClient());
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new ContractResponse(null, receipt.status);
     }

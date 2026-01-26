@@ -24,6 +24,7 @@ public class SubmitTopicMessageParams extends JSONRPC2Param {
     private Optional<Long> chunkSize;
     private Optional<List<CustomFeeLimit>> customFeeLimits;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -57,6 +58,7 @@ public class SubmitTopicMessageParams extends JSONRPC2Param {
                 parsedMaxChunks,
                 parsedChunkSize,
                 parsedCustomFeeLimits,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

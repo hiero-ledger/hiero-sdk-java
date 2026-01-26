@@ -17,6 +17,7 @@ public class GrantRevokeTokenKycParams extends JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<String> accountId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -24,6 +25,10 @@ public class GrantRevokeTokenKycParams extends JSONRPC2Param {
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new GrantRevokeTokenKycParams(parsedTokenId, parsedAccountId, parsedCommonTransactionParams);
+        return new GrantRevokeTokenKycParams(
+                parsedTokenId,
+                parsedAccountId,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

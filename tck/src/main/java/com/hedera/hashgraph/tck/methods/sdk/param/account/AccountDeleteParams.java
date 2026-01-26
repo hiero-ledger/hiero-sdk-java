@@ -21,6 +21,7 @@ public class AccountDeleteParams extends JSONRPC2Param {
     private Optional<String> deleteAccountId;
     private Optional<String> transferAccountId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public AccountDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -29,6 +30,10 @@ public class AccountDeleteParams extends JSONRPC2Param {
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new AccountDeleteParams(parsedDeleteAccountId, parsedTransferAccountId, parsedCommonTransactionParams);
+        return new AccountDeleteParams(
+                parsedDeleteAccountId,
+                parsedTransferAccountId,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferTransaction<T>> extends Transaction<T> {
 
@@ -71,20 +72,35 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
         return transfers;
     }
 
-    private T doAddTokenTransfer(TokenId tokenId, AccountId accountId, long value, boolean isApproved) {
+    protected T doAddTokenTransfer(
+            TokenId tokenId,
+            AccountId accountId,
+            long amount,
+            boolean isApproved,
+            @Nullable Integer expectedDecimals,
+            @Nullable FungibleHookCall hookCall) {
         requireNotFrozen();
 
         for (var transfer : tokenTransfers) {
-            if (transfer.tokenId.equals(tokenId)
-                    && transfer.accountId.equals(accountId)
-                    && transfer.isApproved == isApproved) {
-                transfer.amount = transfer.amount + value;
-                // noinspection unchecked
-                return (T) this;
+            if (transfer.tokenId.equals(tokenId)) {
+                if (transfer.expectedDecimals != null && !transfer.expectedDecimals.equals(expectedDecimals)) {
+                    throw new IllegalArgumentException("expected decimals for a token cannot be changed once set");
+                }
+                if (transfer.accountId.equals(accountId) && transfer.isApproved == isApproved) {
+                    if (expectedDecimals != null) {
+                        transfer.expectedDecimals = expectedDecimals;
+                    }
+                    transfer.amount += amount;
+                    transfer.hookCall = hookCall;
+                    // noinspection unchecked
+                    return (T) this;
+                }
             }
         }
 
-        tokenTransfers.add(new TokenTransfer(tokenId, accountId, value, isApproved));
+        // Create new record
+        var tt = new TokenTransfer(tokenId, accountId, amount, expectedDecimals, isApproved, hookCall);
+        tokenTransfers.add(tt);
         // noinspection unchecked
         return (T) this;
     }
@@ -98,7 +114,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
-        return doAddTokenTransfer(tokenId, accountId, value, false);
+        return doAddTokenTransfer(tokenId, accountId, value, false, null, null);
     }
 
     /**
@@ -110,39 +126,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addApprovedTokenTransfer(TokenId tokenId, AccountId accountId, long value) {
-        return doAddTokenTransfer(tokenId, accountId, value, true);
-    }
-
-    private T doAddTokenTransferWithDecimals(
-            TokenId tokenId, AccountId accountId, long value, int decimals, boolean isApproved) {
-        requireNotFrozen();
-
-        var found = false;
-
-        for (var transfer : tokenTransfers) {
-            if (transfer.tokenId.equals(tokenId)) {
-                if (transfer.expectedDecimals != null && transfer.expectedDecimals != decimals) {
-                    throw new IllegalArgumentException(
-                            "expected decimals for a token in a token transfer cannot be changed after being set");
-                }
-
-                transfer.expectedDecimals = decimals;
-
-                if (transfer.accountId.equals(accountId) && transfer.isApproved == isApproved) {
-                    transfer.amount = transfer.amount + value;
-                    found = true;
-                }
-            }
-        }
-
-        if (found) {
-            // noinspection unchecked
-            return (T) this;
-        }
-        tokenTransfers.add(new TokenTransfer(tokenId, accountId, value, decimals, isApproved));
-
-        // noinspection unchecked
-        return (T) this;
+        return doAddTokenTransfer(tokenId, accountId, value, true, null, null);
     }
 
     /**
@@ -155,7 +139,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addTokenTransferWithDecimals(TokenId tokenId, AccountId accountId, long value, int decimals) {
-        return doAddTokenTransferWithDecimals(tokenId, accountId, value, decimals, false);
+        return doAddTokenTransfer(tokenId, accountId, value, false, decimals, null);
     }
 
     /**
@@ -168,7 +152,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addApprovedTokenTransferWithDecimals(TokenId tokenId, AccountId accountId, long value, int decimals) {
-        return doAddTokenTransferWithDecimals(tokenId, accountId, value, decimals, true);
+        return doAddTokenTransfer(tokenId, accountId, value, true, decimals, null);
     }
 
     /**
@@ -213,9 +197,17 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
         return transfers;
     }
 
-    private T doAddNftTransfer(NftId nftId, AccountId sender, AccountId receiver, boolean isApproved) {
+    protected T doAddNftTransfer(
+            NftId nftId,
+            AccountId sender,
+            AccountId receiver,
+            boolean isApproved,
+            @Nullable NftHookCall senderHookCall,
+            @Nullable NftHookCall receiverHookCall) {
         requireNotFrozen();
-        nftTransfers.add(new TokenNftTransfer(nftId.tokenId, sender, receiver, nftId.serial, isApproved));
+        nftTransfers.add(new TokenNftTransfer(
+                nftId.tokenId, sender, receiver, nftId.serial, isApproved, senderHookCall, receiverHookCall));
+        // noinspection unchecked
         return (T) this;
     }
 
@@ -228,7 +220,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addNftTransfer(NftId nftId, AccountId sender, AccountId receiver) {
-        return doAddNftTransfer(nftId, sender, receiver, false);
+        return doAddNftTransfer(nftId, sender, receiver, false, null, null);
     }
 
     /**
@@ -240,7 +232,7 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
      * @return the updated transaction
      */
     public T addApprovedNftTransfer(NftId nftId, AccountId sender, AccountId receiver) {
-        return doAddNftTransfer(nftId, sender, receiver, true);
+        return doAddNftTransfer(nftId, sender, receiver, true, null, null);
     }
 
     /**

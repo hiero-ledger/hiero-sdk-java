@@ -29,13 +29,13 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createFile")
     public FileResponse createFile(final FileCreateParams params) throws Exception {
         FileCreateTransaction transaction = TransactionBuilders.FileBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String fileId = "";
         if (receipt.status == Status.SUCCESS && receipt.fileId != null) {
@@ -48,13 +48,13 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteFile")
     public FileResponse deleteFile(final FileDeleteParams params) throws Exception {
         FileDeleteTransaction transaction = TransactionBuilders.FileBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }
@@ -62,13 +62,13 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateFile")
     public FileResponse updateFile(final FileUpdateParams params) throws Exception {
         FileUpdateTransaction transaction = TransactionBuilders.FileBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }
@@ -76,13 +76,13 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("appendFile")
     public FileResponse appendFile(final FileAppendParams params) throws Exception {
         FileAppendTransaction transaction = TransactionBuilders.FileBuilder.buildAppend(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }
