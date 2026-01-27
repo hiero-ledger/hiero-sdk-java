@@ -1058,6 +1058,13 @@ public abstract class Transaction<T extends Transaction<T>>
         }
 
         if (keyAlreadySigned(publicKey)) {
+            // If this transaction came from `fromBytes()`, we may already have a signature for this public key,
+            // but we might now have access to the signer (e.g. operator key). Store the signer so we can re-sign
+            // if the transaction needs to be regenerated (e.g. TRANSACTION_EXPIRED).
+            var index = publicKeys.indexOf(publicKey);
+            if (index >= 0 && signers.get(index) == null) {
+                signers.set(index, transactionSigner);
+            }
             // noinspection unchecked
             return (T) this;
         }
@@ -1476,6 +1483,12 @@ public abstract class Transaction<T extends Transaction<T>>
             freezeWith(client);
         }
 
+        // Ensure we honor the client's default behavior even for already-frozen transactions (e.g. fromBytes()).
+        // freezeWith() normally populates this, but it won't run for already frozen transactions.
+        if (regenerateTransactionId == null) {
+            regenerateTransactionId = client.getDefaultRegenerateTransactionId();
+        }
+
         var accountId = Objects.requireNonNull(Objects.requireNonNull(transactionIds.get(0)).accountId);
 
         if (client.isAutoValidateChecksumsEnabled()) {
@@ -1506,13 +1519,17 @@ public abstract class Transaction<T extends Transaction<T>>
         if (status == Status.TRANSACTION_EXPIRED) {
             if ((regenerateTransactionId != null && !regenerateTransactionId) || transactionIds.isLocked()) {
                 return ExecutionState.REQUEST_ERROR;
-            } else {
-                var firstTransactionId = Objects.requireNonNull(transactionIds.get(0));
-                var accountId = Objects.requireNonNull(firstTransactionId.accountId);
-                generateTransactionIds(TransactionId.generate(accountId), transactionIds.size());
-                wipeTransactionLists(transactionIds.size());
-                return ExecutionState.RETRY;
             }
+
+            if (!publicKeys.isEmpty() && signers.stream().allMatch(Objects::isNull)) {
+                return ExecutionState.REQUEST_ERROR;
+            }
+
+            var firstTransactionId = Objects.requireNonNull(transactionIds.get(0));
+            var accountId = Objects.requireNonNull(firstTransactionId.accountId);
+            generateTransactionIds(TransactionId.generate(accountId), transactionIds.size());
+            wipeTransactionLists(transactionIds.size());
+            return ExecutionState.RETRY;
         }
         return super.getExecutionState(status, response);
     }
