@@ -109,6 +109,9 @@ public final class ContractExecuteTransaction extends Transaction<ContractExecut
      */
     public ContractExecuteTransaction setGas(long gas) {
         requireNotFrozen();
+        if (gas < 0) {
+            throw new IllegalArgumentException("Gas must be non-negative");
+        }
         this.gas = gas;
         return this;
     }

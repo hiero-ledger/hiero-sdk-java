@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 plugins {
-    id("org.springframework.boot") version "3.5.5"
+    id("org.springframework.boot") version "3.5.6"
     id("org.hiero.gradle.module.application")
     id("org.hiero.gradle.feature.legacy-classpath")
 }

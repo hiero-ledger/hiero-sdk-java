@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
@@ -11,7 +10,7 @@ import com.hedera.hashgraph.tck.methods.sdk.param.file.FileCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
-import com.hedera.hashgraph.tck.util.KeyUtils;
+import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
 
 /**
@@ -29,35 +28,14 @@ public class FileService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("createFile")
     public FileResponse createFile(final FileCreateParams params) throws Exception {
-        FileCreateTransaction transaction = new FileCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        // Handle keys (optional)
-        params.getKeys().ifPresent(keyStrings -> {
-            try {
-                Key[] keys = new Key[keyStrings.size()];
-                for (int i = 0; i < keyStrings.size(); i++) {
-                    keys[i] = KeyUtils.getKeyFromString(keyStrings.get(i));
-                }
-                transaction.setKeys(keys);
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid key format", e);
-            }
-        });
-
-        params.getContents().ifPresent(transaction::setContents);
-
-        params.getExpirationTime().ifPresent(expirationTimeStr -> {
-            transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTimeStr)));
-        });
-
-        params.getMemo().ifPresent(transaction::setFileMemo);
+        FileCreateTransaction transaction = TransactionBuilders.FileBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         String fileId = "";
         if (receipt.status == Status.SUCCESS && receipt.fileId != null) {
@@ -69,78 +47,42 @@ public class FileService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("deleteFile")
     public FileResponse deleteFile(final FileDeleteParams params) throws Exception {
-        FileDeleteTransaction transaction = new FileDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
+        FileDeleteTransaction transaction = TransactionBuilders.FileBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }
 
     @JSONRPC2Method("updateFile")
     public FileResponse updateFile(final FileUpdateParams params) throws Exception {
-        FileUpdateTransaction transaction = new FileUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
-
-        params.getKeys().ifPresent(keyStrings -> {
-            try {
-                Key[] keys = new Key[keyStrings.size()];
-                for (int i = 0; i < keyStrings.size(); i++) {
-                    keys[i] = KeyUtils.getKeyFromString(keyStrings.get(i));
-                }
-                transaction.setKeys(keys);
-            } catch (InvalidProtocolBufferException e) {
-                throw new IllegalArgumentException("Invalid key format", e);
-            }
-        });
-
-        params.getContents().ifPresent(transaction::setContents);
-
-        params.getExpirationTime().ifPresent(expirationTimeStr -> {
-            transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTimeStr)));
-        });
-
-        params.getMemo().ifPresent(transaction::setFileMemo);
+        FileUpdateTransaction transaction = TransactionBuilders.FileBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }
 
     @JSONRPC2Method("appendFile")
     public FileResponse appendFile(final FileAppendParams params) throws Exception {
-        FileAppendTransaction transaction = new FileAppendTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-
-        params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
-
-        params.getContents().ifPresent(contents -> transaction.setContents(contents.getBytes()));
-
-        params.getChunkSize().ifPresent(chunkSize -> {
-            transaction.setChunkSize(chunkSize.intValue());
-        });
-
-        params.getMaxChunks().ifPresent(maxChunks -> {
-            transaction.setMaxChunks(maxChunks.intValue());
-        });
+        FileAppendTransaction transaction = TransactionBuilders.FileBuilder.buildAppend(params);
+        Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams ->
-                        commonTransactionParams.fillOutTransaction(transaction, sdkService.getClient()));
+                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
-        TransactionResponse txResponse = transaction.execute(sdkService.getClient());
-        TransactionReceipt receipt = txResponse.getReceipt(sdkService.getClient());
+        TransactionResponse txResponse = transaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
     }

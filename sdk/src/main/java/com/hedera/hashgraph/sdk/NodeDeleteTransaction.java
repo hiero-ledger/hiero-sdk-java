@@ -82,9 +82,13 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
      *
      * @param nodeId the consensus node identifier in the network state.
      * @return {@code this}
+     * @throws IllegalArgumentException if nodeId is negative
      */
     public NodeDeleteTransaction setNodeId(long nodeId) {
         requireNotFrozen();
+        if (nodeId < 0) {
+            throw new IllegalArgumentException("NodeDeleteTransaction: 'nodeId' must be non-negative");
+        }
         this.nodeId = nodeId;
         return this;
     }

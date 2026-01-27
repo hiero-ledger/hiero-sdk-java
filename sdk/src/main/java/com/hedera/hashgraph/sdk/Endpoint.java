@@ -99,6 +99,24 @@ public class Endpoint implements Cloneable {
     }
 
     /**
+     * Validate that the endpoint does not contain both an IP address and a domain name.
+     *
+     * @param endpoint the endpoint to validate
+     * @throws IllegalArgumentException if both ipAddressV4 and domainName are present
+     */
+    public static void validateNoIpAndDomain(Endpoint endpoint) {
+        if (endpoint == null) {
+            return;
+        }
+        if (endpoint.getAddress() != null) {
+            var dn = endpoint.getDomainName();
+            if (dn != null && !dn.isEmpty()) {
+                throw new IllegalArgumentException("Endpoint must not contain both ipAddressV4 and domainName");
+            }
+        }
+    }
+
+    /**
      * Create the protobuf.
      *
      * @return                          the protobuf representation

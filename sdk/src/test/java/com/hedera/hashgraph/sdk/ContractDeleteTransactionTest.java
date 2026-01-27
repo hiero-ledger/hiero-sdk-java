@@ -70,4 +70,44 @@ public class ContractDeleteTransactionTest {
 
         assertThat(tx).isInstanceOf(ContractDeleteTransaction.class);
     }
+
+    @Test
+    void setsPermanentRemovalInProtobufBody() {
+        var tx = new ContractDeleteTransaction()
+                .setContractId(ContractId.fromString("0.0.5007"))
+                .setPermanentRemoval(true);
+
+        var proto = tx.build();
+
+        assertThat(proto.getPermanentRemoval()).isTrue();
+    }
+
+    @Test
+    void shouldSupportPermanentRemovalBytesRoundTrip() throws Exception {
+        var tx = new ContractDeleteTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setContractId(ContractId.fromString("0.0.5007"))
+                .setTransferAccountId(new AccountId(0, 0, 9))
+                .setPermanentRemoval(true)
+                .setMaxTransactionFee(Hbar.fromTinybars(100_000))
+                .freeze();
+
+        assertThat(tx.getPermanentRemoval()).isTrue();
+        assertThat(tx.getContractId()).isEqualTo(ContractId.fromString("0.0.5007"));
+        assertThat(tx.getTransferAccountId()).isEqualTo(new AccountId(0, 0, 9));
+        assertThat(tx.getTransferContractId()).isNull();
+        assertThat(tx.getNodeAccountIds())
+                .isEqualTo(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")));
+        assertThat(tx.getMaxTransactionFee()).isEqualTo(Hbar.fromTinybars(100_000));
+
+        var tx2 = (ContractDeleteTransaction) Transaction.fromBytes(tx.toBytes());
+        assertThat(tx2.toString()).isEqualTo(tx.toString());
+        assertThat(tx2.getPermanentRemoval()).isTrue();
+        assertThat(tx2.getContractId()).isEqualTo(tx.getContractId());
+        assertThat(tx2.getTransferAccountId()).isEqualTo(tx.getTransferAccountId());
+        assertThat(tx2.getTransferContractId()).isNull();
+        assertThat(tx2.getNodeAccountIds()).isEqualTo(tx.getNodeAccountIds());
+        assertThat(tx2.getMaxTransactionFee()).isEqualTo(tx.getMaxTransactionFee());
+    }
 }

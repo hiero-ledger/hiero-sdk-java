@@ -5,15 +5,14 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import com.hedera.hashgraph.sdk.proto.ContractUpdateTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
-import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
-import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.*;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -53,6 +52,8 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     @Nullable
     private Instant expirationTime = null;
 
+    private Duration expirationTimeDuration = null;
+
     @Nullable
     private Key adminKey = null;
 
@@ -76,6 +77,10 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
 
     @Nullable
     private AccountId autoRenewAccountId = null;
+
+    private List<Long> hookIdsToDelete = new ArrayList<>();
+
+    private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
     /**
      * Contract.
@@ -154,6 +159,15 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         Objects.requireNonNull(expirationTime);
         requireNotFrozen();
         this.expirationTime = expirationTime;
+        this.expirationTimeDuration = null;
+        return this;
+    }
+
+    public ContractUpdateTransaction setExpirationTime(Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -506,6 +520,76 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
+     * Add a hook to be created for the contract.
+     *
+     * @param hookDetails the hook creation details to add
+     * @return {@code this}
+     */
+    public ContractUpdateTransaction addHookToCreate(HookCreationDetails hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails.add(hookDetails);
+        return this;
+    }
+
+    /**
+     * Set hooks to be created with the contract.
+     *
+     * @param hookDetails list of hook creation details
+     * @return {@code this}
+     */
+    public ContractUpdateTransaction setHooksToCreate(List<HookCreationDetails> hookDetails) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookDetails, "hookDetails cannot be null");
+        this.hookCreationDetails = new ArrayList<>(hookDetails);
+        return this;
+    }
+
+    /**
+     * Mark a hook for deletion from the contract.
+     *
+     * @param hookId the hook id to delete
+     * @return {@code this}
+     */
+    public ContractUpdateTransaction addHookToDelete(Long hookId) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookId, "hookId cannot be null");
+        this.hookIdsToDelete.add(hookId);
+        return this;
+    }
+
+    /**
+     * Mark hooks for deletion from the contract.
+     *
+     * @param hookIds list of hook ids to delete
+     * @return {@code this}
+     */
+    public ContractUpdateTransaction setHooksToDelete(List<Long> hookIds) {
+        requireNotFrozen();
+        Objects.requireNonNull(hookIds, "hookIds cannot be null");
+        this.hookIdsToDelete = new ArrayList<>(hookIds);
+        return this;
+    }
+
+    /**
+     * Get the list of hooks to be created.
+     *
+     * @return a copy of the hook creation details list
+     */
+    public List<HookCreationDetails> getHooksToCreate() {
+        return new ArrayList<>(hookCreationDetails);
+    }
+
+    /**
+     * Get the list of hook IDs to be deleted.
+     *
+     * @return a copy of the hook IDs list
+     */
+    public List<Long> getHooksToDelete() {
+        return new ArrayList<>(hookIdsToDelete);
+    }
+
+    /**
      * Initialize from the transaction body.
      */
     void initFromTransactionBody() {
@@ -548,6 +632,14 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         if (body.hasAutoRenewAccountId()) {
             autoRenewAccountId = AccountId.fromProtobuf(body.getAutoRenewAccountId());
         }
+
+        hookCreationDetails.clear();
+        for (var protoHookDetails : body.getHookCreationDetailsList()) {
+            hookCreationDetails.add(HookCreationDetails.fromProtobuf(protoHookDetails));
+        }
+
+        hookIdsToDelete.clear();
+        hookIdsToDelete.addAll(body.getHookIdsToDeleteList());
     }
 
     /**
@@ -565,6 +657,9 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        }
+        if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
@@ -593,7 +688,19 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         }
 
         if (autoRenewAccountId != null) {
-            builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
+            if (autoRenewAccountId.toString().equals("0.0.0")) {
+                builder.setAutoRenewAccountId(AccountID.getDefaultInstance());
+            } else {
+                builder.setAutoRenewAccountId(autoRenewAccountId.toProtobuf());
+            }
+        }
+
+        for (HookCreationDetails hookDetails : hookCreationDetails) {
+            builder.addHookCreationDetails(hookDetails.toProtobuf());
+        }
+
+        if (!hookIdsToDelete.isEmpty()) {
+            builder.addAllHookIdsToDelete(hookIdsToDelete);
         }
 
         return builder;

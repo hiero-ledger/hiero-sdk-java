@@ -1914,7 +1914,143 @@ public enum Status {
      * An NFT transfers list referenced a token type other than NON_FUNGIBLE_UNIQUE.
      */
     NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(
-            ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE);
+            ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
+
+    /**
+     * A HAPI client cannot set the SignedTransaction#use_serialized_tx_message_hash_algorithm field.
+     */
+    INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM(ResponseCodeEnum.INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM),
+
+    /**
+     * An EVM hook execution was throttled due to high network gas utilization.
+     */
+    EVM_HOOK_GAS_THROTTLED(ResponseCodeEnum.EVM_HOOK_GAS_THROTTLED),
+
+    /**
+     * A user tried to create a hook with an id already in use.
+     */
+    HOOK_ID_IN_USE(ResponseCodeEnum.HOOK_ID_IN_USE),
+
+    /**
+     * A transaction tried to execute a hook that did not match the specified
+     * type or was malformed in some other way.
+     */
+    BAD_HOOK_REQUEST(ResponseCodeEnum.BAD_HOOK_REQUEST),
+
+    /**
+     * A CryptoTransfer relying on a ACCOUNT_ALLOWANCE hook was rejected.
+     */
+    REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK(ResponseCodeEnum.REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK),
+
+    /**
+     * A hook id was not found.
+     */
+    HOOK_NOT_FOUND(ResponseCodeEnum.HOOK_NOT_FOUND),
+
+    /**
+     * A lambda mapping slot, storage key, or storage value exceeded 32 bytes.
+     */
+    LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG(ResponseCodeEnum.LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG),
+
+    /**
+     * A lambda mapping slot, storage key, or storage value failed to use the
+     * minimal representation (i.e., no leading zeros).
+     */
+    LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
+            ResponseCodeEnum.LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
+
+    /**
+     * A hook id was invalid.
+     */
+    INVALID_HOOK_ID(ResponseCodeEnum.INVALID_HOOK_ID),
+
+    /**
+     * A lambda storage update had no contents.
+     */
+    EMPTY_LAMBDA_STORAGE_UPDATE(ResponseCodeEnum.EMPTY_LAMBDA_STORAGE_UPDATE),
+
+    /**
+     * A user repeated the same hook id in a creation details list.
+     */
+    HOOK_ID_REPEATED_IN_CREATION_DETAILS(ResponseCodeEnum.HOOK_ID_REPEATED_IN_CREATION_DETAILS),
+
+    /**
+     * Hooks are not not enabled on the target Hiero network.
+     */
+    HOOKS_NOT_ENABLED(ResponseCodeEnum.HOOKS_NOT_ENABLED),
+
+    /**
+     * The target hook is not a lambda.
+     */
+    HOOK_IS_NOT_A_LAMBDA(ResponseCodeEnum.HOOK_IS_NOT_A_LAMBDA),
+
+    /**
+     * A hook was deleted.
+     */
+    HOOK_DELETED(ResponseCodeEnum.HOOK_DELETED),
+
+    /**
+     * The LambdaSStore tried to update too many storage slots in a single transaction.
+     */
+    TOO_MANY_LAMBDA_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_LAMBDA_STORAGE_UPDATES),
+
+    /**
+     * A lambda mapping slot, storage key, or storage value failed to use the
+     * minimal representation (i.e., no leading zeros).
+     */
+    HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
+            ResponseCodeEnum.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
+
+    /**
+     * A lambda mapping slot, storage key, or storage value exceeded 32 bytes.
+     */
+    HOOK_CREATION_BYTES_TOO_LONG(ResponseCodeEnum.HOOK_CREATION_BYTES_TOO_LONG),
+
+    /**
+     * A hook creation spec was not found.
+     */
+    INVALID_HOOK_CREATION_SPEC(ResponseCodeEnum.INVALID_HOOK_CREATION_SPEC),
+
+    /**
+     * A hook extension point was empty.
+     */
+    HOOK_EXTENSION_EMPTY(ResponseCodeEnum.HOOK_EXTENSION_EMPTY),
+
+    /**
+     * A hook admin key was invalid.
+     */
+    INVALID_HOOK_ADMIN_KEY(ResponseCodeEnum.INVALID_HOOK_ADMIN_KEY),
+
+    /**
+     * The hook deletion requires the hook to have zero storage slots.
+     */
+    HOOK_DELETION_REQUIRES_ZERO_STORAGE_SLOTS(ResponseCodeEnum.HOOK_DELETION_REQUIRES_ZERO_STORAGE_SLOTS),
+
+    /**
+     * Cannot set both a hook call and an approval on the same AccountAmount or NftTransfer message.
+     */
+    CANNOT_SET_HOOKS_AND_APPROVAL(ResponseCodeEnum.CANNOT_SET_HOOKS_AND_APPROVAL),
+
+    /**
+     * The attempted operation is invalid until all the target entity's hooks have been deleted.
+     */
+    TRANSACTION_REQUIRES_ZERO_HOOKS(ResponseCodeEnum.TRANSACTION_REQUIRES_ZERO_HOOKS),
+
+    /**
+     * The HookCall set in the transaction is invalid
+     */
+    INVALID_HOOK_CALL(ResponseCodeEnum.INVALID_HOOK_CALL),
+
+    /**
+     * Hooks are not supported to be used in TokenAirdrop transactions
+     */
+    HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS(ResponseCodeEnum.HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS),
+
+    WRONG_HOOK_ENTITY_TYPE(ResponseCodeEnum.WRONG_HOOK_ENTITY_TYPE),
+    ACCOUNT_IS_LINKED_TO_A_NODE(ResponseCodeEnum.ACCOUNT_IS_LINKED_TO_A_NODE),
+    HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER(
+            ResponseCodeEnum.HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER),
+    NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE);
 
     final ResponseCodeEnum code;
 
@@ -2291,6 +2427,38 @@ public enum Status {
             case GRPC_WEB_PROXY_NOT_SUPPORTED -> GRPC_WEB_PROXY_NOT_SUPPORTED;
             case NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE ->
                 NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
+            case INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM -> INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM;
+            case WRONG_HOOK_ENTITY_TYPE -> WRONG_HOOK_ENTITY_TYPE;
+            case EVM_HOOK_GAS_THROTTLED -> EVM_HOOK_GAS_THROTTLED;
+            case HOOK_ID_IN_USE -> HOOK_ID_IN_USE;
+            case BAD_HOOK_REQUEST -> BAD_HOOK_REQUEST;
+            case REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK -> REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK;
+            case HOOK_NOT_FOUND -> HOOK_NOT_FOUND;
+            case LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG -> LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG;
+            case LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
+                LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
+            case INVALID_HOOK_ID -> INVALID_HOOK_ID;
+            case EMPTY_LAMBDA_STORAGE_UPDATE -> EMPTY_LAMBDA_STORAGE_UPDATE;
+            case HOOK_ID_REPEATED_IN_CREATION_DETAILS -> HOOK_ID_REPEATED_IN_CREATION_DETAILS;
+            case HOOKS_NOT_ENABLED -> HOOKS_NOT_ENABLED;
+            case HOOK_IS_NOT_A_LAMBDA -> HOOK_IS_NOT_A_LAMBDA;
+            case HOOK_DELETED -> HOOK_DELETED;
+            case TOO_MANY_LAMBDA_STORAGE_UPDATES -> TOO_MANY_LAMBDA_STORAGE_UPDATES;
+            case HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
+                HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
+            case HOOK_CREATION_BYTES_TOO_LONG -> HOOK_CREATION_BYTES_TOO_LONG;
+            case INVALID_HOOK_CREATION_SPEC -> INVALID_HOOK_CREATION_SPEC;
+            case HOOK_EXTENSION_EMPTY -> HOOK_EXTENSION_EMPTY;
+            case INVALID_HOOK_ADMIN_KEY -> INVALID_HOOK_ADMIN_KEY;
+            case HOOK_DELETION_REQUIRES_ZERO_STORAGE_SLOTS -> HOOK_DELETION_REQUIRES_ZERO_STORAGE_SLOTS;
+            case CANNOT_SET_HOOKS_AND_APPROVAL -> CANNOT_SET_HOOKS_AND_APPROVAL;
+            case TRANSACTION_REQUIRES_ZERO_HOOKS -> TRANSACTION_REQUIRES_ZERO_HOOKS;
+            case INVALID_HOOK_CALL -> INVALID_HOOK_CALL;
+            case HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS -> HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS;
+            case ACCOUNT_IS_LINKED_TO_A_NODE -> ACCOUNT_IS_LINKED_TO_A_NODE;
+            case HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER ->
+                HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER;
+            case NODE_ACCOUNT_HAS_ZERO_BALANCE -> NODE_ACCOUNT_HAS_ZERO_BALANCE;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
