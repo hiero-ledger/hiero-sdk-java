@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
@@ -264,7 +263,7 @@ public class EntityIdHelper {
      */
     static CompletableFuture<Long> getAccountNumFromMirrorNodeAsync(Client client, String evmAddress) {
         String apiEndpoint = "/accounts/" + evmAddress;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null, false)
+        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
                 .thenApply(response -> parseNumFromMirrorNodeResponse(response, "account"));
     }
 
@@ -279,7 +278,7 @@ public class EntityIdHelper {
      */
     public static CompletableFuture<EvmAddress> getEvmAddressFromMirrorNodeAsync(Client client, long num) {
         String apiEndpoint = "/accounts/" + num;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null, false)
+        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
                 .thenApply(response -> EvmAddress.fromString(parseStringMirrorNodeResponse(response, "evm_address")));
     }
 
@@ -295,30 +294,18 @@ public class EntityIdHelper {
     public static CompletableFuture<Long> getContractNumFromMirrorNodeAsync(Client client, String evmAddress) {
         String apiEndpoint = "/contracts/" + evmAddress;
 
-        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, apiEndpoint, null, false);
+        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, apiEndpoint, null);
 
         return responseFuture.thenApply(response -> parseNumFromMirrorNodeResponse(response, "contract_id"));
     }
 
+    static CompletableFuture<String> performQueryToMirrorNodeAsync(Client client, String apiEndpoint, String jsonBody) {
+        return performQueryToMirrorNodeAsync(client.getMirrorRestBaseUrl(), apiEndpoint, jsonBody);
+    }
+
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
-            Client client, String apiEndpoint, String jsonBody, boolean isContractCall) {
-        Optional<String> mirrorUrl = client.getMirrorNetwork().stream()
-                .map(url -> url.substring(0, url.indexOf(":")))
-                .findFirst();
-
-        if (mirrorUrl.isEmpty()) {
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Mirror URL not found"));
-        }
-
-        String apiUrl = "https://" + mirrorUrl.get() + "/api/v1" + apiEndpoint;
-
-        if (client.getLedgerId() == null) {
-            if (isContractCall) {
-                apiUrl = "http://" + mirrorUrl.get() + ":8545/api/v1" + apiEndpoint;
-            } else {
-                apiUrl = "http://" + mirrorUrl.get() + ":5551/api/v1" + apiEndpoint;
-            }
-        }
+            String baseUrl, String apiEndpoint, String jsonBody) {
+        String apiUrl = baseUrl + apiEndpoint;
 
         HttpClient httpClient = HttpClient.newHttpClient();
         var httpBuilder =

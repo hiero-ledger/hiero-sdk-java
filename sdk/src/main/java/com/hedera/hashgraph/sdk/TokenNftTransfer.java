@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.hedera.hashgraph.sdk.TransferTransaction.toNftHook;
+
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.NftTransfer;
@@ -9,6 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * Internal utility class.
@@ -36,6 +39,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     public boolean isApproved;
 
+    // Optional typed hook calls for sender/receiver
+    NftHookCall senderHookCall;
+    NftHookCall receiverHookCall;
+
     /**
      * Constructor.
      *
@@ -51,31 +58,62 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         this.receiver = receiver;
         this.serial = serial;
         this.isApproved = isApproved;
+        this.senderHookCall = null;
+        this.receiverHookCall = null;
     }
 
-    /**
-     * Create a list of token nft transfer records from a protobuf.
-     *
-     * @param tokenTransferList the protobuf
-     * @return the new list
-     */
-    static ArrayList<TokenNftTransfer> fromProtobuf(List<TokenTransferList> tokenTransferList) {
-        var transfers = new ArrayList<TokenNftTransfer>();
+    TokenNftTransfer(
+            TokenId tokenId,
+            AccountId sender,
+            AccountId receiver,
+            long serial,
+            boolean isApproved,
+            @Nullable NftHookCall senderHookCall,
+            @Nullable NftHookCall receiverHookCall) {
+        this.tokenId = tokenId;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.serial = serial;
+        this.isApproved = isApproved;
+        this.senderHookCall = senderHookCall;
+        this.receiverHookCall = receiverHookCall;
+    }
 
-        for (var tokenTransfer : tokenTransferList) {
-            var tokenId = TokenId.fromProtobuf(tokenTransfer.getToken());
+    static List<TokenNftTransfer> fromProtobuf(TokenTransferList tokenTransferList) {
+        var token = TokenId.fromProtobuf(tokenTransferList.getToken());
+        var nftTransfers = new ArrayList<TokenNftTransfer>();
 
-            for (var transfer : tokenTransfer.getNftTransfersList()) {
-                transfers.add(new TokenNftTransfer(
-                        tokenId,
-                        AccountId.fromProtobuf(transfer.getSenderAccountID()),
-                        AccountId.fromProtobuf(transfer.getReceiverAccountID()),
-                        transfer.getSerialNumber(),
-                        transfer.getIsApproval()));
+        for (var transfer : tokenTransferList.getNftTransfersList()) {
+            NftHookCall senderHookCall = null;
+            NftHookCall receiverHookCall = null;
+
+            if (transfer.hasPreTxSenderAllowanceHook()) {
+                senderHookCall = toNftHook(transfer.getPreTxSenderAllowanceHook(), NftHookType.PRE_HOOK_SENDER);
+            } else if (transfer.hasPrePostTxSenderAllowanceHook()) {
+                senderHookCall =
+                        toNftHook(transfer.getPrePostTxSenderAllowanceHook(), NftHookType.PRE_POST_HOOK_SENDER);
             }
-        }
 
-        return transfers;
+            if (transfer.hasPreTxReceiverAllowanceHook()) {
+                receiverHookCall = toNftHook(transfer.getPreTxReceiverAllowanceHook(), NftHookType.PRE_HOOK_RECEIVER);
+            } else if (transfer.hasPrePostTxReceiverAllowanceHook()) {
+                receiverHookCall =
+                        toNftHook(transfer.getPrePostTxReceiverAllowanceHook(), NftHookType.PRE_POST_HOOK_RECEIVER);
+            }
+
+            var sender = AccountId.fromProtobuf(transfer.getSenderAccountID());
+            var receiver = AccountId.fromProtobuf(transfer.getReceiverAccountID());
+
+            nftTransfers.add(new TokenNftTransfer(
+                    token,
+                    sender,
+                    receiver,
+                    transfer.getSerialNumber(),
+                    transfer.getIsApproval(),
+                    senderHookCall,
+                    receiverHookCall));
+        }
+        return nftTransfers;
     }
 
     /**
@@ -87,10 +125,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      */
     @Deprecated
     public static TokenNftTransfer fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(List.of(TokenTransferList.newBuilder()
+        return fromProtobuf(TokenTransferList.newBuilder()
                         .setToken(TokenID.newBuilder().build())
                         .addNftTransfers(NftTransfer.parseFrom(bytes))
-                        .build()))
+                        .build())
                 .get(0);
     }
 
@@ -100,12 +138,28 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
      * @return the protobuf representation
      */
     NftTransfer toProtobuf() {
-        return NftTransfer.newBuilder()
+        var builder = NftTransfer.newBuilder()
                 .setSenderAccountID(sender.toProtobuf())
                 .setReceiverAccountID(receiver.toProtobuf())
                 .setSerialNumber(serial)
-                .setIsApproval(isApproved)
-                .build();
+                .setIsApproval(isApproved);
+
+        if (senderHookCall != null) {
+            switch (senderHookCall.getType()) {
+                case PRE_HOOK_SENDER -> builder.setPreTxSenderAllowanceHook(senderHookCall.toProtobuf());
+                case PRE_POST_HOOK_SENDER -> builder.setPrePostTxSenderAllowanceHook(senderHookCall.toProtobuf());
+                default -> {}
+            }
+        }
+        if (receiverHookCall != null) {
+            switch (receiverHookCall.getType()) {
+                case PRE_HOOK_RECEIVER -> builder.setPreTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
+                case PRE_POST_HOOK_RECEIVER -> builder.setPrePostTxReceiverAllowanceHook(receiverHookCall.toProtobuf());
+                default -> {}
+            }
+        }
+
+        return builder.build();
     }
 
     @Override

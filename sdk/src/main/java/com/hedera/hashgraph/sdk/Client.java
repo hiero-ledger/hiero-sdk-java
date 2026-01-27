@@ -443,6 +443,20 @@ public final class Client implements AutoCloseable {
     }
 
     /**
+     * Build the REST base URL for the next healthy mirror node.
+     * Returns a string like `https://host[:port]/api/v1`.
+     * If the selected mirror node is a local host (localhost/127.0.0.1) returns `http://localhost:{5551|8545}/api/v1`.
+     */
+    public String getMirrorRestBaseUrl() {
+        try {
+            return mirrorNetwork.getRestBaseUrl();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while retrieving mirror base URL", e);
+        }
+    }
+
+    /**
      * Set the mirror network nodes.
      *
      * @param network list of network nodes
@@ -1387,6 +1401,38 @@ public final class Client implements AutoCloseable {
         cancelScheduledNetworkUpdate();
         this.networkUpdatePeriod = networkUpdatePeriod;
         scheduleNetworkUpdate(networkUpdatePeriod);
+        return this;
+    }
+
+    /**
+     * Trigger an immediate address book update to refresh the client's network with the latest node information.
+     * This is useful when encountering INVALID_NODE_ACCOUNT_ID errors to ensure subsequent transactions
+     * use the correct node account IDs.
+     *
+     * @return {@code this}
+     */
+    public synchronized Client updateNetworkFromAddressBook() {
+        try {
+            var fileId = FileId.getAddressBookFileIdFor(this.shard, this.realm);
+
+            logger.debug("Fetching address book from file {}", fileId);
+
+            // Execute synchronously - no async complexity
+            var addressBook = new AddressBookQuery().setFileId(fileId).execute(this); // ← Synchronous!
+
+            logger.debug("Received address book with {} nodes", addressBook.nodeAddresses.size());
+
+            // Update the network
+            this.setNetworkFromAddressBook(addressBook);
+
+            logger.info("Address book update completed successfully");
+
+        } catch (TimeoutException e) {
+            logger.warn("Failed to fetch address book: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Failed to update address book", e);
+        }
+
         return this;
     }
 

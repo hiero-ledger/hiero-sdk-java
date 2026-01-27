@@ -17,6 +17,7 @@ public class FreezeUnfreezeTokenParams extends JSONRPC2Param {
     private Optional<String> accountId;
     private Optional<String> tokenId;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -24,6 +25,10 @@ public class FreezeUnfreezeTokenParams extends JSONRPC2Param {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new FreezeUnfreezeTokenParams(parsedAccountId, parsedTokenId, parsedCommonTransactionParams);
+        return new FreezeUnfreezeTokenParams(
+                parsedAccountId,
+                parsedTokenId,
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

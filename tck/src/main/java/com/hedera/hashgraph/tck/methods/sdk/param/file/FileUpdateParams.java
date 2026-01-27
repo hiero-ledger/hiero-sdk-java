@@ -24,6 +24,7 @@ public class FileUpdateParams extends JSONRPC2Param {
     private Optional<String> expirationTime;
     private Optional<String> memo;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public FileUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
@@ -40,7 +41,8 @@ public class FileUpdateParams extends JSONRPC2Param {
                 parsedContents,
                 parsedExpirationTime,
                 parsedMemo,
-                parsedCommonTransactionParams);
+                parsedCommonTransactionParams,
+                JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 
     @SuppressWarnings("unchecked")

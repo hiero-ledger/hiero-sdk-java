@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package com.hedera.hapi.node.hooks;
+
+// SPDX-License-Identifier: Apache-2.0
+option java_package = "com.hedera.hashgraph.sdk.proto";
+// <<<pbj.java_package = "com.hedera.hapi.node.hooks">>> This comment is special code for setting PBJ Compiler java package
+option java_multiple_files = true;
+
+import "basic_types.proto";
+import "hook_types.proto";
+
+/**
+ * Adds or removes key/value pairs in the storage of an EVM hook. The EVM hook's owning key must sign the transaction.
+ */
+message HookStoreTransactionBody {
+  /**
+   * The id of the EVM hook whose storage is being updated.
+   */
+  proto.HookId hook_id = 1;
+
+  /**
+   * The updates to the storage of the EVM hook.
+   */
+  repeated EvmHookStorageUpdate storage_updates = 2;
+}

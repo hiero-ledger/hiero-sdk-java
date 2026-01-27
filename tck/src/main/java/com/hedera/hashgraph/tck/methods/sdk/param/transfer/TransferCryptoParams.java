@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 public class TransferCryptoParams extends JSONRPC2Param {
     private Optional<List<TransferParams>> transfers;
     private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
@@ -41,6 +42,7 @@ public class TransferCryptoParams extends JSONRPC2Param {
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 
-        return new TransferCryptoParams(parsedTransfers, parsedCommonTransactionParams);
+        return new TransferCryptoParams(
+                parsedTransfers, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

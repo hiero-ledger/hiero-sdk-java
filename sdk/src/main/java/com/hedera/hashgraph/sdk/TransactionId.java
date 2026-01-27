@@ -495,7 +495,10 @@ public final class TransactionId implements Comparable<TransactionId> {
         var id = (TransactionId) object;
 
         if (accountId != null && validStart != null && id.accountId != null && id.validStart != null) {
-            return id.accountId.equals(accountId) && id.validStart.equals(validStart) && scheduled == id.scheduled;
+            return id.accountId.equals(accountId)
+                    && id.validStart.equals(validStart)
+                    && scheduled == id.scheduled
+                    && Objects.equals(nonce, id.nonce);
         } else {
             return false;
         }

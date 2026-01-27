@@ -101,6 +101,9 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
     @Nullable
     private Instant expirationTime = null;
 
+    @Nullable
+    private java.time.Duration expirationTimeDuration = null;
+
     private boolean waitForExpiry = false;
 
     /**
@@ -145,7 +148,24 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
      * @return {@code this}
      */
     public ScheduleCreateTransaction setExpirationTime(Instant expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
         this.expirationTime = expirationTime;
+        this.expirationTimeDuration = null;
+        return this;
+    }
+
+    /**
+     * Overload: set the expiration time using a Duration value.
+     *
+     * @param expirationTime The duration to be used as expiration time
+     * @return {@code this}
+     */
+    public ScheduleCreateTransaction setExpirationTime(java.time.Duration expirationTime) {
+        Objects.requireNonNull(expirationTime);
+        requireNotFrozen();
+        this.expirationTime = null;
+        this.expirationTimeDuration = expirationTime;
         return this;
     }
 
@@ -312,6 +332,8 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
         }
         if (expirationTime != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTime));
+        } else if (expirationTimeDuration != null) {
+            builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
         builder.setMemo(scheduleMemo).setWaitForExpiry(waitForExpiry);
         return builder;

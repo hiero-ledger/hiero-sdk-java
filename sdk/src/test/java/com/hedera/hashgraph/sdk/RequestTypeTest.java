@@ -25,4 +25,34 @@ class RequestTypeTest {
             assertThat(RequestType.valueOf(code)).hasToString(requestType.toString());
         });
     }
+
+    @Test
+    void valueOfMapsNewFunctions() {
+        assertThat(RequestType.valueOf(HederaFunctionality.AtomicBatch)).isEqualTo(RequestType.ATOMIC_BATCH);
+        assertThat(RequestType.valueOf(HederaFunctionality.LambdaSStore)).isEqualTo(RequestType.LAMBDA_S_STORE);
+        assertThat(RequestType.valueOf(HederaFunctionality.HookDispatch)).isEqualTo(RequestType.HOOK_DISPATCH);
+    }
+
+    @Test
+    void toStringStableForNewEntries() {
+        assertThat(RequestType.ATOMIC_BATCH.toString()).isEqualTo("ATOMIC_BATCH");
+        assertThat(RequestType.LAMBDA_S_STORE.toString()).isEqualTo("LAMBDA_S_STORE");
+        assertThat(RequestType.HOOK_DISPATCH.toString()).isEqualTo("HOOK_DISPATCH");
+    }
+
+    @Test
+    void roundTripNewEntries() {
+        var pairs = new Object[][] {
+            {HederaFunctionality.AtomicBatch, RequestType.ATOMIC_BATCH},
+            {HederaFunctionality.LambdaSStore, RequestType.LAMBDA_S_STORE},
+            {HederaFunctionality.HookDispatch, RequestType.HOOK_DISPATCH},
+        };
+
+        for (var pair : pairs) {
+            var code = (HederaFunctionality) pair[0];
+            var req = (RequestType) pair[1];
+            assertThat(RequestType.valueOf(code)).isEqualTo(req);
+            assertThat(req.code).isEqualTo(code);
+        }
+    }
 }

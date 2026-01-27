@@ -503,7 +503,11 @@ class MockingTest {
         }
 
         Assertions.assertEquals(numberOfErrors + 1, service.buffer.transactionRequestsReceived.size());
-        assertFirstTwoRequestsNotDirectedAtSameNode(service);
+        // For BUSY and TRANSACTION_EXPIRED we retry on the same node; otherwise we expect a different node
+        if (status != com.hedera.hashgraph.sdk.Status.BUSY
+                && status != com.hedera.hashgraph.sdk.Status.TRANSACTION_EXPIRED) {
+            assertFirstTwoRequestsNotDirectedAtSameNode(service);
+        }
 
         server.close();
     }
@@ -546,7 +550,10 @@ class MockingTest {
                     .get();
         }
         Assertions.assertEquals(2, service.buffer.transactionRequestsReceived.size());
-        assertFirstTwoRequestsNotDirectedAtSameNode(service);
+        // BUSY retries stay on the same node; others advance to a different node
+        if (status != com.hedera.hashgraph.sdk.Status.BUSY) {
+            assertFirstTwoRequestsNotDirectedAtSameNode(service);
+        }
 
         server.close();
     }
