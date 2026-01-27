@@ -180,7 +180,7 @@ jobs:
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
-          hieroVersion: v0.70.0-rc.2
+          hieroVersion: v0.71.0-alpha.1
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -310,7 +310,7 @@ jobs:
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
-          hieroVersion: v0.70.0-rc.2
+          hieroVersion: v0.71.0-alpha.1
 
       - name: Build SDK
         run: ./gradlew assemble
