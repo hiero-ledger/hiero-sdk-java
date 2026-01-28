@@ -87,18 +87,18 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
             SignatureData signatureData) {
         super(callData);
 
-        this.chainId = headerData.chainId;
-        this.nonce = headerData.nonce;
-        this.maxPriorityGas = headerData.maxPriorityGas;
-        this.maxGas = headerData.maxGas;
-        this.gasLimit = headerData.gasLimit;
-        this.to = headerData.to;
-        this.value = headerData.value;
+        this.chainId = headerData.chainId();
+        this.nonce = headerData.nonce();
+        this.maxPriorityGas = headerData.maxPriorityGas();
+        this.maxGas = headerData.maxGas();
+        this.gasLimit = headerData.gasLimit();
+        this.to = headerData.to();
+        this.value = headerData.value();
         this.accessList = accessList;
         this.authorizationList = authorizationList;
-        this.recoveryId = signatureData.recoveryId;
-        this.r = signatureData.r;
-        this.s = signatureData.s;
+        this.recoveryId = signatureData.recoveryId();
+        this.r = signatureData.r();
+        this.s = signatureData.s();
     }
 
     /**
@@ -165,7 +165,7 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
         List<Object> encodedAuthorizationList = new ArrayList<>();
         for (var tuple : authorizationList) {
             encodedAuthorizationList.add(
-                    List.of(tuple.chainId, tuple.address, tuple.nonce, tuple.yParity, tuple.r, tuple.s));
+                    List.of(tuple.chainId(), tuple.address(), tuple.nonce(), tuple.yParity(), tuple.r(), tuple.s()));
         }
 
         List<Object> encodedAccessList = new ArrayList<>(accessList);
@@ -211,70 +211,26 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
     }
 
     /**
-     * A helper class to hold core transaction fields for EIP-7702 transactions.
+     * A helper record to hold core transaction fields for EIP-7702 transactions.
      */
-    static class HeaderData {
-        public byte[] chainId;
-        public byte[] nonce;
-        public byte[] maxPriorityGas;
-        public byte[] maxGas;
-        public byte[] gasLimit;
-        public byte[] to;
-        public byte[] value;
-
-        public HeaderData(
-                byte[] chainId,
-                byte[] nonce,
-                byte[] maxPriorityGas,
-                byte[] maxGas,
-                byte[] gasLimit,
-                byte[] to,
-                byte[] value) {
-            this.chainId = chainId;
-            this.nonce = nonce;
-            this.maxPriorityGas = maxPriorityGas;
-            this.maxGas = maxGas;
-            this.gasLimit = gasLimit;
-            this.to = to;
-            this.value = value;
-        }
-    }
+    record HeaderData(
+            byte[] chainId,
+            byte[] nonce,
+            byte[] maxPriorityGas,
+            byte[] maxGas,
+            byte[] gasLimit,
+            byte[] to,
+            byte[] value) {}
 
     /**
-     * A helper class to hold signature data for EIP-7702 transactions.
+     * A helper record to hold signature data for EIP-7702 transactions.
      */
-    static class SignatureData {
-        public byte[] recoveryId;
-        public byte[] r;
-        public byte[] s;
-
-        public SignatureData(byte[] recoveryId, byte[] r, byte[] s) {
-            this.recoveryId = recoveryId;
-            this.r = r;
-            this.s = s;
-        }
-    }
+    record SignatureData(byte[] recoveryId, byte[] r, byte[] s) {}
 
     /**
      * A tuple describing an authorization entry for EIP-7702 transactions.
      */
-    public static class AuthorizationTuple {
-        public byte[] chainId;
-        public byte[] address;
-        public byte[] nonce;
-        public byte[] yParity;
-        public byte[] r;
-        public byte[] s;
-
-        public AuthorizationTuple(byte[] chainId, byte[] address, byte[] nonce, byte[] yParity, byte[] r, byte[] s) {
-            this.chainId = chainId;
-            this.address = address;
-            this.nonce = nonce;
-            this.yParity = yParity;
-            this.r = r;
-            this.s = s;
-        }
-
+    public record AuthorizationTuple(byte[] chainId, byte[] address, byte[] nonce, byte[] yParity, byte[] r, byte[] s) {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
