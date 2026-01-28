@@ -548,6 +548,74 @@ class AccountCreateIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName("Can create account with high-volume throttles enabled")
+    void canCreateAccountWithHighVolume() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .setHighVolume(true)
+                    .setMaxTransactionFee(Hbar.from(10))
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.isDeleted).isFalse();
+            assertThat(info.key.toString()).isEqualTo(key.getPublicKey().toString());
+            assertThat(info.balance).isEqualTo(new Hbar(1));
+        }
+    }
+
+    @Test
+    @DisplayName("Can create account with high-volume throttles and valid max transaction fee")
+    void canCreateAccountWithHighVolumeAndValidMaxFee() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .setHighVolume(true)
+                    .setMaxTransactionFee(Hbar.from(5))
+                    .execute(testEnv.client);
+
+            var receipt = response.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(receipt.accountId);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+            assertThat(accountId).isNotNull();
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+            assertThat(info.accountId).isEqualTo(accountId);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Account creation with high-volume throttles fails with INSUFFICIENT_TX_FEE when maxTransactionFee is too low")
+    void accountCreateWithHighVolumeFailsWithInsufficientTxFeeWhenMaxFeeTooLow() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+
+            // Set a very low max transaction fee that will be insufficient for high-volume throttles
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> new AccountCreateTransaction()
+                            .setKeyWithoutAlias(key)
+                            .setInitialBalance(new Hbar(1))
+                            .setHighVolume(true)
+                            .setMaxTransactionFee(Hbar.fromTinybars(1)) // Very low fee - should fail
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .satisfies(error -> assertThat(error.receipt.status).isEqualTo(Status.INSUFFICIENT_TX_FEE));
+        }
+    }
+
     private boolean isLongZeroAddress(byte[] address) {
         for (int i = 0; i < 12; i++) {
             if (address[i] != 0) {
