@@ -39,6 +39,17 @@ public class TransactionTest {
     private List<AccountId> nodeAccountIDs;
     private byte[] mockSignature;
 
+    private static byte[] findBodyBytesFor(Transaction<?> tx, TransactionId transactionId, AccountId nodeId) {
+        for (var signable : tx.getSignableNodeBodyBytesList()) {
+            if (signable.getTransactionID().toString().equals(transactionId.toString())
+                    && signable.getNodeID().toString().equals(nodeId.toString())) {
+                return signable.getBody();
+            }
+        }
+        throw new IllegalStateException(
+                "No matching signable body bytes found for txId=" + transactionId + " nodeId=" + nodeId);
+    }
+
     @BeforeEach
     void setUp() throws Exception {
         client = Client.forTestnet();
@@ -313,8 +324,11 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
+        byte[] bodyBytes = findBodyBytesFor(transaction, testTransactionID, nodeAccountID1);
+        byte[] signature = mockPrivateKey.sign(bodyBytes);
+
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature, testTransactionID, nodeAccountID1);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
         assertThat(signatures).hasSize(1);
@@ -322,7 +336,7 @@ public class TransactionTest {
 
         Map<PublicKey, byte[]> nodeSignatures = signatures.get(nodeAccountID1);
         for (Map.Entry<PublicKey, byte[]> entry : nodeSignatures.entrySet()) {
-            assertThat(entry.getValue()).isEqualTo(mockSignature);
+            assertThat(entry.getValue()).isEqualTo(signature);
         }
     }
 
@@ -337,22 +351,23 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID2);
+        byte[] bodyBytes1 = findBodyBytesFor(transaction, testTransactionID, nodeAccountID1);
+        byte[] bodyBytes2 = findBodyBytesFor(transaction, testTransactionID, nodeAccountID2);
+        byte[] signature1 = mockPrivateKey.sign(bodyBytes1);
+        byte[] signature2 = mockPrivateKey.sign(bodyBytes2);
+
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature1, testTransactionID, nodeAccountID1);
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature2, testTransactionID, nodeAccountID2);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
         assertThat(signatures).hasSize(2);
         assertThat(signatures).containsKey(nodeAccountID1);
         assertThat(signatures).containsKey(nodeAccountID2);
 
-        for (AccountId nodeID : nodeAccountIDs) {
-            Map<PublicKey, byte[]> nodeSignatures = signatures.get(nodeID);
-            for (Map.Entry<PublicKey, byte[]> entry : nodeSignatures.entrySet()) {
-                assertThat(entry.getValue()).isEqualTo(mockSignature);
-            }
-        }
+        assertThat(signatures.get(nodeAccountID1).values()).containsExactly(signature1);
+        assertThat(signatures.get(nodeAccountID2).values()).containsExactly(signature2);
     }
 
     @Test
@@ -371,10 +386,15 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID2);
+        byte[] bodyBytes1 = findBodyBytesFor(transaction, testTransactionID, nodeAccountID1);
+        byte[] bodyBytes2 = findBodyBytesFor(transaction, testTransactionID, nodeAccountID2);
+        byte[] signature1 = mockPrivateKey.sign(bodyBytes1);
+        byte[] signature2 = mockPrivateKey.sign(bodyBytes2);
+
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature1, testTransactionID, nodeAccountID1);
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature2, testTransactionID, nodeAccountID2);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
         assertThat(signatures).hasSize(2);
@@ -388,7 +408,13 @@ public class TransactionTest {
                 assertThat(entry.getKey()).isNotNull();
                 assertThat(entry.getKey().toString())
                         .isEqualTo(mockPrivateKey.getPublicKey().toString());
-                assertThat(entry.getValue()).isEqualTo(mockSignature);
+                if (nodeID.toString().equals(nodeAccountID1.toString())) {
+                    assertThat(entry.getValue()).isEqualTo(signature1);
+                } else if (nodeID.toString().equals(nodeAccountID2.toString())) {
+                    assertThat(entry.getValue()).isEqualTo(signature2);
+                } else {
+                    throw new IllegalStateException("Unexpected node ID: " + nodeID);
+                }
             }
         }
     }
@@ -445,11 +471,14 @@ public class TransactionTest {
                 .setChunkSize(2048)
                 .freezeWith(client);
 
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
+        byte[] bodyBytes = findBodyBytesFor(transaction, testTransactionID, nodeAccountID1);
+        byte[] signature = mockPrivateKey.sign(bodyBytes);
 
-        transaction = transaction.addSignature(
-                mockPrivateKey.getPublicKey(), mockSignature, testTransactionID, nodeAccountID1);
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature, testTransactionID, nodeAccountID1);
+
+        transaction =
+                transaction.addSignature(mockPrivateKey.getPublicKey(), signature, testTransactionID, nodeAccountID1);
 
         Map<AccountId, Map<PublicKey, byte[]>> signatures = transaction.getSignatures();
         assertThat(signatures).hasSize(1);
@@ -458,7 +487,7 @@ public class TransactionTest {
         Map<PublicKey, byte[]> nodeSigs = signatures.get(nodeAccountID1);
         assertThat(nodeSigs).hasSize(1);
         for (Map.Entry<PublicKey, byte[]> entry : nodeSigs.entrySet()) {
-            assertThat(entry.getValue()).isEqualTo(mockSignature);
+            assertThat(entry.getValue()).isEqualTo(signature);
         }
     }
 

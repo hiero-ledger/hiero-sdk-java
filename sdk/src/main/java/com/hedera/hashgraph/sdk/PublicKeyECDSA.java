@@ -62,7 +62,7 @@ class PublicKeyECDSA extends PublicKey {
 
     @Override
     ByteString extractSignatureFromProtobuf(SignaturePair pair) {
-        return pair.getECDSA384();
+        return pair.getECDSASecp256K1();
     }
 
     @Override

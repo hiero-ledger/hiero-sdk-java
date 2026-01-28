@@ -685,13 +685,111 @@ public abstract class Transaction<T extends Transaction<T>>
         return hash;
     }
 
-    private static boolean publicKeyIsInSigPairList(ByteString publicKeyBytes, List<SignaturePair> sigPairList) {
+    private static final int SIGNATURE_LENGTH_BYTES = 64;
+
+    private static ByteString toSigPairPubKeyPrefix(PublicKey publicKey) {
+        return ByteString.copyFrom(publicKey.toBytesRaw());
+    }
+
+    private static @Nullable SignaturePair findSigPairForPublicKey(
+            ByteString publicKeyBytes, List<SignaturePair> sigPairList) {
         for (var pair : sigPairList) {
             if (pair.getPubKeyPrefix().equals(publicKeyBytes)) {
-                return true;
+                return pair;
             }
         }
-        return false;
+        return null;
+    }
+
+    private static byte[] extractSignatureBytes(SignaturePair pair, PublicKey publicKey) {
+        if (publicKey.isED25519()) {
+            return pair.getEd25519().toByteArray();
+        }
+        if (publicKey.isECDSA()) {
+            return pair.getECDSASecp256K1().toByteArray();
+        }
+        return new byte[0];
+    }
+
+    private static void requireValidSignatureBytesLength(PublicKey publicKey, byte[] signature) {
+        Objects.requireNonNull(signature, "signature must not be null");
+
+        if (signature.length == 0) {
+            throw new IllegalArgumentException("signature must not be empty");
+        }
+
+        if ((publicKey.isED25519() || publicKey.isECDSA()) && signature.length != SIGNATURE_LENGTH_BYTES) {
+            throw new IllegalArgumentException("signature must be " + SIGNATURE_LENGTH_BYTES + " bytes");
+        }
+    }
+
+    private static boolean isSignaturePairValidForBodyBytes(SignaturePair pair, PublicKey publicKey, byte[] bodyBytes) {
+        if (publicKey.isED25519()) {
+            if (!pair.hasEd25519()) {
+                return false;
+            }
+        } else if (publicKey.isECDSA()) {
+            if (!pair.hasECDSASecp256K1()) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        var signatureBytes = extractSignatureBytes(pair, publicKey);
+
+        if ((publicKey.isED25519() || publicKey.isECDSA()) && signatureBytes.length != SIGNATURE_LENGTH_BYTES) {
+            return false;
+        }
+
+        try {
+            return publicKey.verify(bodyBytes, signatureBytes);
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    private static void removeSigPairsForPublicKey(SignatureMap.Builder sigMapBuilder, ByteString publicKeyBytes) {
+        var retained = new ArrayList<SignaturePair>(sigMapBuilder.getSigPairCount());
+        for (var pair : sigMapBuilder.getSigPairList()) {
+            if (!pair.getPubKeyPrefix().equals(publicKeyBytes)) {
+                retained.add(pair);
+            }
+        }
+        sigMapBuilder.clearSigPair();
+        sigMapBuilder.addAllSigPair(retained);
+    }
+
+    private boolean hasValidSignatureForPublicKeyAtIndex(int index, PublicKey publicKey) {
+        var publicKeyBytes = toSigPairPubKeyPrefix(publicKey);
+        var pair =
+                findSigPairForPublicKey(publicKeyBytes, sigPairLists.get(index).getSigPairList());
+        if (pair == null) {
+            return false;
+        }
+        var bodyBytes = innerSignedTransactions.get(index).getBodyBytes().toByteArray();
+        return isSignaturePairValidForBodyBytes(pair, publicKey, bodyBytes);
+    }
+
+    private boolean hasValidSignatureForPublicKey(PublicKey publicKey) {
+        if (!isFrozen() || sigPairLists.isEmpty() || innerSignedTransactions.isEmpty()) {
+            return false;
+        }
+
+        for (int i = 0; i < innerSignedTransactions.size(); i++) {
+            if (!hasValidSignatureForPublicKeyAtIndex(i, publicKey)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void removeSigPairsForPublicKey(PublicKey publicKey) {
+        var publicKeyBytes = toSigPairPubKeyPrefix(publicKey);
+        for (var sigMapBuilder : sigPairLists) {
+            removeSigPairsForPublicKey(sigMapBuilder, publicKeyBytes);
+        }
     }
 
     /**
@@ -1057,7 +1155,8 @@ public abstract class Transaction<T extends Transaction<T>>
             throw new IllegalStateException("Signing requires transaction to be frozen");
         }
 
-        if (keyAlreadySigned(publicKey)) {
+        // Only skip signing if we already have a VALID signature for this key.
+        if (hasValidSignatureForPublicKey(publicKey)) {
             // noinspection unchecked
             return (T) this;
         }
@@ -1065,8 +1164,18 @@ public abstract class Transaction<T extends Transaction<T>>
         for (int i = 0; i < outerTransactions.size(); i++) {
             outerTransactions.set(i, null);
         }
-        publicKeys.add(publicKey);
-        signers.add(transactionSigner);
+
+        // If the key already exists attach/replace the signer
+        // and remove any invalid signature pairs so signing can proceed.
+        var existingIndex = publicKeys.indexOf(publicKey);
+        if (existingIndex >= 0) {
+            signers.set(existingIndex, transactionSigner);
+        } else {
+            publicKeys.add(publicKey);
+            signers.add(transactionSigner);
+        }
+
+        removeSigPairsForPublicKey(publicKey);
 
         // noinspection unchecked
         return (T) this;
@@ -1115,7 +1224,14 @@ public abstract class Transaction<T extends Transaction<T>>
             freeze();
         }
 
-        if (keyAlreadySigned(publicKey)) {
+        var bodyBytes = innerSignedTransactions.get(0).getBodyBytes().toByteArray();
+        requireValidSignatureBytesLength(publicKey, signature);
+        if (!publicKey.verify(bodyBytes, signature)) {
+            throw new IllegalArgumentException(
+                    "signature is not a valid signature for this transaction and public key");
+        }
+
+        if (hasValidSignatureForPublicKeyAtIndex(0, publicKey)) {
             // noinspection unchecked
             return (T) this;
         }
@@ -1126,8 +1242,17 @@ public abstract class Transaction<T extends Transaction<T>>
         for (int i = 0; i < outerTransactions.size(); i++) {
             outerTransactions.set(i, null);
         }
-        publicKeys.add(publicKey);
-        signers.add(null);
+
+        // Replace any invalid signature pair for this key before adding the correct one
+        removeSigPairsForPublicKey(publicKey);
+
+        var existingIndex = publicKeys.indexOf(publicKey);
+        if (existingIndex >= 0) {
+            signers.set(existingIndex, null);
+        } else {
+            publicKeys.add(publicKey);
+            signers.add(null);
+        }
         sigPairLists.get(0).addSigPair(publicKey.toSignaturePairProtobuf(signature));
 
         // noinspection unchecked
@@ -1411,17 +1536,27 @@ public abstract class Transaction<T extends Transaction<T>>
      */
     void signTransaction(int index) {
         var bodyBytes = innerSignedTransactions.get(index).getBodyBytes().toByteArray();
-        var thisSigPairList = sigPairLists.get(index).getSigPairList();
+        var sigMapBuilder = sigPairLists.get(index);
 
         for (var i = 0; i < publicKeys.size(); i++) {
             if (signers.get(i) == null) {
                 continue;
             }
-            if (publicKeyIsInSigPairList(ByteString.copyFrom(publicKeys.get(i).toBytesRaw()), thisSigPairList)) {
-                continue;
+            var publicKeyBytes = toSigPairPubKeyPrefix(publicKeys.get(i));
+            var existingPair = findSigPairForPublicKey(publicKeyBytes, sigMapBuilder.getSigPairList());
+            if (existingPair != null) {
+                if (isSignaturePairValidForBodyBytes(existingPair, publicKeys.get(i), bodyBytes)) {
+                    continue;
+                }
+                removeSigPairsForPublicKey(sigMapBuilder, publicKeyBytes);
             }
 
             var signatureBytes = signers.get(i).apply(bodyBytes);
+            requireValidSignatureBytesLength(publicKeys.get(i), signatureBytes);
+            if (!publicKeys.get(i).verify(bodyBytes, signatureBytes)) {
+                throw new IllegalArgumentException(
+                        "signer produced an invalid signature for this transaction and public key");
+            }
 
             sigPairLists.get(index).addSigPair(publicKeys.get(i).toSignaturePairProtobuf(signatureBytes));
         }
@@ -1739,9 +1874,20 @@ public abstract class Transaction<T extends Transaction<T>>
     private boolean addSignatureIfNotExists(int index, PublicKey publicKey, byte[] signature) {
         SignatureMap.Builder sigMapBuilder = sigPairLists.get(index);
 
-        // Check if the signature is already in the signature map
-        if (isSignatureAlreadyPresent(sigMapBuilder, publicKey)) {
-            return false;
+        var bodyBytes = innerSignedTransactions.get(index).getBodyBytes().toByteArray();
+        requireValidSignatureBytesLength(publicKey, signature);
+        if (!publicKey.verify(bodyBytes, signature)) {
+            throw new IllegalArgumentException("Invalid signature for the given transaction and public key");
+        }
+
+        var publicKeyBytes = toSigPairPubKeyPrefix(publicKey);
+        var existingPair = findSigPairForPublicKey(publicKeyBytes, sigMapBuilder.getSigPairList());
+        if (existingPair != null) {
+            if (isSignaturePairValidForBodyBytes(existingPair, publicKey, bodyBytes)) {
+                return false;
+            }
+            // Replace invalid signature.
+            removeSigPairsForPublicKey(sigMapBuilder, publicKeyBytes);
         }
 
         // Add the signature to the signature map
@@ -1759,12 +1905,9 @@ public abstract class Transaction<T extends Transaction<T>>
      * @return true if signature already exists, false otherwise
      */
     private boolean isSignatureAlreadyPresent(SignatureMap.Builder sigMapBuilder, PublicKey publicKey) {
-        for (SignaturePair sig : sigMapBuilder.getSigPairList()) {
-            if (Arrays.equals(sig.getPubKeyPrefix().toByteArray(), publicKey.toBytesRaw())) {
-                return true;
-            }
-        }
-        return false;
+        // Deprecated by signature validation logic; retained for API compatibility
+        var publicKeyBytes = toSigPairPubKeyPrefix(publicKey);
+        return findSigPairForPublicKey(publicKeyBytes, sigMapBuilder.getSigPairList()) != null;
     }
 
     /**
@@ -1773,7 +1916,9 @@ public abstract class Transaction<T extends Transaction<T>>
      * @param publicKey The public key that was added
      */
     private void updateTransactionState(PublicKey publicKey) {
-        publicKeys.add(publicKey);
-        signers.add(null);
+        if (!publicKeys.contains(publicKey)) {
+            publicKeys.add(publicKey);
+            signers.add(null);
+        }
     }
 }
