@@ -54,12 +54,12 @@ public class EthereumTransactionDataEip7702Test {
         assertThat(decoded.authorizationList).hasSize(1);
 
         var decodedAuth = decoded.authorizationList.get(0);
-        assertThat(Hex.toHexString(decodedAuth.chainId)).isEqualTo("012a");
-        assertThat(Hex.toHexString(decodedAuth.address)).isEqualTo("0102030405060708090a0b0c0d0e0f1011121314");
-        assertThat(Hex.toHexString(decodedAuth.nonce)).isEqualTo("01");
-        assertThat(Hex.toHexString(decodedAuth.yParity)).isEqualTo("00");
-        assertThat(Hex.toHexString(decodedAuth.r)).isEqualTo("11");
-        assertThat(Hex.toHexString(decodedAuth.s)).isEqualTo("12");
+        assertThat(Hex.toHexString(decodedAuth.chainId())).isEqualTo("012a");
+        assertThat(Hex.toHexString(decodedAuth.address())).isEqualTo("0102030405060708090a0b0c0d0e0f1011121314");
+        assertThat(Hex.toHexString(decodedAuth.nonce())).isEqualTo("01");
+        assertThat(Hex.toHexString(decodedAuth.yParity())).isEqualTo("00");
+        assertThat(Hex.toHexString(decodedAuth.r())).isEqualTo("11");
+        assertThat(Hex.toHexString(decodedAuth.s())).isEqualTo("12");
 
         assertThat(Hex.toHexString(decoded.recoveryId)).isEqualTo("01");
         assertThat(Hex.toHexString(decoded.r))
@@ -106,12 +106,12 @@ public class EthereumTransactionDataEip7702Test {
                 data.callData,
                 List.of(),
                 List.of(List.of(
-                        authorizationTuple.chainId,
-                        authorizationTuple.address,
-                        authorizationTuple.nonce,
-                        authorizationTuple.yParity,
-                        authorizationTuple.r,
-                        authorizationTuple.s)),
+                        authorizationTuple.chainId(),
+                        authorizationTuple.address(),
+                        authorizationTuple.nonce(),
+                        authorizationTuple.yParity(),
+                        authorizationTuple.r(),
+                        authorizationTuple.s())),
                 data.recoveryId,
                 data.r,
                 data.s);
@@ -147,12 +147,12 @@ public class EthereumTransactionDataEip7702Test {
 
         var originalAuth = original.authorizationList.get(0);
         var decodedAuth = decoded.authorizationList.get(0);
-        assertThat(decodedAuth.chainId).containsExactly(originalAuth.chainId);
-        assertThat(decodedAuth.address).containsExactly(originalAuth.address);
-        assertThat(decodedAuth.nonce).containsExactly(originalAuth.nonce);
-        assertThat(decodedAuth.yParity).containsExactly(originalAuth.yParity);
-        assertThat(decodedAuth.r).containsExactly(originalAuth.r);
-        assertThat(decodedAuth.s).containsExactly(originalAuth.s);
+        assertThat(decodedAuth.chainId()).containsExactly(originalAuth.chainId());
+        assertThat(decodedAuth.address()).containsExactly(originalAuth.address());
+        assertThat(decodedAuth.nonce()).containsExactly(originalAuth.nonce());
+        assertThat(decodedAuth.yParity()).containsExactly(originalAuth.yParity());
+        assertThat(decodedAuth.r()).containsExactly(originalAuth.r());
+        assertThat(decodedAuth.s()).containsExactly(originalAuth.s());
 
         assertThat(decoded.toBytes()).containsExactly(bytes);
     }
