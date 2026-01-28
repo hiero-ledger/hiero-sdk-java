@@ -508,8 +508,10 @@ public enum RequestType {
 
     /**
      * Update one or more storage slots in an lambda EVM hook.
-     * (DEPRECATED) Use HOOK_STORE instead.
+     *
+     * @deprecated Use {@link #HOOK_STORE} instead.
      */
+    @Deprecated
     LAMBDA_S_STORE(HederaFunctionality.LambdaSStore),
 
     /**
