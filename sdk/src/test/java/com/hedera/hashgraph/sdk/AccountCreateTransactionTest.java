@@ -2,7 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.proto.CryptoCreateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
@@ -128,5 +130,116 @@ public class AccountCreateTransactionTest {
         var tx = Transaction.fromScheduledTransaction(transactionBody);
 
         assertThat(tx).isInstanceOf(AccountCreateTransaction.class);
+    }
+
+    // HIP-1340: EOA Code Delegation
+
+    @Test
+    void setDelegationAddressWithHexStringWithPrefix() {
+        var delegationAddr = "0x1111111111111111111111111111111111111111";
+        var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+        var tx = new AccountCreateTransaction();
+        tx.setDelegationAddress(delegationAddr);
+
+        var retrievedAddr = tx.getDelegationAddress();
+        assertThat(retrievedAddr).isNotNull();
+        assertThat(retrievedAddr.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void setDelegationAddressWithHexStringWithoutPrefix() {
+        var delegationAddr = "2222222222222222222222222222222222222222";
+        var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+        var tx = new AccountCreateTransaction();
+        tx.setDelegationAddress(delegationAddr);
+
+        var retrievedAddr = tx.getDelegationAddress();
+        assertThat(retrievedAddr).isNotNull();
+        assertThat(retrievedAddr.toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void setDelegationAddressWithBytes() {
+        var delegationAddrBytes = new byte[] {
+            0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
+            0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33
+        };
+
+        var tx = new AccountCreateTransaction();
+        tx.setDelegationAddress(delegationAddrBytes);
+
+        var retrievedAddr = tx.getDelegationAddress();
+        assertThat(retrievedAddr).isNotNull();
+        assertThat(retrievedAddr.toBytes()).isEqualTo(delegationAddrBytes);
+    }
+
+    @Test
+    void getDelegationAddressReturnsNullWhenNotSet() {
+        var tx = new AccountCreateTransaction();
+        var retrievedAddr = tx.getDelegationAddress();
+        assertThat(retrievedAddr).isNull();
+    }
+
+    @Test
+    void delegationAddressProtoSerialization() {
+        var delegationAddr = "0x4444444444444444444444444444444444444444";
+        var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+        var tx = new AccountCreateTransaction().setDelegationAddress(delegationAddr);
+
+        var proto = tx.build();
+        assertThat(proto.getDelegationAddress().toByteArray()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void delegationAddressProtoSerializationWhenNotSet() {
+        var tx = new AccountCreateTransaction();
+        var proto = tx.build();
+        assertThat(proto.getDelegationAddress()).isEmpty();
+    }
+
+    @Test
+    void delegationAddressBytesSerialization() throws Exception {
+        var delegationAddr = "0x5555555555555555555555555555555555555555";
+        var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+        var tx = new AccountCreateTransaction().setDelegationAddress(delegationAddr);
+
+        var bytes = tx.toBytes();
+        var txFromBytes = (AccountCreateTransaction) AccountCreateTransaction.fromBytes(bytes);
+
+        assertThat(txFromBytes.getDelegationAddress()).isNotNull();
+        assertThat(txFromBytes.getDelegationAddress().toBytes()).isEqualTo(expectedBytes);
+    }
+
+    @Test
+    void setDelegationAddressAfterFreeze() {
+        var tx = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> tx.setDelegationAddress("0x1111111111111111111111111111111111111111"))
+                .withMessageContaining("transaction is immutable");
+    }
+
+    @Test
+    void fromScheduledTransactionWithDelegationAddress() {
+        var delegationAddr = "0x1111111111111111111111111111111111111111";
+        var delegationBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+        var transactionBody = SchedulableTransactionBody.newBuilder()
+                .setCryptoCreateAccount(CryptoCreateTransactionBody.newBuilder()
+                        .setDelegationAddress(ByteString.copyFrom(delegationBytes))
+                        .build())
+                .build();
+
+        var tx = Transaction.fromScheduledTransaction(transactionBody);
+
+        assertThat(tx).isInstanceOf(AccountCreateTransaction.class);
+        assertThat(((AccountCreateTransaction) tx).getDelegationAddress())
+                .isEqualTo(EvmAddress.fromString(delegationAddr));
     }
 }
