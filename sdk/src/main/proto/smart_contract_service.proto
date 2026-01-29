@@ -176,4 +176,9 @@ service SmartContractService {
      * Update zero or more slots of a lambda.
      */
     rpc lambdaSStore (Transaction) returns (TransactionResponse);
+
+    /**
+     * Update zero or more slots of an EVM hook's storage.
+     */
+    rpc hookStore (Transaction) returns (TransactionResponse);
 }
