@@ -1948,16 +1948,16 @@ public enum Status {
     HOOK_NOT_FOUND(ResponseCodeEnum.HOOK_NOT_FOUND),
 
     /**
-     * A lambda mapping slot, storage key, or storage value exceeded 32 bytes.
+     * An EVM hook mapping slot, storage key, or storage value exceeded 32 bytes.
      */
-    LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG(ResponseCodeEnum.LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG),
+    EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG(ResponseCodeEnum.EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG),
 
     /**
-     * A lambda mapping slot, storage key, or storage value failed to use the
+     * An EVM hook's mapping slot, storage key, or storage value failed to use the
      * minimal representation (i.e., no leading zeros).
      */
-    LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
-            ResponseCodeEnum.LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
+    EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
+            ResponseCodeEnum.EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
 
     /**
      * A hook id was invalid.
@@ -1965,9 +1965,9 @@ public enum Status {
     INVALID_HOOK_ID(ResponseCodeEnum.INVALID_HOOK_ID),
 
     /**
-     * A lambda storage update had no contents.
+     * An EVM hook storage update had no contents.
      */
-    EMPTY_LAMBDA_STORAGE_UPDATE(ResponseCodeEnum.EMPTY_LAMBDA_STORAGE_UPDATE),
+    EMPTY_EVM_HOOK_STORAGE_UPDATE(ResponseCodeEnum.EMPTY_EVM_HOOK_STORAGE_UPDATE),
 
     /**
      * A user repeated the same hook id in a creation details list.
@@ -1980,9 +1980,9 @@ public enum Status {
     HOOKS_NOT_ENABLED(ResponseCodeEnum.HOOKS_NOT_ENABLED),
 
     /**
-     * The target hook is not a lambda.
+     * The target hook is not an EVM hook.
      */
-    HOOK_IS_NOT_A_LAMBDA(ResponseCodeEnum.HOOK_IS_NOT_A_LAMBDA),
+    HOOK_IS_NOT_AN_EVM_HOOK(ResponseCodeEnum.HOOK_IS_NOT_AN_EVM_HOOK),
 
     /**
      * A hook was deleted.
@@ -1990,19 +1990,19 @@ public enum Status {
     HOOK_DELETED(ResponseCodeEnum.HOOK_DELETED),
 
     /**
-     * The LambdaSStore tried to update too many storage slots in a single transaction.
+     * The HookStore tried to update too many storage slots in a single transaction.
      */
     TOO_MANY_LAMBDA_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_LAMBDA_STORAGE_UPDATES),
 
     /**
-     * A lambda mapping slot, storage key, or storage value failed to use the
+     * An EVM hook mapping slot, storage key, or storage value failed to use the
      * minimal representation (i.e., no leading zeros).
      */
     HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
             ResponseCodeEnum.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
 
     /**
-     * A lambda mapping slot, storage key, or storage value exceeded 32 bytes.
+     * A EVM hook mapping slot, storage key, or storage value exceeded 32 bytes.
      */
     HOOK_CREATION_BYTES_TOO_LONG(ResponseCodeEnum.HOOK_CREATION_BYTES_TOO_LONG),
 
@@ -2434,14 +2434,14 @@ public enum Status {
             case BAD_HOOK_REQUEST -> BAD_HOOK_REQUEST;
             case REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK -> REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK;
             case HOOK_NOT_FOUND -> HOOK_NOT_FOUND;
-            case LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG -> LAMBDA_STORAGE_UPDATE_BYTES_TOO_LONG;
-            case LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
-                LAMBDA_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
+            case EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG -> EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG;
+            case EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
+                EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
             case INVALID_HOOK_ID -> INVALID_HOOK_ID;
-            case EMPTY_LAMBDA_STORAGE_UPDATE -> EMPTY_LAMBDA_STORAGE_UPDATE;
+            case EMPTY_EVM_HOOK_STORAGE_UPDATE -> EMPTY_EVM_HOOK_STORAGE_UPDATE;
             case HOOK_ID_REPEATED_IN_CREATION_DETAILS -> HOOK_ID_REPEATED_IN_CREATION_DETAILS;
             case HOOKS_NOT_ENABLED -> HOOKS_NOT_ENABLED;
-            case HOOK_IS_NOT_A_LAMBDA -> HOOK_IS_NOT_A_LAMBDA;
+            case HOOK_IS_NOT_AN_EVM_HOOK -> HOOK_IS_NOT_AN_EVM_HOOK;
             case HOOK_DELETED -> HOOK_DELETED;
             case TOO_MANY_LAMBDA_STORAGE_UPDATES -> TOO_MANY_LAMBDA_STORAGE_UPDATES;
             case HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
