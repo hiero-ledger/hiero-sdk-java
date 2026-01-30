@@ -279,4 +279,19 @@ public class TokenService extends AbstractJSONRPC2Service {
 
         return Map.of("status", receipt.status.toString());
     }
+
+    @JSONRPC2Method("rejectToken")
+    public Map<String, String> rejectToken(final TokenRejectAirdropParams params) throws Exception {
+        TokenRejectTransaction tokenRejectTransaction = TransactionBuilders.TokenBuilder.buildRejectAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenRejectTransaction, client));
+
+        TransactionResponse txResponse = tokenRejectTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
 }
