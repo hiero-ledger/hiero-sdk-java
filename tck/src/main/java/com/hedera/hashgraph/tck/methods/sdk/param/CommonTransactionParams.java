@@ -67,4 +67,8 @@ public class CommonTransactionParams {
             });
         });
     }
+
+    public void fillOutQuery(final Query<?, ?> transaction) {
+        maxTransactionFee.ifPresent(maxFee -> transaction.setMaxQueryPayment(Hbar.fromTinybars(maxFee)));
+    }
 }
