@@ -26,7 +26,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     }
 
     @JSONRPC2Method("getAccountBalance")
-    public AccountBalanceResponse contractInfoQuery(final AccountBalanceQueryParams params) throws Exception {
+    public AccountBalanceResponse accountBalanceQuery(final AccountBalanceQueryParams params) throws Exception {
         AccountBalanceQuery query = new AccountBalanceQuery().setGrpcDeadline(Duration.ofSeconds(3L));
         Client client = sdkService.getClient(params.getSessionId());
 
