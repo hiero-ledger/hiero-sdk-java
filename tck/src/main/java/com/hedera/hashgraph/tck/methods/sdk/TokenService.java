@@ -28,9 +28,6 @@ public class TokenService extends AbstractJSONRPC2Service {
         TokenInfoQuery query = QueryBuilders.TokenBuilder.buildTokenInfo(params);
         Client client = sdkService.getClient(params.getSessionId());
 
-        params.getCommonTransactionParams()
-                .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutQuery(query));
-
         TokenInfo txResponse = query.execute(client);
 
         return new TokenInfoResponse(
