@@ -1836,6 +1836,7 @@ enum HederaFunctionality {
 
     /**
      * Update one or more storage slots in an lambda EVM hook.
+     * (DEPRECATED) Remove once no production throttle assets reference it.
      */
     LambdaSStore = 109;
 
@@ -1843,6 +1844,11 @@ enum HederaFunctionality {
      * (Internal-only) Dispatch a hook action.
      */
     HookDispatch = 110;
+
+    /**
+     * Update one or more storage slots in an EVM hook.
+     */
+    HookStore = 111;
 }
 
 /**

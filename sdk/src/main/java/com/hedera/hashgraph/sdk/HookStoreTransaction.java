@@ -129,7 +129,7 @@ public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
 
     @Override
     MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {
-        return SmartContractServiceGrpc.getLambdaSStoreMethod();
+        return SmartContractServiceGrpc.getHookStoreMethod();
     }
 
     @Override
