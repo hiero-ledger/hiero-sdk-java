@@ -2,8 +2,6 @@
 package com.hedera.hashgraph.sdk.examples;
 
 import com.hedera.hashgraph.sdk.*;
-import com.hedera.hashgraph.sdk.logger.LogLevel;
-import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -50,51 +48,51 @@ class AccountHooksExample {
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Account Hooks Example Start!");
-
-        /*
-         * Step 0:
-         * Create and configure the SDK Client.
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK);
-        // All generated transactions will be paid by this account and signed by this key.
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        // Attach logger to the SDK Client.
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        /*
-         * Step 1:
-         * Create the hook contract.
-         */
-        System.out.println("Creating hook contract...");
-        ContractId contractId = createContractId(client);
-        System.out.println("Hook contract created with ID: " + contractId);
-
-        /*
-         * Step 2:
-         * Demonstrate creating an account with hooks.
-         */
-        System.out.println("\n=== Creating Account with Hooks ===");
-        AccountWithKey accountWithKey = createAccountWithHooks(client, contractId);
-        AccountId accountId = accountWithKey.accountId;
-        PrivateKey accountKey = accountWithKey.privateKey;
-
-        /*
-         * Step 3:
-         * Demonstrate adding hooks to an existing account.
-         */
-        System.out.println("\n=== Adding Hooks to Existing Account ===");
-        addHooksToAccount(client, contractId, accountId, accountKey);
-
-        /*
-         * Step 4:
-         * Demonstrate hook deletion.
-         */
-        System.out.println("\n=== Deleting Hooks from Account ===");
-        deleteHooksFromAccount(client, accountId, accountKey);
-
-        client.close();
-        System.out.println("Account Hooks Example Complete!");
+        //        System.out.println("Account Hooks Example Start!");
+        //
+        //        /*
+        //         * Step 0:
+        //         * Create and configure the SDK Client.
+        //         */
+        //        Client client = ClientHelper.forName(HEDERA_NETWORK);
+        //        // All generated transactions will be paid by this account and signed by this key.
+        //        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        //        // Attach logger to the SDK Client.
+        //        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
+        //
+        //        /*
+        //         * Step 1:
+        //         * Create the hook contract.
+        //         */
+        //        System.out.println("Creating hook contract...");
+        //        ContractId contractId = createContractId(client);
+        //        System.out.println("Hook contract created with ID: " + contractId);
+        //
+        //        /*
+        //         * Step 2:
+        //         * Demonstrate creating an account with hooks.
+        //         */
+        //        System.out.println("\n=== Creating Account with Hooks ===");
+        //        AccountWithKey accountWithKey = createAccountWithHooks(client, contractId);
+        //        AccountId accountId = accountWithKey.accountId;
+        //        PrivateKey accountKey = accountWithKey.privateKey;
+        //
+        //        /*
+        //         * Step 3:
+        //         * Demonstrate adding hooks to an existing account.
+        //         */
+        //        System.out.println("\n=== Adding Hooks to Existing Account ===");
+        //        addHooksToAccount(client, contractId, accountId, accountKey);
+        //
+        //        /*
+        //         * Step 4:
+        //         * Demonstrate hook deletion.
+        //         */
+        //        System.out.println("\n=== Deleting Hooks from Account ===");
+        //        deleteHooksFromAccount(client, accountId, accountKey);
+        //
+        //        client.close();
+        //        System.out.println("Account Hooks Example Complete!");
     }
 
     /**

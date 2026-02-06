@@ -2,19 +2,16 @@
 package com.hedera.hashgraph.sdk.examples;
 
 import com.hedera.hashgraph.sdk.*;
-import com.hedera.hashgraph.sdk.logger.LogLevel;
-import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * How to work with HookStoreTransaction.
- * <p>
- * This example demonstrates how to update storage slots of existing EVM hooks using HookStoreTransaction.
- * The example includes prerequisite setup (creating a hook contract and account with EVM hook)
- * to demonstrate the HookStoreTransaction functionality.
+ * // * How to work with HookStoreTransaction.
+ * // * <p>
+ * // * This example demonstrates how to update storage slots of existing EVM hooks using HookStoreTransaction.
+ * // * The example includes prerequisite setup (creating a hook contract and account with EVM hook)
+ * // * to demonstrate the HookStoreTransaction functionality.
  */
 class HookStoreExample {
 
@@ -52,59 +49,60 @@ class HookStoreExample {
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Hook Store Example Start!");
-
-        /*
-         * Step 0:
-         * Create and configure the SDK Client.
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK);
-        // All generated transactions will be paid by this account and signed by this key.
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        // Attach logger to the SDK Client.
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        /*
-         * Step 1:
-         * Set up prerequisites: Create hook contract and account with EVM hook.
-         * Note: This is not part of HookStoreTransaction itself, but required for the example.
-         */
-        System.out.println("Setting up prerequisites...");
-        ContractId contractId = createContractId(client);
-        AccountWithKey accountWithKey = createAccountWithLambdaHook(client, contractId);
-        AccountId accountId = accountWithKey.accountId;
-        PrivateKey accountKey = accountWithKey.privateKey;
-
-        /*
-         * Step 2:
-         * Demonstrate HookStoreTransaction - the core functionality.
-         */
-        System.out.println("\n=== HookStoreTransaction Example ===");
-
-        // Create storage update (equivalent to TypeScript sample)
-        byte[] storageKey = new byte[32];
-        Arrays.fill(storageKey, (byte) 1);
-        byte[] storageValue = new byte[32];
-        Arrays.fill(storageValue, (byte) 200);
-
-        EvmHookStorageUpdate storageUpdate = new EvmHookStorageUpdate.EvmHookStorageSlot(storageKey, storageValue);
-
-        // Create HookId for the existing hook (accountId with hook ID 1)
-        HookId hookId = new HookId(new HookEntityId(accountId), 1L);
-
-        // Execute HookStoreTransaction (matches TypeScript pattern)
-        TransactionResponse hookStoreResponse = new HookStoreTransaction()
-                .setHookId(hookId)
-                .addStorageUpdate(storageUpdate)
-                .freezeWith(client)
-                .sign(accountKey)
-                .execute(client);
-
-        hookStoreResponse.getReceipt(client);
-        System.out.println("Successfully updated EVM hook storage!");
-
-        client.close();
-        System.out.println("Hook Store Example Complete!");
+        //        System.out.println("Hook Store Example Start!");
+        //
+        //        /*
+        //         * Step 0:
+        //         * Create and configure the SDK Client.
+        //         */
+        //        Client client = ClientHelper.forName(HEDERA_NETWORK);
+        //        // All generated transactions will be paid by this account and signed by this key.
+        //        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        //        // Attach logger to the SDK Client.
+        //        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
+        //
+        //        /*
+        //         * Step 1:
+        //         * Set up prerequisites: Create hook contract and account with EVM hook.
+        //         * Note: This is not part of HookStoreTransaction itself, but required for the example.
+        //         */
+        //        System.out.println("Setting up prerequisites...");
+        //        ContractId contractId = createContractId(client);
+        //        AccountWithKey accountWithKey = createAccountWithLambdaHook(client, contractId);
+        //        AccountId accountId = accountWithKey.accountId;
+        //        PrivateKey accountKey = accountWithKey.privateKey;
+        //
+        //        /*
+        //         * Step 2:
+        //         * Demonstrate HookStoreTransaction - the core functionality.
+        //         */
+        //        System.out.println("\n=== HookStoreTransaction Example ===");
+        //
+        //        // Create storage update (equivalent to TypeScript sample)
+        //        byte[] storageKey = new byte[32];
+        //        Arrays.fill(storageKey, (byte) 1);
+        //        byte[] storageValue = new byte[32];
+        //        Arrays.fill(storageValue, (byte) 200);
+        //
+        //        EvmHookStorageUpdate storageUpdate = new EvmHookStorageUpdate.EvmHookStorageSlot(storageKey,
+        // storageValue);
+        //
+        //        // Create HookId for the existing hook (accountId with hook ID 1)
+        //        HookId hookId = new HookId(new HookEntityId(accountId), 1L);
+        //
+        //        // Execute HookStoreTransaction (matches TypeScript pattern)
+        //        TransactionResponse hookStoreResponse = new HookStoreTransaction()
+        //                .setHookId(hookId)
+        //                .addStorageUpdate(storageUpdate)
+        //                .freezeWith(client)
+        //                .sign(accountKey)
+        //                .execute(client);
+        //
+        //        hookStoreResponse.getReceipt(client);
+        //        System.out.println("Successfully updated EVM hook storage!");
+        //
+        //        client.close();
+        //        System.out.println("Hook Store Example Complete!");
     }
 
     /**

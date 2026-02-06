@@ -2,8 +2,6 @@
 package com.hedera.hashgraph.sdk.examples;
 
 import com.hedera.hashgraph.sdk.*;
-import com.hedera.hashgraph.sdk.logger.LogLevel;
-import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -55,104 +53,109 @@ class TransferTransactionHooksExample {
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Transfer Transaction Hooks Example Start!");
-
-        /*
-         * Step 0:
-         * Create and configure the SDK Client.
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK);
-        // All generated transactions will be paid by this account and signed by this key.
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        // Attach logger to the SDK Client.
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        /*
-         * Step 1:
-         * Set up prerequisites: Use existing accounts and create tokens.
-         * Note: This is not part of TransferTransaction itself, but required for the example.
-         */
-        System.out.println("Setting up prerequisites...");
-
-        // Use existing accounts (following TransferCryptoExample pattern)
-        AccountId senderAccountId = OPERATOR_ID; // Operator is typically the sender
-        AccountId receiverAccountId = AccountId.fromString("0.0.3");
-
-        // Create a fungible token
-        TokenId fungibleTokenId = createFungibleToken(client);
-
-        // Create an NFT token and mint an NFT
-        TokenId nftTokenId = createNftToken(client);
-        NftId nftId = mintNft(client, nftTokenId);
-
-        /*
-         * Step 2:
-         * Demonstrate TransferTransaction API with hooks (demonstration only).
-         * Note: This shows the API structure - actual execution requires hooks to exist on the network.
-         */
-        System.out.println("\n=== TransferTransaction with Hooks API Demonstration ===");
-
-        // Create different hooks for different transfer types (for demonstration)
-        System.out.println("Creating hook call objects (demonstration)...");
-
-        // HBAR transfer with pre-tx allowance hook
-        FungibleHookCall hbarHook = new FungibleHookCall(
-                1001L, new EvmHookCall(new byte[] {0x01, 0x02}, 20000L), FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
-
-        // NFT sender hook (pre-hook)
-        NftHookCall nftSenderHook =
-                new NftHookCall(1002L, new EvmHookCall(new byte[] {0x03, 0x04}, 20000L), NftHookType.PRE_HOOK_SENDER);
-
-        // NFT receiver hook (pre-hook)
-        NftHookCall nftReceiverHook =
-                new NftHookCall(1003L, new EvmHookCall(new byte[] {0x05, 0x06}, 20000L), NftHookType.PRE_HOOK_RECEIVER);
-
-        // Fungible token transfer with pre-post allowance hook
-        FungibleHookCall fungibleTokenHook = new FungibleHookCall(
-                1004L, new EvmHookCall(new byte[] {0x07, 0x08}, 20000L), FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
-
-        // Build TransferTransaction with hooks (demonstration)
-        System.out.println("Building TransferTransaction with hooks...");
-        new TransferTransaction()
-                // HBAR transfers with hook
-                .addHbarTransferWithHook(senderAccountId, Hbar.from(-100), hbarHook)
-                .addHbarTransfer(receiverAccountId, Hbar.from(100))
-
-                // NFT transfer with sender and receiver hooks
-                .addNftTransferWithHook(nftId, senderAccountId, receiverAccountId, nftSenderHook, nftReceiverHook)
-
-                // Fungible token transfers with hook
-                .addTokenTransferWithHook(fungibleTokenId, senderAccountId, -1000, fungibleTokenHook)
-                .addTokenTransfer(fungibleTokenId, receiverAccountId, 1000);
-
-        System.out.println("TransferTransaction built successfully with the following hook calls:");
-        System.out.println("  - HBAR transfer with pre-tx allowance hook (ID: 1001)");
-        System.out.println("  - NFT transfer with sender hook (ID: 1002) and receiver hook (ID: 1003)");
-        System.out.println("  - Fungible token transfer with pre-post allowance hook (ID: 1004)");
-
-        // Demonstrate the API without executing (since hooks don't exist)
-        System.out.println("\nNote: This demonstrates the TransferTransaction API with hooks.");
-        System.out.println(
-                "To actually execute this transaction, the hooks (IDs 1001-1004) must exist on the network.");
-        System.out.println("The transaction would be executed with: transferTx.execute(client)");
-
-        // Show a simple transfer without hooks that actually works
-        System.out.println("\n=== Executing Simple Transfer (without hooks) ===");
-        try {
-            TransactionResponse simpleTransferResponse = new TransferTransaction()
-                    .addHbarTransfer(senderAccountId, Hbar.from(-1))
-                    .addHbarTransfer(receiverAccountId, Hbar.from(1))
-                    .execute(client);
-
-            simpleTransferResponse.getReceipt(client);
-            System.out.println("Successfully executed simple HBAR transfer!");
-            System.out.println("Transaction ID: " + simpleTransferResponse.transactionId);
-        } catch (Exception e) {
-            System.err.println("Failed to execute simple transfer: " + e.getMessage());
-        }
-
-        client.close();
-        System.out.println("Transfer Transaction Hooks Example Complete!");
+        //        System.out.println("Transfer Transaction Hooks Example Start!");
+        //
+        //        /*
+        //         * Step 0:
+        //         * Create and configure the SDK Client.
+        //         */
+        //        Client client = ClientHelper.forName(HEDERA_NETWORK);
+        //        // All generated transactions will be paid by this account and signed by this key.
+        //        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        //        // Attach logger to the SDK Client.
+        //        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
+        //
+        //        /*
+        //         * Step 1:
+        //         * Set up prerequisites: Use existing accounts and create tokens.
+        //         * Note: This is not part of TransferTransaction itself, but required for the example.
+        //         */
+        //        System.out.println("Setting up prerequisites...");
+        //
+        //        // Use existing accounts (following TransferCryptoExample pattern)
+        //        AccountId senderAccountId = OPERATOR_ID; // Operator is typically the sender
+        //        AccountId receiverAccountId = AccountId.fromString("0.0.3");
+        //
+        //        // Create a fungible token
+        //        TokenId fungibleTokenId = createFungibleToken(client);
+        //
+        //        // Create an NFT token and mint an NFT
+        //        TokenId nftTokenId = createNftToken(client);
+        //        NftId nftId = mintNft(client, nftTokenId);
+        //
+        //        /*
+        //         * Step 2:
+        //         * Demonstrate TransferTransaction API with hooks (demonstration only).
+        //         * Note: This shows the API structure - actual execution requires hooks to exist on the network.
+        //         */
+        //        System.out.println("\n=== TransferTransaction with Hooks API Demonstration ===");
+        //
+        //        // Create different hooks for different transfer types (for demonstration)
+        //        System.out.println("Creating hook call objects (demonstration)...");
+        //
+        //        // HBAR transfer with pre-tx allowance hook
+        //        FungibleHookCall hbarHook = new FungibleHookCall(
+        //                1001L, new EvmHookCall(new byte[] {0x01, 0x02}, 20000L),
+        // FungibleHookType.PRE_TX_ALLOWANCE_HOOK);
+        //
+        //        // NFT sender hook (pre-hook)
+        //        NftHookCall nftSenderHook =
+        //                new NftHookCall(1002L, new EvmHookCall(new byte[] {0x03, 0x04}, 20000L),
+        // NftHookType.PRE_HOOK_SENDER);
+        //
+        //        // NFT receiver hook (pre-hook)
+        //        NftHookCall nftReceiverHook =
+        //                new NftHookCall(1003L, new EvmHookCall(new byte[] {0x05, 0x06}, 20000L),
+        // NftHookType.PRE_HOOK_RECEIVER);
+        //
+        //        // Fungible token transfer with pre-post allowance hook
+        //        FungibleHookCall fungibleTokenHook = new FungibleHookCall(
+        //                1004L, new EvmHookCall(new byte[] {0x07, 0x08}, 20000L),
+        // FungibleHookType.PRE_POST_TX_ALLOWANCE_HOOK);
+        //
+        //        // Build TransferTransaction with hooks (demonstration)
+        //        System.out.println("Building TransferTransaction with hooks...");
+        //        new TransferTransaction()
+        //                // HBAR transfers with hook
+        //                .addHbarTransferWithHook(senderAccountId, Hbar.from(-100), hbarHook)
+        //                .addHbarTransfer(receiverAccountId, Hbar.from(100))
+        //
+        //                // NFT transfer with sender and receiver hooks
+        //                .addNftTransferWithHook(nftId, senderAccountId, receiverAccountId, nftSenderHook,
+        // nftReceiverHook)
+        //
+        //                // Fungible token transfers with hook
+        //                .addTokenTransferWithHook(fungibleTokenId, senderAccountId, -1000, fungibleTokenHook)
+        //                .addTokenTransfer(fungibleTokenId, receiverAccountId, 1000);
+        //
+        //        System.out.println("TransferTransaction built successfully with the following hook calls:");
+        //        System.out.println("  - HBAR transfer with pre-tx allowance hook (ID: 1001)");
+        //        System.out.println("  - NFT transfer with sender hook (ID: 1002) and receiver hook (ID: 1003)");
+        //        System.out.println("  - Fungible token transfer with pre-post allowance hook (ID: 1004)");
+        //
+        //        // Demonstrate the API without executing (since hooks don't exist)
+        //        System.out.println("\nNote: This demonstrates the TransferTransaction API with hooks.");
+        //        System.out.println(
+        //                "To actually execute this transaction, the hooks (IDs 1001-1004) must exist on the network.");
+        //        System.out.println("The transaction would be executed with: transferTx.execute(client)");
+        //
+        //        // Show a simple transfer without hooks that actually works
+        //        System.out.println("\n=== Executing Simple Transfer (without hooks) ===");
+        //        try {
+        //            TransactionResponse simpleTransferResponse = new TransferTransaction()
+        //                    .addHbarTransfer(senderAccountId, Hbar.from(-1))
+        //                    .addHbarTransfer(receiverAccountId, Hbar.from(1))
+        //                    .execute(client);
+        //
+        //            simpleTransferResponse.getReceipt(client);
+        //            System.out.println("Successfully executed simple HBAR transfer!");
+        //            System.out.println("Transaction ID: " + simpleTransferResponse.transactionId);
+        //        } catch (Exception e) {
+        //            System.err.println("Failed to execute simple transfer: " + e.getMessage());
+        //        }
+        //
+        //        client.close();
+        //        System.out.println("Transfer Transaction Hooks Example Complete!");
     }
 
     /**

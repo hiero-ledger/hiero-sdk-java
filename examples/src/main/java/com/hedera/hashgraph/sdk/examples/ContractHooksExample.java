@@ -2,8 +2,6 @@
 package com.hedera.hashgraph.sdk.examples;
 
 import com.hedera.hashgraph.sdk.*;
-import com.hedera.hashgraph.sdk.logger.LogLevel;
-import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Objects;
 
@@ -43,51 +41,51 @@ class ContractHooksExample {
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Contract Hooks Example Start!");
-
-        /*
-         * Step 0:
-         * Create and configure the SDK Client.
-         */
-        Client client = ClientHelper.forName(HEDERA_NETWORK);
-        // All generated transactions will be paid by this account and signed by this key.
-        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
-        // Attach logger to the SDK Client.
-        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
-
-        /*
-         * Step 1:
-         * Create the hook contract.
-         */
-        System.out.println("Creating hook contract...");
-        ContractId contractId = createContractId(client);
-        System.out.println("Hook contract created with ID: " + contractId);
-
-        /*
-         * Step 2:
-         * Demonstrate creating a contract with hooks.
-         * Note: This may not work on all networks, so we'll show the concept
-         * and then demonstrate adding hooks to existing contracts.
-         */
-        System.out.println("\n=== Creating Contract with Hooks ===");
-        ContractId contractWithHooksId = createContractWithHooks(client, contractId);
-
-        /*
-         * Step 3:
-         * Demonstrate adding hooks to an existing contract.
-         */
-        System.out.println("\n=== Adding Hooks to Existing Contract ===");
-        addHooksToContract(client, contractId, contractWithHooksId);
-
-        /*
-         * Step 4:
-         * Demonstrate hook deletion.
-         */
-        System.out.println("\n=== Deleting Hooks from Contract ===");
-        deleteHooksFromContract(client, contractWithHooksId);
-
-        client.close();
-        System.out.println("Contract Hooks Example Complete!");
+        //        System.out.println("Contract Hooks Example Start!");
+        //
+        //        /*
+        //         * Step 0:
+        //         * Create and configure the SDK Client.
+        //         */
+        //        Client client = ClientHelper.forName(HEDERA_NETWORK);
+        //        // All generated transactions will be paid by this account and signed by this key.
+        //        client.setOperator(OPERATOR_ID, OPERATOR_KEY);
+        //        // Attach logger to the SDK Client.
+        //        client.setLogger(new Logger(LogLevel.valueOf(SDK_LOG_LEVEL)));
+        //
+        //        /*
+        //         * Step 1:
+        //         * Create the hook contract.
+        //         */
+        //        System.out.println("Creating hook contract...");
+        //        ContractId contractId = createContractId(client);
+        //        System.out.println("Hook contract created with ID: " + contractId);
+        //
+        //        /*
+        //         * Step 2:
+        //         * Demonstrate creating a contract with hooks.
+        //         * Note: This may not work on all networks, so we'll show the concept
+        //         * and then demonstrate adding hooks to existing contracts.
+        //         */
+        //        System.out.println("\n=== Creating Contract with Hooks ===");
+        //        ContractId contractWithHooksId = createContractWithHooks(client, contractId);
+        //
+        //        /*
+        //         * Step 3:
+        //         * Demonstrate adding hooks to an existing contract.
+        //         */
+        //        System.out.println("\n=== Adding Hooks to Existing Contract ===");
+        //        addHooksToContract(client, contractId, contractWithHooksId);
+        //
+        //        /*
+        //         * Step 4:
+        //         * Demonstrate hook deletion.
+        //         */
+        //        System.out.println("\n=== Deleting Hooks from Contract ===");
+        //        deleteHooksFromContract(client, contractWithHooksId);
+        //
+        //        client.close();
+        //        System.out.println("Contract Hooks Example Complete!");
     }
 
     /**
