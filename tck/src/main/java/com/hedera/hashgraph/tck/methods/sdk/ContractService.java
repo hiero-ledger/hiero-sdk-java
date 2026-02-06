@@ -7,12 +7,15 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.DeleteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ExecuteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.ContractCallResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import java.time.Duration;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -23,6 +26,26 @@ public class ContractService extends AbstractJSONRPC2Service {
 
     public ContractService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("contractCallQuery")
+    public ContractCallResponse contractCallQuery(final ContractCallQueryParams params) throws Exception {
+        ContractCallQuery query = QueryBuilders.ContractBuilder.buildContractCall(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        ContractFunctionResult result = query.execute(client);
+
+        return new ContractCallResponse(
+                result.contractId.toString(),
+                result.evmAddress,
+                result.errorMessage,
+                result.gasUsed,
+                result.logs,
+                result.gas,
+                result.hbarAmount,
+                result.senderAccountId,
+                result.signerNonce,
+                Hex.toHexString(result.asBytes()));
     }
 
     @JSONRPC2Method("createContract")
