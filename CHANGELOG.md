@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.67.0-beta.1
+
+### Added
+
+- feat(TCK): TokenReject implementation - https://github.com/hiero-ledger/hiero-sdk-java/pull/2581
+- feat(TCK): TokenInfoQuery implementation - https://github.com/hiero-ledger/hiero-sdk-java/pull/2594
+- feat(TCK): AccountBalanceQuery implementation - https://github.com/hiero-ledger/hiero-sdk-java/pull/2597
+
+### Changed
+
+- gRPC version updated from 1.75.0 to 1.76.0 - https://github.com/hiero-ledger/hiero-sdk-java/pull/2532
+
 ## 2.66.0
 
 ### Added
