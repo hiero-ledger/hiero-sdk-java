@@ -8,7 +8,9 @@ import com.hedera.hashgraph.sdk.ContractCallQuery;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.FileInfoQuery;
 import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.NftId;
 import com.hedera.hashgraph.sdk.ScheduleId;
 import com.hedera.hashgraph.sdk.ScheduleInfoQuery;
@@ -19,6 +21,7 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryPar
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleInfoParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
@@ -92,6 +95,20 @@ public class QueryBuilders {
      * File-related query builders
      */
     public static class FileBuilder {
+        public static FileInfoQuery buildFileInfoQuery(FileInfoQueryParams params) {
+            FileInfoQuery query = new FileInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+
+            if (params.getFileId() != null) {
+                query.setFileId(FileId.fromString(params.getFileId()));
+            }
+
+            params.getQueryPayment()
+                .ifPresent(payment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
+            params.getMaxQueryPayment()
+                .ifPresent(payment -> query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
+
+            return query;
+        }
 
         public static FileContentsQuery buildFileContents(FileContentsParams params) {
             FileContentsQuery query = new FileContentsQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);

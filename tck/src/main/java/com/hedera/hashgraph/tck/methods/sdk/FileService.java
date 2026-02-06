@@ -10,12 +10,15 @@ import com.hedera.hashgraph.tck.methods.sdk.param.file.FileAppendParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileDeleteParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.FileInfoResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileContentsResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.stream.Collectors;
 
 /**
  * FileService for file related methods
@@ -89,6 +92,23 @@ public class FileService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("getFileInfo")
+    public FileInfoResponse getFileInfo(final FileInfoQueryParams params) throws Exception {
+        FileInfoQuery query = QueryBuilders.FileBuilder.buildFileInfoQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        FileInfo result = query.execute(client);
+        return new FileInfoResponse(
+            result.fileId.toString(),
+            String.valueOf(result.size),
+            result.expirationTime.toString(),
+            result.isDeleted,
+            result.fileMemo,
+            result.ledgerId.toString(),
+            result.keys.stream().map(key -> key.toString()).collect(Collectors.toList())
+        );
     }
 
     @JSONRPC2Method("getFileContents")
