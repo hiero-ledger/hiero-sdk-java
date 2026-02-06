@@ -103,9 +103,9 @@ public class QueryBuilders {
             }
 
             params.getQueryPayment()
-                .ifPresent(payment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
+                    .ifPresent(payment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
             params.getMaxQueryPayment()
-                .ifPresent(payment -> query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
+                    .ifPresent(payment -> query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
 
             return query;
         }
