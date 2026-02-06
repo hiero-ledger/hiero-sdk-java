@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.param.file;
 
 import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
+import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Getter
 @AllArgsConstructor
@@ -25,7 +25,6 @@ public class FileInfoQueryParams extends JSONRPC2Param {
         var parseMaxQueryPayment = Optional.ofNullable((String) jrpcParams.get("maxQueryPayment"));
 
         return new FileInfoQueryParams(
-            parsedFileId, parsedQueryPayment, parseMaxQueryPayment, JSONRPCParamParser.parseSessionId(jrpcParams)
-        );
+                parsedFileId, parsedQueryPayment, parseMaxQueryPayment, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

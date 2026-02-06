@@ -101,14 +101,13 @@ public class FileService extends AbstractJSONRPC2Service {
 
         FileInfo result = query.execute(client);
         return new FileInfoResponse(
-            result.fileId.toString(),
-            String.valueOf(result.size),
-            result.expirationTime.toString(),
-            result.isDeleted,
-            result.fileMemo,
-            result.ledgerId.toString(),
-            result.keys.stream().map(key -> key.toString()).collect(Collectors.toList())
-        );
+                result.fileId.toString(),
+                String.valueOf(result.size),
+                result.expirationTime.toString(),
+                result.isDeleted,
+                result.fileMemo,
+                result.ledgerId.toString(),
+                result.keys.stream().map(key -> key.toString()).collect(Collectors.toList()));
     }
 
     @JSONRPC2Method("getFileContents")
