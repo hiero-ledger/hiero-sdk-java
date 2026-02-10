@@ -7,6 +7,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.util.Map;
 
@@ -20,6 +21,44 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     public TokenService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getTokenInfo")
+    public TokenInfoResponse getTokenInfo(final TokenInfoQueryParams params) throws Exception {
+        TokenInfoQuery query = QueryBuilders.TokenBuilder.buildTokenInfo(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        TokenInfo txResponse = query.execute(client);
+
+        return new TokenInfoResponse(
+                txResponse.tokenId.toString(),
+                txResponse.name,
+                txResponse.symbol,
+                txResponse.decimals,
+                String.valueOf(txResponse.totalSupply),
+                txResponse.treasuryAccountId.toString(),
+                txResponse.adminKey != null ? txResponse.adminKey.toString() : "",
+                txResponse.kycKey != null ? txResponse.kycKey.toString() : "",
+                txResponse.freezeKey != null ? txResponse.freezeKey.toString() : "",
+                txResponse.wipeKey != null ? txResponse.wipeKey.toString() : "",
+                txResponse.supplyKey != null ? txResponse.supplyKey.toString() : "",
+                txResponse.feeScheduleKey != null ? txResponse.feeScheduleKey.toString() : "",
+                txResponse.defaultFreezeStatus,
+                txResponse.defaultKycStatus,
+                txResponse.isDeleted,
+                txResponse.autoRenewAccount != null ? txResponse.autoRenewAccount.toString() : "",
+                String.valueOf(txResponse.autoRenewPeriod.getSeconds()),
+                String.valueOf(txResponse.expirationTime.getEpochSecond()),
+                txResponse.tokenMemo,
+                txResponse.customFees,
+                txResponse.tokenType,
+                txResponse.supplyType,
+                String.valueOf(txResponse.maxSupply),
+                txResponse.pauseKey != null ? txResponse.pauseKey.toString() : "",
+                txResponse.pauseStatus,
+                txResponse.metadata != null ? txResponse.metadata.toString() : "",
+                txResponse.metadataKey != null ? txResponse.metadataKey.toString() : "",
+                txResponse.ledgerId.toString());
     }
 
     @JSONRPC2Method("createToken")
@@ -275,6 +314,21 @@ public class TokenService extends AbstractJSONRPC2Service {
                         commonTransactionParams.fillOutTransaction(tokenClaimAirdropTransaction, client));
 
         TransactionResponse txResponse = tokenClaimAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("rejectToken")
+    public Map<String, String> rejectToken(final TokenRejectAirdropParams params) throws Exception {
+        TokenRejectTransaction tokenRejectTransaction = TransactionBuilders.TokenBuilder.buildRejectAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenRejectTransaction, client));
+
+        TransactionResponse txResponse = tokenRejectTransaction.execute(client);
         TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return Map.of("status", receipt.status.toString());
