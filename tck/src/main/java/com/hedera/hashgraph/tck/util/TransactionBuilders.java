@@ -888,6 +888,30 @@ public class TransactionBuilders {
             return transaction;
         }
 
+        public static TokenRejectTransaction buildRejectAirdrop(TokenRejectAirdropParams params) {
+            TokenRejectTransaction transaction = new TokenRejectTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            String ownerAccountId = params.getOwnerAccountId().orElseThrow();
+            transaction.setOwnerId(AccountId.fromString(ownerAccountId));
+
+            if (params.getSerialNumbers().isPresent()
+                    && !params.getSerialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = params.getSerialNumbers().get();
+                for (String serialNumber : serialNumbers) {
+                    transaction.addNftId(new NftId(
+                            TokenId.fromString(params.getTokenIds().get().getFirst()), Long.parseLong(serialNumber)));
+                }
+            } else if (params.getTokenIds().isPresent()
+                    && !params.getTokenIds().get().isEmpty()) {
+                List<String> tokenIds = params.getTokenIds().get();
+                for (String id : tokenIds) {
+                    transaction.addTokenId(TokenId.fromString(id));
+                }
+            }
+
+            return transaction;
+        }
+
         public static TokenClaimAirdropTransaction buildClaimAirdrop(Map<String, Object> params) {
             try {
                 TokenClaimAirdropParams typedParams =

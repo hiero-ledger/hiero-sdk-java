@@ -11,7 +11,8 @@ import "basic_types.proto";
 import "hook_types.proto";
 
 /**
- * Adds or removes key/value pairs in the storage of an EVM hook. The EVM hook's owning key must sign the transaction.
+ * Adds or removes key/value pairs in the storage of an EVM hook.
+ * Either the hook owner's key, or its admin key, must sign the transaction.
  */
 message HookStoreTransactionBody {
   /**

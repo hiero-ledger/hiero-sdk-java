@@ -508,8 +508,16 @@ public enum RequestType {
 
     /**
      * Update one or more storage slots in an lambda EVM hook.
+     *
+     * @deprecated Use {@link #HOOK_STORE} instead.
      */
+    @Deprecated
     LAMBDA_S_STORE(HederaFunctionality.LambdaSStore),
+
+    /**
+     * Update one or more storage slots in an EVM hook.
+     */
+    HOOK_STORE(HederaFunctionality.HookStore),
 
     /**
      * (Internal-only) Dispatch a hook action.
@@ -616,6 +624,7 @@ public enum RequestType {
             case CrsPublication -> CRS_PUBLICATION;
             case AtomicBatch -> ATOMIC_BATCH;
             case LambdaSStore -> LAMBDA_S_STORE;
+            case HookStore -> HOOK_STORE;
             case HookDispatch -> HOOK_DISPATCH;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
@@ -716,6 +725,7 @@ public enum RequestType {
             case CRS_PUBLICATION -> "CRS_PUBLICATION";
             case ATOMIC_BATCH -> "ATOMIC_BATCH";
             case LAMBDA_S_STORE -> "LAMBDA_S_STORE";
+            case HOOK_STORE -> "HOOK_STORE";
             case HOOK_DISPATCH -> "HOOK_DISPATCH";
         };
     }

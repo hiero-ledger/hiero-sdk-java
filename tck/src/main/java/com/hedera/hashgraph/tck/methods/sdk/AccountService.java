@@ -8,7 +8,9 @@ import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountAllowanceResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.AccountBalanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountResponse;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.util.Map;
 
@@ -21,6 +23,16 @@ public class AccountService extends AbstractJSONRPC2Service {
 
     public AccountService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getAccountBalance")
+    public AccountBalanceResponse accountBalanceQuery(final AccountBalanceQueryParams params) throws Exception {
+        AccountBalanceQuery query = QueryBuilders.AccountBuilder.buildAccountBalanceQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        AccountBalance result = query.execute(client);
+        return new AccountBalanceResponse(
+                result.hbars.toString().replace(" tℏ", ""), result.tokens, result.tokenDecimals);
     }
 
     @JSONRPC2Method("createAccount")
