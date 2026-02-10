@@ -87,11 +87,15 @@ public class AccountAllowanceApproveTransaction extends Transaction<AccountAllow
     }
 
     /**
-     * @deprecated - Use {@link #approveHbarAllowance(AccountId, AccountId, Hbar)} instead
+     * <b>Deprecated.</b> This method is deprecated and will be removed in a future release.<br>
+     * <p>
+     * Please use {@link #approveHbarAllowance(AccountId, AccountId, Hbar)} instead for granting Hbar allowance.
+     * </p>
      *
-     * @param spenderAccountId          the spender account id
-     * @param amount                    the amount of hbar
-     * @return                          an account allowance approve transaction
+     * @param spenderAccountId the spender account id
+     * @param amount the amount of hbar
+     * @return an account allowance approve transaction
+     * @deprecated Use {@link #approveHbarAllowance(AccountId, AccountId, Hbar)} instead.
      */
     @Deprecated
     public AccountAllowanceApproveTransaction addHbarAllowance(AccountId spenderAccountId, Hbar amount) {
