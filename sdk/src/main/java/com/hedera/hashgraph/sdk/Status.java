@@ -2050,7 +2050,18 @@ public enum Status {
     ACCOUNT_IS_LINKED_TO_A_NODE(ResponseCodeEnum.ACCOUNT_IS_LINKED_TO_A_NODE),
     HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER(
             ResponseCodeEnum.HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER),
-    NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE);
+    NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE),
+
+    /**
+     * This operation cannot be completed because the target account is a "Fee Collection Account".<br/>
+     * Any attempt to transfer to a fee collection account is not permitted.
+     */
+    TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED(ResponseCodeEnum.TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED),
+
+    /**
+     * The number of hook invocations exceeds the maximum allowed per transaction.
+     */
+    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS);
 
     final ResponseCodeEnum code;
 
@@ -2459,6 +2470,8 @@ public enum Status {
             case HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER ->
                 HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER;
             case NODE_ACCOUNT_HAS_ZERO_BALANCE -> NODE_ACCOUNT_HAS_ZERO_BALANCE;
+            case TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED -> TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED;
+            case TOO_MANY_HOOK_INVOCATIONS -> TOO_MANY_HOOK_INVOCATIONS;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
