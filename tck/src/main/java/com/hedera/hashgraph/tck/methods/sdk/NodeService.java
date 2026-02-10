@@ -14,7 +14,6 @@ import com.hedera.hashgraph.tck.methods.sdk.param.node.ServiceEndpointParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.AddressBookResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.NodeResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
-import com.hedera.hashgraph.tck.util.QueryBuilders;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class NodeService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("getAddressBook")
     public AddressBookResponse addressBookQuery(final AddressBookQueryParams params) {
-        AddressBookQuery query = QueryBuilders.AddressBookBuilder.addressBookQuery(params);
+        AddressBookQuery query = new AddressBookQuery().setFileId(FileId.fromString(params.getFileId()));
         Client client = sdkService.getClient(params.getSessionId());
 
         NodeAddressBook addressBook = query.execute(client);

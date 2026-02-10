@@ -6,12 +6,13 @@ import java.util.List;
 import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class AddressBookResponse {
-    List<NodeAddress> nodeAddresses = new ArrayList<>();
+    private final List<NodeAddress> nodeAddresses = new ArrayList<>();
 
-    @Data
+    @Getter
     @AllArgsConstructor
     public static class NodeAddress {
         /**
@@ -48,7 +49,7 @@ public class AddressBookResponse {
         long stake;
     }
 
-    @Data
+    @Getter
     @AllArgsConstructor
     public static class Endpoint {
         @Nullable
@@ -60,6 +61,9 @@ public class AddressBookResponse {
     }
 
     public void addNodeAddress(NodeAddress nodeAddress) {
+        if (nodeAddress == null) {
+            throw new IllegalArgumentException("nodeAddress cannot be null");
+        }
         nodeAddresses.add(nodeAddress);
     }
 }
