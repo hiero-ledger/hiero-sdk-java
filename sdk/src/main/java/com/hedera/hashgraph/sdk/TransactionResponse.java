@@ -4,6 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.base.MoreObjects;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -188,6 +189,17 @@ public final class TransactionResponse {
      *
      * @return {@link com.hedera.hashgraph.sdk.TransactionReceiptQuery}
      */
+    public TransactionReceiptQuery getReceiptQuery() {
+        return new TransactionReceiptQuery()
+                .setTransactionId(transactionId)
+                .setNodeAccountIds(Collections.singletonList(nodeId));
+    }
+
+    /**
+     * Create receipt query from the {@link #transactionId} and {@link #transactionHash}
+     *
+     * @return {@link com.hedera.hashgraph.sdk.TransactionReceiptQuery}
+     */
     public TransactionReceiptQuery getReceiptQuery(Client client) {
         List<AccountId> nodeIds = new ArrayList<>(List.of(nodeId));
         if (client != null && client.isAllowReceiptNodeFailover()) {
@@ -299,6 +311,17 @@ public final class TransactionResponse {
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
         getReceipt(client, timeout);
         return getRecordQuery(client).execute(client, timeout);
+    }
+
+    /**
+     * Create record query from the {@link #transactionId} and {@link #transactionHash}
+     *
+     * @return {@link com.hedera.hashgraph.sdk.TransactionRecordQuery}
+     */
+    public TransactionRecordQuery getRecordQuery() {
+        return new TransactionRecordQuery()
+                .setTransactionId(transactionId)
+                .setNodeAccountIds(Collections.singletonList(nodeId));
     }
 
     /**
