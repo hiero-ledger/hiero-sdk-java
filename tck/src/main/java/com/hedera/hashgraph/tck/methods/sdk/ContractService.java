@@ -30,7 +30,7 @@ public class ContractService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("contractCallQuery")
     public ContractCallResponse contractCallQuery(final ContractCallQueryParams params) throws Exception {
-        ContractCallQuery query = QueryBuilders.ContractBuilder.buildContractCall(params);
+        ContractCallQuery query = QueryBuilders.buildContractCall(params);
         Client client = sdkService.getClient(params.getSessionId());
 
         ContractFunctionResult result = query.execute(client);

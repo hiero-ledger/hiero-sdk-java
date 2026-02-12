@@ -45,18 +45,24 @@ public class QueryBuilders {
         }
     }
 
-    public static class ContractBuilder {
-
         public static ContractCallQuery buildContractCall(ContractCallQueryParams params) {
             ContractCallQuery query = new ContractCallQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            params.getContractId().ifPresent(accountId -> query.setContractId(ContractId.fromString(accountId)));
-            params.getGas().ifPresent(gas -> query.setGas(Long.parseLong(gas)));
-            params.getFunctionParameters().ifPresent(hex -> query.setFunctionParameters(Hex.decode(hex)));
-            params.getMaxResultSize().ifPresent(maxResultSize -> query.setMaxResultSize(Long.parseLong(maxResultSize)));
-            params.getSenderAccountId()
-                    .ifPresent(accountId -> query.setSenderAccountId(AccountId.fromString(accountId)));
+            if (params.getContractId() != null) {
+                query.setContractId(ContractId.fromString(params.getContractId()));
+            }
+            if (params.getGas() != null) {
+                query.setGas(Long.parseLong(params.getGas()));
+            }
+            if (params.getFunctionParameters() != null) {
+                query.setFunctionParameters(Hex.decode(params.getFunctionParameters()));
+            }
+            if (params.getMaxResultSize() != null) {
+                query.setMaxResultSize(Long.parseLong(params.getMaxResultSize()));
+            }
+            if (params.getSenderAccountId() != null) {
+                query.setSenderAccountId(AccountId.fromString(params.getSenderAccountId()));
+            }
 
             return query;
         }
-    }
 }

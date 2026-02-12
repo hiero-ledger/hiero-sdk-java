@@ -13,20 +13,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContractCallQueryParams extends JSONRPC2Param {
-    private Optional<String> contractId;
-    private Optional<String> gas;
-    private Optional<String> functionParameters;
-    private Optional<String> maxResultSize;
-    private Optional<String> senderAccountId;
+    private String contractId;
+    private String gas;
+    private String functionParameters;
+    private String maxResultSize;
+    private String senderAccountId;
     private String sessionId;
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
-        var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
-        var parsedGas = Optional.ofNullable((String) jrpcParams.get("gas"));
-        var parsedFunctionParameters = Optional.ofNullable((String) jrpcParams.get("functionParameters"));
-        var parsedMaxResultSize = Optional.ofNullable((String) jrpcParams.get("maxResultSize"));
-        var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("senderAccountId"));
+        if (jrpcParams == null) {
+            throw new IllegalArgumentException("jrpcParams cannot be null");
+        }
+
+        var parsedContractId = (String) jrpcParams.get("contractId");
+        var parsedGas = (String) jrpcParams.get("gas");
+        var parsedFunctionParameters = (String) jrpcParams.get("functionParameters");
+        var parsedMaxResultSize = (String) jrpcParams.get("maxResultSize");
+        var parsedAccountId = (String) jrpcParams.get("senderAccountId");
 
         return new ContractCallQueryParams(
                 parsedContractId,
