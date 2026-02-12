@@ -311,9 +311,11 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         jsonObject.addProperty("data", hexData);
         jsonObject.addProperty("to", contractAddress);
         jsonObject.addProperty("estimate", estimate);
-        jsonObject.addProperty("blockNumber", block);
 
         // Conditionally add fields if they are set to non-default values
+        if (block != null) {
+            jsonObject.addProperty("block", block);
+        }
         if (senderAddress != null && !senderAddress.isEmpty()) {
             jsonObject.addProperty("from", senderAddress);
         }
@@ -349,7 +351,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 + Arrays.toString(callData) + ", value="
                 + value + ", gasLimit="
                 + gasLimit + ", gasPrice="
-                + gasPrice + ", blockNumber="
+                + gasPrice + ", block="
                 + block + '}';
     }
 }

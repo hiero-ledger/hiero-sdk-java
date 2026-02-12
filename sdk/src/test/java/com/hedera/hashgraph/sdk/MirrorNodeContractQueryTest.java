@@ -156,7 +156,7 @@ class MirrorNodeContractQueryTest {
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("blockNumber", blockNumber);
+        expectedJson.addProperty("block", blockNumber);
         expectedJson.addProperty("from", senderAddress);
         expectedJson.addProperty("gas", gas);
         expectedJson.addProperty("gasPrice", gasPrice);
@@ -183,7 +183,7 @@ class MirrorNodeContractQueryTest {
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("blockNumber", blockNumber);
+        expectedJson.addProperty("block", blockNumber);
 
         assertEquals(expectedJson.toString(), jsonPayload);
     }
@@ -206,7 +206,7 @@ class MirrorNodeContractQueryTest {
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("blockNumber", blockNumber);
+        expectedJson.addProperty("block", blockNumber);
         expectedJson.addProperty("from", senderAddress);
         expectedJson.addProperty("gas", gas);
         expectedJson.addProperty("value", value);
@@ -232,7 +232,7 @@ class MirrorNodeContractQueryTest {
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("blockNumber", blockNumber);
+        expectedJson.addProperty("block", blockNumber);
 
         assertEquals(expectedJson.toString(), jsonPayload);
     }
