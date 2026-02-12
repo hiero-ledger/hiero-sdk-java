@@ -4,41 +4,34 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import lombok.Data;
 import net.minidev.json.JSONAware;
 import net.minidev.json.JSONObject;
 
-@Data
-public class ContractResponse {
-    private final String contractId;
-    private final Status status;
-
-    @Data
-    public static class ContractInfoQueryResponse implements JSONAware {
-        private final String contractId;
-        private final String accountId;
-        private final String contractAccountId;
-        private final String adminKey;
-        private final String expirationTime;
-        private final String autoRenewPeriod;
-        private final String autoRenewAccountId;
-        private final String storage;
-        private final String contractMemo;
-        private final String balance;
-        private final Boolean isDeleted;
-        private final String maxAutomaticTokenAssociations;
-        private final String ledgerId;
-        private final StakingInfoResponse stakingInfo;
-
-        @Data
-        public static class StakingInfoResponse implements JSONAware {
-            private final Boolean declineStakingReward;
-            private final String stakePeriodStart;
-            private final String pendingReward;
-            private final String stakedToMe;
-            private final String stakedAccountId;
-            private final String stakedNodeId;
-
+public record ContractResponse(String contractId, Status status) {
+    public record ContractInfoQueryResponse(
+            String contractId,
+            String accountId,
+            String contractAccountId,
+            String adminKey,
+            String expirationTime,
+            String autoRenewPeriod,
+            String autoRenewAccountId,
+            String storage,
+            String contractMemo,
+            String balance,
+            Boolean isDeleted,
+            String maxAutomaticTokenAssociations,
+            String ledgerId,
+            ContractResponse.ContractInfoQueryResponse.StakingInfoResponse stakingInfo)
+            implements JSONAware {
+        public record StakingInfoResponse(
+                Boolean declineStakingReward,
+                String stakePeriodStart,
+                String pendingReward,
+                String stakedToMe,
+                String stakedAccountId,
+                String stakedNodeId)
+                implements JSONAware {
             @Override
             public String toJSONString() {
                 JSONObject json = new JSONObject();
