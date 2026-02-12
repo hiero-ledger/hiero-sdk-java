@@ -4,9 +4,13 @@ package com.hedera.hashgraph.tck.util;
 import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.hedera.hashgraph.sdk.FileContentsQuery;
+import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import java.time.Duration;
 
@@ -37,6 +41,29 @@ public class QueryBuilders {
             params.getAccountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
             params.getContractId()
                     .ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+
+            return query;
+        }
+    }
+
+    /**
+     * File-related query builders
+     */
+    public static class FileBuilder {
+
+        public static FileContentsQuery buildFileContents(FileContentsParams params) {
+            FileContentsQuery query = new FileContentsQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            if (params.getFileId() != null) {
+                query.setFileId(FileId.fromString(params.getFileId()));
+            }
+
+            params.getQueryPayment()
+                    .ifPresent(queryPayment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPayment))));
+
+            params.getMaxQueryPayment()
+                    .ifPresent(maxQueryPayment ->
+                            query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPayment))));
 
             return query;
         }
