@@ -32,8 +32,9 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
     private long gasLimit;
     // The gas price
     private long gasPrice;
-    // The block number for the simulation
-    private long blockNumber;
+    // The block for the simulation
+    // Long so that if not set it defaults to empty which is latest
+    private Long block;
 
     @SuppressWarnings("unchecked")
     protected T self() {
@@ -201,8 +202,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public long getBlockNumber() {
-        return this.blockNumber;
+    public long getBlock() {
+        return this.block;
     }
 
     /**
@@ -210,11 +211,11 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      * <p>
      * The block number determines the context of the contract call simulation within the blockchain.
      *
-     * @param blockNumber the block number at which to simulate the contract call
+     * @param block the block number at which to simulate the contract call
      * @return {@code this}
      */
-    public T setBlockNumber(long blockNumber) {
-        this.blockNumber = blockNumber;
+    public T setBlock(long block) {
+        this.block = block;
         return self();
     }
 
@@ -240,7 +241,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      */
     protected String call(Client client) throws ExecutionException, InterruptedException {
         fillEvmAddresses();
-        var blockNum = this.blockNumber == 0 ? "latest" : String.valueOf(this.blockNumber);
+        var blockNum = this.block != null ? String.valueOf(this.block) : null;
         return getContractCallResultFromMirrorNodeAsync(client, blockNum).get();
     }
 
@@ -255,8 +256,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         }
     }
 
-    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(Client client, String blockNumber) {
-        return executeMirrorNodeRequest(client, blockNumber, false)
+    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(Client client, String block) {
+        return executeMirrorNodeRequest(client, block, false)
                 .thenApply(MirrorNodeContractQuery::parseContractCallResult);
     }
 
@@ -265,7 +266,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 .thenApply(MirrorNodeContractQuery::parseHexEstimateToLong);
     }
 
-    private CompletableFuture<String> executeMirrorNodeRequest(Client client, String blockNumber, boolean estimate) {
+    private CompletableFuture<String> executeMirrorNodeRequest(Client client, String block, boolean estimate) {
         String apiEndpoint = "/contracts/call";
         String jsonPayload = createJsonPayload(
                 this.callData,
@@ -274,7 +275,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 this.gasLimit,
                 this.gasPrice,
                 this.value,
-                blockNumber,
+                block,
                 estimate);
 
         String baseUrl = client.getMirrorRestBaseUrl();
@@ -302,7 +303,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
             long gas,
             long gasPrice,
             long value,
-            String blockNumber,
+            String block,
             boolean estimate) {
         String hexData = Hex.toHexString(data);
 
@@ -310,7 +311,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         jsonObject.addProperty("data", hexData);
         jsonObject.addProperty("to", contractAddress);
         jsonObject.addProperty("estimate", estimate);
-        jsonObject.addProperty("blockNumber", blockNumber);
+        jsonObject.addProperty("blockNumber", block);
 
         // Conditionally add fields if they are set to non-default values
         if (senderAddress != null && !senderAddress.isEmpty()) {
@@ -349,6 +350,6 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 + value + ", gasLimit="
                 + gasLimit + ", gasPrice="
                 + gasPrice + ", blockNumber="
-                + blockNumber + '}';
+                + block + '}';
     }
 }
