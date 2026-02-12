@@ -14,7 +14,6 @@ import com.hedera.hashgraph.tck.methods.sdk.response.GetAccountInfoResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -332,19 +331,8 @@ public class AccountService extends AbstractJSONRPC2Service {
                     ? a.serialNumbers.stream().map(String::valueOf).collect(Collectors.toList())
                     : null,
                 a.allSerials,
-                getDelegatingSpender(a)))
+                a.delegatingSpender != null ? a.delegatingSpender.toString() : null))
             .collect(Collectors.toList());
-    }
-
-    private static String getDelegatingSpender(TokenNftAllowance allowance) {
-        try {
-            Field field = TokenNftAllowance.class.getDeclaredField("delegatingSpender");
-            field.setAccessible(true);
-            AccountId spender = (AccountId) field.get(allowance);
-            return spender != null ? spender.toString() : null;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private static GetAccountInfoResponse.StakingInfoResponse mapStakingInfo(StakingInfo info) {

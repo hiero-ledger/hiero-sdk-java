@@ -40,7 +40,7 @@ public class TokenNftAllowance {
      * approval on an NFT serial to another spender.
      */
     @Nullable
-    AccountId delegatingSpender;
+    public final AccountId delegatingSpender;
 
     /**
      * The list of serial numbers that the spender is permitted to transfer.
