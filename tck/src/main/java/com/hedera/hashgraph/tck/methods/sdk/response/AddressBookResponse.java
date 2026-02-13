@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -61,9 +62,7 @@ public class AddressBookResponse {
     }
 
     public void addNodeAddress(NodeAddress nodeAddress) {
-        if (nodeAddress == null) {
-            throw new IllegalArgumentException("nodeAddress cannot be null");
-        }
+        Objects.requireNonNull(nodeAddress, "nodeAddress must not be null");
         nodeAddresses.add(nodeAddress);
     }
 }

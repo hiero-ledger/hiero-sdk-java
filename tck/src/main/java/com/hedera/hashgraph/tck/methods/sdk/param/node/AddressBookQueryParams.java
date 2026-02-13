@@ -4,6 +4,7 @@ package com.hedera.hashgraph.tck.methods.sdk.param.node;
 import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +19,7 @@ public class AddressBookQueryParams extends JSONRPC2Param {
 
     @Override
     public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
-        if (jrpcParams == null) {
-            throw new IllegalArgumentException("jrpcParams cannot be null");
-        }
+        Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedFileId = (String) jrpcParams.get("fileId");
         var parsedLimit = (Long) jrpcParams.get("limit");
