@@ -102,10 +102,13 @@ public class QueryBuilders {
                 query.setFileId(FileId.fromString(params.getFileId()));
             }
 
-            params.getQueryPayment()
-                    .ifPresent(payment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
-            params.getMaxQueryPayment()
-                    .ifPresent(payment -> query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(payment))));
+            if (params.getQueryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            }
+
+            if (params.getMaxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            }
 
             return query;
         }
