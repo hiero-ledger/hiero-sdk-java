@@ -117,7 +117,7 @@ public class MirrorNodeContractQueriesExample {
                 .setContractId(contractId)
                 .setSender(client.getOperatorAccountId())
                 .setGasLimit(30_000)
-                .setBlock(10000)
+                .setBlock(10000L)
                 .setGasPrice(1234)
                 .setFunction("getMessage")
                 .execute(client);
