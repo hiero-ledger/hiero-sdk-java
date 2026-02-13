@@ -241,8 +241,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      */
     protected String call(Client client) throws ExecutionException, InterruptedException {
         fillEvmAddresses();
-        var blockNum = this.block != null ? String.valueOf(this.block) : null;
-        return getContractCallResultFromMirrorNodeAsync(client, blockNum).get();
+        return getContractCallResultFromMirrorNodeAsync(client).get();
     }
 
     private void fillEvmAddresses() {
@@ -256,17 +255,15 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         }
     }
 
-    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(Client client, String block) {
-        return executeMirrorNodeRequest(client, block, false)
-                .thenApply(MirrorNodeContractQuery::parseContractCallResult);
+    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(Client client) {
+        return executeMirrorNodeRequest(client, false).thenApply(MirrorNodeContractQuery::parseContractCallResult);
     }
 
     private CompletableFuture<Long> getEstimateGasFromMirrorNodeAsync(Client client) {
-        return executeMirrorNodeRequest(client, "latest", true)
-                .thenApply(MirrorNodeContractQuery::parseHexEstimateToLong);
+        return executeMirrorNodeRequest(client, true).thenApply(MirrorNodeContractQuery::parseHexEstimateToLong);
     }
 
-    private CompletableFuture<String> executeMirrorNodeRequest(Client client, String block, boolean estimate) {
+    private CompletableFuture<String> executeMirrorNodeRequest(Client client, boolean estimate) {
         String apiEndpoint = "/contracts/call";
         String jsonPayload = createJsonPayload(
                 this.callData,
@@ -275,7 +272,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 this.gasLimit,
                 this.gasPrice,
                 this.value,
-                block,
+                this.block,
                 estimate);
 
         String baseUrl = client.getMirrorRestBaseUrl();
@@ -303,7 +300,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
             long gas,
             long gasPrice,
             long value,
-            String block,
+            Long block,
             boolean estimate) {
         String hexData = Hex.toHexString(data);
 

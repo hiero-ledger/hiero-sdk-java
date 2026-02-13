@@ -146,7 +146,7 @@ class MirrorNodeContractQueryTest {
         long gas = 50000;
         long gasPrice = 2000;
         long value = 1000;
-        String blockNumber = "latest";
+        Long blockNumber = 0L;
         boolean estimate = true;
 
         String jsonPayload = MirrorNodeContractQuery.createJsonPayload(
@@ -173,17 +173,16 @@ class MirrorNodeContractQueryTest {
         long gas = 0;
         long gasPrice = 0;
         long value = 0;
-        String blockNumber = "latest";
+        Long block = null;
         boolean estimate = true;
 
         String jsonPayload = MirrorNodeContractQuery.createJsonPayload(
-                data, senderAddress, contractAddress, gas, gasPrice, value, blockNumber, estimate);
+                data, senderAddress, contractAddress, gas, gasPrice, value, block, estimate);
 
         JsonObject expectedJson = new JsonObject();
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("block", blockNumber);
 
         assertEquals(expectedJson.toString(), jsonPayload);
     }
@@ -196,17 +195,17 @@ class MirrorNodeContractQueryTest {
         long gas = 50000;
         long gasPrice = 0;
         long value = 1000;
-        String blockNumber = "latest";
+        Long block = 0L;
         boolean estimate = false;
 
         String jsonPayload = MirrorNodeContractQuery.createJsonPayload(
-                data, senderAddress, contractAddress, gas, gasPrice, value, blockNumber, estimate);
+                data, senderAddress, contractAddress, gas, gasPrice, value, block, estimate);
 
         JsonObject expectedJson = new JsonObject();
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("block", blockNumber);
+        expectedJson.addProperty("block", block);
         expectedJson.addProperty("from", senderAddress);
         expectedJson.addProperty("gas", gas);
         expectedJson.addProperty("value", value);
@@ -222,17 +221,17 @@ class MirrorNodeContractQueryTest {
         long gas = 0;
         long gasPrice = 0;
         long value = 0;
-        String blockNumber = "latest";
+        Long block = 0L;
         boolean estimate = false;
 
         String jsonPayload = MirrorNodeContractQuery.createJsonPayload(
-                data, senderAddress, contractAddress, gas, gasPrice, value, blockNumber, estimate);
+                data, senderAddress, contractAddress, gas, gasPrice, value, block, estimate);
 
         JsonObject expectedJson = new JsonObject();
         expectedJson.addProperty("data", "7465737444617461");
         expectedJson.addProperty("to", contractAddress);
         expectedJson.addProperty("estimate", estimate);
-        expectedJson.addProperty("block", blockNumber);
+        expectedJson.addProperty("block", block);
 
         assertEquals(expectedJson.toString(), jsonPayload);
     }
