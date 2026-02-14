@@ -4,9 +4,13 @@ package com.hedera.hashgraph.tck.util;
 import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.FileInfoQuery;
+import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import java.time.Duration;
 
@@ -37,6 +41,29 @@ public class QueryBuilders {
             params.getAccountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
             params.getContractId()
                     .ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+
+            return query;
+        }
+    }
+
+    /**
+     * File-related query builders
+     */
+    public static class FileBuilder {
+        public static FileInfoQuery buildFileInfoQuery(FileInfoQueryParams params) {
+            FileInfoQuery query = new FileInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+
+            if (params.getFileId() != null) {
+                query.setFileId(FileId.fromString(params.getFileId()));
+            }
+
+            if (params.getQueryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            }
+
+            if (params.getMaxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            }
 
             return query;
         }
