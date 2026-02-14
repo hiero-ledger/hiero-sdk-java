@@ -2,12 +2,17 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public record FileInfoResponse(
-        String fileId,
-        String size,
-        String expirationTime,
-        boolean isDeleted,
-        String fileMemo,
-        String ledgerId,
-        List<String> keys) {}
+@Data
+@AllArgsConstructor
+public class FileInfoResponse {
+    private final String fileId;
+    private final String size;
+    private final String expirationTime;
+    private final Boolean isDeleted;
+    private final String memo;
+    private final String ledgerId;
+    private final List<String> keys;
+}
