@@ -209,6 +209,9 @@ public class ScheduleService extends AbstractJSONRPC2Service {
         return mapScheduleInfoResponse(result);
     }
 
+    /**
+     * Map ScheduleInfo from SDK to ScheduleInfoResponse for JSON-RPC
+     */
     private ScheduleInfoResponse mapScheduleInfoResponse(ScheduleInfo scheduleInfo) {
         String adminKey = scheduleInfo.adminKey != null ? scheduleInfo.adminKey.toString() : null;
         String scheduleTransactionId =
