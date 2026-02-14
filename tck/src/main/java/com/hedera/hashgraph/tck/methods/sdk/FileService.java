@@ -18,7 +18,7 @@ import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * FileService for file related methods
@@ -100,14 +100,25 @@ public class FileService extends AbstractJSONRPC2Service {
         Client client = sdkService.getClient(params.getSessionId());
 
         FileInfo result = query.execute(client);
+        return mapFileInfoResponse(result);
+    }
+
+    /**
+     *  Map FileInfo from SDK to FileInfoResponse for JSON-RPC
+     */
+    private FileInfoResponse mapFileInfoResponse(FileInfo fileInfo) {
+        List<String> keys = fileInfo.keys == null
+                ? null
+                : fileInfo.keys.stream().map(key -> key.toString()).toList();
+
         return new FileInfoResponse(
-                result.fileId.toString(),
-                String.valueOf(result.size),
-                result.expirationTime.toString(),
-                result.isDeleted,
-                result.fileMemo,
-                result.ledgerId.toString(),
-                result.keys.stream().map(key -> key.toString()).collect(Collectors.toList()));
+                fileInfo.fileId.toString(),
+                String.valueOf(fileInfo.size),
+                fileInfo.expirationTime.toString(),
+                fileInfo.isDeleted,
+                fileInfo.fileMemo,
+                fileInfo.ledgerId.toString(),
+                keys);
     }
 
     @JSONRPC2Method("getFileContents")
