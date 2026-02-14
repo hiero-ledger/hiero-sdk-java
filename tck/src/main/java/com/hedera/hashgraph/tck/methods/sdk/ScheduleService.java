@@ -7,13 +7,17 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleDeleteParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleInfoParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleSignParams;
-import com.hedera.hashgraph.tck.methods.sdk.response.ScheduleResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.schedule.ScheduleInfoResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.schedule.ScheduleResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -189,5 +193,45 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             throw new IllegalArgumentException("Unsupported scheduled transaction method: " + scheduledTx.getMethod());
         }
         return builder.apply(params);
+    }
+
+    @JSONRPC2Method("getScheduleInfo")
+    public ScheduleInfoResponse getScheduleInfo(final ScheduleInfoParams params) throws Exception {
+        ScheduleInfoQuery query = QueryBuilders.ScheduleBuilder.buildScheduleInfoQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        if (params.isGetCost()) {
+            Hbar cost = query.getCost(client);
+            return ScheduleInfoResponse.forCostOnly(String.valueOf(cost.toTinybars()));
+        }
+
+        ScheduleInfo result = query.execute(client);
+        return mapScheduleInfoResponse(result);
+    }
+
+    private ScheduleInfoResponse mapScheduleInfoResponse(ScheduleInfo scheduleInfo) {
+        String adminKey = scheduleInfo.adminKey != null ? scheduleInfo.adminKey.toString() : null;
+        String scheduleTransactionId =
+                scheduleInfo.scheduledTransactionId != null ? scheduleInfo.scheduledTransactionId.toString() : null;
+        String expirationTime = scheduleInfo.expirationTime != null ? scheduleInfo.expirationTime.toString() : null;
+        String executedAt = scheduleInfo.executedAt != null ? scheduleInfo.executedAt.toString() : null;
+        String deletedAt = scheduleInfo.deletedAt != null ? scheduleInfo.deletedAt.toString() : null;
+
+        List<String> signers =
+                scheduleInfo.signatories.stream().map(key -> key.toString()).toList();
+
+        return new ScheduleInfoResponse(
+                scheduleInfo.scheduleId.toString(),
+                scheduleInfo.creatorAccountId.toString(),
+                scheduleInfo.payerAccountId.toString(),
+                adminKey,
+                signers,
+                scheduleInfo.memo,
+                expirationTime,
+                executedAt,
+                deletedAt,
+                scheduleTransactionId,
+                scheduleInfo.waitForExpiry,
+                null);
     }
 }
