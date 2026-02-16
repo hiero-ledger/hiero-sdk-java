@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.response.schedule;
 
-import java.util.List;
-
 import jakarta.annotation.Nullable;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,17 +15,24 @@ public class ScheduleInfoResponse {
 
     @Nullable
     private String adminKey;
+
     private List<String> signers;
     private String scheduleMemo;
+
     @Nullable
     private String expirationTime;
+
     @Nullable
     private String executed;
+
     @Nullable
     private String deleted;
+
     @Nullable
     private String scheduledTransactionId;
+
     private Boolean waitForExpiry;
+
     @Nullable
     private String cost;
 

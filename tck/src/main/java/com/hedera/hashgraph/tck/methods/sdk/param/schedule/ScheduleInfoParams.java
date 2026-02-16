@@ -32,7 +32,7 @@ public class ScheduleInfoParams extends JSONRPC2Param {
                 parsedScheduleId,
                 parsedQueryPayment,
                 parsedMaxQueryPayment,
-                parsedGetCost != null? parsedGetCost : false,
+                parsedGetCost != null ? parsedGetCost : false,
                 JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
