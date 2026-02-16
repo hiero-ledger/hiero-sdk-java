@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
+import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileAppendParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.FileContentsResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
 
@@ -85,5 +89,18 @@ public class FileService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("getFileContents")
+    public FileContentsResponse getFileContents(final FileContentsParams params) throws Exception {
+        FileContentsQuery query = QueryBuilders.FileBuilder.buildFileContents(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        ByteString response = query.execute(client);
+
+        // Convert ByteString to string
+        String contents = response.toStringUtf8();
+
+        return new FileContentsResponse(contents);
     }
 }
