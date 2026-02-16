@@ -7,10 +7,13 @@ import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.FileId;
 import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.NftId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
+import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import java.time.Duration;
 
@@ -26,6 +29,13 @@ public class QueryBuilders {
         public static TokenInfoQuery buildTokenInfo(TokenInfoQueryParams params) {
             TokenInfoQuery query = new TokenInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
             params.getTokenId().ifPresent(tokenId -> query.setTokenId(TokenId.fromString(tokenId)));
+
+            return query;
+        }
+
+        public static TokenNftInfoQuery buildNftInfo(NftInfoQueryParams params) {
+            TokenNftInfoQuery query = new TokenNftInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+            query.setNftId(NftId.fromString(params.getNftId()));
 
             return query;
         }

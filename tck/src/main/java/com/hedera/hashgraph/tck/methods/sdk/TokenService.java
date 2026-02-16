@@ -9,7 +9,9 @@ import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
+import java.util.List;
 import java.util.Map;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * TokenService for token related methods
@@ -21,6 +23,23 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     public TokenService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getTokenNftInfo")
+    public NftInfoResponse getNftInfo(final NftInfoQueryParams params) throws Exception {
+        TokenNftInfoQuery query = QueryBuilders.TokenBuilder.buildNftInfo(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        List<TokenNftInfo> txResponse = query.execute(client);
+        TokenNftInfo tokenNftInfo = txResponse.get(0);
+
+        return new NftInfoResponse(
+                tokenNftInfo.nftId.toString(),
+                tokenNftInfo.accountId.toString(),
+                String.valueOf(tokenNftInfo.creationTime.getEpochSecond()),
+                Hex.toHexString(tokenNftInfo.metadata),
+                tokenNftInfo.ledgerId.toString(),
+                tokenNftInfo.spenderId != null ? tokenNftInfo.spenderId.toString() : null);
     }
 
     @JSONRPC2Method("getTokenInfo")
