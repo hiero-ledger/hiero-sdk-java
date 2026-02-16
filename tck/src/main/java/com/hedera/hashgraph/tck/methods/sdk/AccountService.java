@@ -13,7 +13,6 @@ import com.hedera.hashgraph.tck.methods.sdk.response.AccountResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.GetAccountInfoResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,7 @@ public class AccountService extends AbstractJSONRPC2Service {
 
         AccountBalance result = query.execute(client);
         return new AccountBalanceResponse(
-            result.hbars.toString().replace(" tℏ", ""), result.tokens, result.tokenDecimals);
+                result.hbars.toString().replace(" tℏ", ""), result.tokens, result.tokenDecimals);
     }
 
     @JSONRPC2Method("createAccount")
@@ -47,11 +46,11 @@ public class AccountService extends AbstractJSONRPC2Service {
         Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-            .ifPresent(commonTransactionParams ->
-                commonTransactionParams.fillOutTransaction(accountCreateTransaction, client));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(accountCreateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-            accountCreateTransaction.execute(client).getReceipt(client);
+                accountCreateTransaction.execute(client).getReceipt(client);
 
         String stringAccountId = "";
         if (transactionReceipt.status == Status.SUCCESS) {
@@ -67,11 +66,11 @@ public class AccountService extends AbstractJSONRPC2Service {
         Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-            .ifPresent(commonTransactionParams ->
-                commonTransactionParams.fillOutTransaction(accountUpdateTransaction, client));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(accountUpdateTransaction, client));
 
         TransactionReceipt transactionReceipt =
-            accountUpdateTransaction.execute(client).getReceipt(client);
+                accountUpdateTransaction.execute(client).getReceipt(client);
 
         return new AccountResponse(null, transactionReceipt.status);
     }
@@ -82,11 +81,11 @@ public class AccountService extends AbstractJSONRPC2Service {
         Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-            .ifPresent(commonTransactionParams ->
-                commonTransactionParams.fillOutTransaction(accountDeleteTransaction, client));
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(accountDeleteTransaction, client));
 
         TransactionReceipt transactionReceipt =
-            accountDeleteTransaction.execute(client).getReceipt(client);
+                accountDeleteTransaction.execute(client).getReceipt(client);
 
         return new AccountResponse(null, transactionReceipt.status);
     }
@@ -139,7 +138,7 @@ public class AccountService extends AbstractJSONRPC2Service {
         Client client = sdkService.getClient(params.getSessionId());
 
         params.getCommonTransactionParams()
-            .ifPresent(commonParams -> commonParams.fillOutTransaction(transferTransaction, client));
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transferTransaction, client));
 
         TransactionReceipt receipt = transferTransaction.execute(client).getReceipt(client);
 
@@ -188,7 +187,7 @@ public class AccountService extends AbstractJSONRPC2Service {
      * Process a token transfer
      */
     private static void processTokenTransfer(
-        TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
+            TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
         tokenParams.getAccountId().ifPresent(accountIdStr -> {
             tokenParams.getTokenId().ifPresent(tokenIdStr -> {
                 tokenParams.getAmount().ifPresent(amountStr -> {
@@ -245,94 +244,94 @@ public class AccountService extends AbstractJSONRPC2Service {
      */
     private static GetAccountInfoResponse mapAccountInfoResponse(AccountInfo info) {
         return new GetAccountInfoResponse(
-            info.accountId.toString(),
-            info.contractAccountId,
-            info.isDeleted,
-            info.proxyAccountId != null ? info.proxyAccountId.toString() : null,
-            String.valueOf(info.proxyReceived.toTinybars()),
-            info.key != null ? info.key.toString() : null,
-            String.valueOf(info.balance.toTinybars()),
-            String.valueOf(info.sendRecordThreshold.toTinybars()),
-            String.valueOf(info.receiveRecordThreshold.toTinybars()),
-            info.isReceiverSignatureRequired,
-            info.expirationTime.toString(),
-            String.valueOf(info.autoRenewPeriod.getSeconds()),
-            mapLiveHashes(info.liveHashes),
-            mapTokenRelationships(info.tokenRelationships),
-            info.accountMemo,
-            String.valueOf(info.ownedNfts),
-            String.valueOf(info.maxAutomaticTokenAssociations),
-            info.aliasKey != null ? info.aliasKey.toString() : null,
-            info.ledgerId != null ? info.ledgerId.toString() : null,
-            mapHbarAllowances(info.hbarAllowances),
-            mapTokenAllowances(info.tokenAllowances),
-            mapNftAllowances(info.tokenNftAllowances),
-            String.valueOf(info.ethereumNonce),
-            mapStakingInfo(info.stakingInfo));
+                info.accountId.toString(),
+                info.contractAccountId,
+                info.isDeleted,
+                info.proxyAccountId != null ? info.proxyAccountId.toString() : null,
+                String.valueOf(info.proxyReceived.toTinybars()),
+                info.key != null ? info.key.toString() : null,
+                String.valueOf(info.balance.toTinybars()),
+                String.valueOf(info.sendRecordThreshold.toTinybars()),
+                String.valueOf(info.receiveRecordThreshold.toTinybars()),
+                info.isReceiverSignatureRequired,
+                info.expirationTime.toString(),
+                String.valueOf(info.autoRenewPeriod.getSeconds()),
+                mapLiveHashes(info.liveHashes),
+                mapTokenRelationships(info.tokenRelationships),
+                info.accountMemo,
+                String.valueOf(info.ownedNfts),
+                String.valueOf(info.maxAutomaticTokenAssociations),
+                info.aliasKey != null ? info.aliasKey.toString() : null,
+                info.ledgerId != null ? info.ledgerId.toString() : null,
+                mapHbarAllowances(info.hbarAllowances),
+                mapTokenAllowances(info.tokenAllowances),
+                mapNftAllowances(info.tokenNftAllowances),
+                String.valueOf(info.ethereumNonce),
+                mapStakingInfo(info.stakingInfo));
     }
 
     private static List<GetAccountInfoResponse.LiveHashResponse> mapLiveHashes(List<LiveHash> liveHashes) {
         return liveHashes.stream()
-            .map(lh -> new GetAccountInfoResponse.LiveHashResponse(
-                lh.accountId.toString(),
-                java.util.Base64.getEncoder().encodeToString(lh.hash.toByteArray()),
-                lh.keys.stream().map(key -> key.toString()).collect(Collectors.toList()),
-                String.valueOf(lh.duration.getSeconds())))
-            .collect(Collectors.toList());
+                .map(lh -> new GetAccountInfoResponse.LiveHashResponse(
+                        lh.accountId.toString(),
+                        java.util.Base64.getEncoder().encodeToString(lh.hash.toByteArray()),
+                        lh.keys.stream().map(key -> key.toString()).collect(Collectors.toList()),
+                        String.valueOf(lh.duration.getSeconds())))
+                .collect(Collectors.toList());
     }
 
     private static Map<String, GetAccountInfoResponse.TokenRelationshipInfo> mapTokenRelationships(
-        Map<TokenId, TokenRelationship> rels) {
+            Map<TokenId, TokenRelationship> rels) {
         Map<String, GetAccountInfoResponse.TokenRelationshipInfo> result = new HashMap<>();
         for (Map.Entry<TokenId, TokenRelationship> entry : rels.entrySet()) {
             TokenRelationship tr = entry.getValue();
             result.put(
-                entry.getKey().toString(),
-                new GetAccountInfoResponse.TokenRelationshipInfo(
-                    tr.tokenId.toString(),
-                    tr.symbol,
-                    String.valueOf(tr.balance),
-                    tr.kycStatus,
-                    tr.freezeStatus,
-                    tr.automaticAssociation));
+                    entry.getKey().toString(),
+                    new GetAccountInfoResponse.TokenRelationshipInfo(
+                            tr.tokenId.toString(),
+                            tr.symbol,
+                            String.valueOf(tr.balance),
+                            tr.kycStatus,
+                            tr.freezeStatus,
+                            tr.automaticAssociation));
         }
         return result;
     }
 
     private static List<GetAccountInfoResponse.HbarAllowanceResponse> mapHbarAllowances(
-        List<HbarAllowance> allowances) {
+            List<HbarAllowance> allowances) {
         return allowances.stream()
-            .map(a -> new GetAccountInfoResponse.HbarAllowanceResponse(
-                a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
-                a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
-                a.amount != null ? String.valueOf(a.amount.toTinybars()) : null))
-            .collect(Collectors.toList());
+                .map(a -> new GetAccountInfoResponse.HbarAllowanceResponse(
+                        a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
+                        a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
+                        a.amount != null ? String.valueOf(a.amount.toTinybars()) : null))
+                .collect(Collectors.toList());
     }
 
     private static List<GetAccountInfoResponse.TokenAllowanceResponse> mapTokenAllowances(
-        List<TokenAllowance> allowances) {
+            List<TokenAllowance> allowances) {
         return allowances.stream()
-            .map(a -> new GetAccountInfoResponse.TokenAllowanceResponse(
-                a.tokenId != null ? a.tokenId.toString() : null,
-                a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
-                a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
-                String.valueOf(a.amount)))
-            .collect(Collectors.toList());
+                .map(a -> new GetAccountInfoResponse.TokenAllowanceResponse(
+                        a.tokenId != null ? a.tokenId.toString() : null,
+                        a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
+                        a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
+                        String.valueOf(a.amount)))
+                .collect(Collectors.toList());
     }
 
     private static List<GetAccountInfoResponse.TokenNftAllowanceResponse> mapNftAllowances(
-        List<TokenNftAllowance> allowances) {
+            List<TokenNftAllowance> allowances) {
         return allowances.stream()
-            .map(a -> new GetAccountInfoResponse.TokenNftAllowanceResponse(
-                a.tokenId != null ? a.tokenId.toString() : null,
-                a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
-                a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
-                a.serialNumbers != null
-                    ? a.serialNumbers.stream().map(String::valueOf).collect(Collectors.toList())
-                    : null,
-                a.allSerials,
-                a.delegatingSpender != null ? a.delegatingSpender.toString() : null))
-            .collect(Collectors.toList());
+                .map(a -> new GetAccountInfoResponse.TokenNftAllowanceResponse(
+                        a.tokenId != null ? a.tokenId.toString() : null,
+                        a.ownerAccountId != null ? a.ownerAccountId.toString() : null,
+                        a.spenderAccountId != null ? a.spenderAccountId.toString() : null,
+                        a.serialNumbers != null
+                                ? a.serialNumbers.stream().map(String::valueOf).collect(Collectors.toList())
+                                : null,
+                        a.allSerials,
+                        a.delegatingSpender != null ? a.delegatingSpender.toString() : null))
+                .collect(Collectors.toList());
     }
 
     private static GetAccountInfoResponse.StakingInfoResponse mapStakingInfo(StakingInfo info) {
@@ -340,11 +339,11 @@ public class AccountService extends AbstractJSONRPC2Service {
             return null;
         }
         return new GetAccountInfoResponse.StakingInfoResponse(
-            info.declineStakingReward,
-            info.stakePeriodStart != null ? info.stakePeriodStart.toString() : null,
-            info.pendingReward != null ? String.valueOf(info.pendingReward.toTinybars()) : null,
-            info.stakedToMe != null ? String.valueOf(info.stakedToMe.toTinybars()) : null,
-            info.stakedAccountId != null ? info.stakedAccountId.toString() : null,
-            info.stakedNodeId != null ? String.valueOf(info.stakedNodeId) : null);
+                info.declineStakingReward,
+                info.stakePeriodStart != null ? info.stakePeriodStart.toString() : null,
+                info.pendingReward != null ? String.valueOf(info.pendingReward.toTinybars()) : null,
+                info.stakedToMe != null ? String.valueOf(info.stakedToMe.toTinybars()) : null,
+                info.stakedAccountId != null ? info.stakedAccountId.toString() : null,
+                info.stakedNodeId != null ? String.valueOf(info.stakedNodeId) : null);
     }
 }
