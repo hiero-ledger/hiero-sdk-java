@@ -5,7 +5,7 @@ val bouncycastle = "1.82"
 val grpc = "1.76.0"
 val protobuf = "4.33.4"
 val slf4j = "2.0.17"
-val mockito = "5.20.0"
+val mockito = "5.21.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
