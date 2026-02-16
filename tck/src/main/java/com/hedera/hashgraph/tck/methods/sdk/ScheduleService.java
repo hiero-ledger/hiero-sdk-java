@@ -200,7 +200,7 @@ public class ScheduleService extends AbstractJSONRPC2Service {
         ScheduleInfoQuery query = QueryBuilders.ScheduleBuilder.buildScheduleInfoQuery(params);
         Client client = sdkService.getClient(params.getSessionId());
 
-        if (params.isGetCost()) {
+        if (params.getGetCost()) {
             Hbar cost = query.getCost(client);
             return ScheduleInfoResponse.forCostOnly(String.valueOf(cost.toTinybars()));
         }

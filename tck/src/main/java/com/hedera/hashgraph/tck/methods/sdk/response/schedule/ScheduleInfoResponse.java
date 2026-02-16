@@ -3,19 +3,32 @@ package com.hedera.hashgraph.tck.methods.sdk.response.schedule;
 
 import java.util.List;
 
-public record ScheduleInfoResponse(
-        String scheduleId,
-        String creatorAccountId,
-        String payerAccountId,
-        String adminKey,
-        List<String> signers,
-        String scheduleMemo,
-        String expirationTime,
-        String executed,
-        String deleted,
-        String scheduledTransactionId,
-        Boolean waitForExpiry,
-        String cost) {
+import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class ScheduleInfoResponse {
+    private String scheduleId;
+    private String creatorAccountId;
+    private String payerAccountId;
+
+    @Nullable
+    private String adminKey;
+    private List<String> signers;
+    private String scheduleMemo;
+    @Nullable
+    private String expirationTime;
+    @Nullable
+    private String executed;
+    @Nullable
+    private String deleted;
+    @Nullable
+    private String scheduledTransactionId;
+    private Boolean waitForExpiry;
+    @Nullable
+    private String cost;
 
     public static ScheduleInfoResponse forCostOnly(String cost) {
         return new ScheduleInfoResponse(null, null, null, null, null, null, null, null, null, null, null, cost);
