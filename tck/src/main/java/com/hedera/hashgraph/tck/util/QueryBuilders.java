@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.util;
 
 import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractCallQuery;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.FileId;
@@ -12,10 +13,12 @@ import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import java.time.Duration;
+import org.bouncycastle.util.encoders.Hex;
 
 public class QueryBuilders {
 
@@ -77,5 +80,26 @@ public class QueryBuilders {
 
             return query;
         }
+    }
+
+    public static ContractCallQuery buildContractCall(ContractCallQueryParams params) {
+        ContractCallQuery query = new ContractCallQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+        if (params.getContractId() != null) {
+            query.setContractId(ContractId.fromString(params.getContractId()));
+        }
+        if (params.getGas() != null) {
+            query.setGas(Long.parseLong(params.getGas()));
+        }
+        if (params.getFunctionParameters() != null) {
+            query.setFunctionParameters(Hex.decode(params.getFunctionParameters()));
+        }
+        if (params.getMaxResultSize() != null) {
+            query.setMaxResultSize(Long.parseLong(params.getMaxResultSize()));
+        }
+        if (params.getSenderAccountId() != null) {
+            query.setSenderAccountId(AccountId.fromString(params.getSenderAccountId()));
+        }
+
+        return query;
     }
 }
