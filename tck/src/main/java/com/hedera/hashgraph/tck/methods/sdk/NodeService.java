@@ -6,15 +6,18 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
+import com.hedera.hashgraph.tck.methods.sdk.param.node.AddressBookQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.NodeUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.node.ServiceEndpointParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.AddressBookResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.NodeResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
@@ -24,6 +27,35 @@ public class NodeService extends AbstractJSONRPC2Service {
 
     public NodeService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getAddressBook")
+    public AddressBookResponse addressBookQuery(final AddressBookQueryParams params) {
+        AddressBookQuery query = new AddressBookQuery().setFileId(FileId.fromString(params.getFileId()));
+        Client client = sdkService.getClient(params.getSessionId());
+
+        NodeAddressBook addressBook = query.execute(client);
+        AddressBookResponse response = new AddressBookResponse();
+
+        addressBook.getNodeAddresses().forEach(address -> {
+            List<AddressBookResponse.Endpoint> mappedEndpoints = address.getAddresses().stream()
+                    .map(sdkEndpoint -> new AddressBookResponse.Endpoint(
+                            sdkEndpoint.getAddress() != null ? Hex.toHexString(sdkEndpoint.getAddress()) : null,
+                            sdkEndpoint.getPort(),
+                            sdkEndpoint.getDomainName() != null ? sdkEndpoint.getDomainName() : ""))
+                    .collect(Collectors.toList());
+
+            response.addNodeAddress(new AddressBookResponse.NodeAddress(
+                    address.getPublicKey() != null ? address.getPublicKey() : "",
+                    address.getAccountId() != null ? address.getAccountId().toString() : "",
+                    address.getNodeId(),
+                    address.getCertHash() != null ? address.getCertHash().toString() : "",
+                    mappedEndpoints,
+                    address.getDescription(),
+                    address.getStake()));
+        });
+
+        return response;
     }
 
     @JSONRPC2Method("createNode")
