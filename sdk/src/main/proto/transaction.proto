@@ -98,7 +98,7 @@ import "history_proof_signature.proto";
 import "history_proof_key_publication.proto";
 import "history_proof_vote.proto";
 
-import "lambda_sstore.proto";
+import "hook_store.proto";
 import "hook_dispatch.proto";
 
 /**

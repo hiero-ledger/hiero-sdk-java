@@ -11,9 +11,12 @@ import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryPara
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.DeleteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ExecuteContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.InfoQueryContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractCallResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse.ContractInfoQueryResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse.ContractInfoQueryResponse.StakingInfoResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import java.time.Duration;
@@ -206,5 +209,75 @@ public class ContractService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
         return new ContractResponse(null, receipt.status);
+    }
+
+    @JSONRPC2Method("contractInfoQuery")
+    public ContractInfoQueryResponse contractInfoQuery(final InfoQueryContractParams params) throws Exception {
+        ContractInfoQuery query = new ContractInfoQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getContractId().ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+
+        params.getQueryPayment()
+                .ifPresent(
+                        queryPaymentStr -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPaymentStr))));
+
+        params.getMaxQueryPayment()
+                .ifPresent(maxQueryPaymentStr ->
+                        query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPaymentStr))));
+
+        ContractInfo result = query.execute(client);
+        return mapContractInfo(result);
+    }
+
+    private static ContractInfoQueryResponse mapContractInfo(ContractInfo result) {
+        return new ContractInfoQueryResponse(
+                toStringOrNull(result.contractId),
+                toStringOrNull(result.accountId),
+                emptyToNull(result.contractAccountId),
+                toStringOrNull(result.adminKey),
+                epochSecondsOrNull(result.expirationTime),
+                durationSecondsOrNull(result.autoRenewPeriod),
+                toStringOrNull(result.autoRenewAccountId),
+                Long.toString(result.storage),
+                emptyToNull(result.contractMemo),
+                hbarToTinybarsOrNull(result.balance),
+                result.isDeleted,
+                "0",
+                toStringOrNull(result.ledgerId),
+                mapStakingInfo(result.stakingInfo));
+    }
+
+    private static StakingInfoResponse mapStakingInfo(StakingInfo stakingInfo) {
+        if (stakingInfo == null) {
+            return null;
+        }
+        return new StakingInfoResponse(
+                stakingInfo.declineStakingReward,
+                epochSecondsOrNull(stakingInfo.stakePeriodStart),
+                hbarToTinybarsOrNull(stakingInfo.pendingReward),
+                hbarToTinybarsOrNull(stakingInfo.stakedToMe),
+                toStringOrNull(stakingInfo.stakedAccountId),
+                stakingInfo.stakedNodeId != null ? stakingInfo.stakedNodeId.toString() : null);
+    }
+
+    private static String toStringOrNull(Object value) {
+        return value != null ? value.toString() : null;
+    }
+
+    private static String epochSecondsOrNull(java.time.Instant instant) {
+        return instant != null ? Long.toString(instant.getEpochSecond()) : null;
+    }
+
+    private static String durationSecondsOrNull(Duration duration) {
+        return duration != null ? Long.toString(duration.getSeconds()) : null;
+    }
+
+    private static String hbarToTinybarsOrNull(Hbar hbar) {
+        return hbar != null ? Long.toString(hbar.toTinybars()) : null;
+    }
+
+    private static String emptyToNull(String value) {
+        return value == null || value.isEmpty() ? null : value;
     }
 }
