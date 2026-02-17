@@ -2,86 +2,46 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import net.minidev.json.JSONAware;
-import net.minidev.json.JSONObject;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ContractResponse(String contractId, Status status) {
-    public record ContractInfoQueryResponse(
-            String contractId,
-            String accountId,
-            String contractAccountId,
-            String adminKey,
-            String expirationTime,
-            String autoRenewPeriod,
-            String autoRenewAccountId,
-            String storage,
-            String contractMemo,
-            String balance,
-            Boolean isDeleted,
-            String maxAutomaticTokenAssociations,
-            String ledgerId,
-            ContractResponse.ContractInfoQueryResponse.StakingInfoResponse stakingInfo)
-            implements JSONAware {
-        public record StakingInfoResponse(
-                Boolean declineStakingReward,
-                String stakePeriodStart,
-                String pendingReward,
-                String stakedToMe,
-                String stakedAccountId,
-                String stakedNodeId)
-                implements JSONAware {
-            @Override
-            public String toJSONString() {
-                JSONObject json = new JSONObject();
-                if (declineStakingReward != null) {
-                    json.put("declineStakingReward", declineStakingReward);
-                }
-                if (stakePeriodStart != null) {
-                    json.put("stakePeriodStart", stakePeriodStart);
-                }
-                if (pendingReward != null) {
-                    json.put("pendingReward", pendingReward);
-                }
-                if (stakedToMe != null) {
-                    json.put("stakedToMe", stakedToMe);
-                }
-                if (stakedAccountId != null) {
-                    json.put("stakedAccountId", stakedAccountId);
-                }
-                if (stakedNodeId != null) {
-                    json.put("stakedNodeId", stakedNodeId);
-                }
-                return json.toJSONString();
-            }
-        }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ContractResponse {
+    private String contractId;
+    private Status status;
 
-        @Override
-        public String toJSONString() {
-            JSONObject json = new JSONObject();
-            Map<String, Object> values = new LinkedHashMap<>();
-            values.put("contractId", contractId);
-            values.put("accountId", accountId);
-            values.put("contractAccountId", contractAccountId);
-            values.put("adminKey", adminKey);
-            values.put("expirationTime", expirationTime);
-            values.put("autoRenewPeriod", autoRenewPeriod);
-            values.put("autoRenewAccountId", autoRenewAccountId);
-            values.put("storage", storage);
-            values.put("contractMemo", contractMemo);
-            values.put("balance", balance);
-            values.put("isDeleted", isDeleted);
-            values.put("maxAutomaticTokenAssociations", maxAutomaticTokenAssociations);
-            values.put("ledgerId", ledgerId);
-            values.put("stakingInfo", stakingInfo);
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ContractInfoQueryResponse {
+        private String contractId;
+        private String accountId;
+        private String contractAccountId;
+        private String adminKey;
+        private String expirationTime;
+        private String autoRenewPeriod;
+        private String autoRenewAccountId;
+        private String storage;
+        private String contractMemo;
+        private String balance;
+        private Boolean isDeleted;
+        private String maxAutomaticTokenAssociations;
+        private String ledgerId;
+        private StakingInfoResponse stakingInfo;
 
-            values.forEach((key, value) -> {
-                if (value != null) {
-                    json.put(key, value);
-                }
-            });
-            return json.toJSONString();
+        @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class StakingInfoResponse {
+            private Boolean declineStakingReward;
+            private String stakePeriodStart;
+            private String pendingReward;
+            private String stakedToMe;
+            private String stakedAccountId;
+            private String stakedNodeId;
         }
     }
 }
