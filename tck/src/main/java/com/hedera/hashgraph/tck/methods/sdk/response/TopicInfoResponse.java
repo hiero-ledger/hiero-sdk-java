@@ -19,7 +19,6 @@ public class TopicInfoResponse {
     private final List<String> feeExemptKeys;
     private final List<CustomFeeResponse> customFees;
     private final String ledgerId;
-    private final String cost;
 
     @Data
     public static class CustomFeeResponse {
