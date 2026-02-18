@@ -7,12 +7,14 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.DeleteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ExecuteContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.InfoQueryContractParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.UpdateContractParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.ContractByteCodeResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractCallResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.ContractResponse.ContractInfoQueryResponse;
@@ -29,6 +31,16 @@ public class ContractService extends AbstractJSONRPC2Service {
 
     public ContractService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("contractByteCodeQuery")
+    public ContractByteCodeResponse contractByteCodeQuery(final ContractByteCodeQueryParams params) throws Exception {
+        ContractByteCodeQuery query = QueryBuilders.buildContractBytecode(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        ByteString response = query.execute(client);
+
+        return new ContractByteCodeResponse(query.getContractId().toString(), Hex.toHexString(response.toByteArray()));
     }
 
     @JSONRPC2Method("contractCallQuery")

@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.util;
 
 import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractByteCodeQuery;
 import com.hedera.hashgraph.sdk.ContractCallQuery;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileContentsQuery;
@@ -13,6 +14,7 @@ import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
@@ -80,6 +82,21 @@ public class QueryBuilders {
 
             return query;
         }
+    }
+
+    public static ContractByteCodeQuery buildContractBytecode(ContractByteCodeQueryParams params) {
+        ContractByteCodeQuery query = new ContractByteCodeQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        params.getContractId().ifPresent(contractId -> query.setContractId(ContractId.fromString(contractId)));
+
+        params.getQueryPayment()
+                .ifPresent(queryPayment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPayment))));
+
+        params.getMaxQueryPayment()
+                .ifPresent(maxQueryPayment ->
+                        query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPayment))));
+
+        return query;
     }
 
     public static ContractCallQuery buildContractCall(ContractCallQueryParams params) {
