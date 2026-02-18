@@ -12,11 +12,14 @@ import com.hedera.hashgraph.sdk.NftId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
+import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TopicInfoQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.topic.TopicInfoQueryParams;
 import java.time.Duration;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -77,6 +80,28 @@ public class QueryBuilders {
             params.getMaxQueryPayment()
                     .ifPresent(maxQueryPayment ->
                             query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPayment))));
+
+            return query;
+        }
+    }
+
+    /**
+     * Topic-related query builder
+     */
+    public static class TopicBuilder {
+        public static TopicInfoQuery buildTopicInfoQuery(TopicInfoQueryParams params) {
+            TopicInfoQuery query = new TopicInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+            if (params.getTopicId() != null) {
+                query.setTopicId(TopicId.fromString(params.getTopicId()));
+            }
+
+            if (params.getQueryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            }
+
+            if (params.getMaxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            }
 
             return query;
         }
