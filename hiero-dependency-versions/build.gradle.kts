@@ -9,7 +9,7 @@ val mockito = "5.21.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
-    api(platform("io.netty:netty-bom:4.2.9.Final"))
+    api(platform("io.netty:netty-bom:4.2.10.Final"))
 }
 
 dependencies.constraints {
@@ -34,7 +34,7 @@ dependencies.constraints {
     api("com.fasterxml.jackson.core:jackson-core:2.21.0") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
-    api("org.apache.commons:commons-lang3:3.18.0") { because("org.apache.commons.lang3") }
+    api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
     api("org.junit.jupiter:junit-jupiter-api:6.0.1") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
