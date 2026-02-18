@@ -128,8 +128,7 @@ public class TopicService extends AbstractJSONRPC2Service {
                 feeScheduleKey,
                 feeExemptKeys,
                 customFees,
-                topicInfo.ledgerId.toString(),
-                null);
+                topicInfo.ledgerId.toString());
     }
 
     /**
