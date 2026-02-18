@@ -134,7 +134,7 @@ public class TopicService extends AbstractJSONRPC2Service {
     /**
      * Map TopicInfo CustomFixedFee from SDK to TopicInfoResponse.CustomFeeResponse for JSON-RPC
      */
-    private TopicInfoResponse.CustomFeeResponse mapToCustomFeeResponse(CustomFixedFee fee) {
+    private TopicInfoResponse.CustomFeeResponse mapToCustomFeeResponse(final CustomFixedFee fee) {
         TopicInfoResponse.FixedFeeResponse fixedFee = new TopicInfoResponse.FixedFeeResponse(
                 String.valueOf(fee.getAmount()),
                 fee.getDenominatingTokenId() != null
