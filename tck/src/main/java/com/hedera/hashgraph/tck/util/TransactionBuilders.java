@@ -8,6 +8,7 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountAllowanceParams
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.ethereum.EthereumTransactionParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.*;
@@ -1349,6 +1350,39 @@ public class TransactionBuilders {
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FileAppendParams", e);
             }
+        }
+    }
+
+    /**
+     * Ethereum-related transaction builder
+     */
+    public static class EthereumBuilder {
+        public static EthereumTransaction buildCreate(Map<String, Object> params) {
+            try {
+                EthereumTransactionParams typedParams = new EthereumTransactionParams().parse(params);
+                return buildCreate(typedParams);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse EthereumTransactionParam", e);
+            }
+        }
+
+        public static EthereumTransaction buildCreate(EthereumTransactionParams params) {
+            EthereumTransaction transaction = new EthereumTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+            if (params.getEthereumData() != null) {
+                byte[] bytes = Hex.decode(params.getEthereumData());
+                transaction.setEthereumData(bytes);
+            }
+
+            if (params.getCallDataFileId() != null) {
+                transaction.setCallDataFileId(FileId.fromString(params.getCallDataFileId()));
+            }
+
+            if (params.getMaxGasAllowance() != null) {
+                transaction.setMaxGasAllowanceHbar(Hbar.fromTinybars(Long.parseLong(params.getMaxGasAllowance())));
+            }
+
+            return transaction;
         }
     }
 }
