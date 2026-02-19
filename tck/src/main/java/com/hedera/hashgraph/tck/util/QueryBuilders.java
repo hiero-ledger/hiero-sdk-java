@@ -10,6 +10,8 @@ import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.FileId;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.NftId;
+import com.hedera.hashgraph.sdk.ScheduleId;
+import com.hedera.hashgraph.sdk.ScheduleInfoQuery;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
@@ -17,6 +19,7 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryPar
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.schedule.ScheduleInfoParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import java.time.Duration;
@@ -56,6 +59,30 @@ public class QueryBuilders {
             params.getAccountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
             params.getContractId()
                     .ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+
+            return query;
+        }
+    }
+
+    /**
+     * Schedule-related query builders
+     */
+    public static class ScheduleBuilder {
+
+        public static ScheduleInfoQuery buildScheduleInfoQuery(ScheduleInfoParams params) {
+            ScheduleInfoQuery query = new ScheduleInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+
+            if (params.getScheduleId() != null) {
+                query.setScheduleId(ScheduleId.fromString(params.getScheduleId()));
+            }
+
+            if (params.getQueryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            }
+
+            if (params.getMaxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            }
 
             return query;
         }
