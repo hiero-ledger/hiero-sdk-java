@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -134,7 +135,7 @@ public final class TransactionResponse {
         while (attempts < MAX_RETRY_ATTEMPTS) {
             try {
                 // Attempt to execute the receipt query
-                return getReceiptQuery().execute(client, timeout).validateStatus(validateStatus);
+                return getReceiptQuery(client).execute(client, timeout).validateStatus(validateStatus);
             } catch (ReceiptStatusException e) {
                 // Check if the exception status indicates throttling or inner transaction throttling
                 if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
@@ -195,6 +196,22 @@ public final class TransactionResponse {
     }
 
     /**
+     * Create receipt query from the {@link #transactionId} and {@link #transactionHash}
+     *
+     * @return {@link com.hedera.hashgraph.sdk.TransactionReceiptQuery}
+     */
+    public TransactionReceiptQuery getReceiptQuery(Client client) {
+        List<AccountId> nodeIds = new ArrayList<>(List.of(nodeId));
+        if (client != null && client.isAllowReceiptNodeFailover()) {
+            nodeIds.addAll(client.getNetwork().values().stream()
+                    .filter(id -> !id.equals(nodeId))
+                    .toList());
+        }
+
+        return new TransactionReceiptQuery().setTransactionId(transactionId).setNodeAccountIds(nodeIds);
+    }
+
+    /**
      * Fetch the receipt of the transaction asynchronously.
      *
      * @param client The client with which this will be executed.
@@ -212,7 +229,7 @@ public final class TransactionResponse {
      * @return the transaction receipt
      */
     public CompletableFuture<TransactionReceipt> getReceiptAsync(Client client, Duration timeout) {
-        return getReceiptQuery().executeAsync(client, timeout).thenCompose(receipt -> {
+        return getReceiptQuery(client).executeAsync(client, timeout).thenCompose(receipt -> {
             try {
                 return CompletableFuture.completedFuture(receipt.validateStatus(validateStatus));
             } catch (ReceiptStatusException e) {
@@ -293,7 +310,7 @@ public final class TransactionResponse {
     public TransactionRecord getRecord(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
         getReceipt(client, timeout);
-        return getRecordQuery().execute(client, timeout);
+        return getRecordQuery(client).execute(client, timeout);
     }
 
     /**
@@ -305,6 +322,22 @@ public final class TransactionResponse {
         return new TransactionRecordQuery()
                 .setTransactionId(transactionId)
                 .setNodeAccountIds(Collections.singletonList(nodeId));
+    }
+
+    /**
+     * Create record query from the {@link #transactionId} and {@link #transactionHash}
+     *
+     * @return {@link com.hedera.hashgraph.sdk.TransactionRecordQuery}
+     */
+    public TransactionRecordQuery getRecordQuery(Client client) {
+        List<AccountId> nodeIds = new ArrayList<>(List.of(nodeId));
+        if (client != null && client.isAllowReceiptNodeFailover()) {
+            nodeIds.addAll(client.getNetwork().values().stream()
+                    .filter(id -> !id.equals(nodeId))
+                    .toList());
+        }
+
+        return new TransactionRecordQuery().setTransactionId(transactionId).setNodeAccountIds(nodeIds);
     }
 
     /**
@@ -326,7 +359,7 @@ public final class TransactionResponse {
      */
     public CompletableFuture<TransactionRecord> getRecordAsync(Client client, Duration timeout) {
         return getReceiptAsync(client, timeout)
-                .thenCompose((receipt) -> getRecordQuery().executeAsync(client, timeout));
+                .thenCompose((receipt) -> getRecordQuery(client).executeAsync(client, timeout));
     }
 
     /**

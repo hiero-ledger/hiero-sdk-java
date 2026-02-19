@@ -292,7 +292,7 @@ public class TokenRejectFlow {
         return createTokenRejectTransaction()
                 .executeAsync(client, timeoutPerTransaction)
                 .thenCompose(tokenRejectResponse ->
-                        tokenRejectResponse.getReceiptQuery().executeAsync(client, timeoutPerTransaction))
+                        tokenRejectResponse.getReceiptQuery(client).executeAsync(client, timeoutPerTransaction))
                 .thenCompose(receipt -> createTokenDissociateTransaction().executeAsync(client, timeoutPerTransaction));
     }
 
