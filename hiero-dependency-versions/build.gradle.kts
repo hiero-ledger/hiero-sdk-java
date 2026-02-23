@@ -8,7 +8,7 @@ val slf4j = "2.0.17"
 val mockito = "5.21.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
     api(platform("io.netty:netty-bom:4.2.10.Final"))
 }
 
