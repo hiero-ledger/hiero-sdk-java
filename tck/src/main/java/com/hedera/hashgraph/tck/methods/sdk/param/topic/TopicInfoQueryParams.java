@@ -19,7 +19,7 @@ public class TopicInfoQueryParams extends JSONRPC2Param {
     private String sessionId;
 
     @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public TopicInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedTopicId = (String) jrpcParams.get("topicId");
