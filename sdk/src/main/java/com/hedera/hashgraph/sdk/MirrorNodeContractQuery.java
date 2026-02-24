@@ -202,7 +202,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public Long getBlock() {
+    public Long getBlockNumber() {
         return this.block;
     }
 
@@ -214,7 +214,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      * @param block the block number at which to simulate the contract call
      * @return {@code this}
      */
-    public T setBlock(Long block) {
+    public T setBlockNumber(Long block) {
         this.block = block;
         return self();
     }

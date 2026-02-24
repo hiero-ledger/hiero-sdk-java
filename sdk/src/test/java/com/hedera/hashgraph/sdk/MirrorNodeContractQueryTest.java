@@ -91,11 +91,11 @@ class MirrorNodeContractQueryTest {
     @Test
     void testSetAndGetBlockNumber() {
         long blockNumber = 123456;
-        mirrorNodeContractEstimateGasQuery.setBlock(blockNumber);
-        assertEquals(blockNumber, mirrorNodeContractEstimateGasQuery.getBlock());
+        mirrorNodeContractEstimateGasQuery.setBlockNumber(blockNumber);
+        assertEquals(blockNumber, mirrorNodeContractEstimateGasQuery.getBlockNumber());
 
-        mirrorNodeContractCallQuery.setBlock(blockNumber);
-        assertEquals(blockNumber, mirrorNodeContractCallQuery.getBlock());
+        mirrorNodeContractCallQuery.setBlockNumber(blockNumber);
+        assertEquals(blockNumber, mirrorNodeContractCallQuery.getBlockNumber());
     }
 
     @Test
@@ -275,7 +275,7 @@ class MirrorNodeContractQueryTest {
                 .setValue(testValue)
                 .setGasLimit(testGasLimit)
                 .setGasPrice(testGasPrice)
-                .setBlock(testBlockNumber);
+                .setBlockNumber(testBlockNumber);
 
         var mirrorNodeContractCallQuery = new MirrorNodeContractCallQuery()
                 .setContractId(testContractId)
@@ -287,7 +287,7 @@ class MirrorNodeContractQueryTest {
                 .setValue(testValue)
                 .setGasLimit(testGasLimit)
                 .setGasPrice(testGasPrice)
-                .setBlock(testBlockNumber);
+                .setBlockNumber(testBlockNumber);
 
         SnapshotMatcher.expect(mirrorNodeContractEstimateGasQuery.toString() + mirrorNodeContractCallQuery.toString())
                 .toMatchSnapshot();
