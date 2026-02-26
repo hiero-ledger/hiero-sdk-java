@@ -32,7 +32,7 @@ dependencies.constraints {
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.21.1") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.4.8-android") { because("com.google.common") }
+    api("com.google.guava:guava:33.5.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
