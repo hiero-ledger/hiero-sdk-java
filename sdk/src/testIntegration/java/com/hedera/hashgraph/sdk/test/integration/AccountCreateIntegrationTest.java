@@ -556,4 +556,80 @@ class AccountCreateIntegrationTest {
         }
         return true;
     }
+
+    // HIP-1340: EOA Code Delegation
+
+    @Test
+    @DisplayName("Can create account with delegation address as hex string with 0x prefix")
+    void canCreateAccountWithDelegationAddressAsHexStringWithPrefix() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddr = "0x1111111111111111111111111111111111111111";
+            var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(2))
+                    .setDelegationAddress(delegationAddr)
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.delegationAddress).isNotNull();
+            assertThat(info.delegationAddress.toBytes()).isEqualTo(expectedBytes);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create account with delegation address as hex string without 0x prefix")
+    void canCreateAccountWithDelegationAddressAsHexStringWithoutPrefix() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddr = "2222222222222222222222222222222222222222";
+            var expectedBytes = EvmAddress.fromString(delegationAddr).toBytes();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(2))
+                    .setDelegationAddress(delegationAddr)
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.delegationAddress).isNotNull();
+            assertThat(info.delegationAddress.toBytes()).isEqualTo(expectedBytes);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create account with delegation address as bytes")
+    void canCreateAccountWithDelegationAddressAsBytes() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddrBytes = new byte[] {
+                0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
+                0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33
+            };
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(2))
+                    .setDelegationAddress(delegationAddrBytes)
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.delegationAddress).isNotNull();
+            assertThat(info.delegationAddress.toBytes()).isEqualTo(delegationAddrBytes);
+        }
+    }
 }
