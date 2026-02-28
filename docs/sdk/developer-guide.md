@@ -1,54 +1,56 @@
-## JVM
+# Java SDK Setup and Maintenance
 
-JDK 17 is required. The Temurin builds of [Eclipse Adoptium](https://adoptium.net/) are strongly recommended.
+This guide provides instructions for setting up, building, testing, and maintaining the Java SDK project. It covers JVM requirements, build processes, testing, dependency management, and file updates to ensure a smooth development experience.
 
-## Setup
+## JVM Requirements
 
-> Note that the below `./gradlew` commands should be run from the root of the project.
+JDK 17 is required. The Temurin builds from Eclipse Adoptium are strongly recommended.
 
-This project uses the
-[Hiero Gradle Conventions](https://github.com/hiero-ledger/hiero-gradle-conventions)
-Gradle setup. More details on how to work with the project can be found in the
-[documentation](https://github.com/hiero-ledger/hiero-gradle-conventions#build).
+## Setup Instructions
 
-### Building
+Note that all `./gradlew` commands should be run from the root of the project.
+
+This project uses the Hiero Gradle Conventions for its Gradle setup. For more details on working with the project, refer to the documentation.
+
+### Building the Project
+
+To build the project, run:
 
 ```sh
 ./gradlew assemble
 ```
 
-### Unit Tests
+### Running Unit Tests
+
+To execute unit tests for the SDK, run:
 
 ```sh
 ./gradlew :sdk:test
 ```
 
-### Integration Tests
+### Running Integration Tests
 
-> The tests are only executed if the configuration is provided.
-> That's why we need to pass the configuration file at the beginning of the command.
+Integration tests are only executed if the required configuration is provided. Pass the configuration file or properties at the start of the command.
 
-#### Using Gradle properties
+#### Using Gradle Properties
 
-`OPERATOR_ID`, `OPERATOR_KEY` and `HEDERA_NETWORK` must be passed as Gradle properties (`-P` parameters).\
-`HEDERA_NETWORK` can be set to `localhost`, `testnet` or `previewnet`.
+Provide `OPERATOR_ID`, `OPERATOR_KEY`, and `HEDERA_NETWORK` as Gradle properties using `-P` parameters. `HEDERA_NETWORK` can be set to `localhost`, `testnet`, or `previewnet`.
 
 ```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="<network>"
+./gradlew :sdk:testIntegration -POPERATOR_ID="" -POPERATOR_KEY="" -PHEDERA_NETWORK=""
 ```
 
-#### Using configuration file
+#### Using a Configuration File
 
 ```sh
-./gradlew :sdk:testIntegration -PCONFIG_FILE="<ConfigurationFilePath>"
+./gradlew :sdk:testIntegration -PCONFIG_FILE=""
 ```
 
-An example configuration file can be found in the repo here:
-[sdk/src/test/resources/client-config-with-operator.json](../../sdk/src/test/resources/client-config-with-operator.json)
+An example configuration file is available in the repository at: sdk/src/test/resources/client-config-with-operator.json.
 
-**Running against the local network**
+**Running Against a Local Network**
 
-The format of the configuration file should be as follows:
+Use a configuration file in this format:
 
 ```json
 {
@@ -63,12 +65,11 @@ The format of the configuration file should be as follows:
         "privateKey": "0xa608e2130a0a3cb34f86e757303c862bee353d9ab77ba4387ec084f881d420d4"
     }
 }
-
 ```
 
-**Running against remote networks**
+**Running Against Remote Networks**
 
-The format of the configuration file should be as follows:
+Use a configuration file in this format:
 
 ```json
 {
@@ -80,78 +81,71 @@ The format of the configuration file should be as follows:
 }
 ```
 
-`HEDERA_NETWORK` can be set to `testnet`, `previewnet` or `mainnet`.
+`HEDERA_NETWORK` can be set to `testnet`, `previewnet`, or `mainnet`.
 
-#### Running individual test classes or functions
+#### Running Individual Test Classes or Functions
 
-Running test class:
-
-```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass>"
-```
-
-Running test function:
+To run a specific test class:
 
 ```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass.functionName>"
+./gradlew :sdk:testIntegration -POPERATOR_ID="" -POPERATOR_KEY="" -PHEDERA_NETWORK="testnet" --tests ""
 ```
 
-#### Running with Intellij IDEA
+To run a specific test function:
 
-1. Create a new Gradle run configuration (easiest way is to run test class or individual test function from the IDE).
-2. Update "Run" configuration to pass the required Gradle properties (`OPERATOR_ID`, `OPERATOR_KEY` and `HEDERA_NETWORK`).
-   <img src="../assets/intellij-integration-tests.png">
+```sh
+./gradlew :sdk:testIntegration -POPERATOR_ID="" -POPERATOR_KEY="" -PHEDERA_NETWORK="testnet" --tests ""
+```
 
-## Managing dependencies
+#### Running with IntelliJ IDEA
 
-This project uses a combination of Java Modules (JPMS) and Gradle to define and manage dependencies to 3rd party
-libraries. In this structure, dependencies of the SDK are defined in
-[sdk/src/main/java/module-info.java](../../sdk/src/main/java/module-info.java) (which is mirrored in
-[sdk-full/src/main/java/module-info.java](../../sdk-full/src/main/java/module-info.java)).
-Running `./gradlew qualityGate` contains a _dependency scope check_ that makes sure that both files are in sync.
-Versions of 3rd party dependencies are defined in
-[hiero-dependency-versions/build.gradle.kts](../../hiero-dependency-versions/build.gradle.kts).
-More details about how to add/modify dependencies are found in the Hiero Gradle Conventions documentation on
-[Defining modules and dependencies](https://github.com/hiero-ledger/hiero-gradle-conventions#modules).
+1. Create a new Gradle run configuration (the easiest way is to run a test class or individual test function directly from the IDE).
+2. Update the "Run" configuration to pass the required Gradle properties (`OPERATOR_ID`, `OPERATOR_KEY`, and `HEDERA_NETWORK`).
 
-## Maintaining generated files
+## Managing Dependencies
 
-> Note that the below `./gradlew` commands should be run from the root of the project.
+This project uses a combination of Java Modules (JPMS) and Gradle to define and manage dependencies to third-party libraries. Dependencies for the SDK are defined in sdk/src/main/java/module-info.java (mirrored in sdk-full/src/main/java/module-info.java). Running `./gradlew qualityGate` includes a dependency scope check to ensure both files are in sync. Versions of third-party dependencies are defined in hiero-dependency-versions/build.gradle.kts. For more details on adding or modifying dependencies, see the Hiero Gradle Conventions documentation on defining modules and dependencies.
 
-### Updating unit tests snapshots
+## Maintaining Generated Files
+
+Note that all `./gradlew` commands should be run from the root of the project.
+
+### Updating Unit Test Snapshots
 
 ```sh
 ./gradlew updateSnapshots
 ```
 
-### Updating proto files
+### Updating Proto Files
 
 ```sh
 ./gradlew updateSnapshots
 ```
 
-### Updating address books
+### Updating Address Books
 
-Update all address books:
+To update all address books:
 
 ```sh
 ./gradlew examples:updateAddressbooks
 ```
 
-Update address books only for a mainnet:
+To update address books only for mainnet:
 
 ```sh
 ./gradlew examples:updateAddressbooksMainnet
 ```
 
-Update address books only for a testnet:
+To update address books only for testnet:
 
 ```sh
 ./gradlew examples:updateAddressbooksTestnet
 ```
 
-Update address books only for a previewnet:
+To update address books only for previewnet:
 
 ```sh
 ./gradlew examples:updateAddressbooksPreviewnet
 ```
+
+[1] https://adoptium.net
