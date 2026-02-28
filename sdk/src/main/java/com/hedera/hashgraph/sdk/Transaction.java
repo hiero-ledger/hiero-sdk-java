@@ -118,6 +118,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
     private String memo = "";
 
+    private boolean highVolume = false;
+
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
     private Key batchKey = null;
@@ -142,6 +144,7 @@ public abstract class Transaction<T extends Transaction<T>>
         setTransactionValidDuration(DEFAULT_TRANSACTION_VALID_DURATION);
         setMaxTransactionFee(Hbar.fromTinybars(txBody.getTransactionFee()));
         setTransactionMemo(txBody.getMemo());
+        setHighVolume(txBody.getHighVolume());
 
         sourceTransactionBody = txBody;
     }
@@ -225,6 +228,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 DurationConverter.fromProtobuf(sourceTransactionBody.getTransactionValidDuration()));
         setMaxTransactionFee(Hbar.fromTinybars(sourceTransactionBody.getTransactionFee()));
         setTransactionMemo(sourceTransactionBody.getMemo());
+        setHighVolume(sourceTransactionBody.getHighVolume());
 
         this.customFeeLimits = sourceTransactionBody.getMaxCustomFeesList().stream()
                 .map(CustomFeeLimit::fromProtobuf)
@@ -840,6 +844,30 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
+     * Extract the high-volume flag.
+     *
+     * @return true if high-volume throttles are enabled, false otherwise
+     */
+    public final boolean getHighVolume() {
+        return highVolume;
+    }
+
+    /**
+     * If set to true, this transaction uses high-volume throttles and pricing
+     * for entity creation. It only affects supported transaction types; otherwise,
+     * it is ignored.
+     *
+     * @param highVolume true to enable high-volume throttles, false otherwise
+     * @return {@code this}
+     */
+    public final T setHighVolume(boolean highVolume) {
+        requireNotFrozen();
+        this.highVolume = highVolume;
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
      * batchify method is used to mark a transaction as part of a batch transaction or make it so-called inner transaction.
      * The Transaction will be frozen and signed by the operator of the client.
      * @param client sdk client
@@ -1215,7 +1243,8 @@ public abstract class Transaction<T extends Transaction<T>>
                 .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
                 .addAllMaxCustomFees(
                         customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
-                .setMemo(memo);
+                .setMemo(memo)
+                .setHighVolume(highVolume);
         if (batchKey != null) {
             builder.setBatchKey(batchKey.toProtobufKey());
         }
