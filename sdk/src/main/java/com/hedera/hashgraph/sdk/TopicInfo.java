@@ -131,7 +131,13 @@ public final class TopicInfo {
 
         var customFees = topicInfo.getCustomFeesList() != null
                 ? topicInfo.getCustomFeesList().stream()
-                        .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
+                        .map(x -> {
+                            var fee = CustomFixedFee.fromProtobuf(x.getFixedFee());
+                            if (x.hasFeeCollectorAccountId()) {
+                                fee.setFeeCollectorAccountId(AccountId.fromProtobuf(x.getFeeCollectorAccountId()));
+                            }
+                            return fee;
+                        })
                         .toList()
                 : null;
 
