@@ -503,7 +503,13 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         }
         if (body.hasCustomFees()) {
             customFees = body.getCustomFees().getFeesList().stream()
-                    .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
+                    .map(x -> {
+                        var fee = CustomFixedFee.fromProtobuf(x.getFixedFee());
+                        if (x.hasFeeCollectorAccountId()) {
+                            fee.setFeeCollectorAccountId(AccountId.fromProtobuf(x.getFeeCollectorAccountId()));
+                        }
+                        return fee;
+                    })
                     .collect(Collectors.toList());
         }
     }
