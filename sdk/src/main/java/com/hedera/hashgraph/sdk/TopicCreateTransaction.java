@@ -389,7 +389,13 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
         }
         if (body.getCustomFeesList() != null) {
             customFees = body.getCustomFeesList().stream()
-                    .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
+                    .map(x -> {
+                        var fee = CustomFixedFee.fromProtobuf(x.getFixedFee());
+                        if (x.hasFeeCollectorAccountId()) {
+                            fee.setFeeCollectorAccountId(AccountId.fromProtobuf(x.getFeeCollectorAccountId()));
+                        }
+                        return fee;
+                    })
                     .collect(Collectors.toList());
         }
         topicMemo = body.getMemo();
