@@ -168,6 +168,7 @@ message NodeUpdateTransactionBody {
      */
     proto.ServiceEndpoint grpc_proxy_endpoint = 10;
 
+
     /**
      * A list of registered nodes operated by the same entity as this node.<br/>
      * This value may contain a list of "registered nodes" (as described in
