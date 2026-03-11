@@ -45,6 +45,11 @@ dependencies.constraints {
 
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
+    // Temporary override until spring-boot-dependencies bumps Jackson 3.x to 3.1.0+
+    // Fixes SNYK-JAVA-TOOLSJACKSONCORE-15365915 and SNYK-JAVA-TOOLSJACKSONCORE-15371178
+    api("tools.jackson.core:jackson-core:3.1.0")
+    api("tools.jackson.core:jackson-databind:3.1.0")
+
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths
         excludes.add("com.google.protobuf:protoc")
