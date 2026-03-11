@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package com.hedera.hapi.node.addressbook;
+
+// SPDX-License-Identifier: Apache-2.0
+option java_package = "com.hedera.hashgraph.sdk.proto";
+// <<<pbj.java_package = "com.hedera.hapi.node.addressbook">>> This comment is special code for setting PBJ Compiler java package
+option java_multiple_files = true;
+
+import "basic_types.proto";
+import "registered_service_endpoint.proto";
+
+/**
+ * A transaction body to create a new registered node in the network
+ * address book.
+ *
+ * This transaction, once complete, SHALL add a new registered node to the
+ * network state.
+ * The new registered node SHALL be visible and discoverable upon
+ * completion of this transaction.
+ *
+ * ### Block Stream Effects
+ * None.
+ */
+message RegisteredNodeCreateTransactionBody {
+    /**
+     * An administrative key controlled by the node operator.
+     * <p>
+     * This key MUST sign this transaction.<br/>
+     * This key MUST sign each transaction to update this node.<br/>
+     * This field MUST contain a valid `Key` value.<br/>
+     * This field is REQUIRED and MUST NOT be set to an empty `KeyList`.<br/>
+     * It is RECOMMENDED that this key be composed of one or more unique public
+     * keys that are not associated with any network account.<br/>
+     * This key MAY be a complex key containing `KeyList` or `ThresholdKey`
+     * elements, but SHOULD NOT be a contract ID key.
+     */
+    proto.Key admin_key = 1;
+
+    /**
+     * A short description of the node.
+     * <p>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * This field is OPTIONAL.
+     */
+    string description = 2;
+
+    /**
+     * A list of service endpoints for client calls.
+     * <p>
+     * These endpoints SHALL represent the published endpoints to which
+     * clients may submit requests.<br/>
+     * Endpoints in this list MAY supply either IP address or FQDN, but MUST
+     * NOT supply both values for the same endpoint.<br/>
+     * Multiple endpoints in this list MAY resolve to the same interface.<br/>
+     * One Registered Node MAY expose endpoints for multiple service types.<br/>
+     * This list MUST NOT be empty.<br/>
+     * This list MUST NOT contain more than `50` entries.
+     */
+    repeated RegisteredServiceEndpoint service_endpoint = 3;
+
+    /**
+     * An account identifier.<br/>
+     * This account identifies the entity financially responsible for this
+     * registered node.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * Individual node operators SHALL have full authority to set, change, or
+     * remove their node account ID.<br/>
+     * If set and the node account ID does not resolve to an existing and active
+     * account, then the transaction SHALL fail.<br/>
+     * Node operators SHOULD ensure that the node account is kept up to date
+     * and always refers to a valid and active `Account`.<br/>
+     * The owner of the node account MAY be different from the owner of the
+     * registered node.
+     */
+    proto.AccountID node_account = 4;
+}
