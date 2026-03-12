@@ -44,6 +44,7 @@ public class TransactionReceiptTest {
                 TransactionId.withValidStart(AccountId.fromString("3.3.3"), time),
                 List.of(1L, 2L, 3L),
                 1,
+                1,
                 new ArrayList<>(),
                 new ArrayList<>());
     }
