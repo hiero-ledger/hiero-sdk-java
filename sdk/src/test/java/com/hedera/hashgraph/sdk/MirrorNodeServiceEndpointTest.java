@@ -1,4 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint;
@@ -7,28 +11,27 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 public class MirrorNodeServiceEndpointTest {
     private final byte[] TEST_IP_ADDRESS = new byte[] {1, 2, 3, 4};
     private final String TEST_DOMAIN_NAME = "test.mirror.com";
     private final int TEST_PORT = 443;
     private final boolean TEST_REQUIRES_TLS = true;
 
-    private final com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint mirrorNodeEndpointWithDomain = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
-        .setDomainName(TEST_DOMAIN_NAME)
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setMirrorNode(RegisteredServiceEndpoint.MirrorNodeEndpoint.newBuilder())
-        .build();
+    private final com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint mirrorNodeEndpointWithDomain =
+            com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
+                    .setDomainName(TEST_DOMAIN_NAME)
+                    .setPort(TEST_PORT)
+                    .setRequiresTls(TEST_REQUIRES_TLS)
+                    .setMirrorNode(RegisteredServiceEndpoint.MirrorNodeEndpoint.newBuilder())
+                    .build();
 
-    private final com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint mirrorNodeEndpointWithIp = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
-        .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setMirrorNode(RegisteredServiceEndpoint.MirrorNodeEndpoint.newBuilder())
-        .build();
+    private final com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint mirrorNodeEndpointWithIp =
+            com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
+                    .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
+                    .setPort(TEST_PORT)
+                    .setRequiresTls(TEST_REQUIRES_TLS)
+                    .setMirrorNode(RegisteredServiceEndpoint.MirrorNodeEndpoint.newBuilder())
+                    .build();
 
     @BeforeAll
     public static void beforeAll() {
@@ -42,24 +45,32 @@ public class MirrorNodeServiceEndpointTest {
 
     @Test
     void fromProtobufWithDomain() {
-        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithDomain).toString()).toMatchSnapshot();
+        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithDomain)
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void toProtobufWithDomain() {
-        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithDomain).toProtobuf().toString())
-            .toMatchSnapshot();
+        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithDomain)
+                        .toProtobuf()
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void fromProtobufWithIp() {
-        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithIp).toString()).toMatchSnapshot();
+        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithIp)
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void toProtobufWithIp() {
-        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithIp).toProtobuf().toString())
-            .toMatchSnapshot();
+        SnapshotMatcher.expect(MirrorNodeServiceEndpoint.fromProtobuf(mirrorNodeEndpointWithIp)
+                        .toProtobuf()
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
@@ -83,15 +94,13 @@ public class MirrorNodeServiceEndpointTest {
     @Test
     void setPortThrowsOnNegative() {
         var endpoint = new BlockNodeServiceEndpoint();
-        assertThatThrownBy(() -> endpoint.setPort(-1))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> endpoint.setPort(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void setPortThrowsOnGreaterThan65535() {
         var endpoint = new BlockNodeServiceEndpoint();
-        assertThatThrownBy(() -> endpoint.setPort(65536))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> endpoint.setPort(65536)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
