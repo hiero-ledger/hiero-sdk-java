@@ -66,6 +66,8 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     @Nullable
     private Endpoint grpcWebProxyEndpoint = null;
 
+    private List<Long> associatedRegisteredNodes = new ArrayList<>();
+
     /**
      * Constructor.
      */
@@ -397,6 +399,53 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     }
 
     /**
+     * Get a list of registered nodes operated by the same entity as this node.
+     * @return {@code List<Long>} the list of associated registered node.
+     */
+    public List<Long> getAssociatedRegisteredNodes() {
+        return associatedRegisteredNodes;
+    }
+
+    /**
+     * Set a list of registered nodes operated by the same entity as this node.<br/>
+     * This value may contain a list of "registered nodes" (as described in
+     * HIP-1137) that are operated by the same entity that operates this
+     * consensus node.
+     * <p>
+     * This field is OPTIONAL and MAY be empty.<br/>
+     * This field MUST NOT contain more than twenty(20) entries.<br/>
+     * Every entry in this list MUST be a valid `registered_node_id` for a
+     * current registered node.
+     *
+     * @param associatedRegisteredNodes list of associated registered node.
+     * @return {@code this}
+     */
+    public NodeCreateTransaction setAssociatedRegisteredNodes(List<Long> associatedRegisteredNodes) {
+        requireNotFrozen();
+        Objects.requireNonNull(associatedRegisteredNodes);
+        if (associatedRegisteredNodes.size() > 20) {
+            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
+        }
+
+        this.associatedRegisteredNodes = new ArrayList<>(associatedRegisteredNodes);
+        return this;
+    }
+
+    /**
+     * Add a registered nodes operated by the same entity as this node.
+     * @param associatedRegisteredNode the associated registered node.
+     * @return {@code this}
+     */
+    public NodeCreateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
+        requireNotFrozen();
+        if (associatedRegisteredNodes.size() >= 20) {
+            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
+        }
+        associatedRegisteredNodes.add(associatedRegisteredNode);
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.NodeCreateTransactionBody}
@@ -436,6 +485,10 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
         for (Endpoint serviceEndpoint : serviceEndpoints) {
             builder.addServiceEndpoint(serviceEndpoint.toProtobuf());
+        }
+
+        for (Long associatedRegisteredNode : associatedRegisteredNodes) {
+            builder.addAssociatedRegisteredNode(associatedRegisteredNode);
         }
 
         if (gossipCaCertificate != null) {
@@ -479,6 +532,10 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
         for (var serviceEndpoint : body.getServiceEndpointList()) {
             serviceEndpoints.add(Endpoint.fromProtobuf(serviceEndpoint));
+        }
+
+        for (var associatedRegisteredNode : body.getAssociatedRegisteredNodeList()) {
+            associatedRegisteredNodes.add(associatedRegisteredNode);
         }
 
         var protobufGossipCert = body.getGossipCaCertificate();
