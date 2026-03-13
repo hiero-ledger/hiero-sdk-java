@@ -10,12 +10,15 @@ import com.hedera.hashgraph.tck.methods.sdk.param.file.FileAppendParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileDeleteParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileContentsResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.FileInfoResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * FileService for file related methods
@@ -89,6 +92,33 @@ public class FileService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("getFileInfo")
+    public FileInfoResponse getFileInfo(final FileInfoQueryParams params) throws Exception {
+        FileInfoQuery query = QueryBuilders.FileBuilder.buildFileInfoQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        FileInfo result = query.execute(client);
+        return mapFileInfoResponse(result);
+    }
+
+    /**
+     *  Map FileInfo from SDK to FileInfoResponse for JSON-RPC
+     */
+    private FileInfoResponse mapFileInfoResponse(FileInfo fileInfo) {
+        List<String> keys = fileInfo.keys == null
+                ? null
+                : fileInfo.keys.stream().map(key -> key.toString()).toList();
+
+        return new FileInfoResponse(
+                fileInfo.fileId.toString(),
+                String.valueOf(fileInfo.size),
+                fileInfo.expirationTime.toString(),
+                fileInfo.isDeleted,
+                fileInfo.fileMemo,
+                fileInfo.ledgerId.toString(),
+                keys);
     }
 
     @JSONRPC2Method("getFileContents")
