@@ -137,7 +137,7 @@ public class RegisteredNode {
                 .add("adminKey", adminKey)
                 .add("description", description)
                 .add("nodeAccount", nodeAccount)
-            .add("serviceEndpoints", serviceEndpoints)
+                .add("serviceEndpoints", serviceEndpoints)
                 .toString();
     }
 }
