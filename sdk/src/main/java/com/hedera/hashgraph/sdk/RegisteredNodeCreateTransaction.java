@@ -154,7 +154,7 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
             RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         }
 
-        this.serviceEndpoints = serviceEndpoints;
+        this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
     }
 

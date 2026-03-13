@@ -40,7 +40,8 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
         var blockNodeEndpoint = new BlockNodeServiceEndpoint()
                 .setPort(serviceEndpoint.getPort())
                 .setRequiresTls(serviceEndpoint.getRequiresTls())
-                .setEndpointApi(BlockNodeApi.valueOf(serviceEndpoint.getBlockNode().getEndpointApi()));
+                .setEndpointApi(
+                        BlockNodeApi.valueOf(serviceEndpoint.getBlockNode().getEndpointApi()));
 
         if (serviceEndpoint.hasIpAddress()) {
             blockNodeEndpoint.setIpAddress(serviceEndpoint.getIpAddress().toByteArray());
@@ -80,8 +81,6 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
 
     @Override
     public String toString() {
-        return toStringHelper()
-            .add("endpointApi", endpointApi)
-            .toString();
+        return toStringHelper().add("endpointApi", endpointApi).toString();
     }
 }

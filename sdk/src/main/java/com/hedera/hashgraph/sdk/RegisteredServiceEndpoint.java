@@ -2,8 +2,6 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
-
-import java.util.Arrays;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -104,9 +102,9 @@ public abstract class RegisteredServiceEndpoint {
      */
     protected MoreObjects.ToStringHelper toStringHelper() {
         return MoreObjects.toStringHelper(this)
-            .add("ipAddress", ipAddress)
-            .add("domainName", domainName)
-            .add("port", port)
-            .add("requiresTls", requiresTls);
+                .add("ipAddress", ipAddress)
+                .add("domainName", domainName)
+                .add("port", port)
+                .add("requiresTls", requiresTls);
     }
 }
