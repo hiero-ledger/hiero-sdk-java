@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,24 +19,20 @@ public class BlockNodeServiceEndpointTest {
     private final BlockNodeApi TEST_BLOCK_API = BlockNodeApi.STATUS;
 
     private final RegisteredServiceEndpoint blockNodeEndpointWithDomain = RegisteredServiceEndpoint.newBuilder()
-        .setDomainName(TEST_DOMAIN_NAME)
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setBlockNode(
-            RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
-            .setEndpointApi(TEST_BLOCK_API.code)
-        )
-        .build();
+            .setDomainName(TEST_DOMAIN_NAME)
+            .setPort(TEST_PORT)
+            .setRequiresTls(TEST_REQUIRES_TLS)
+            .setBlockNode(
+                    RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder().setEndpointApi(TEST_BLOCK_API.code))
+            .build();
 
     private final RegisteredServiceEndpoint blockNodeEndpointWithIp = RegisteredServiceEndpoint.newBuilder()
-        .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setBlockNode(
-            RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
-                .setEndpointApi(RegisteredServiceEndpoint.BlockNodeEndpoint.BlockNodeApi.STATUS)
-        )
-        .build();
+            .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
+            .setPort(TEST_PORT)
+            .setRequiresTls(TEST_REQUIRES_TLS)
+            .setBlockNode(RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
+                    .setEndpointApi(RegisteredServiceEndpoint.BlockNodeEndpoint.BlockNodeApi.STATUS))
+            .build();
 
     @BeforeAll
     public static void beforeAll() {
@@ -49,24 +46,32 @@ public class BlockNodeServiceEndpointTest {
 
     @Test
     void fromProtobufWithDomain() {
-        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithDomain).toString()).toMatchSnapshot();
+        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithDomain)
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void toProtobufWithDomain() {
-        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithDomain).toProtobuf().toString())
-            .toMatchSnapshot();
+        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithDomain)
+                        .toProtobuf()
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void fromProtobufWithIp() {
-        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithIp).toString()).toMatchSnapshot();
+        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithIp)
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void toProtobufWithIp() {
-        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithIp).toProtobuf().toString())
-            .toMatchSnapshot();
+        SnapshotMatcher.expect(BlockNodeServiceEndpoint.fromProtobuf(blockNodeEndpointWithIp)
+                        .toProtobuf()
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
@@ -90,15 +95,13 @@ public class BlockNodeServiceEndpointTest {
     @Test
     void setPortThrowsOnNegative() {
         var endpoint = new BlockNodeServiceEndpoint();
-        assertThatThrownBy(() -> endpoint.setPort(-1))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> endpoint.setPort(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void setPortThrowsOnGreaterThan65535() {
         var endpoint = new BlockNodeServiceEndpoint();
-        assertThatThrownBy(() -> endpoint.setPort(65536))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> endpoint.setPort(65536)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

@@ -539,7 +539,6 @@ public enum RequestType {
      */
     REGISTERED_NODE_DELETE(HederaFunctionality.RegisteredNodeDelete);
 
-
     final HederaFunctionality code;
 
     RequestType(HederaFunctionality code) {
