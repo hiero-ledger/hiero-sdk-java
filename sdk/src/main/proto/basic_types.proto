@@ -1849,6 +1849,21 @@ enum HederaFunctionality {
      * Update one or more storage slots in an EVM hook.
      */
     HookStore = 111;
+
+    /**
+     * Create a registered node
+     */
+    RegisteredNodeCreate = 113;
+
+    /**
+     * Update a registered node
+     */
+    RegisteredNodeUpdate = 114;
+
+    /**
+     * Delete a registered node
+     */
+    RegisteredNodeDelete = 115;
 }
 
 /**
