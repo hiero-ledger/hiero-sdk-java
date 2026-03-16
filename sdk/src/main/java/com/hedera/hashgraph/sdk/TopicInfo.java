@@ -131,7 +131,7 @@ public final class TopicInfo {
 
         var customFees = topicInfo.getCustomFeesList() != null
                 ? topicInfo.getCustomFeesList().stream()
-                        .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
+                        .map(CustomFixedFee::fromProtobuf)
                         .toList()
                 : null;
 
