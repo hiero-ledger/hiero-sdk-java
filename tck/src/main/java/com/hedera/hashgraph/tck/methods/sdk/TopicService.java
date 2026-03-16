@@ -2,9 +2,12 @@
 package com.hedera.hashgraph.tck.methods.sdk;
 
 import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.CustomFixedFee;
 import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TopicCreateTransaction;
 import com.hedera.hashgraph.sdk.TopicDeleteTransaction;
+import com.hedera.hashgraph.sdk.TopicInfo;
+import com.hedera.hashgraph.sdk.TopicInfoQuery;
 import com.hedera.hashgraph.sdk.TopicMessageSubmitTransaction;
 import com.hedera.hashgraph.sdk.TopicUpdateTransaction;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
@@ -15,8 +18,8 @@ import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.CreateTopicParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.DeleteTopicParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.SubmitTopicMessageParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.topic.TopicInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.topic.UpdateTopicParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.topic.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.TopicInfoResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.TopicResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
