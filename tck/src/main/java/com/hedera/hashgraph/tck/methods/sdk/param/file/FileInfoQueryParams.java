@@ -19,7 +19,7 @@ public class FileInfoQueryParams extends JSONRPC2Param {
     private String sessionId;
 
     @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public FileInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedFileId = (String) jrpcParams.get("fileId");

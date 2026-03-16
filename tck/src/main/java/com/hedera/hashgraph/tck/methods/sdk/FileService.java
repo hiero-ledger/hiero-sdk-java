@@ -7,6 +7,8 @@ import com.hedera.hashgraph.sdk.FileAppendTransaction;
 import com.hedera.hashgraph.sdk.FileContentsQuery;
 import com.hedera.hashgraph.sdk.FileCreateTransaction;
 import com.hedera.hashgraph.sdk.FileDeleteTransaction;
+import com.hedera.hashgraph.sdk.FileInfo;
+import com.hedera.hashgraph.sdk.FileInfoQuery;
 import com.hedera.hashgraph.sdk.FileUpdateTransaction;
 import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
