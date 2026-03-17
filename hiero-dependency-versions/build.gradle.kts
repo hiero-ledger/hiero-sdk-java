@@ -5,7 +5,7 @@ val bouncycastle = "1.83"
 val grpc = "1.79.0"
 val protobuf = "4.33.5"
 val slf4j = "2.0.17"
-val mockito = "5.21.0"
+val mockito = "5.22.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
@@ -44,6 +44,11 @@ dependencies.constraints {
     api("io.grpc:protoc-gen-grpc-java:$grpc")
 
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
+
+    // Temporary override until spring-boot-dependencies bumps Jackson 3.x to 3.1.0+
+    // Fixes SNYK-JAVA-TOOLSJACKSONCORE-15365915 and SNYK-JAVA-TOOLSJACKSONCORE-15371178
+    api("tools.jackson.core:jackson-core:3.1.0")
+    api("tools.jackson.core:jackson-databind:3.1.0")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths
