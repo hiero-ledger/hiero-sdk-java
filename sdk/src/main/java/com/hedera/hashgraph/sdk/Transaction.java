@@ -1748,6 +1748,7 @@ public abstract class Transaction<T extends Transaction<T>>
         // Add the signature to the signature map
         SignaturePair newSigPair = publicKey.toSignaturePairProtobuf(signature);
         sigMapBuilder.addSigPair(newSigPair);
+        innerSignedTransactions.get(index).setSigMap(sigMapBuilder);
 
         return true;
     }

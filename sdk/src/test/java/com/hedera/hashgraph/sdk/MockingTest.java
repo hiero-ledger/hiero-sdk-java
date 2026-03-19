@@ -360,7 +360,7 @@ class MockingTest {
     }
 
     @Test
-    void testVerifyTransaction() throws InvalidProtocolBufferException {
+    void testVerifyTransactionFail() throws InvalidProtocolBufferException {
         var key = PrivateKey.generateED25519();
         var bogusSignature = new byte[64];
 
@@ -371,6 +371,34 @@ class MockingTest {
                 .setNodeAccountIds(List.of(AccountId.fromString("0.0.3")))
                 .freeze()
                 .addSignature(key.getPublicKey(), bogusSignature)
+                .toBytes();
+
+        var signedTransaction = SignedTransaction.parseFrom(
+                com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(serialized).getSignedTransactionBytes());
+        com.hedera.hashgraph.sdk.Transaction<?> roundTrip = com.hedera.hashgraph.sdk.Transaction.fromBytes(serialized);
+
+        boolean rawVerify =
+                key.getPublicKey().verify(signedTransaction.getBodyBytes().toByteArray(), bogusSignature);
+        boolean txVerify = key.getPublicKey().verifyTransaction(roundTrip);
+
+        Assertions.assertFalse(rawVerify);
+        Assertions.assertFalse(txVerify);
+    }
+
+    @Test
+    void testVerifyTransactionFailSpecificNode() throws InvalidProtocolBufferException {
+        var key = PrivateKey.generateED25519();
+        var bogusSignature = new byte[64];
+        TransactionId transactionId = TransactionId.generate(AccountId.fromString("1.2.4"));
+        List<AccountId> nodeId = List.of(AccountId.fromString("0.0.3"));
+
+        var serialized = new TokenMintTransaction()
+                .setTokenId(TokenId.fromString("1.2.3"))
+                .setAmount(5)
+                .setTransactionId(transactionId)
+                .setNodeAccountIds(nodeId)
+                .freeze()
+                .addSignature(key.getPublicKey(), bogusSignature, transactionId, nodeId.getFirst())
                 .toBytes();
 
         var signedTransaction = SignedTransaction.parseFrom(
