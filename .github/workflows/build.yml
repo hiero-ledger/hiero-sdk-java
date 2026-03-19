@@ -299,7 +299,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        uses: step-security/setup-android@b9aa16c95484dae39472bdf44a9aa8e8ec390c77 # v3.2.2
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
