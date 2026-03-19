@@ -1129,6 +1129,7 @@ public abstract class Transaction<T extends Transaction<T>>
         publicKeys.add(publicKey);
         signers.add(null);
         sigPairLists.get(0).addSigPair(publicKey.toSignaturePairProtobuf(signature));
+        innerSignedTransactions.get(0).setSigMap(sigPairLists.get(0));
 
         // noinspection unchecked
         return (T) this;
@@ -1747,6 +1748,7 @@ public abstract class Transaction<T extends Transaction<T>>
         // Add the signature to the signature map
         SignaturePair newSigPair = publicKey.toSignaturePairProtobuf(signature);
         sigMapBuilder.addSigPair(newSigPair);
+        innerSignedTransactions.get(index).setSigMap(sigMapBuilder);
 
         return true;
     }
