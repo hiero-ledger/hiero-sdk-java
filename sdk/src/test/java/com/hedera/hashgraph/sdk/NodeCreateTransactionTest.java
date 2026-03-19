@@ -40,6 +40,8 @@ public class NodeCreateTransactionTest {
 
     private static final byte[] TEST_GRPC_CERTIFICATE_HASH = new byte[] {5, 6, 7, 8, 9};
 
+    private static final List<Long> TEST_ASSOCIATED_REGISTERED_NODES = List.of(1L, 2L);
+
     private static final PublicKey TEST_ADMIN_KEY = PrivateKey.fromString(
                     "302e020100300506032b65700422042062c4b69e9f45a554e5424fb5a6fe5e6ac1f19ead31dc7718c2d980fd1f998d4b")
             .getPublicKey();
@@ -80,6 +82,7 @@ public class NodeCreateTransactionTest {
                 .setMaxTransactionFee(new Hbar(1))
                 .setDeclineReward(false) // accepts the reward
                 .setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT)
+                .setAssociatedRegisteredNodes(TEST_ASSOCIATED_REGISTERED_NODES)
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
     }
@@ -414,5 +417,46 @@ public class NodeCreateTransactionTest {
     void setGrpcWebProxyEndpointRequiresFrozen() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setGrpcWebProxyEndpoint(TEST_GRPC_WEB_PROXY_ENDPOINT));
+    }
+
+    @Test
+    void setAssociatedRegisteredNodes() {
+        var tx = new NodeCreateTransaction().setAssociatedRegisteredNodes(TEST_ASSOCIATED_REGISTERED_NODES);
+        assertThat(tx.getAssociatedRegisteredNodes()).isEqualTo(TEST_ASSOCIATED_REGISTERED_NODES);
+    }
+
+    @Test
+    void setAssociatedRegisteredNodesFrozen() {
+        var tx = spawnTestTransaction();
+        assertThrows(
+                IllegalStateException.class, () -> tx.setAssociatedRegisteredNodes(TEST_ASSOCIATED_REGISTERED_NODES));
+    }
+
+    @Test
+    void setAssociatedRegisteredNodesMoreThan20() {
+        var tx = new NodeCreateTransaction();
+        var nodes = new java.util.ArrayList<Long>();
+        for (int i = 0; i < 21; i++) {
+            nodes.add((long) i);
+        }
+
+        assertThrows(IllegalArgumentException.class, () -> tx.setAssociatedRegisteredNodes(nodes));
+    }
+
+    @Test
+    void addAssociatedRegisteredNode() {
+        var tx = new NodeCreateTransaction();
+        tx.addAssociatedRegisteredNode(1L);
+        assertThat(tx.getAssociatedRegisteredNodes()).hasSize(1);
+        assertThat(tx.getAssociatedRegisteredNodes().get(0)).isEqualTo(1);
+    }
+
+    @Test
+    void addAssociatedRegisteredNodeMoreThan20() {
+        var tx = new NodeCreateTransaction();
+        for (int i = 0; i < 20; i++) {
+            tx.addAssociatedRegisteredNode((long) i);
+        }
+        assertThrows(IllegalArgumentException.class, () -> tx.addAssociatedRegisteredNode(21L));
     }
 }

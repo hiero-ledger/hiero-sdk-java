@@ -415,6 +415,9 @@ public abstract class Transaction<T extends Transaction<T>>
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
             case ATOMIC_BATCH -> new BatchTransaction(txs);
             case HOOK_STORE -> new HookStoreTransaction(txs);
+            case REGISTEREDNODECREATE -> new RegisteredNodeCreateTransaction(txs);
+            case REGISTEREDNODEUPDATE -> new RegisteredNodeUpdateTransaction(txs);
+            case REGISTEREDNODEDELETE -> new RegisteredNodeDeleteTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }
@@ -570,6 +573,15 @@ public abstract class Transaction<T extends Transaction<T>>
             case SCHEDULEDELETE ->
                 new ScheduleDeleteTransaction(
                         body.setScheduleDelete(scheduled.getScheduleDelete()).build());
+            case REGISTEREDNODECREATE ->
+                new RegisteredNodeCreateTransaction(body.setRegisteredNodeCreate(scheduled.getRegisteredNodeCreate())
+                        .build());
+            case REGISTEREDNODEUPDATE ->
+                new RegisteredNodeUpdateTransaction(body.setRegisteredNodeUpdate(scheduled.getRegisteredNodeUpdate())
+                        .build());
+            case REGISTEREDNODEDELETE ->
+                new RegisteredNodeDeleteTransaction(body.setRegisteredNodeDelete(scheduled.getRegisteredNodeDelete())
+                        .build());
             default -> throw new IllegalStateException("schedulable transaction did not have a transaction set");
         };
     }

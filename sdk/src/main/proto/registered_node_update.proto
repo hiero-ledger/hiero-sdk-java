@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package com.hedera.hapi.node.addressbook;
+
+// SPDX-License-Identifier: Apache-2.0
+option java_package = "com.hedera.hashgraph.sdk.proto";
+// <<<pbj.java_package = "com.hedera.hapi.node.addressbook">>> This comment is special code for setting PBJ Compiler java package
+option java_multiple_files = true;
+
+import "google/protobuf/wrappers.proto";
+import "basic_types.proto";
+import "registered_service_endpoint.proto";
+
+/**
+ * A transaction body to update an existing registered node in the network
+ * address book.
+ *
+ * This transaction, once complete, SHALL modify the identified registered
+ * node state as requested.
+ *
+ * ### Block Stream Effects
+ * None.
+ */
+message RegisteredNodeUpdateTransactionBody {
+    /**
+     * A registered node identifier in the network state.
+     * <p>
+     * The node identified MUST exist in the registered address book.<br/>
+     * The node identified MUST NOT be deleted.<br/>
+     * This value is REQUIRED.
+     * <p>
+     * A given value for `registered_node_id` SHALL be unique within a given
+     * shard or realm.<br/>
+     * A given value for `registered_node_id` SHALL NOT be reused, even if the
+     * corresponding entry is deleted.
+     */
+    uint64 registered_node_id = 1;
+
+    /**
+     * An administrative key controlled by the node operator.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * If set, this key MUST sign this transaction.<br/>
+     * If set, this key MUST sign each subsequent transaction to
+     * update this node.<br/>
+     * If set, this field MUST contain a valid `Key` value.<br/>
+     * If set, this field MUST NOT be set to an empty `KeyList`.<br/>
+     * It is RECOMMENDED that this key be composed of one or more unique public
+     * keys that are not associated with any network account.<br/>
+     * This key MAY be a complex key containing `KeyList` or `ThresholdKey`
+     * elements, but SHOULD NOT be a contract ID key.
+     */
+    proto.Key admin_key = 2;
+
+    /**
+     * A short description of the node.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
+     * If set, this value SHALL replace the previous value.
+     */
+    google.protobuf.StringValue description = 3;
+
+    /**
+     * A list of service endpoints for client calls.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * These endpoints SHALL represent the published endpoints to which
+     * clients may submit requests.<br/>
+     * Endpoints in this list MAY supply either IP address or FQDN, but MUST
+     * NOT supply both values for the same endpoint.<br/>
+     * One Registered Node MAY expose endpoints for multiple service types.<br/>
+     * If set, this list MUST NOT be empty.<br/>
+     * If set, this list MUST NOT contain more than `50` entries.<br/>
+     * If set, this list SHALL _replace_ the previous list.
+     */
+    repeated RegisteredServiceEndpoint service_endpoint = 4;
+
+    /**
+     * An account identifier.<br/>
+     * This account identifies the entity financially responsible for this
+     * registered node.
+     * <p>
+     * This field is OPTIONAL.<br/>
+     * If not set, the field SHALL NOT be updated.<br/>
+     * Individual node operators SHALL have full authority to set, change, or
+     * remove their node account ID.<br/>
+     * If set and the node account ID does not resolve to an existing and active
+     * account, then the transaction SHALL fail.<br/>
+     * Node operators SHOULD ensure that the node account is kept up to date
+     * and always refers to a valid and active `Account`.<br/>
+     * The owner of the node account MAY be different from the owner of the
+     * registered node.<br/>
+     * If set to account ID `0.0.0`, the node account SHALL be removed from
+     * this registered node.
+     */
+    proto.AccountID node_account = 5;
+}
