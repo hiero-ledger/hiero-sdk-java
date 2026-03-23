@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.68.0
+
+## Added
+- feat(TCK): added several tck endpoints
+
+### Changed
+- refactor: ecdsa type (#2659)
+
+### Fixed
+- fix: TopicInfo customFixedFee to return valid feeCollectorAccountId when parse from proto (#2643)
+- verifyTransaction method (#2661)
+
 ## 2.67.0
 
 ### Adeed
