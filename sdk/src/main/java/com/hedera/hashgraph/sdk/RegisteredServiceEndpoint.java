@@ -100,7 +100,7 @@ public abstract class RegisteredServiceEndpoint {
      *
      * @return the {@link com.google.common.base.MoreObjects.ToStringHelper}
      */
-    protected MoreObjects.ToStringHelper toStringHelper() {
+    MoreObjects.ToStringHelper toStringHelper() {
         return MoreObjects.toStringHelper(this)
                 .add("ipAddress", ipAddress)
                 .add("domainName", domainName)
