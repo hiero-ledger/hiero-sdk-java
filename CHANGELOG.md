@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 2.68.0
 
 ## Added
+
 - feat(TCK): added several tck endpoints
 
 ### Changed
+
 - refactor: ecdsa type (#2659)
 
 ### Fixed
+
 - fix: TopicInfo customFixedFee to return valid feeCollectorAccountId when parse from proto (#2643)
 - verifyTransaction method (#2661)
 
