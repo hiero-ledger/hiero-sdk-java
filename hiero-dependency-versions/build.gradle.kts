@@ -3,7 +3,7 @@ group = "org.hiero"
 
 val bouncycastle = "1.83"
 val grpc = "1.79.0"
-val protobuf = "4.34.0"
+val protobuf = "4.34.1"
 val slf4j = "2.0.17"
 val mockito = "5.23.0"
 
