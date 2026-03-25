@@ -168,6 +168,12 @@ public abstract class Transaction<T extends Transaction<T>>
         } else {
             var txCount = txs.keySet().size();
             var nodeCount = txs.values().iterator().next().size();
+            // Reject multiple transaction groups for non-chunked types
+            if (txCount > 1 && !(this instanceof ChunkedTransaction)) {
+                throw new IllegalArgumentException(
+                        "Non-chunked transaction cannot contain multiple transaction groups (found " + txCount
+                                + " groups). Only ChunkedTransaction types may have multiple groups.");
+            }
 
             nodeAccountIds.ensureCapacity(nodeCount);
             sigPairLists = new ArrayList<>(nodeCount * txCount);

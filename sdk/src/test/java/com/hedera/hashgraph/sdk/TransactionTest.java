@@ -6,9 +6,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hedera.hashgraph.sdk.proto.AccountAmount;
+import com.hedera.hashgraph.sdk.proto.AccountID;
+import com.hedera.hashgraph.sdk.proto.CryptoTransferTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
+import com.hedera.hashgraph.sdk.proto.Timestamp;
 import com.hedera.hashgraph.sdk.proto.TokenAssociateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionID;
+import com.hedera.hashgraph.sdk.proto.TransactionList;
+import com.hedera.hashgraph.sdk.proto.TransferList;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -552,6 +559,62 @@ public class TransactionTest {
             assertThat(AccountId.fromProtobuf(body.getNodeAccountID()).toString())
                     .isEqualTo(nodeID.toString());
         }
+    }
+
+    @Test
+    @DisplayName("fromBytes rejects multi-group TransactionList for non-chunked types")
+    void fromBytesRejectsMultiGroupNonChunkedTransaction() {
+        // Build two CryptoTransfer groups with different TransactionIds and amounts
+        var txId1 = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158542))
+                .build();
+        var txId2 = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158543))
+                .build();
+
+        var fistTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-1))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(1)))
+                .build();
+
+        var maliciousTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-100_000_000_000L))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(100_000_000_000L)))
+                .build();
+
+        var list = TransactionList.newBuilder();
+        for (var txId : List.of(txId1, txId2)) {
+            var transfer = txId == txId1 ? fistTransfer : maliciousTransfer;
+            for (var nodeNum : List.of(5005L, 5006L)) {
+                var body = TransactionBody.newBuilder()
+                        .setTransactionID(txId)
+                        .setNodeAccountID(AccountID.newBuilder().setAccountNum(nodeNum))
+                        .setTransactionFee(100_000_000L)
+                        .setCryptoTransfer(transfer)
+                        .build();
+                var signed = SignedTransaction.newBuilder()
+                        .setBodyBytes(body.toByteString())
+                        .build();
+                list.addTransactionList(com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                        .setSignedTransactionBytes(signed.toByteString())
+                        .build());
+            }
+        }
+
+        byte[] payload = list.build().toByteArray();
+        assertThrows(IllegalArgumentException.class, () -> Transaction.fromBytes(payload));
     }
 
     @Test
