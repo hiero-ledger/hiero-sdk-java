@@ -168,6 +168,12 @@ public abstract class Transaction<T extends Transaction<T>>
         } else {
             var txCount = txs.keySet().size();
             var nodeCount = txs.values().iterator().next().size();
+            // Reject multiple transaction chunks for non-chunked types
+            if (txCount > 1 && !(this instanceof ChunkedTransaction)) {
+                throw new IllegalArgumentException(
+                        "Non-chunked transaction cannot contain multiple transaction chunks (found " + txCount
+                                + " chunks). Only ChunkedTransaction types may have multiple chunks.");
+            }
 
             nodeAccountIds.ensureCapacity(nodeCount);
             sigPairLists = new ArrayList<>(nodeCount * txCount);
