@@ -202,7 +202,7 @@ public abstract class Transaction<T extends Transaction<T>>
 
             nodeAccountIds.remove(new AccountId(0, 0, 0));
 
-            // Verify that transaction bodies match
+            // Verify that transaction bodies match within each group
             for (int i = 0; i < txCount; i++) {
                 TransactionBody firstTxBody = null;
                 for (int j = 0; j < nodeCount; j++) {
@@ -217,6 +217,28 @@ public abstract class Transaction<T extends Transaction<T>>
                     }
                 }
             }
+
+            // Cross-group validation: for chunked types with multiple groups,
+            // verify that bodies are consistent across groups (differing only in
+            // expected chunk-varying fields)
+            if (txCount > 1) {
+                TransactionBody referenceBody = null;
+                Set<String> crossGroupIgnoreSet = new HashSet<>(List.of(
+                    "NodeAccountID", "TransactionID",
+                    "Contents", "Message", "ChunkInfo"
+                ));
+                for (int i = 0; i < txCount; i++) {
+                    int k = i * nodeCount;
+                    var txBody = parseTransactionBody(innerSignedTransactions.get(k).getBodyBytes());
+                    if (referenceBody == null) {
+                        referenceBody = txBody;
+                    } else {
+                        requireProtoMatches(referenceBody, txBody, crossGroupIgnoreSet,
+                            "TransactionBody (cross-group)");
+                    }
+                }
+            }
+
             sourceTransactionBody =
                     parseTransactionBody(innerSignedTransactions.get(0).getBodyBytes());
         }
@@ -254,6 +276,12 @@ public abstract class Transaction<T extends Transaction<T>>
 
         if (!list.getTransactionListList().isEmpty()) {
             dataCase = processTransactionList(list.getTransactionListList(), txsMap);
+
+            if (txsMap.size() > 1 && !isChunkedDataCase(dataCase)) {
+                throw new IllegalArgumentException(
+                    "Non-chunked transaction types must not have multiple transaction ID groups. "
+                    + "Found " + txsMap.size() + " groups for transaction type " + dataCase);
+            }
         } else {
             dataCase = processSingleTransaction(bytes, txsMap);
         }
@@ -326,6 +354,12 @@ public abstract class Transaction<T extends Transaction<T>>
         for (com.hedera.hashgraph.sdk.proto.Transaction transaction : transactionList) {
             var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
             var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+
+            if (txBody.getDataCase() != dataCase) {
+                throw new IllegalArgumentException(
+                    "All transactions in a TransactionList must have the same data type. "
+                    + "Expected " + dataCase + " but found " + txBody.getDataCase());
+            }
 
             addTransactionToMap(transaction, txBody, txsMap);
         }
@@ -667,6 +701,11 @@ public abstract class Transaction<T extends Transaction<T>>
                 throw new IllegalArgumentException("fromBytes() failed due to error", error);
             }
         }
+    }
+
+    private static boolean isChunkedDataCase(TransactionBody.DataCase dataCase) {
+        return dataCase == TransactionBody.DataCase.FILEAPPEND
+            || dataCase == TransactionBody.DataCase.CONSENSUSSUBMITMESSAGE;
     }
 
     /**
