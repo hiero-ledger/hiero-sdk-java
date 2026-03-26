@@ -171,8 +171,8 @@ public abstract class Transaction<T extends Transaction<T>>
             // Reject multiple transaction groups for non-chunked types
             if (txCount > 1 && !(this instanceof ChunkedTransaction)) {
                 throw new IllegalArgumentException(
-                        "Non-chunked transaction cannot contain multiple transaction groups (found " + txCount
-                                + " groups). Only ChunkedTransaction types may have multiple groups.");
+                        "Non-chunked transaction cannot contain multiple transaction chunks (found " + txCount
+                                + " chunks). Only ChunkedTransaction types may have multiple chunks.");
             }
 
             nodeAccountIds.ensureCapacity(nodeCount);
