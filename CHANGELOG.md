@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - refactor: ecdsa type (#2659)
-- refactor: replace wildcard imports with specific imports (#2637)
 
 ### Fixed
 
