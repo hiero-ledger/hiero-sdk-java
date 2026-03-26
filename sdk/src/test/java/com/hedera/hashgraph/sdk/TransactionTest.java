@@ -564,7 +564,7 @@ public class TransactionTest {
     @Test
     @DisplayName("fromBytes rejects multi-group TransactionList for non-chunked types")
     void fromBytesRejectsMultiGroupNonChunkedTransaction() {
-        // Build two CryptoTransfer groups with different TransactionIds and amounts
+        // Build two CryptoTransfer chunks with different TransactionIds and amounts
         var txId1 = TransactionID.newBuilder()
                 .setAccountID(AccountID.newBuilder().setAccountNum(5006))
                 .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158542))
