@@ -1,4 +1,4 @@
-# Hiero Java SDK
+# Hiero Java SDK 
 
 ![](https://img.shields.io/badge/java-17%2B-blue?style=flat-square)
 ![](https://img.shields.io/badge/android-26%2B-blue?style=flat-square)
