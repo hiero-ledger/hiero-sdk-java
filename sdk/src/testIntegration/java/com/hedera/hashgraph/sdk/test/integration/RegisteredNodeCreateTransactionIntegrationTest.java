@@ -30,6 +30,7 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                     .setDescription("test description")
                     .setServiceEndpoints(serviceEndpoints)
                     .freezeWith(testEnv.client)
+                    .sign(key)
                     .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
@@ -58,6 +59,7 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                     .setDescription("test description")
                     .setServiceEndpoints(serviceEndpoints)
                     .freezeWith(testEnv.client)
+                    .sign(key)
                     .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
