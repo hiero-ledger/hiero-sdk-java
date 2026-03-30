@@ -31,6 +31,7 @@ public class RegisteredNodeDeleteTransactionIntegrationTest {
                     .setDescription("test node delete")
                     .setServiceEndpoints(endpoints)
                     .freezeWith(testEnv.client)
+                    .sign(key)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
