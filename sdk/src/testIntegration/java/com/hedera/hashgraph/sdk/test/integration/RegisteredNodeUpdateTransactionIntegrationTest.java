@@ -31,6 +31,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
                     .setDescription("test initial node")
                     .setServiceEndpoints(endpoints)
                     .freezeWith(testEnv.client)
+                    .sign(key)
                     .execute(testEnv.client);
 
             var createReceipt = createResponse.getReceipt(testEnv.client);
@@ -72,6 +73,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
                     .setDescription("test node")
                     .setServiceEndpoints(endpoints)
                     .freezeWith(testEnv.client)
+                    .sign(oldKey)
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
