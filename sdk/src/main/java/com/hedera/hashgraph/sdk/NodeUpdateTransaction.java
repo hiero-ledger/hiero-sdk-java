@@ -320,6 +320,16 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
+     * Clear serviceEndpoint lists.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction clearServiceEndpoint() {
+        requireNotFrozen();
+        serviceEndpoints.clear();
+        return this;
+    }
+
+    /**
      * Extract the certificate used to sign gossip events.
      * @return the DER encoding of the certificate presented.
      */
