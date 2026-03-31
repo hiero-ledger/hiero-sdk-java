@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.BlockNodeApi;
 import com.hedera.hashgraph.sdk.BlockNodeServiceEndpoint;
 import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.RegisteredNodeCreateTransaction;
 import com.hedera.hashgraph.sdk.RegisteredNodeDeleteTransaction;
@@ -127,19 +128,31 @@ public class RegisteredNodeLifeCycleExample {
          * Step 5:
          * Add the registeredNodeId as associatedRegisteredNodes to a Node.
          */
-        // TODO
+        long registeredNodeId = registeredNodeUpdateTxReceipt.registeredNodeId;
+        NodeUpdateTransaction associateTx = new NodeUpdateTransaction()
+            .setNodeId(0)
+            .addAssociatedRegisteredNode(registeredNodeId)
+            .freezeWith(client);
+
+        System.out.println("Associating registered node " + registeredNodeId + " with consensus node...");
+        TransactionResponse associateTxResponse = associateTx.execute(client);
+        associateTxResponse.getReceipt(client);
+
 
         /*
          * Step 6:
          * Delete the Registered Node.
          */
-        RegisteredNodeDeleteTransaction registeredNodeDeleteTx = new RegisteredNodeDeleteTransaction()
+        System.out.println("Deleting Registered Node...");
+        new RegisteredNodeDeleteTransaction()
             .setRegisteredNodeId(registeredNodeCreateTxReceipt.registeredNodeId)
             .freezeWith(client)
-            .sign(adminKey);
+            .sign(adminKey)
+            .execute(client)
+            .getReceipt(client);
 
-        System.out.println("Deleting Registered Node...");
-        TransactionResponse registeredNodeDeleteTxResponse = registeredNodeDeleteTx.execute(client);
-        registeredNodeDeleteTxResponse.getReceipt(client);
+        client.close();
+
+        System.out.println("Registered Node Lifecycle Example Complete!");
     }
 }
