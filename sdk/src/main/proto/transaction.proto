@@ -101,6 +101,11 @@ import "history_proof_vote.proto";
 import "hook_store.proto";
 import "hook_dispatch.proto";
 
+import "registered_node_create.proto";
+import "registered_node_delete.proto";
+import "registered_node_update.proto";
+
+
 /**
  * A wrapper around signed transaction bytes.<br/>
  * This was originally a transaction with body, signatures, and/or bytes,
@@ -661,6 +666,30 @@ message TransactionBody {
          * An internal-only transaction body for dispatching a hook CRUD operation.
          */
         com.hedera.hapi.node.hooks.HookDispatchTransactionBody hook_dispatch = 76;
+
+        /**
+         * Create a new registered node in the network address book.
+         * <p>
+         * This transaction SHALL create a new registered node record and add
+         * that record to the network state.
+         */
+        com.hedera.hapi.node.addressbook.RegisteredNodeCreateTransactionBody registeredNodeCreate = 78;
+
+        /**
+         * Update a registered node in the network address book.
+         * <p>
+         * This transaction SHALL update an existing registered node record in
+         * the network state.
+         */
+        com.hedera.hapi.node.addressbook.RegisteredNodeUpdateTransactionBody registeredNodeUpdate = 79;
+
+        /**
+         * Delete a registered node from the network address book.
+         * <p>
+         * This transaction SHALL mark an existing registered node record as
+         * deleted.
+         */
+        com.hedera.hapi.node.addressbook.RegisteredNodeDeleteTransactionBody registeredNodeDelete = 80;
     }
 
     /**
