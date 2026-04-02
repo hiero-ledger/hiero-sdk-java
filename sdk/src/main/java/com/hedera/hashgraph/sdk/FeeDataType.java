@@ -59,7 +59,6 @@ public enum FeeDataType {
      */
     CRYPTO_TRANSFER_WITH_HOOKS(SubType.CRYPTO_TRANSFER_WITH_HOOKS);
 
-
     final SubType code;
 
     FeeDataType(SubType code) {
