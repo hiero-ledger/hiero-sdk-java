@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
+
 import java.util.Objects;
 
 /**
@@ -1053,8 +1054,7 @@ public enum Status {
     /**
      * Only tokens of type FUNGIBLE_COMMON can have fractional fees
      */
-    CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(
-            ResponseCodeEnum.CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
+    CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(ResponseCodeEnum.CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
 
     /**
      * The provided custom fee schedule key was invalid
@@ -1094,8 +1094,7 @@ public enum Status {
     /**
      * An AccountAmount token transfers list referenced a token type other than FUNGIBLE_COMMON
      */
-    ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(
-            ResponseCodeEnum.ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
+    ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON(ResponseCodeEnum.ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON),
 
     /**
      * All the NFTs allowed in the current price regime have already been minted
@@ -1120,8 +1119,7 @@ public enum Status {
     /**
      * The sender account in the token transfer transaction could not afford a custom fee
      */
-    INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE(
-            ResponseCodeEnum.INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE),
+    INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE(ResponseCodeEnum.INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE),
 
     /**
      * Currently no more than 4,294,967,295 NFTs may be minted for a given unique token type
@@ -1131,8 +1129,7 @@ public enum Status {
     /**
      * Only tokens of type NON_FUNGIBLE_UNIQUE can have royalty fees
      */
-    CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(
-            ResponseCodeEnum.CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
+    CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(ResponseCodeEnum.CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
 
     /**
      * The account has reached the limit on the automatic associations count.
@@ -1142,15 +1139,13 @@ public enum Status {
     /**
      * Already existing automatic associations are more than the new maximum automatic associations.
      */
-    EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT(
-            ResponseCodeEnum.EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT),
+    EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT(ResponseCodeEnum.EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT),
 
     /**
      * Cannot set the number of automatic associations for an account more than the maximum allowed
      * token associations tokens.maxPerAccount.
      */
-    REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT(
-            ResponseCodeEnum.REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT),
+    REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT(ResponseCodeEnum.REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT),
 
     /**
      * Token is paused. This Token cannot be a part of any kind of Transaction until unpaused.
@@ -1380,8 +1375,7 @@ public enum Status {
     /**
      * The scheduled transaction could not be created because it's expiration_time was less than or equal to the consensus time.
      */
-    SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME(
-            ResponseCodeEnum.SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME),
+    SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME(ResponseCodeEnum.SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME),
 
     /**
      * The scheduled transaction could not be created because it would cause throttles to be violated on the specified expiration_time.
@@ -1913,13 +1907,17 @@ public enum Status {
     /**
      * An NFT transfers list referenced a token type other than NON_FUNGIBLE_UNIQUE.
      */
-    NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(
-            ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
+    NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE(ResponseCodeEnum.NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE),
 
     /**
      * A HAPI client cannot set the SignedTransaction#use_serialized_tx_message_hash_algorithm field.
      */
     INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM(ResponseCodeEnum.INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM),
+
+    /**
+     * A HookStore referenced a valid entity number but with the wrong entity type.
+     */
+    WRONG_HOOK_ENTITY_TYPE(ResponseCodeEnum.WRONG_HOOK_ENTITY_TYPE),
 
     /**
      * An EVM hook execution was throttled due to high network gas utilization.
@@ -1956,8 +1954,7 @@ public enum Status {
      * An EVM hook's mapping slot, storage key, or storage value failed to use the
      * minimal representation (i.e., no leading zeros).
      */
-    EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
-            ResponseCodeEnum.EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
+    EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION(ResponseCodeEnum.EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
 
     /**
      * A hook id was invalid.
@@ -1992,14 +1989,13 @@ public enum Status {
     /**
      * The HookStore tried to update too many storage slots in a single transaction.
      */
-    TOO_MANY_LAMBDA_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_LAMBDA_STORAGE_UPDATES),
+    TOO_MANY_EVM_HOOK_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_EVM_HOOK_STORAGE_UPDATES),
 
     /**
      * An EVM hook mapping slot, storage key, or storage value failed to use the
      * minimal representation (i.e., no leading zeros).
      */
-    HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION(
-            ResponseCodeEnum.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
+    HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION(ResponseCodeEnum.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION),
 
     /**
      * A EVM hook mapping slot, storage key, or storage value exceeded 32 bytes.
@@ -2046,11 +2042,42 @@ public enum Status {
      */
     HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS(ResponseCodeEnum.HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS),
 
-    WRONG_HOOK_ENTITY_TYPE(ResponseCodeEnum.WRONG_HOOK_ENTITY_TYPE),
+    /**
+     * This operation cannot be completed because the target
+     * account is a "Node Account".<br/>
+     * This account is currently in use as the "Node Account" for a
+     * consensus node, and therefore the requested change is
+     * not permitted. The transaction may be resubmitted once the
+     * account is no longer in use as a "Node Account" for any
+     * consensus node.
+     */
     ACCOUNT_IS_LINKED_TO_A_NODE(ResponseCodeEnum.ACCOUNT_IS_LINKED_TO_A_NODE),
-    HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER(
-            ResponseCodeEnum.HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER),
-    NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE);
+
+    /**
+     * Hooks are not supported to be used in Batch transactions and Scheduled transactions.
+     * They are only supported in a top level CryptoTransfer transaction.
+     */
+    HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER(ResponseCodeEnum.HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER),
+
+    /**
+     * This operation cannot be completed because the target
+     * account has a zero balance.<br/>
+     * Node accounts require a positive balance. The transaction may be
+     * resubmitted once the account has been funded.
+     */
+    NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE),
+
+    /**
+     * This operation cannot be completed because the target
+     * account is a "Fee Collection Account".<br/>
+     * Any attempt to transfer to a fee collection account is not permitted.
+     */
+    TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED(ResponseCodeEnum.TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED),
+
+    /**
+     * The number of hook invocations exceeds the maximum allowed per transaction.
+     */
+    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS);
 
     final ResponseCodeEnum code;
 
@@ -2264,8 +2291,7 @@ public enum Status {
             case FRACTIONAL_FEE_MAX_AMOUNT_LESS_THAN_MIN_AMOUNT -> FRACTIONAL_FEE_MAX_AMOUNT_LESS_THAN_MIN_AMOUNT;
             case CUSTOM_SCHEDULE_ALREADY_HAS_NO_FEES -> CUSTOM_SCHEDULE_ALREADY_HAS_NO_FEES;
             case CUSTOM_FEE_DENOMINATION_MUST_BE_FUNGIBLE_COMMON -> CUSTOM_FEE_DENOMINATION_MUST_BE_FUNGIBLE_COMMON;
-            case CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON ->
-                CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON;
+            case CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON -> CUSTOM_FRACTIONAL_FEE_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON;
             case INVALID_CUSTOM_FEE_SCHEDULE_KEY -> INVALID_CUSTOM_FEE_SCHEDULE_KEY;
             case INVALID_TOKEN_MINT_METADATA -> INVALID_TOKEN_MINT_METADATA;
             case INVALID_TOKEN_BURN_METADATA -> INVALID_TOKEN_BURN_METADATA;
@@ -2273,22 +2299,17 @@ public enum Status {
             case ACCOUNT_STILL_OWNS_NFTS -> ACCOUNT_STILL_OWNS_NFTS;
             case TREASURY_MUST_OWN_BURNED_NFT -> TREASURY_MUST_OWN_BURNED_NFT;
             case ACCOUNT_DOES_NOT_OWN_WIPED_NFT -> ACCOUNT_DOES_NOT_OWN_WIPED_NFT;
-            case ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON ->
-                ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON;
+            case ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON -> ACCOUNT_AMOUNT_TRANSFERS_ONLY_ALLOWED_FOR_FUNGIBLE_COMMON;
             case MAX_NFTS_IN_PRICE_REGIME_HAVE_BEEN_MINTED -> MAX_NFTS_IN_PRICE_REGIME_HAVE_BEEN_MINTED;
             case PAYER_ACCOUNT_DELETED -> PAYER_ACCOUNT_DELETED;
             case CUSTOM_FEE_CHARGING_EXCEEDED_MAX_RECURSION_DEPTH -> CUSTOM_FEE_CHARGING_EXCEEDED_MAX_RECURSION_DEPTH;
             case CUSTOM_FEE_CHARGING_EXCEEDED_MAX_ACCOUNT_AMOUNTS -> CUSTOM_FEE_CHARGING_EXCEEDED_MAX_ACCOUNT_AMOUNTS;
-            case INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE ->
-                INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE;
+            case INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE -> INSUFFICIENT_SENDER_ACCOUNT_BALANCE_FOR_CUSTOM_FEE;
             case SERIAL_NUMBER_LIMIT_REACHED -> SERIAL_NUMBER_LIMIT_REACHED;
-            case CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE ->
-                CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
+            case CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE -> CUSTOM_ROYALTY_FEE_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
             case NO_REMAINING_AUTOMATIC_ASSOCIATIONS -> NO_REMAINING_AUTOMATIC_ASSOCIATIONS;
-            case EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT ->
-                EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT;
-            case REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT ->
-                REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT;
+            case EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT -> EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT;
+            case REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT -> REQUESTED_NUM_AUTOMATIC_ASSOCIATIONS_EXCEEDS_ASSOCIATION_LIMIT;
             case TOKEN_IS_PAUSED -> TOKEN_IS_PAUSED;
             case TOKEN_HAS_NO_PAUSE_KEY -> TOKEN_HAS_NO_PAUSE_KEY;
             case INVALID_PAUSE_KEY -> INVALID_PAUSE_KEY;
@@ -2331,8 +2352,7 @@ public enum Status {
             case DELEGATING_SPENDER_CANNOT_GRANT_APPROVE_FOR_ALL -> DELEGATING_SPENDER_CANNOT_GRANT_APPROVE_FOR_ALL;
             case DELEGATING_SPENDER_DOES_NOT_HAVE_APPROVE_FOR_ALL -> DELEGATING_SPENDER_DOES_NOT_HAVE_APPROVE_FOR_ALL;
             case SCHEDULE_EXPIRATION_TIME_TOO_FAR_IN_FUTURE -> SCHEDULE_EXPIRATION_TIME_TOO_FAR_IN_FUTURE;
-            case SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME ->
-                SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME;
+            case SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME -> SCHEDULE_EXPIRATION_TIME_MUST_BE_HIGHER_THAN_CONSENSUS_TIME;
             case SCHEDULE_FUTURE_THROTTLE_EXCEEDED -> SCHEDULE_FUTURE_THROTTLE_EXCEEDED;
             case SCHEDULE_FUTURE_GAS_LIMIT_EXCEEDED -> SCHEDULE_FUTURE_GAS_LIMIT_EXCEEDED;
             case INVALID_ETHEREUM_TRANSACTION -> INVALID_ETHEREUM_TRANSACTION;
@@ -2425,8 +2445,7 @@ public enum Status {
             case THROTTLE_GROUP_LCM_OVERFLOW -> THROTTLE_GROUP_LCM_OVERFLOW;
             case AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN -> AIRDROP_CONTAINS_MULTIPLE_SENDERS_FOR_A_TOKEN;
             case GRPC_WEB_PROXY_NOT_SUPPORTED -> GRPC_WEB_PROXY_NOT_SUPPORTED;
-            case NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE ->
-                NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
+            case NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE -> NFT_TRANSFERS_ONLY_ALLOWED_FOR_NON_FUNGIBLE_UNIQUE;
             case INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM -> INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM;
             case WRONG_HOOK_ENTITY_TYPE -> WRONG_HOOK_ENTITY_TYPE;
             case EVM_HOOK_GAS_THROTTLED -> EVM_HOOK_GAS_THROTTLED;
@@ -2435,17 +2454,15 @@ public enum Status {
             case REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK -> REJECTED_BY_ACCOUNT_ALLOWANCE_HOOK;
             case HOOK_NOT_FOUND -> HOOK_NOT_FOUND;
             case EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG -> EVM_HOOK_STORAGE_UPDATE_BYTES_TOO_LONG;
-            case EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
-                EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
+            case EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION -> EVM_HOOK_STORAGE_UPDATE_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
             case INVALID_HOOK_ID -> INVALID_HOOK_ID;
             case EMPTY_EVM_HOOK_STORAGE_UPDATE -> EMPTY_EVM_HOOK_STORAGE_UPDATE;
             case HOOK_ID_REPEATED_IN_CREATION_DETAILS -> HOOK_ID_REPEATED_IN_CREATION_DETAILS;
             case HOOKS_NOT_ENABLED -> HOOKS_NOT_ENABLED;
             case HOOK_IS_NOT_AN_EVM_HOOK -> HOOK_IS_NOT_AN_EVM_HOOK;
             case HOOK_DELETED -> HOOK_DELETED;
-            case TOO_MANY_LAMBDA_STORAGE_UPDATES -> TOO_MANY_LAMBDA_STORAGE_UPDATES;
-            case HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
-                HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
+            case TOO_MANY_EVM_HOOK_STORAGE_UPDATES -> TOO_MANY_EVM_HOOK_STORAGE_UPDATES;
+            case HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION -> HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
             case HOOK_CREATION_BYTES_TOO_LONG -> HOOK_CREATION_BYTES_TOO_LONG;
             case INVALID_HOOK_CREATION_SPEC -> INVALID_HOOK_CREATION_SPEC;
             case HOOK_EXTENSION_EMPTY -> HOOK_EXTENSION_EMPTY;
@@ -2456,13 +2473,14 @@ public enum Status {
             case INVALID_HOOK_CALL -> INVALID_HOOK_CALL;
             case HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS -> HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS;
             case ACCOUNT_IS_LINKED_TO_A_NODE -> ACCOUNT_IS_LINKED_TO_A_NODE;
-            case HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER ->
-                HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER;
+            case HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER -> HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER;
             case NODE_ACCOUNT_HAS_ZERO_BALANCE -> NODE_ACCOUNT_HAS_ZERO_BALANCE;
+            case TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED -> TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED;
+            case TOO_MANY_HOOK_INVOCATIONS -> TOO_MANY_HOOK_INVOCATIONS;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
-                        "network returned unrecognized response code; your SDK may be out of date");
+                    "network returned unrecognized response code; your SDK may be out of date");
         };
     }
 

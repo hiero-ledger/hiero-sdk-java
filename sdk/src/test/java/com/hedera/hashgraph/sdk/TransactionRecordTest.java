@@ -88,7 +88,8 @@ public class TransactionRecordTest {
                                         AccountId.fromString("0.0.123"),
                                         AccountId.fromString("0.0.124"),
                                         TokenId.fromString("0.0.12345")),
-                                123)));
+                                123)),
+                1000L);
     }
 
     @Test

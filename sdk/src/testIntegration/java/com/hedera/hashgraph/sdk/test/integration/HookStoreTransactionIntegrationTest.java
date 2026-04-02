@@ -209,7 +209,7 @@ class HookStoreTransactionIntegrationTest {
             // Expect TOO_MANY_LAMBDA_STORAGE_UPDATES
             assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> tx.execute(testEnv.client).getReceipt(testEnv.client))
-                    .withMessageContaining(Status.TOO_MANY_LAMBDA_STORAGE_UPDATES.toString());
+                    .withMessageContaining(Status.TOO_MANY_EVM_HOOK_STORAGE_UPDATES.toString());
         }
     }
 
