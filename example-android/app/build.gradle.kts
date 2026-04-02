@@ -2,7 +2,6 @@
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 repositories {
@@ -36,10 +35,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
     packaging {
         resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
     }
@@ -50,7 +45,7 @@ dependencies {
     implementation(platform("org.hiero:hiero-dependency-versions"))
     // ---------------------------------------------
 
-    implementation("com.hedera.hashgraph:sdk:2.67.0-beta.1")
+    implementation("com.hedera.hashgraph:sdk:2.69.0")
 
     implementation("com.google.android.material:material:1.12.0")
 

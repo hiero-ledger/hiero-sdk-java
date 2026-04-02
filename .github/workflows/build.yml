@@ -33,7 +33,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-medium
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
         with:
           egress-policy: audit
 
@@ -43,7 +43,7 @@ jobs:
           fetch-depth: "0"
 
       - name: Setup NodeJS
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 18
 
@@ -54,7 +54,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
         with:
           cache-read-only: false
 
@@ -151,7 +151,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
         with:
           egress-policy: audit
 
@@ -161,7 +161,7 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Setup NodeJS
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 18
 
@@ -172,11 +172,11 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
+        uses: hiero-ledger/hiero-solo-action@4d42a74e8e644a2753f3bb7a2afa429305375b14 # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
@@ -186,7 +186,7 @@ jobs:
         run: ./gradlew assemble
 
       - name: Code Quality Checks
-        run: ./gradlew qualityCheck :examples:qualityCheck --continue --rerun-tasks
+        run: ./gradlew qualityCheck :examples:qualityCheck --continue
 
       - name: Run Unit and Integration Tests
         env:
@@ -213,7 +213,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
-        uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           files: gradle/aggregation/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
@@ -224,7 +224,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
         with:
           egress-policy: audit
 
@@ -234,7 +234,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup NodeJS
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 18
 
@@ -245,11 +245,11 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
-        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
+        uses: hiero-ledger/hiero-solo-action@4d42a74e8e644a2753f3bb7a2afa429305375b14 # v0.16
         with:
           installMirrorNode: true
           dualMode: true
@@ -280,7 +280,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
         with:
           egress-policy: audit
 
@@ -288,7 +288,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup NodeJS
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 18
 
@@ -299,14 +299,14 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        uses: android-actions/setup-android@651bceb6f9ca583f16b8d75b62c36ded2ae6fc9c # v4.0.0
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@fbca3e7a99ce9aa8a250563a81187abe115e0dad # v0.16
+        uses: hiero-ledger/hiero-solo-action@4d42a74e8e644a2753f3bb7a2afa429305375b14 # v0.16
         with:
           installMirrorNode: true
           mirrorNodeVersion: v0.145.2
@@ -334,7 +334,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
         with:
           egress-policy: audit
 
@@ -344,7 +344,7 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Setup NodeJS
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 18
 
@@ -355,7 +355,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Build TCK
         run: ./gradlew assemble

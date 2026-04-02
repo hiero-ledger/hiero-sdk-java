@@ -1,17 +1,34 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.hedera.hashgraph.sdk.*;
+import com.google.protobuf.ByteString;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.FileAppendTransaction;
+import com.hedera.hashgraph.sdk.FileContentsQuery;
+import com.hedera.hashgraph.sdk.FileCreateTransaction;
+import com.hedera.hashgraph.sdk.FileDeleteTransaction;
+import com.hedera.hashgraph.sdk.FileInfo;
+import com.hedera.hashgraph.sdk.FileInfoQuery;
+import com.hedera.hashgraph.sdk.FileUpdateTransaction;
+import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.TransactionReceipt;
+import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileAppendParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileDeleteParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.file.FileInfoQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.FileContentsResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.FileInfoResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.FileResponse;
+import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * FileService for file related methods
@@ -85,5 +102,45 @@ public class FileService extends AbstractJSONRPC2Service {
         TransactionReceipt receipt = txResponse.getReceipt(client);
 
         return new FileResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("getFileInfo")
+    public FileInfoResponse getFileInfo(final FileInfoQueryParams params) throws Exception {
+        FileInfoQuery query = QueryBuilders.FileBuilder.buildFileInfoQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        FileInfo result = query.execute(client);
+        return mapFileInfoResponse(result);
+    }
+
+    /**
+     *  Map FileInfo from SDK to FileInfoResponse for JSON-RPC
+     */
+    private FileInfoResponse mapFileInfoResponse(FileInfo fileInfo) {
+        List<String> keys = fileInfo.keys == null
+                ? null
+                : fileInfo.keys.stream().map(key -> key.toString()).toList();
+
+        return new FileInfoResponse(
+                fileInfo.fileId.toString(),
+                String.valueOf(fileInfo.size),
+                fileInfo.expirationTime.toString(),
+                fileInfo.isDeleted,
+                fileInfo.fileMemo,
+                fileInfo.ledgerId.toString(),
+                keys);
+    }
+
+    @JSONRPC2Method("getFileContents")
+    public FileContentsResponse getFileContents(final FileContentsParams params) throws Exception {
+        FileContentsQuery query = QueryBuilders.FileBuilder.buildFileContents(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        ByteString response = query.execute(client);
+
+        // Convert ByteString to string
+        String contents = response.toStringUtf8();
+
+        return new FileContentsResponse(contents);
     }
 }
