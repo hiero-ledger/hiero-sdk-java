@@ -52,7 +52,12 @@ public enum FeeDataType {
      * The resource cost for the transaction type includes a ConsensusSubmitMessage
      * for a topic with custom fees.
      */
-    SUBMIT_MESSAGE_WITH_CUSTOM_FEES(SubType.SUBMIT_MESSAGE_WITH_CUSTOM_FEES);
+    SUBMIT_MESSAGE_WITH_CUSTOM_FEES(SubType.SUBMIT_MESSAGE_WITH_CUSTOM_FEES),
+
+    /**
+     * The resource cost for the transaction type that includes a CryptoTransfer with hook invocations
+     */
+    CRYPTO_TRANSFER_WITH_HOOKS(SubType.CRYPTO_TRANSFER_WITH_HOOKS);
 
     final SubType code;
 
@@ -70,6 +75,7 @@ public enum FeeDataType {
             case SCHEDULE_CREATE_CONTRACT_CALL -> SCHEDULE_CREATE_CONTRACT_CALL;
             case TOPIC_CREATE_WITH_CUSTOM_FEES -> TOPIC_CREATE_WITH_CUSTOM_FEES;
             case SUBMIT_MESSAGE_WITH_CUSTOM_FEES -> SUBMIT_MESSAGE_WITH_CUSTOM_FEES;
+            case CRYPTO_TRANSFER_WITH_HOOKS -> CRYPTO_TRANSFER_WITH_HOOKS;
             default -> throw new IllegalStateException("(BUG) unhandled SubType (FeeDataType)");
         };
     }
@@ -85,6 +91,7 @@ public enum FeeDataType {
             case SCHEDULE_CREATE_CONTRACT_CALL -> "SCHEDULE_CREATE_CONTRACT_CALL";
             case TOPIC_CREATE_WITH_CUSTOM_FEES -> "TOPIC_CREATE_WITH_CUSTOM_FEES";
             case SUBMIT_MESSAGE_WITH_CUSTOM_FEES -> "SUBMIT_MESSAGE_WITH_CUSTOM_FEES";
+            case CRYPTO_TRANSFER_WITH_HOOKS -> "CRYPTO_TRANSFER_WITH_HOOKS";
         };
     }
 }
