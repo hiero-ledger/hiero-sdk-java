@@ -182,7 +182,7 @@ jobs:
           dualMode: true
           hieroVersion: v0.72.0
           mirrorNodeVersion: v0.151.0
-          soloVersion: v0.67.0
+          soloVersion: v0.68.0
 
       - name: Build SDK
         run: ./gradlew assemble
@@ -257,7 +257,7 @@ jobs:
           dualMode: true
           hieroVersion: v0.72.0
           mirrorNodeVersion: v0.151.0
-          soloVersion: v0.67.0
+          soloVersion: v0.68.0
 
       - name: Build SDK
         run: ./gradlew assemble
