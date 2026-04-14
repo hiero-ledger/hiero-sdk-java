@@ -47,8 +47,8 @@ dependencies.constraints {
 
     // Temporary override until spring-boot-dependencies bumps Jackson 3.x to 3.1.0+
     // Fixes SNYK-JAVA-TOOLSJACKSONCORE-15365915 and SNYK-JAVA-TOOLSJACKSONCORE-15371178
-    api("tools.jackson.core:jackson-core:3.1.1")
-    api("tools.jackson.core:jackson-databind:3.1.1")
+    api("tools.jackson.core:jackson-core:3.1.2")
+    api("tools.jackson.core:jackson-databind:3.1.2")
     api("org.apache.tomcat.embed:tomcat-embed-core:11.0.21")
 
     tasks.checkVersionConsistency {
