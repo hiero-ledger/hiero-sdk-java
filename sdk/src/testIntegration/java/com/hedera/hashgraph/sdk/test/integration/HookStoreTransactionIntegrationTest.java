@@ -158,7 +158,7 @@ class HookStoreTransactionIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given a lambda hook exists, when updating 256 storage slots, then TOO_MANY_LAMBDA_STORAGE_UPDATES is thrown")
+            "Given a lambda hook exists, when updating 256 storage slots, then TOO_MANY_EVM_HOOK_STORAGE_UPDATES is thrown")
     void lambdaSStoreTooManyStorageUpdatesFails() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // Deploy hook contract
@@ -206,10 +206,10 @@ class HookStoreTransactionIntegrationTest {
                     .freezeWith(testEnv.client)
                     .sign(adminKey);
 
-            // Expect TOO_MANY_LAMBDA_STORAGE_UPDATES
+            // Expect TOO_MANY_EVM_HOOK_STORAGE_UPDATES
             assertThatExceptionOfType(ReceiptStatusException.class)
                     .isThrownBy(() -> tx.execute(testEnv.client).getReceipt(testEnv.client))
-                    .withMessageContaining(Status.TOO_MANY_LAMBDA_STORAGE_UPDATES.toString());
+                    .withMessageContaining(Status.TOO_MANY_EVM_HOOK_STORAGE_UPDATES.toString());
         }
     }
 
