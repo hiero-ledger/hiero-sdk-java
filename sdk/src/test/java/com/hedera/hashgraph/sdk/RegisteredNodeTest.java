@@ -12,7 +12,7 @@ public class RegisteredNodeTest {
             "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
 
     private final BlockNodeServiceEndpoint serviceEndpoint = new BlockNodeServiceEndpoint()
-            .setEndpointApi(BlockNodeApi.STATUS)
+            .addEndpointApi(BlockNodeApi.STATUS)
             .setPort(443)
             .setDomainName("test.block.com")
             .setRequiresTls(true);
@@ -23,7 +23,6 @@ public class RegisteredNodeTest {
                     .setDescription("Unit test registered node")
                     .setAdminKey(privateKey.getPublicKey().toProtobufKey())
                     .addServiceEndpoint(serviceEndpoint.toProtobuf())
-                    .setNodeAccount(new AccountId(0, 0, 4).toProtobuf())
                     .build();
 
     @BeforeAll
@@ -55,6 +54,7 @@ public class RegisteredNodeTest {
                         RegisteredNode.fromBytes(registeredNode.toByteArray()).toBytes())
                 .toMatchSnapshot();
     }
+
 
     @Test
     void toProtobuf() throws InvalidProtocolBufferException {

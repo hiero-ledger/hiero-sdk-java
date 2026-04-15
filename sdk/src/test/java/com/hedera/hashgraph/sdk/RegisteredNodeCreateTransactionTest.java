@@ -39,7 +39,7 @@ public class RegisteredNodeCreateTransactionTest {
                 .setDomainName("example.block.com")
                 .setPort(443 + offset)
                 .setRequiresTls(true)
-                .setEndpointApi(BlockNodeApi.STATUS);
+                .addEndpointApi(BlockNodeApi.STATUS);
     }
 
     RegisteredNodeCreateTransaction spawnTestTransaction() {
@@ -49,7 +49,6 @@ public class RegisteredNodeCreateTransactionTest {
                 .setAdminKey(TEST_ADMIN_KEY)
                 .setDescription(TEST_DESCRIPTION)
                 .setServiceEndpoints(TEST_SERVICE_ENDPOINT)
-                .setNodeAccount(TEST_ACCOUNT_ID)
                 .setMaxTransactionFee(new Hbar(1))
                 .freeze()
                 .sign(TEST_PRIVATE_KEY);
@@ -180,24 +179,11 @@ public class RegisteredNodeCreateTransactionTest {
     }
 
     @Test
-    void setNodeAccount() {
-        var tx = new RegisteredNodeCreateTransaction().setNodeAccount(TEST_ACCOUNT_ID);
-        assertThat(tx.getNodeAccount()).isEqualTo(TEST_ACCOUNT_ID);
-    }
-
-    @Test
-    void setNodeAccountFrozen() {
-        var tx = spawnTestTransaction();
-        assertThrows(IllegalStateException.class, () -> tx.setNodeAccount(TEST_ACCOUNT_ID));
-    }
-
-    @Test
     void constructRegisteredNodeCreateTransactionFromTransactionBodyProtobuf() {
         var transactionBodyBuilder = RegisteredNodeCreateTransactionBody.newBuilder();
 
         transactionBodyBuilder.setAdminKey(TEST_ADMIN_KEY.toProtobufKey());
         transactionBodyBuilder.setDescription(TEST_DESCRIPTION);
-        transactionBodyBuilder.setNodeAccount(TEST_ACCOUNT_ID.toProtobuf());
 
         for (RegisteredServiceEndpoint serviceEndpoint : TEST_SERVICE_ENDPOINT) {
             transactionBodyBuilder.addServiceEndpoint(serviceEndpoint.toProtobuf());
@@ -211,7 +197,6 @@ public class RegisteredNodeCreateTransactionTest {
         assertThat(tx.getAdminKey()).isEqualTo(TEST_ADMIN_KEY);
         assertThat(tx.getDescription()).isEqualTo(TEST_DESCRIPTION);
         assertThat(tx.getServiceEndpoints()).hasSize(TEST_SERVICE_ENDPOINT.size());
-        assertThat(tx.getNodeAccount()).isEqualTo(TEST_ACCOUNT_ID);
     }
 
     @Test

@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,14 +17,14 @@ public class BlockNodeServiceEndpointTest {
     private final String TEST_DOMAIN_NAME = "test.block.com";
     private final int TEST_PORT = 443;
     private final boolean TEST_REQUIRES_TLS = true;
-    private final BlockNodeApi TEST_BLOCK_API = BlockNodeApi.STATUS;
+    private final List<BlockNodeApi> TEST_BLOCK_APIS = List.of(BlockNodeApi.STATUS);
 
     private final RegisteredServiceEndpoint blockNodeEndpointWithDomain = RegisteredServiceEndpoint.newBuilder()
             .setDomainName(TEST_DOMAIN_NAME)
             .setPort(TEST_PORT)
             .setRequiresTls(TEST_REQUIRES_TLS)
-            .setBlockNode(
-                    RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder().setEndpointApi(TEST_BLOCK_API.code))
+            .setBlockNode(RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
+                    .addAllEndpointApi(TEST_BLOCK_APIS.stream().map(e -> e.code).toList()))
             .build();
 
     private final RegisteredServiceEndpoint blockNodeEndpointWithIp = RegisteredServiceEndpoint.newBuilder()
@@ -31,7 +32,7 @@ public class BlockNodeServiceEndpointTest {
             .setPort(TEST_PORT)
             .setRequiresTls(TEST_REQUIRES_TLS)
             .setBlockNode(RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
-                    .setEndpointApi(RegisteredServiceEndpoint.BlockNodeEndpoint.BlockNodeApi.STATUS))
+                    .addAllEndpointApi(TEST_BLOCK_APIS.stream().map(e -> e.code).toList()))
             .build();
 
     @BeforeAll
@@ -111,8 +112,25 @@ public class BlockNodeServiceEndpointTest {
     }
 
     @Test
-    void setEndpointApi() {
-        var endpoint = new BlockNodeServiceEndpoint().setEndpointApi(TEST_BLOCK_API);
-        assertThat(endpoint.getEndpointApi()).isEqualTo(TEST_BLOCK_API);
+    void setEndpointApis() {
+        var endpoint = new BlockNodeServiceEndpoint().setEndpointApis(TEST_BLOCK_APIS);
+        assertThat(endpoint.getEndpointApis()).isEqualTo(TEST_BLOCK_APIS);
+    }
+
+    @Test
+    void addEndpointApi() {
+        var endpoint = new BlockNodeServiceEndpoint()
+                .addEndpointApi(BlockNodeApi.STATUS)
+                .addEndpointApi(BlockNodeApi.OTHER);
+
+        assertThat(endpoint.getEndpointApis()).containsExactly(BlockNodeApi.STATUS, BlockNodeApi.OTHER);
+    }
+
+    @Test
+    void clearEndpointApis() {
+        var endpoint =
+                new BlockNodeServiceEndpoint().setEndpointApis(TEST_BLOCK_APIS).clearEndpointApis();
+
+        assertThat(endpoint.getEndpointApis()).isEmpty();
     }
 }
