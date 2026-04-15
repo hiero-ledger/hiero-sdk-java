@@ -21,22 +21,44 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
      */
     public BlockNodeServiceEndpoint() {}
 
+    /**
+     * Returns the list of APIs supported by this endpoint.
+     *
+     * @return the list of supported block node APIs
+     */
     public List<BlockNodeApi> getEndpointApis() {
         return endpointApis;
     }
 
+    /**
+     * Sets the list of APIs supported by this endpoint.
+     *
+     * @param endpointApis the list of APIs to support; must not be null
+     * @return {@code this}
+     */
     public BlockNodeServiceEndpoint setEndpointApis(List<BlockNodeApi> endpointApis) {
         Objects.requireNonNull(endpointApis, "endpointApis must not be null");
         this.endpointApis = new ArrayList<>(endpointApis);
         return this;
     }
 
+    /**
+     * Adds a single API to the list of supported APIs for this endpoint.
+     *
+     * @param endpointApi the API to add; must not be null
+     * @return {@code this}
+     */
     public BlockNodeServiceEndpoint addEndpointApi(BlockNodeApi endpointApi) {
         Objects.requireNonNull(endpointApi, "endpointApi must not be null");
         this.endpointApis.add(endpointApi);
         return this;
     }
 
+    /**
+     * Removes all supported APIs from this endpoint.
+     *
+     * @return {@code this}
+     */
     public BlockNodeServiceEndpoint clearEndpointApis() {
         endpointApis.clear();
         return this;
