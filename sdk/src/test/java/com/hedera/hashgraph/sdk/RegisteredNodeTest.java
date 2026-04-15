@@ -55,7 +55,6 @@ public class RegisteredNodeTest {
                 .toMatchSnapshot();
     }
 
-
     @Test
     void toProtobuf() throws InvalidProtocolBufferException {
         SnapshotMatcher.expect(
