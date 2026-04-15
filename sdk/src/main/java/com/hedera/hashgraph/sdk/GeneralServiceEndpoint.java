@@ -5,12 +5,37 @@ import com.google.protobuf.ByteString;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
+/**
+ * Represents a general-purpose service endpoint.
+ */
 public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<GeneralServiceEndpoint> {
+    /**
+     * A short description of the service provided.
+     */
     @Nullable
     private String description;
 
+    /**
+     * Constructor.
+     */
     public GeneralServiceEndpoint() {}
 
+    /**
+     * Returns the description of the service provided by this endpoint.
+     *
+     * @return the service description, or null if not set
+     */
+    public @Nullable String getDescription() {
+        return this.description;
+    }
+
+    /**
+     * Sets a short description of the service provided.
+     * This value MUST NOT exceed 100 bytes when encoded as UTF-8.
+     *
+     * @param description a short description of the service
+     * @return {@code this}
+     */
     public GeneralServiceEndpoint setDescription(String description) {
         this.description = description;
         return this;
@@ -60,5 +85,10 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
         }
 
         return registeredServiceEndpoint.build();
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper().add("description", description).toString();
     }
 }
