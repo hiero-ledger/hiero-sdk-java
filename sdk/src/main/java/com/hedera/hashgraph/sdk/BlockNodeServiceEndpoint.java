@@ -2,6 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
+import com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,19 +14,31 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
     /**
      * An indicator of what API this endpoint supports.
      */
-    private BlockNodeApi endpointApi = BlockNodeApi.OTHER;
+    private List<BlockNodeApi> endpointApis = new ArrayList<>();
 
     /**
      * Constructor.
      */
     public BlockNodeServiceEndpoint() {}
 
-    public BlockNodeApi getEndpointApi() {
-        return endpointApi;
+    public List<BlockNodeApi> getEndpointApis() {
+        return endpointApis;
     }
 
-    public BlockNodeServiceEndpoint setEndpointApi(BlockNodeApi endpointApi) {
-        this.endpointApi = endpointApi;
+    public BlockNodeServiceEndpoint setEndpointApis(List<BlockNodeApi> endpointApis) {
+        Objects.requireNonNull(endpointApis, "endpointApis must not be null");
+        this.endpointApis = new ArrayList<>(endpointApis);
+        return this;
+    }
+
+    public BlockNodeServiceEndpoint addEndpointApi(BlockNodeApi endpointApi) {
+        Objects.requireNonNull(endpointApi, "endpointApi must not be null");
+        this.endpointApis.add(endpointApi);
+        return this;
+    }
+
+    public BlockNodeServiceEndpoint clearEndpointApis() {
+        endpointApis.clear();
         return this;
     }
 
@@ -39,9 +54,13 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
 
         var blockNodeEndpoint = new BlockNodeServiceEndpoint()
                 .setPort(serviceEndpoint.getPort())
-                .setRequiresTls(serviceEndpoint.getRequiresTls())
-                .setEndpointApi(
-                        BlockNodeApi.valueOf(serviceEndpoint.getBlockNode().getEndpointApi()));
+                .setRequiresTls(serviceEndpoint.getRequiresTls());
+
+        if (serviceEndpoint.hasBlockNode()) {
+            for (var apiProto : serviceEndpoint.getBlockNode().getEndpointApiList()) {
+                blockNodeEndpoint.addEndpointApi(BlockNodeApi.valueOf(apiProto));
+            }
+        }
 
         if (serviceEndpoint.hasIpAddress()) {
             blockNodeEndpoint.setIpAddress(serviceEndpoint.getIpAddress().toByteArray());
@@ -61,12 +80,13 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
                     "RegisterServiceEndpoint must define either an ipAddress or  domainName");
         }
 
+        var blockNodeBuilder = RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
+                .addAllEndpointApi(endpointApis.stream().map(api -> api.code).toList());
+
         var registeredServiceEndpoint = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
                 .setPort(port)
                 .setRequiresTls(requiresTls)
-                .setBlockNode(com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()
-                        .setEndpointApi(endpointApi.code)
-                        .build());
+                .setBlockNode(blockNodeBuilder);
 
         if (ipAddress != null) {
             registeredServiceEndpoint.setIpAddress(ByteString.copyFrom(this.ipAddress));
@@ -81,6 +101,6 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
 
     @Override
     public String toString() {
-        return toStringHelper().add("endpointApi", endpointApi).toString();
+        return toStringHelper().add("endpointApis", endpointApis).toString();
     }
 }
