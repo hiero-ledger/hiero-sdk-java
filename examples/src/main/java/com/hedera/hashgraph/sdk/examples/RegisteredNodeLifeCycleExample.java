@@ -75,7 +75,7 @@ public class RegisteredNodeLifeCycleExample {
             .setIpAddress(new byte[]{127, 0, 0, 1})
             .setPort(443)
             .setRequiresTls(true)
-            .setEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM);
+            .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM);
 
         /*
          * Step 2:
@@ -111,7 +111,7 @@ public class RegisteredNodeLifeCycleExample {
             .setDomainName("block-node.example.com")
             .setPort(443)
             .setRequiresTls(true)
-            .setEndpointApi(BlockNodeApi.STATUS);
+            .addEndpointApi(BlockNodeApi.STATUS);
 
         RegisteredNodeUpdateTransaction registeredNodeUpdateTx = new RegisteredNodeUpdateTransaction()
             .setRegisteredNodeId(registeredNodeCreateTxReceipt.registeredNodeId)

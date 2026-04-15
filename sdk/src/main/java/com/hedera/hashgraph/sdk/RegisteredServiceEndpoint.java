@@ -84,6 +84,7 @@ public abstract class RegisteredServiceEndpoint {
             case BLOCK_NODE -> BlockNodeServiceEndpoint.fromProtobuf(serviceEndpoint);
             case MIRROR_NODE -> MirrorNodeServiceEndpoint.fromProtobuf(serviceEndpoint);
             case RPC_RELAY -> RpcRelayServiceEndpoint.fromProtobuf(serviceEndpoint);
+            case GENERAL_SERVICE -> GeneralServiceEndpoint.fromProtobuf(serviceEndpoint);
             default -> throw new IllegalArgumentException("Unable to decode registered service endpoint");
         };
     }
