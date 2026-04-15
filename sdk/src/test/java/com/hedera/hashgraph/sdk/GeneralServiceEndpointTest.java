@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,18 +18,20 @@ public class GeneralServiceEndpointTest {
     private static final boolean TEST_REQUIRES_TLS = false;
 
     private final RegisteredServiceEndpoint generalEndpointWithDomain = RegisteredServiceEndpoint.newBuilder()
-        .setDomainName(TEST_DOMAIN_NAME)
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setGeneralService(RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder().setDescription(TEST_DESCRIPTION))
-        .build();
+            .setDomainName(TEST_DOMAIN_NAME)
+            .setPort(TEST_PORT)
+            .setRequiresTls(TEST_REQUIRES_TLS)
+            .setGeneralService(RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder()
+                    .setDescription(TEST_DESCRIPTION))
+            .build();
 
     private final RegisteredServiceEndpoint generalEndpointWithIp = RegisteredServiceEndpoint.newBuilder()
-        .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
-        .setPort(TEST_PORT)
-        .setRequiresTls(TEST_REQUIRES_TLS)
-        .setGeneralService(RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder().setDescription(TEST_DESCRIPTION))
-        .build();
+            .setIpAddress(ByteString.copyFrom(TEST_IP_ADDRESS))
+            .setPort(TEST_PORT)
+            .setRequiresTls(TEST_REQUIRES_TLS)
+            .setGeneralService(RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder()
+                    .setDescription(TEST_DESCRIPTION))
+            .build();
 
     @BeforeAll
     public static void beforeAll() {
@@ -40,19 +43,18 @@ public class GeneralServiceEndpointTest {
         SnapshotMatcher.validateSnapshots();
     }
 
-
     @Test
     void fromProtobufWithIp() {
         SnapshotMatcher.expect(GeneralServiceEndpoint.fromProtobuf(generalEndpointWithIp)
-                .toString())
-            .toMatchSnapshot();
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
     void fromProtobufWithDomain() {
         SnapshotMatcher.expect(GeneralServiceEndpoint.fromProtobuf(generalEndpointWithDomain)
-                .toString())
-            .toMatchSnapshot();
+                        .toString())
+                .toMatchSnapshot();
     }
 
     @Test
