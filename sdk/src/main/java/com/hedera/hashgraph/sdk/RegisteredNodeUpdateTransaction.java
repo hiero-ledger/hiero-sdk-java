@@ -34,9 +34,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
 
     private List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
 
-    @Nullable
-    private AccountId nodeAccount;
-
     /**
      * Constructor.
      */
@@ -208,37 +205,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
         return this;
     }
 
-    /** Get account identifier for the registered node.
-     * @return {@code AccountId} the account identifier if set or null
-     */
-    public @Nullable AccountId getNodeAccount() {
-        return nodeAccount;
-    }
-
-    /**
-     * Set account identifier.<br/>
-     * This account identifies the entity financially responsible for this
-     * registered node.
-     * <p>
-     * This field is OPTIONAL.<br/>
-     * Individual node operators SHALL have full authority to set, change, or
-     * remove their node account ID.<br/>
-     * If set and the node account ID does not resolve to an existing and active
-     * account, then the transaction SHALL fail.<br/>
-     * Node operators SHOULD ensure that the node account is kept up to date
-     * and always refers to a valid and active `Account`.<br/>
-     * The owner of the node account MAY be different from the owner of the
-     * registered node.
-     *
-     * @param nodeAccount the account identifier.
-     * @return {@code this}
-     */
-    public RegisteredNodeUpdateTransaction setNodeAccount(AccountId nodeAccount) {
-        this.requireNotFrozen();
-        this.nodeAccount = nodeAccount;
-        return this;
-    }
-
     /**
      * Build the transaction body.
      * @return {@link com.hedera.hashgraph.sdk.proto.RegisteredNodeUpdateTransactionBody}
@@ -256,10 +222,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
 
         if (description != null) {
             builder.setDescription(StringValue.of(description));
-        }
-
-        if (nodeAccount != null) {
-            builder.setNodeAccount(nodeAccount.toProtobuf());
         }
 
         for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {
@@ -283,9 +245,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
         if (body.hasDescription()) {
             description = body.getDescription().getValue();
         }
-        if (body.hasNodeAccount()) {
-            nodeAccount = AccountId.fromProtobuf(body.getNodeAccount());
-        }
 
         serviceEndpoints.clear();
         for (com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint serviceEndpoint : body.getServiceEndpointList()) {
@@ -304,11 +263,7 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
     }
 
     @Override
-    void validateChecksums(Client client) throws BadEntityIdException {
-        if (nodeAccount != null) {
-            nodeAccount.validateChecksum(client);
-        }
-    }
+    void validateChecksums(Client client) throws BadEntityIdException {}
 
     @Override
     MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {

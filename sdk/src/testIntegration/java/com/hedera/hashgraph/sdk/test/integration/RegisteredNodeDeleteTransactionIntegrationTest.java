@@ -24,7 +24,7 @@ public class RegisteredNodeDeleteTransactionIntegrationTest {
             List<RegisteredServiceEndpoint> endpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("blocks.example.com")
                     .setPort(443)
-                    .setEndpointApi(BlockNodeApi.STATUS));
+                    .addEndpointApi(BlockNodeApi.STATUS));
 
             var createReceipt = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)

@@ -24,7 +24,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
             List<RegisteredServiceEndpoint> endpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("initial.blocks.com")
                     .setPort(443)
-                    .setEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM));
+                    .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM));
 
             var createResponse = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)
@@ -41,7 +41,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
             List<RegisteredServiceEndpoint> updatedEndpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("updated.blocks.com")
                     .setPort(443)
-                    .setEndpointApi(BlockNodeApi.STATUS));
+                    .addEndpointApi(BlockNodeApi.STATUS));
 
             var updateResponse = new RegisteredNodeUpdateTransaction()
                     .setRegisteredNodeId(nodeId)
@@ -66,7 +66,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
             List<RegisteredServiceEndpoint> endpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("blocks.example.com")
                     .setPort(443)
-                    .setEndpointApi(BlockNodeApi.STATUS));
+                    .addEndpointApi(BlockNodeApi.STATUS));
 
             var createReceipt = new RegisteredNodeCreateTransaction()
                     .setAdminKey(oldKey)
@@ -90,7 +90,6 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
             tx.sign(newKey);
 
             var receipt = tx.execute(testEnv.client).getReceipt(testEnv.client);
-
             assertThat(receipt.status).isEqualTo(Status.SUCCESS);
         }
     }

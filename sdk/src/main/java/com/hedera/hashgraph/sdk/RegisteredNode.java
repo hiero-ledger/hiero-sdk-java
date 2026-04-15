@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 
 /**
  * Class representing single registered node in the network state.
@@ -39,33 +38,19 @@ public class RegisteredNode {
     public final List<RegisteredServiceEndpoint> serviceEndpoints;
 
     /**
-     * An account identifier.
-     * This account identifies the entity financially responsible for this
-     * registered node.
-     */
-    @Nullable
-    public final AccountId nodeAccount;
-
-    /**
      * Constructor.
      *
      * @param registeredNodeId the registered node identifier.
      * @param adminKey the admin key.
      * @param description the description of the node.
      * @param serviceEndpoint the list of service endpoints.
-     * @param nodeAccount the account identifier.
      */
     RegisteredNode(
-            long registeredNodeId,
-            Key adminKey,
-            String description,
-            List<RegisteredServiceEndpoint> serviceEndpoint,
-            @Nullable AccountId nodeAccount) {
+            long registeredNodeId, Key adminKey, String description, List<RegisteredServiceEndpoint> serviceEndpoint) {
         this.registeredNodeId = registeredNodeId;
         this.adminKey = adminKey;
         this.description = description;
         this.serviceEndpoints = Collections.unmodifiableList(serviceEndpoint);
-        this.nodeAccount = nodeAccount;
     }
 
     /**
@@ -83,10 +68,8 @@ public class RegisteredNode {
         var serviceEndpoint = registeredNode.getServiceEndpointList().stream()
                 .map(s -> RegisteredServiceEndpoint.fromProtobuf(s))
                 .toList();
-        var nodeAccount =
-                registeredNode.hasNodeAccount() ? AccountId.fromProtobuf(registeredNode.getNodeAccount()) : null;
 
-        return new RegisteredNode(registerNodeId, adminKey, description, serviceEndpoint, nodeAccount);
+        return new RegisteredNode(registerNodeId, adminKey, description, serviceEndpoint);
     }
 
     /**
@@ -111,10 +94,6 @@ public class RegisteredNode {
                 .setAdminKey(adminKey.toProtobufKey())
                 .setDescription(description);
 
-        if (nodeAccount != null) {
-            registeredNode.setNodeAccount(nodeAccount.toProtobuf());
-        }
-
         for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {
             registeredNode.addServiceEndpoint(serviceEndpoint.toProtobuf());
         }
@@ -136,7 +115,6 @@ public class RegisteredNode {
                 .add("registeredNodeId", registeredNodeId)
                 .add("adminKey", adminKey)
                 .add("description", description)
-                .add("nodeAccount", nodeAccount)
                 .add("serviceEndpoints", serviceEndpoints)
                 .toString();
     }

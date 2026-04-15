@@ -23,7 +23,7 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("test.block.com")
                     .setPort(443)
-                    .setEndpointApi(BlockNodeApi.STATUS));
+                    .addEndpointApi(BlockNodeApi.STATUS));
 
             var response = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)
@@ -49,7 +49,7 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                     new BlockNodeServiceEndpoint()
                             .setDomainName("test.block.com")
                             .setPort(443)
-                            .setEndpointApi(BlockNodeApi.STATUS),
+                            .addEndpointApi(BlockNodeApi.STATUS),
                     new MirrorNodeServiceEndpoint()
                             .setDomainName("test.mirror.com")
                             .setPort(443));
