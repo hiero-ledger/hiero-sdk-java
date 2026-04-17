@@ -127,7 +127,8 @@ More details about how to add/modify dependencies are found in the Hiero Gradle 
 ### Updating proto files
 
 ```sh
-./gradlew updateSnapshots
+./gradlew updateProto
+Note: checkout_ref variable in update_protobufs.py should be updated with the version with needed protobufs before running the command
 ```
 
 ### Updating address books
