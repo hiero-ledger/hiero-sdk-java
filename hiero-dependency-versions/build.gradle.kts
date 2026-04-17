@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 group = "org.hiero"
 
-val bouncycastle = "1.83"
-val grpc = "1.79.0"
-val protobuf = "4.33.5"
+val bouncycastle = "1.84"
+val grpc = "1.80.0"
+val protobuf = "4.34.1"
 val slf4j = "2.0.17"
-val mockito = "5.22.0"
+val mockito = "5.23.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
-    api(platform("io.netty:netty-bom:4.2.10.Final"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.5"))
+    api(platform("io.netty:netty-bom:4.2.12.Final"))
 }
 
 dependencies.constraints {
@@ -31,7 +31,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.21.1") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.21.2") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.5.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
@@ -47,8 +47,9 @@ dependencies.constraints {
 
     // Temporary override until spring-boot-dependencies bumps Jackson 3.x to 3.1.0+
     // Fixes SNYK-JAVA-TOOLSJACKSONCORE-15365915 and SNYK-JAVA-TOOLSJACKSONCORE-15371178
-    api("tools.jackson.core:jackson-core:3.1.0")
-    api("tools.jackson.core:jackson-databind:3.1.0")
+    api("tools.jackson.core:jackson-core:3.1.2")
+    api("tools.jackson.core:jackson-databind:3.1.2")
+    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.21")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

@@ -155,4 +155,21 @@ class TokenCancelAirdropTransactionTest {
 
         Assertions.assertTrue(scheduled.hasTokenCancelAirdrop());
     }
+
+    @Test
+    void testFromScheduledTransaction() {
+        var pending = new PendingAirdropId(new AccountId(0, 0, 457), new AccountId(0, 0, 456), new TokenId(0, 0, 123));
+
+        var transactionBody = SchedulableTransactionBody.newBuilder()
+                .setTokenCancelAirdrop(TokenCancelAirdropTransactionBody.newBuilder()
+                        .addPendingAirdrops(pending.toProtobuf())
+                        .build())
+                .build();
+
+        var tx = Transaction.fromScheduledTransaction(transactionBody);
+
+        assertThat(tx).isInstanceOf(TokenCancelAirdropTransaction.class);
+        assertThat(((TokenCancelAirdropTransaction) tx).getPendingAirdropIds()).isNotEmpty();
+        assertThat(((TokenCancelAirdropTransaction) tx).getPendingAirdropIds()).hasSize(1);
+    }
 }
