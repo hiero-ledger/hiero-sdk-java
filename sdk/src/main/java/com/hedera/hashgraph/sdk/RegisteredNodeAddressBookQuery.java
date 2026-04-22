@@ -17,18 +17,40 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Query the mirror node for the RegisteredAddressBook.
+ */
 public class RegisteredNodeAddressBookQuery {
     private long registeredNodeId;
 
+    /**
+     * Sets the ID of the registered node to retrieve.
+     *
+     * @param registeredNodeId The unique identifier of the node.
+     * @return {@code this}
+     */
     public RegisteredNodeAddressBookQuery setRegisteredNodeId(long registeredNodeId) {
         this.registeredNodeId = registeredNodeId;
         return this;
     }
 
+    /**
+     * Returns the set registered node ID.
+     *
+     * @return The registered node ID.
+     */
     public long getRegisteredNodeId() {
         return registeredNodeId;
     }
 
+    /**
+     * Executes the query with the user supplied client
+     *
+     * @param client The Client instance to perform the operation with
+     * @return The registeredAddressBook
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public RegisteredNodeAddressBook execute(Client client) throws ExecutionException, InterruptedException {
         String json = executeMirrorNodeRequest(client).get();
         return parseRegisterNodeAddressBook(json);
@@ -45,6 +67,9 @@ public class RegisteredNodeAddressBookQuery {
         });
     }
 
+    /**
+     * Parses a single service endpoint from a JSON object.
+     */
     private RegisteredServiceEndpoint parseJSONServiceEndpoint(JsonObject serviceEndpoint) {
         Objects.requireNonNull(serviceEndpoint, "serviceEndpoint must not be null");
         String type = serviceEndpoint.get("type").getAsString().toUpperCase();
@@ -125,6 +150,9 @@ public class RegisteredNodeAddressBookQuery {
         }
     }
 
+    /**
+     * Parses the admin key from the JSON representation.
+     */
     private PublicKey parseJsonKey(JsonObject adminKey) {
         Objects.requireNonNull(adminKey, "adminKey must not be null");
         String type = adminKey.get("_type").getAsString() != null
@@ -142,6 +170,9 @@ public class RegisteredNodeAddressBookQuery {
         }
     }
 
+    /**
+     * Converts the Mirror Node JSON response to {@link RegisteredNodeAddressBook}.
+     */
     private RegisteredNodeAddressBook parseRegisterNodeAddressBook(String json) {
         List<RegisteredNode> registeredNodes = new ArrayList<>();
 
