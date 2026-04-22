@@ -125,12 +125,4 @@ public class BlockNodeServiceEndpointTest {
 
         assertThat(endpoint.getEndpointApis()).containsExactly(BlockNodeApi.STATUS, BlockNodeApi.OTHER);
     }
-
-    @Test
-    void clearEndpointApis() {
-        var endpoint =
-                new BlockNodeServiceEndpoint().setEndpointApis(TEST_BLOCK_APIS).clearEndpointApis();
-
-        assertThat(endpoint.getEndpointApis()).isEmpty();
-    }
 }

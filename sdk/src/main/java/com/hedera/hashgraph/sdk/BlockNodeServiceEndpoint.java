@@ -55,16 +55,6 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
     }
 
     /**
-     * Removes all supported APIs from this endpoint.
-     *
-     * @return {@code this}
-     */
-    public BlockNodeServiceEndpoint clearEndpointApis() {
-        endpointApis.clear();
-        return this;
-    }
-
-    /**
      * Create a BlockNodeServiceEndpoint object from protobuf
      *
      * @param serviceEndpoint the protobuf object
