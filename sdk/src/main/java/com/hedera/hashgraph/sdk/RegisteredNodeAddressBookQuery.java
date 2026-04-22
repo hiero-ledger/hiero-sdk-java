@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static com.hedera.hashgraph.sdk.EntityIdHelper.performQueryToMirrorNodeAsync;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -15,8 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static com.hedera.hashgraph.sdk.EntityIdHelper.performQueryToMirrorNodeAsync;
 
 public class RegisteredNodeAddressBookQuery {
     private long registeredNodeId;
@@ -30,10 +29,20 @@ public class RegisteredNodeAddressBookQuery {
         return registeredNodeId;
     }
 
-
     public RegisteredNodeAddressBook execute(Client client) throws ExecutionException, InterruptedException {
         String json = executeMirrorNodeRequest(client).get();
         return parseRegisterNodeAddressBook(json);
+    }
+
+    CompletableFuture<String> executeMirrorNodeRequest(Client client) {
+        Objects.requireNonNull(client, "client must not be null");
+        String apiEndpoint = "/api/v1/network/registered-nodes?registerednode.id=" + registeredNodeId;
+        String baseUrl = client.getMirrorRestBaseUrl();
+
+        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, null).exceptionally(ex -> {
+            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+            throw new CompletionException(ex);
+        });
     }
 
     private RegisteredServiceEndpoint parseJSONServiceEndpoint(JsonObject serviceEndpoint) {
@@ -43,19 +52,24 @@ public class RegisteredNodeAddressBookQuery {
         int port = serviceEndpoint.get("port").getAsInt();
         boolean requiresTls = serviceEndpoint.get("requires_tls").getAsBoolean();
 
-        String rawIpAddress = serviceEndpoint.has("ip_address") && !serviceEndpoint.get("ip_address").isJsonNull()
-            ? serviceEndpoint.get("ip_address").getAsString() : null;
+        String rawIpAddress = serviceEndpoint.has("ip_address")
+                        && !serviceEndpoint.get("ip_address").isJsonNull()
+                ? serviceEndpoint.get("ip_address").getAsString()
+                : null;
 
         byte[] ipAddressBytes = null;
 
         if (rawIpAddress != null && !rawIpAddress.isEmpty()) {
             try {
                 ipAddressBytes = InetAddress.getByName(rawIpAddress).getAddress();
-            } catch (UnknownHostException ignore) {}
+            } catch (UnknownHostException ignore) {
+            }
         }
 
-        String domainName = serviceEndpoint.has("domain_name") && !serviceEndpoint.get("domain_name").isJsonNull()
-            ? serviceEndpoint.get("domain_name").getAsString() : null;
+        String domainName = serviceEndpoint.has("domain_name")
+                        && !serviceEndpoint.get("domain_name").isJsonNull()
+                ? serviceEndpoint.get("domain_name").getAsString()
+                : null;
 
         switch (type) {
             case "BLOCK_NODE":
@@ -68,35 +82,43 @@ public class RegisteredNodeAddressBookQuery {
                 }
 
                 return new BlockNodeServiceEndpoint()
-                    .setIpAddress(ipAddressBytes)
-                    .setDomainName(domainName)
-                    .setPort(port)
-                    .setRequiresTls(requiresTls)
-                    .setEndpointApis(apis.stream().map(a -> BlockNodeApi.valueOf(a)).collect(Collectors.toUnmodifiableList()));
+                        .setIpAddress(ipAddressBytes)
+                        .setDomainName(domainName)
+                        .setPort(port)
+                        .setRequiresTls(requiresTls)
+                        .setEndpointApis(apis.stream()
+                                .map(a -> BlockNodeApi.valueOf(a))
+                                .collect(Collectors.toUnmodifiableList()));
 
             case "MIRROR_NODE":
+                // JsonObject mirrorNode = serviceEndpoint.getAsJsonObject("mirror_node");
                 return new MirrorNodeServiceEndpoint()
-                    .setIpAddress(ipAddressBytes)
-                    .setDomainName(domainName)
-                    .setPort(port)
-                    .setRequiresTls(requiresTls);
+                        .setIpAddress(ipAddressBytes)
+                        .setDomainName(domainName)
+                        .setPort(port)
+                        .setRequiresTls(requiresTls);
 
             case "RPC_RELAY":
+                // JsonObject rpcRelay = serviceEndpoint.getAsJsonObject("rpc_relay");
                 return new RpcRelayServiceEndpoint()
-                    .setIpAddress(ipAddressBytes)
-                    .setDomainName(domainName)
-                    .setPort(port)
-                    .setRequiresTls(requiresTls);
+                        .setIpAddress(ipAddressBytes)
+                        .setDomainName(domainName)
+                        .setPort(port)
+                        .setRequiresTls(requiresTls);
 
             case "GENERAL_SERVICE":
-                JsonObject generalService = serviceEndpoint.get("general_service").getAsJsonObject();
-                String description = generalService.has("description") && !generalService.get("description").isJsonNull()? generalService.get("description").getAsString() : null;
+                JsonObject generalService =
+                        serviceEndpoint.get("general_service").getAsJsonObject();
+                String description = generalService.has("description")
+                                && !generalService.get("description").isJsonNull()
+                        ? generalService.get("description").getAsString()
+                        : null;
                 return new GeneralServiceEndpoint()
-                    .setIpAddress(ipAddressBytes)
-                    .setDomainName(domainName)
-                    .setPort(port)
-                    .setRequiresTls(requiresTls)
-                    .setDescription(description);
+                        .setIpAddress(ipAddressBytes)
+                        .setDomainName(domainName)
+                        .setPort(port)
+                        .setRequiresTls(requiresTls)
+                        .setDescription(description);
 
             default:
                 throw new IllegalArgumentException("Unknown type for serviceEndpoint " + type);
@@ -105,7 +127,9 @@ public class RegisteredNodeAddressBookQuery {
 
     private PublicKey parseJsonKey(JsonObject adminKey) {
         Objects.requireNonNull(adminKey, "adminKey must not be null");
-        String type = adminKey.get("_type").getAsString() != null ? adminKey.get("_type").getAsString() : "";
+        String type = adminKey.get("_type").getAsString() != null
+                ? adminKey.get("_type").getAsString()
+                : "";
 
         String key = adminKey.get("key").getAsString();
         switch (type) {
@@ -118,17 +142,6 @@ public class RegisteredNodeAddressBookQuery {
         }
     }
 
-    private CompletableFuture<String> executeMirrorNodeRequest(Client client) {
-        Objects.requireNonNull(client, "client must not be null");
-        String apiEndpoint = "/api/v1/network/registered-nodes?registerednode.id=" + registeredNodeId;
-        String baseUrl = client.getMirrorRestBaseUrl();
-
-        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, null).exceptionally(ex -> {
-            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-            throw new CompletionException(ex);
-        });
-    }
-
     private RegisteredNodeAddressBook parseRegisterNodeAddressBook(String json) {
         List<RegisteredNode> registeredNodes = new ArrayList<>();
 
@@ -138,14 +151,15 @@ public class RegisteredNodeAddressBookQuery {
         for (JsonElement node : registeredNodesJSON) {
             long id = node.getAsJsonObject().get("registered_node_id").getAsLong();
             String description = node.getAsJsonObject().get("description").getAsString();
-            PublicKey adminKey = parseJsonKey(node.getAsJsonObject().get("admin_key").getAsJsonObject());
+            PublicKey adminKey =
+                    parseJsonKey(node.getAsJsonObject().get("admin_key").getAsJsonObject());
             List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
 
             for (JsonElement endpoints : node.getAsJsonObject().getAsJsonArray("service_endpoints")) {
                 serviceEndpoints.add(parseJSONServiceEndpoint(endpoints.getAsJsonObject()));
             }
 
-            registeredNodes.add(new RegisteredNode(registeredNodeId, adminKey, description, serviceEndpoints));
+            registeredNodes.add(new RegisteredNode(id, adminKey, description, serviceEndpoints));
         }
 
         return new RegisteredNodeAddressBook(registeredNodes);
