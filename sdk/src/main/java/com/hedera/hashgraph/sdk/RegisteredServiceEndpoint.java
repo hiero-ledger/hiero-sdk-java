@@ -2,6 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonObject;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -87,6 +90,58 @@ public abstract class RegisteredServiceEndpoint {
             case GENERAL_SERVICE -> GeneralServiceEndpoint.fromProtobuf(serviceEndpoint);
             default -> throw new IllegalArgumentException("Unable to decode registered service endpoint");
         };
+    }
+
+    /**
+     * Parse RegisteredServiceEndpoint from MirrorNode json response `service_endpoint`
+     *
+     * @param json representing a single service endpoint entry from the Mirror Node REST API.
+     * @return {@code this}
+     */
+    static RegisteredServiceEndpoint fromJson(JsonObject json) {
+        Objects.requireNonNull(json, "serviceEndpoint must not be null");
+
+        String type = json.get("type").getAsString().toUpperCase();
+
+        int port = json.get("port").getAsInt();
+        boolean requiresTls = json.get("requires_tls").getAsBoolean();
+        String domainName = json.has("domain_name") && !json.get("domain_name").isJsonNull()
+                ? json.get("domain_name").getAsString()
+                : null;
+        byte[] ipAddress = parseIpAddress(json);
+
+        RegisteredServiceEndpointBase<?> registeredServiceEndpoint =
+                switch (type) {
+                    case "BLOCK_NODE" -> BlockNodeServiceEndpoint.fromJson(json.getAsJsonObject("block_node"));
+                    case "MIRROR_NODE" -> MirrorNodeServiceEndpoint.fromJson(json.getAsJsonObject("mirror_node"));
+                    case "RPC_RELAY" -> RpcRelayServiceEndpoint.fromJson(json.getAsJsonObject("rpc_relay"));
+                    case "GENERAL_SERVICE" -> GeneralServiceEndpoint.fromJson(json.getAsJsonObject("general_service"));
+                    default -> throw new IllegalArgumentException("Unknown type for serviceEndpoint " + type);
+                };
+
+        return registeredServiceEndpoint
+                .setIpAddress(ipAddress)
+                .setDomainName(domainName)
+                .setPort(port)
+                .setRequiresTls(requiresTls);
+    }
+
+    /**
+     * Parse IpAddress from json response.
+     */
+    @Nullable
+    private static byte[] parseIpAddress(JsonObject json) {
+        if (json.has("ip_address") && !json.get("ip_address").isJsonNull()) {
+            String rawIp = json.get("ip_address").getAsString();
+            if (!rawIp.isEmpty()) {
+                try {
+                    return InetAddress.getByName(rawIp).getAddress();
+                } catch (UnknownHostException ignored) {
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

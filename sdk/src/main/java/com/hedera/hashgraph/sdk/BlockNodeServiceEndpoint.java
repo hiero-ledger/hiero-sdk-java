@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represent a Registered Block Node
@@ -109,6 +112,27 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
         }
 
         return registeredServiceEndpoint.build();
+    }
+
+    /**
+     * Parses BlockNodeServiceEndpoint from the type-specific JSON object the MirrorNode.
+     *
+     * @param json the json containing block node specific data
+     * @return {@code this}
+     */
+    static BlockNodeServiceEndpoint fromJson(JsonObject json) {
+        Objects.requireNonNull(json, "json must not be null");
+
+        List<String> apis = new ArrayList<>();
+        if (json.has("endpoint_apis")) {
+            for (JsonElement api : json.getAsJsonArray("endpoint_apis")) {
+                apis.add(api.getAsString());
+            }
+        }
+
+        return new BlockNodeServiceEndpoint()
+                .setEndpointApis(
+                        apis.stream().map(a -> BlockNodeApi.valueOf(a)).collect(Collectors.toUnmodifiableList()));
     }
 
     @Override
