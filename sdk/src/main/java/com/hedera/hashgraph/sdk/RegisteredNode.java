@@ -2,7 +2,10 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +73,42 @@ public class RegisteredNode {
                 .toList();
 
         return new RegisteredNode(registerNodeId, adminKey, description, serviceEndpoint);
+    }
+
+    /**
+     * Parses a single node entry from the Mirror Node 'registered_nodes' array.
+     *
+     * @param json the json containing specific data for registered node
+     * @return {@code this}
+     */
+    static RegisteredNode fromJson(JsonObject json) {
+        long id = json.get("registered_node_id").getAsLong();
+        String description = json.get("description").getAsString();
+        PublicKey adminKey = parseJsonKey(json.get("admin_key").getAsJsonObject());
+
+        List<RegisteredServiceEndpoint> endpoints = new ArrayList<>();
+        for (JsonElement endpoint : json.getAsJsonArray("service_endpoints")) {
+            endpoints.add(RegisteredServiceEndpoint.fromJson(endpoint.getAsJsonObject()));
+        }
+
+        return new RegisteredNode(id, adminKey, description, endpoints);
+    }
+
+    /**
+     * Parses the admin key from the JSON representation.
+     */
+    private static PublicKey parseJsonKey(JsonObject adminKey) {
+        Objects.requireNonNull(adminKey, "adminKey must not be null");
+        String type = adminKey.get("_type").getAsString() != null
+                ? adminKey.get("_type").getAsString()
+                : "";
+
+        String key = adminKey.get("key").getAsString();
+        return switch (type) {
+            case "ED25519" -> PublicKey.fromStringED25519(key);
+            case "ECDSA_SECP256K1" -> PublicKey.fromStringECDSA(key);
+            default -> PublicKey.fromString(key);
+        };
     }
 
     /**

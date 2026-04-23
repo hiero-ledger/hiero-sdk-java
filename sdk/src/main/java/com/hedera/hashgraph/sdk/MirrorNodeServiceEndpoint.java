@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import java.util.Objects;
 
@@ -54,6 +55,17 @@ public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<Mir
         }
 
         return registeredServiceEndpoint.build();
+    }
+
+    /**
+     * Parses MirrorNodeServiceEndpoint from the type-specific JSON object the MirrorNode.
+     *
+     * @param json the json containing mirror node specific data
+     * @return {@code this}
+     */
+    static MirrorNodeServiceEndpoint fromJson(JsonObject json) {
+        Objects.requireNonNull(json, "json must not be null");
+        return new MirrorNodeServiceEndpoint();
     }
 
     @Override

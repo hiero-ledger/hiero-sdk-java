@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -59,6 +60,22 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
         }
 
         return generalEndpoint;
+    }
+
+    /**
+     * Parses GeneralServiceEndpoint from the type-specific JSON object the MirrorNode.
+     *
+     * @param json the json containing general service specific data
+     * @return {@code this}
+     */
+    static GeneralServiceEndpoint fromJson(JsonObject json) {
+        Objects.requireNonNull(json, "json must not be null");
+
+        String description = json.has("description") && !json.get("description").isJsonNull()
+                ? json.get("description").getAsString()
+                : null;
+
+        return new GeneralServiceEndpoint().setDescription(description);
     }
 
     @Override

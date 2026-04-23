@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import java.util.Objects;
 
@@ -53,6 +54,17 @@ public class RpcRelayServiceEndpoint extends RegisteredServiceEndpointBase<RpcRe
         }
 
         return registeredServiceEndpoint.build();
+    }
+
+    /**
+     * Parses RpcRelayEndpoint from the type-specific JSON object the MirrorNode.
+     *
+     * @param json the json containing rpc relay specific data
+     * @return {@code this}
+     */
+    static RpcRelayServiceEndpoint fromJson(JsonObject json) {
+        Objects.requireNonNull(json, "json must not be null");
+        return new RpcRelayServiceEndpoint();
     }
 
     @Override
