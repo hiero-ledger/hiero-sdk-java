@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * Query the mirror node for the RegisteredAddressBook.
@@ -68,86 +69,68 @@ public class RegisteredNodeAddressBookQuery {
     }
 
     /**
+     * Converts the Mirror Node JSON response to {@link RegisteredNodeAddressBook}.
+     */
+    private RegisteredNodeAddressBook parseRegisterNodeAddressBook(String json) {
+        List<RegisteredNode> registeredNodes = new ArrayList<>();
+
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        JsonArray registeredNodesJSON = jsonObject.getAsJsonArray("registered_nodes");
+
+        for (JsonElement node : registeredNodesJSON) {
+            registeredNodes.add(parseRegisteredNode(node.getAsJsonObject()));
+        }
+
+        return new RegisteredNodeAddressBook(registeredNodes);
+    }
+
+    /**
+     * Parses a single node entry from the Mirror Node 'registered_nodes' array.
+     */
+    private RegisteredNode parseRegisteredNode(JsonObject nodeJson) {
+        long id = nodeJson.get("registered_node_id").getAsLong();
+        String description = nodeJson.get("description").getAsString();
+        PublicKey adminKey = parseJsonKey(nodeJson.get("admin_key").getAsJsonObject());
+
+        List<RegisteredServiceEndpoint> endpoints = new ArrayList<>();
+        for (JsonElement endpoint : nodeJson.getAsJsonArray("service_endpoints")) {
+            endpoints.add(parseJSONServiceEndpoint(endpoint.getAsJsonObject()));
+        }
+
+        return new RegisteredNode(id, adminKey, description, endpoints);
+    }
+
+    /**
      * Parses a single service endpoint from a JSON object.
      */
     private RegisteredServiceEndpoint parseJSONServiceEndpoint(JsonObject serviceEndpoint) {
         Objects.requireNonNull(serviceEndpoint, "serviceEndpoint must not be null");
-        String type = serviceEndpoint.get("type").getAsString().toUpperCase();
 
+        String type = serviceEndpoint.get("type").getAsString().toUpperCase();
         int port = serviceEndpoint.get("port").getAsInt();
         boolean requiresTls = serviceEndpoint.get("requires_tls").getAsBoolean();
-
-        String rawIpAddress = serviceEndpoint.has("ip_address")
-                        && !serviceEndpoint.get("ip_address").isJsonNull()
-                ? serviceEndpoint.get("ip_address").getAsString()
-                : null;
-
-        byte[] ipAddressBytes = null;
-
-        if (rawIpAddress != null && !rawIpAddress.isEmpty()) {
-            try {
-                ipAddressBytes = InetAddress.getByName(rawIpAddress).getAddress();
-            } catch (UnknownHostException ignore) {
-            }
-        }
 
         String domainName = serviceEndpoint.has("domain_name")
                         && !serviceEndpoint.get("domain_name").isJsonNull()
                 ? serviceEndpoint.get("domain_name").getAsString()
                 : null;
 
-        switch (type) {
-            case "BLOCK_NODE":
-                List<String> apis = new ArrayList<>();
-                JsonObject blockNode = serviceEndpoint.getAsJsonObject("block_node");
-                if (blockNode.has("endpoint_apis")) {
-                    for (JsonElement api : blockNode.getAsJsonArray("endpoint_apis")) {
-                        apis.add(api.getAsString());
-                    }
-                }
+        byte[] ipAddress = parseIpAddress(serviceEndpoint);
 
-                return new BlockNodeServiceEndpoint()
-                        .setIpAddress(ipAddressBytes)
-                        .setDomainName(domainName)
-                        .setPort(port)
-                        .setRequiresTls(requiresTls)
-                        .setEndpointApis(apis.stream()
-                                .map(a -> BlockNodeApi.valueOf(a))
-                                .collect(Collectors.toUnmodifiableList()));
+        RegisteredServiceEndpointBase<?> registeredServiceEndpoint =
+                switch (type) {
+                    case "BLOCK_NODE" -> buildBlockNodeEndpoint(serviceEndpoint.getAsJsonObject("block_node"));
+                    case "MIRROR_NODE" -> buildMirrorNodeEndpoint(serviceEndpoint.getAsJsonObject("mirror_node"));
+                    case "RPC_RELAY" -> buildRpcRelayEndpoint(serviceEndpoint.getAsJsonObject("rpc_relay"));
+                    case "GENERAL_SERVICE" -> buildGeneralEndpoint(serviceEndpoint.getAsJsonObject("general_service"));
+                    default -> throw new IllegalArgumentException("Unknown type for serviceEndpoint " + type);
+                };
 
-            case "MIRROR_NODE":
-                // JsonObject mirrorNode = serviceEndpoint.getAsJsonObject("mirror_node");
-                return new MirrorNodeServiceEndpoint()
-                        .setIpAddress(ipAddressBytes)
-                        .setDomainName(domainName)
-                        .setPort(port)
-                        .setRequiresTls(requiresTls);
-
-            case "RPC_RELAY":
-                // JsonObject rpcRelay = serviceEndpoint.getAsJsonObject("rpc_relay");
-                return new RpcRelayServiceEndpoint()
-                        .setIpAddress(ipAddressBytes)
-                        .setDomainName(domainName)
-                        .setPort(port)
-                        .setRequiresTls(requiresTls);
-
-            case "GENERAL_SERVICE":
-                JsonObject generalService =
-                        serviceEndpoint.get("general_service").getAsJsonObject();
-                String description = generalService.has("description")
-                                && !generalService.get("description").isJsonNull()
-                        ? generalService.get("description").getAsString()
-                        : null;
-                return new GeneralServiceEndpoint()
-                        .setIpAddress(ipAddressBytes)
-                        .setDomainName(domainName)
-                        .setPort(port)
-                        .setRequiresTls(requiresTls)
-                        .setDescription(description);
-
-            default:
-                throw new IllegalArgumentException("Unknown type for serviceEndpoint " + type);
-        }
+        return registeredServiceEndpoint
+                .setIpAddress(ipAddress)
+                .setDomainName(domainName)
+                .setPort(port)
+                .setRequiresTls(requiresTls);
     }
 
     /**
@@ -160,39 +143,61 @@ public class RegisteredNodeAddressBookQuery {
                 : "";
 
         String key = adminKey.get("key").getAsString();
-        switch (type) {
-            case "ED25519":
-                return PublicKey.fromStringED25519(key);
-            case "ECDSA_SECP256K1":
-                return PublicKey.fromStringECDSA(key);
-            default:
-                return PublicKey.fromString(key);
-        }
+        return switch (type) {
+            case "ED25519" -> PublicKey.fromStringED25519(key);
+            case "ECDSA_SECP256K1" -> PublicKey.fromStringECDSA(key);
+            default -> PublicKey.fromString(key);
+        };
     }
 
-    /**
-     * Converts the Mirror Node JSON response to {@link RegisteredNodeAddressBook}.
-     */
-    private RegisteredNodeAddressBook parseRegisterNodeAddressBook(String json) {
-        List<RegisteredNode> registeredNodes = new ArrayList<>();
-
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-
-        JsonArray registeredNodesJSON = jsonObject.getAsJsonArray("registered_nodes");
-        for (JsonElement node : registeredNodesJSON) {
-            long id = node.getAsJsonObject().get("registered_node_id").getAsLong();
-            String description = node.getAsJsonObject().get("description").getAsString();
-            PublicKey adminKey =
-                    parseJsonKey(node.getAsJsonObject().get("admin_key").getAsJsonObject());
-            List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
-
-            for (JsonElement endpoints : node.getAsJsonObject().getAsJsonArray("service_endpoints")) {
-                serviceEndpoints.add(parseJSONServiceEndpoint(endpoints.getAsJsonObject()));
+    @Nullable
+    private byte[] parseIpAddress(JsonObject json) {
+        if (json.has("ip_address") && !json.get("ip_address").isJsonNull()) {
+            String rawIp = json.get("ip_address").getAsString();
+            if (!rawIp.isEmpty()) {
+                try {
+                    return InetAddress.getByName(rawIp).getAddress();
+                } catch (UnknownHostException ignored) {
+                }
             }
-
-            registeredNodes.add(new RegisteredNode(id, adminKey, description, serviceEndpoints));
         }
 
-        return new RegisteredNodeAddressBook(registeredNodes);
+        return null;
+    }
+
+    private BlockNodeServiceEndpoint buildBlockNodeEndpoint(JsonObject blockNode) {
+        Objects.requireNonNull(blockNode, "blockNode must not be null");
+
+        List<String> apis = new ArrayList<>();
+        if (blockNode.has("endpoint_apis")) {
+            for (JsonElement api : blockNode.getAsJsonArray("endpoint_apis")) {
+                apis.add(api.getAsString());
+            }
+        }
+
+        return new BlockNodeServiceEndpoint()
+                .setEndpointApis(
+                        apis.stream().map(a -> BlockNodeApi.valueOf(a)).collect(Collectors.toUnmodifiableList()));
+    }
+
+    private MirrorNodeServiceEndpoint buildMirrorNodeEndpoint(JsonObject mirrorNode) {
+        Objects.requireNonNull(mirrorNode, "mirrorNode must not be null");
+        return new MirrorNodeServiceEndpoint();
+    }
+
+    private RpcRelayServiceEndpoint buildRpcRelayEndpoint(JsonObject rpcRelay) {
+        Objects.requireNonNull(rpcRelay, "rpcRelay must not be null");
+        return new RpcRelayServiceEndpoint();
+    }
+
+    private GeneralServiceEndpoint buildGeneralEndpoint(JsonObject generalService) {
+        Objects.requireNonNull(generalService, "generalService must not be null");
+
+        String description = generalService.has("description")
+                        && !generalService.get("description").isJsonNull()
+                ? generalService.get("description").getAsString()
+                : null;
+
+        return new GeneralServiceEndpoint().setDescription(description);
     }
 }
