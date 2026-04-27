@@ -110,7 +110,7 @@ class FeeEstimateQueryExample {
         printNodeFee(stateEstimate);
         printServiceFee(stateEstimate);
         printTotalFee(stateEstimate);
-        printNotes(stateEstimate);
+        System.out.println("\nHigh Volume Multiplier: " + stateEstimate.getHighVolumeMultiplier());
 
         return stateEstimate;
     }
@@ -146,15 +146,6 @@ class FeeEstimateQueryExample {
     private static void printTotalFee(FeeEstimateResponse estimate) {
         System.out.println("\nTotal Estimated Fee: " + estimate.getTotal() + " tinycents");
         System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(estimate.getTotal() / 100));
-    }
-
-    private static void printNotes(FeeEstimateResponse estimate) {
-        if (!estimate.getNotes().isEmpty()) {
-            System.out.println("\nNotes:");
-            for (String note : estimate.getNotes()) {
-                System.out.println("  - " + note);
-            }
-        }
     }
 
     private static FeeEstimateResponse estimateWithIntrinsicMode(Client client, TransferTransaction tx)

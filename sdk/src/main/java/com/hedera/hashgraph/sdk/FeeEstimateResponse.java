@@ -4,9 +4,6 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -46,11 +43,12 @@ public final class FeeEstimateResponse {
     private final FeeEstimate serviceFee;
 
     /**
-     * An array of strings for any caveats.
+     * The high-volume throttle multiplier returned by the mirror node.
      * <p>
-     * For example:  ["Fallback to worst-case due to missing state"]
+     * When non-zero high-volume throttle utilization is requested, this value
+     * will be greater than or equal to 1.
      */
-    private final List<String> notes;
+    private final long highVolumeMultiplier;
 
     /**
      * The sum of the network, node, and service subtotals in tinycents.
@@ -60,24 +58,24 @@ public final class FeeEstimateResponse {
     /**
      * Constructor.
      *
-     * @param mode       the fee estimate mode used
-     * @param networkFee the network fee component
-     * @param nodeFee    the node fee estimate
-     * @param notes      the list of notes/caveats
-     * @param serviceFee the service fee estimate
-     * @param total      the total fee in tinycents
+     * @param mode                 the fee estimate mode used
+     * @param networkFee           the network fee component
+     * @param nodeFee              the node fee estimate
+     * @param highVolumeMultiplier the high-volume throttle multiplier
+     * @param serviceFee           the service fee estimate
+     * @param total                the total fee in tinycents
      */
     FeeEstimateResponse(
             FeeEstimateMode mode,
             @Nullable NetworkFee networkFee,
             @Nullable FeeEstimate nodeFee,
-            List<String> notes,
+            long highVolumeMultiplier,
             @Nullable FeeEstimate serviceFee,
             long total) {
         this.mode = mode;
         this.networkFee = networkFee;
         this.nodeFee = nodeFee;
-        this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
+        this.highVolumeMultiplier = highVolumeMultiplier;
         this.serviceFee = serviceFee;
         this.total = total;
     }
@@ -96,7 +94,7 @@ public final class FeeEstimateResponse {
                 parseModeFromJson(root, defaultMode),
                 parseNetworkFeeFromJson(root),
                 parseFeeEstimateFromJson(root, "node"),
-                parseNotesFromJson(root),
+                parseHighVolumeMultiplierFromJson(root),
                 parseFeeEstimateFromJson(root, "service"),
                 parseTotalFromJson(root));
     }
@@ -148,17 +146,15 @@ public final class FeeEstimateResponse {
     }
 
     /**
-     * Parse notes from JSON.
+     * Parse high-volume multiplier from JSON.
      *
      * @param root the JSON object
-     * @return the list of notes
+     * @return the high-volume multiplier value, or 0 if not present
      */
-    private static List<String> parseNotesFromJson(JsonObject root) {
-        List<String> notes = new ArrayList<>();
-        if (root.has("notes") && root.get("notes").isJsonArray()) {
-            root.getAsJsonArray("notes").forEach(element -> notes.add(element.getAsString()));
-        }
-        return notes;
+    private static long parseHighVolumeMultiplierFromJson(JsonObject root) {
+        return root.has("high_volume_multiplier")
+                ? root.get("high_volume_multiplier").getAsLong()
+                : 0L;
     }
 
     /**
@@ -201,12 +197,12 @@ public final class FeeEstimateResponse {
     }
 
     /**
-     * Extract the list of notes/caveats.
+     * Extract the high-volume throttle multiplier.
      *
-     * @return an unmodifiable list of notes
+     * @return the high-volume multiplier
      */
-    public List<String> getNotes() {
-        return notes;
+    public long getHighVolumeMultiplier() {
+        return highVolumeMultiplier;
     }
 
     /**
@@ -234,7 +230,7 @@ public final class FeeEstimateResponse {
                 .add("mode", mode)
                 .add("network", networkFee)
                 .add("node", nodeFee)
-                .add("notes", notes)
+                .add("highVolumeMultiplier", highVolumeMultiplier)
                 .add("service", serviceFee)
                 .add("total", total)
                 .toString();
@@ -250,14 +246,14 @@ public final class FeeEstimateResponse {
         }
         return total == that.total
                 && mode == that.mode
+                && highVolumeMultiplier == that.highVolumeMultiplier
                 && Objects.equals(networkFee, that.networkFee)
                 && Objects.equals(nodeFee, that.nodeFee)
-                && Objects.equals(notes, that.notes)
                 && Objects.equals(serviceFee, that.serviceFee);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mode, networkFee, nodeFee, notes, serviceFee, total);
+        return Objects.hash(mode, networkFee, nodeFee, highVolumeMultiplier, serviceFee, total);
     }
 }

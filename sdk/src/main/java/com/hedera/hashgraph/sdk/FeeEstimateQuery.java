@@ -30,6 +30,7 @@ public class FeeEstimateQuery {
     @Nullable
     private com.hedera.hashgraph.sdk.proto.Transaction transaction = null;
 
+    private int highVolumeThrottle = 0;
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
 
@@ -64,7 +65,7 @@ public class FeeEstimateQuery {
     /**
      * Set the mode for fee estimation.
      * <p>
-     * Defaults to {@link FeeEstimateMode#STATE} if not set.
+     * Defaults to {@link FeeEstimateMode#INTRINSIC} if not set.
      *
      * @param mode the fee estimate mode
      * @return {@code this}
@@ -72,6 +73,32 @@ public class FeeEstimateQuery {
     public FeeEstimateQuery setMode(FeeEstimateMode mode) {
         Objects.requireNonNull(mode);
         this.mode = mode;
+        return this;
+    }
+
+    /**
+     * Extract the high-volume throttle utilization in basis points.
+     *
+     * @return the high-volume throttle value (0–10000)
+     */
+    public int getHighVolumeThrottle() {
+        return highVolumeThrottle;
+    }
+
+    /**
+     * Set the high-volume throttle utilization in basis points (0–10000, where 10000 = 100%).
+     * <p>
+     * When non-zero, the mirror node returns a high-volume pricing multiplier
+     * in the response.
+     *
+     * @param highVolumeThrottle the throttle utilization in basis points
+     * @return {@code this}
+     */
+    public FeeEstimateQuery setHighVolumeThrottle(int highVolumeThrottle) {
+        if (highVolumeThrottle < 0 || highVolumeThrottle > 10000) {
+            throw new IllegalArgumentException("highVolumeThrottle must be between 0 and 10000");
+        }
+        this.highVolumeThrottle = highVolumeThrottle;
         return this;
     }
 
@@ -178,7 +205,7 @@ public class FeeEstimateQuery {
      * @throws InterruptedException if the operation is interrupted
      */
     public FeeEstimateResponse execute(Client client, Duration timeout) throws IOException, InterruptedException {
-        var resolvedMode = mode != null ? mode : FeeEstimateMode.STATE;
+        var resolvedMode = mode != null ? mode : FeeEstimateMode.INTRINSIC;
         var requestPayload = getRequestPayload();
         var url = buildUrl(client, resolvedMode);
 
@@ -253,7 +280,7 @@ public class FeeEstimateQuery {
      * @return the fee estimate response
      */
     public CompletableFuture<FeeEstimateResponse> executeAsync(Client client, Duration timeout) {
-        var resolvedMode = mode != null ? mode : FeeEstimateMode.STATE;
+        var resolvedMode = mode != null ? mode : FeeEstimateMode.INTRINSIC;
         CompletableFuture<FeeEstimateResponse> returnFuture = new CompletableFuture<>();
         executeAsync(client, timeout, resolvedMode, returnFuture, 1);
         return returnFuture;
@@ -352,7 +379,11 @@ public class FeeEstimateQuery {
 
     private String buildUrl(Client client, FeeEstimateMode resolvedMode) {
         // Keep mode casing consistent with JS SDK (uppercase)
-        return client.getMirrorRestBaseUrl() + "/network/fees?mode=" + resolvedMode.toString();
+        String url = client.getMirrorRestBaseUrl() + "/network/fees?mode=" + resolvedMode.toString();
+        if (highVolumeThrottle > 0) {
+            url += "&high_volume_throttle=" + highVolumeThrottle;
+        }
+        return url;
     }
 
     private HttpRequest buildHttpRequest(String url, Duration timeout, byte[] payload) {

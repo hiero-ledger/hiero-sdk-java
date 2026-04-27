@@ -107,8 +107,8 @@ class FeeEstimateQueryIntegrationTest {
 
     @Test
     @DisplayName(
-            "Given a TransferTransaction without explicit mode, when fee estimate is requested, then STATE mode is used by default")
-    void transferTransactionDefaultModeIsState() throws Throwable {
+            "Given a TransferTransaction without explicit mode, when fee estimate is requested, then INTRINSIC mode is used by default")
+    void transferTransactionDefaultModeIsIntrinsic() throws Throwable {
         try (var testEnv = createFeeEstimateTestEnv()) {
             var transaction = new TransferTransaction()
                     .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(-1))
@@ -121,7 +121,31 @@ class FeeEstimateQueryIntegrationTest {
             var response = new FeeEstimateQuery().setTransaction(transaction).execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
+            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
+            assertComponentTotalsConsistent(response);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given a TransferTransaction with high volume throttle, when fee estimate is requested, then high volume multiplier is returned")
+    void feeEstimateQueryWithHighVolumeThrottle() throws Throwable {
+        try (var testEnv = createFeeEstimateTestEnv()) {
+            var transaction = new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(-1))
+                    .addHbarTransfer(AccountId.fromString("0.0.3"), Hbar.fromTinybars(1))
+                    .freezeWith(testEnv.client)
+                    .signWithOperator(testEnv.client);
+
+            waitForMirrorNodeSync();
+
+            var response = new FeeEstimateQuery()
+                    .setTransaction(transaction)
+                    .setHighVolumeThrottle(5000)
+                    .execute(testEnv.client);
+
+            assertFeeComponentsPresent(response);
+            assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -382,8 +406,8 @@ class FeeEstimateQueryIntegrationTest {
         assertThat(response.getServiceFee().getBase()).isGreaterThanOrEqualTo(0);
         assertThat(response.getServiceFee().getExtras()).isNotNull();
 
-        // Notes and total
-        assertThat(response.getNotes()).isNotNull();
+        // High volume multiplier and total
+        assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
         assertThat(response.getTotal()).isGreaterThan(0);
     }
 
