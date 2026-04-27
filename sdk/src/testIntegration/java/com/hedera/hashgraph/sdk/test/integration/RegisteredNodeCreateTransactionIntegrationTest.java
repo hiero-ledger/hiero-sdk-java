@@ -23,17 +23,17 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new BlockNodeServiceEndpoint()
-                .setDomainName("test.block.com")
-                .setPort(443)
-                .addEndpointApi(BlockNodeApi.STATUS));
+                    .setDomainName("test.block.com")
+                    .setPort(443)
+                    .addEndpointApi(BlockNodeApi.STATUS));
 
             var response = new RegisteredNodeCreateTransaction()
-                .setAdminKey(key)
-                .setDescription("test description")
-                .setServiceEndpoints(serviceEndpoints)
-                .freezeWith(testEnv.client)
-                .sign(key)
-                .execute(testEnv.client);
+                    .setAdminKey(key)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
 
@@ -48,16 +48,18 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new MirrorNodeServiceEndpoint()
-                .setDomainName("test.mirror.com")
-                .setPort(443));
+                    .setDomainName("test.mirror.com")
+                    .setPort(443));
+
+            System.out.println(serviceEndpoints);
 
             var response = new RegisteredNodeCreateTransaction()
-                .setAdminKey(key)
-                .setDescription("test description")
-                .setServiceEndpoints(serviceEndpoints)
-                .freezeWith(testEnv.client)
-                .sign(key)
-                .execute(testEnv.client);
+                    .setAdminKey(key)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
 
@@ -72,15 +74,15 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(
-                new RpcRelayServiceEndpoint().setDomainName("test.rpc.com").setPort(443));
+                    new RpcRelayServiceEndpoint().setDomainName("test.rpc.com").setPort(443));
 
             var response = new RegisteredNodeCreateTransaction()
-                .setAdminKey(key)
-                .setDescription("test description")
-                .setServiceEndpoints(serviceEndpoints)
-                .freezeWith(testEnv.client)
-                .sign(key)
-                .execute(testEnv.client);
+                    .setAdminKey(key)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
 
@@ -95,17 +97,17 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new GeneralServiceEndpoint()
-                .setDomainName("test.general.com")
-                .setDescription("GeneralEndpoint")
-                .setPort(443));
+                    .setDomainName("test.general.com")
+                    .setDescription("GeneralEndpoint")
+                    .setPort(443));
 
             var response = new RegisteredNodeCreateTransaction()
-                .setAdminKey(key)
-                .setDescription("test description")
-                .setServiceEndpoints(serviceEndpoints)
-                .freezeWith(testEnv.client)
-                .sign(key)
-                .execute(testEnv.client);
+                    .setAdminKey(key)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(testEnv.client)
+                    .sign(key)
+                    .execute(testEnv.client);
 
             var receipt = response.getReceipt(testEnv.client);
 
@@ -125,8 +127,10 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                             .setPort(443)
                             .addEndpointApi(BlockNodeApi.STATUS),
                     new MirrorNodeServiceEndpoint()
-                            .setDomainName("test.mirror.com")
+                            .setIpAddress(new byte[] {127, 0, 0, 1})
                             .setPort(443));
+
+            System.out.println(serviceEndpoints);
 
             var response = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)
