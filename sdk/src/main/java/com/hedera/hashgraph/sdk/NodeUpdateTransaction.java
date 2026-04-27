@@ -68,6 +68,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     @Nullable
     private Endpoint grpcWebProxyEndpoint = null;
 
+    @Nullable
     private List<Long> associatedRegisteredNodes = null;
 
     /**
@@ -509,9 +510,14 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      */
     public NodeUpdateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
         requireNotFrozen();
+        if (associatedRegisteredNodes == null) {
+            associatedRegisteredNodes = new ArrayList<>();
+        }
+
         if (associatedRegisteredNodes.size() >= 20) {
             throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
         }
+
         associatedRegisteredNodes.add(associatedRegisteredNode);
         return this;
     }
