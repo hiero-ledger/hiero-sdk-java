@@ -29,13 +29,13 @@ public class RegisteredNodeLifeCycleExample {
      * Used to sign and pay for operations on Hedera.
      */
     private static final AccountId OPERATOR_ID =
-            AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
+        AccountId.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_ID")));
 
     /**
      * Operator's private key.
      */
     private static final PrivateKey OPERATOR_KEY =
-            PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
+        PrivateKey.fromString(Objects.requireNonNull(Dotenv.load().get("OPERATOR_KEY")));
 
     /**
      * HEDERA_NETWORK defaults to testnet if not specified in dotenv file.
@@ -72,21 +72,21 @@ public class RegisteredNodeLifeCycleExample {
          */
         PrivateKey adminKey = PrivateKey.generateED25519();
         BlockNodeServiceEndpoint initialEndpoint = new BlockNodeServiceEndpoint()
-                .setIpAddress(new byte[] {127, 0, 0, 1})
-                .setPort(443)
-                .setRequiresTls(true)
-                .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM);
+            .setIpAddress(new byte[] {127, 0, 0, 1})
+            .setPort(443)
+            .setRequiresTls(true)
+            .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM);
 
         /*
          * Step 2:
          * Create Registered Node.
          */
         RegisteredNodeCreateTransaction registeredNodeCreateTx = new RegisteredNodeCreateTransaction()
-                .setDescription("My Block Node")
-                .setAdminKey(adminKey)
-                .addServiceEndpoint(initialEndpoint)
-                .freezeWith(client)
-                .sign(adminKey);
+            .setDescription("My Block Node")
+            .setAdminKey(adminKey)
+            .addServiceEndpoint(initialEndpoint)
+            .freezeWith(client)
+            .sign(adminKey);
 
         System.out.println("Creating Registered Node...");
         TransactionResponse registeredNodeCreateTxResponse = registeredNodeCreateTx.execute(client);
@@ -95,6 +95,8 @@ public class RegisteredNodeLifeCycleExample {
         if (registeredNodeCreateTxReceipt.registeredNodeId <= 0) {
             throw new Exception("RegisteredNodeCreate transaction receipt was missing registeredNodeId. (Fail)");
         }
+
+        long registeredNodeId = registeredNodeCreateTxReceipt.registeredNodeId;
 
         /*
          * Step 3:
@@ -108,31 +110,31 @@ public class RegisteredNodeLifeCycleExample {
          * Update the RegisteredNode with new Block Node endpoint.
          */
         BlockNodeServiceEndpoint updateEndpoint = new BlockNodeServiceEndpoint()
-                .setDomainName("block-node.example.com")
-                .setPort(443)
-                .setRequiresTls(true)
-                .addEndpointApi(BlockNodeApi.STATUS);
+            .setDomainName("block-node.example.com")
+            .setPort(443)
+            .setRequiresTls(true)
+            .addEndpointApi(BlockNodeApi.STATUS);
 
         RegisteredNodeUpdateTransaction registeredNodeUpdateTx = new RegisteredNodeUpdateTransaction()
-                .setRegisteredNodeId(registeredNodeCreateTxReceipt.registeredNodeId)
-                .setDescription("My Updated Block Node")
-                .setServiceEndpoints(List.of(initialEndpoint, updateEndpoint))
-                .freezeWith(client)
-                .sign(adminKey);
+            .setRegisteredNodeId(registeredNodeId)
+            .setDescription("My Updated Block Node")
+            .setServiceEndpoints(List.of(initialEndpoint, updateEndpoint))
+            .freezeWith(client)
+            .sign(adminKey);
 
         System.out.println("Updating Registered Node...");
         TransactionResponse registeredNodeUpdateTxResponse = registeredNodeUpdateTx.execute(client);
-        TransactionReceipt registeredNodeUpdateTxReceipt = registeredNodeUpdateTxResponse.getReceipt(client);
+        registeredNodeUpdateTxResponse.getReceipt(client);
 
         /*
          * Step 5:
          * Add the registeredNodeId as associatedRegisteredNodes to a Node.
          */
-        long registeredNodeId = registeredNodeUpdateTxReceipt.registeredNodeId;
+
         NodeUpdateTransaction associateTx = new NodeUpdateTransaction()
-                .setNodeId(0)
-                .addAssociatedRegisteredNode(registeredNodeId)
-                .freezeWith(client);
+            .setNodeId(0)
+            .addAssociatedRegisteredNode(registeredNodeId)
+            .freezeWith(client);
 
         System.out.println("Associating registered node " + registeredNodeId + " with consensus node...");
         TransactionResponse associateTxResponse = associateTx.execute(client);
@@ -140,15 +142,29 @@ public class RegisteredNodeLifeCycleExample {
 
         /*
          * Step 6:
+         * Remove the registeredNodeId as associatedRegisteredNodes from a Node.
+         */
+
+        NodeUpdateTransaction disassociateTx = new NodeUpdateTransaction()
+            .setNodeId(0)
+            .setAssociatedRegisteredNodes(List.of()) // Empty list clear associated registeredNode
+            .freezeWith(client);
+
+        System.out.println("Disassociating registered node " + registeredNodeId + " with consensus node...");
+        disassociateTx.execute(client);
+        associateTxResponse.getReceipt(client);
+
+        /*
+         * Step 7:
          * Delete the Registered Node.
          */
         System.out.println("Deleting Registered Node...");
         new RegisteredNodeDeleteTransaction()
-                .setRegisteredNodeId(registeredNodeCreateTxReceipt.registeredNodeId)
-                .freezeWith(client)
-                .sign(adminKey)
-                .execute(client)
-                .getReceipt(client);
+            .setRegisteredNodeId(registeredNodeCreateTxReceipt.registeredNodeId)
+            .freezeWith(client)
+            .sign(adminKey)
+            .execute(client)
+            .getReceipt(client);
 
         client.close();
 
