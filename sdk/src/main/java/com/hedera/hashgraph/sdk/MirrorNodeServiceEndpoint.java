@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
+import com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint;
 import java.util.Objects;
 
 /**
@@ -44,7 +45,8 @@ public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<Mir
     com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint toProtobuf() {
         var registeredServiceEndpoint = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
                 .setPort(port)
-                .setRequiresTls(requiresTls);
+                .setRequiresTls(requiresTls)
+                .setMirrorNode(RegisteredServiceEndpoint.MirrorNodeEndpoint.newBuilder());
 
         if (ipAddress != null) {
             registeredServiceEndpoint.setIpAddress(ByteString.copyFrom(ipAddress));
@@ -54,6 +56,7 @@ public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<Mir
             registeredServiceEndpoint.setDomainName(domainName);
         }
 
+        System.out.println(registeredServiceEndpoint.build());
         return registeredServiceEndpoint.build();
     }
 

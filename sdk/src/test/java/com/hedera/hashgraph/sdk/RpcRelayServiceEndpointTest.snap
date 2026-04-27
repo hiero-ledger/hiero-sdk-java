@@ -9,10 +9,10 @@ com.hedera.hashgraph.sdk.RpcRelayServiceEndpointTest.fromProtobufWithIp=[
 
 
 com.hedera.hashgraph.sdk.RpcRelayServiceEndpointTest.toProtobufWithDomain=[
-  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@14147303\ndomain_name: \"test.mirror.com\"\nport: 443\nrequires_tls: true"
+  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@28438c0e\ndomain_name: \"test.mirror.com\"\nport: 443\nrequires_tls: true\nrpc_relay {\n}"
 ]
 
 
 com.hedera.hashgraph.sdk.RpcRelayServiceEndpointTest.toProtobufWithIp=[
-  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@26cccebb\nip_address: \"\\001\\002\\003\\004\"\nport: 443\nrequires_tls: true"
+  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@86e8926\nip_address: \"\\001\\002\\003\\004\"\nport: 443\nrequires_tls: true\nrpc_relay {\n}"
 ]
