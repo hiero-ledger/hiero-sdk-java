@@ -51,8 +51,6 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                     .setDomainName("test.mirror.com")
                     .setPort(443));
 
-            System.out.println(serviceEndpoints);
-
             var response = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)
                     .setDescription("test description")
@@ -128,9 +126,12 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
                             .addEndpointApi(BlockNodeApi.STATUS),
                     new MirrorNodeServiceEndpoint()
                             .setIpAddress(new byte[] {127, 0, 0, 1})
+                            .setPort(443),
+                    new RpcRelayServiceEndpoint().setDomainName("test.rpc.com").setPort(443),
+                    new GeneralServiceEndpoint()
+                            .setDomainName("test.general.com")
+                            .setDescription("GeneralEndpoint")
                             .setPort(443));
-
-            System.out.println(serviceEndpoints);
 
             var response = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)

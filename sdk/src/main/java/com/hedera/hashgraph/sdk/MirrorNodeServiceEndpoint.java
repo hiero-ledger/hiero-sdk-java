@@ -56,7 +56,6 @@ public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<Mir
             registeredServiceEndpoint.setDomainName(domainName);
         }
 
-        System.out.println(registeredServiceEndpoint.build());
         return registeredServiceEndpoint.build();
     }
 
