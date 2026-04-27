@@ -68,7 +68,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     @Nullable
     private Endpoint grpcWebProxyEndpoint = null;
 
-    private List<Long> associatedRegisteredNodes = new ArrayList<>();
+    private List<Long> associatedRegisteredNodes = null;
 
     /**
      * Constructor.
@@ -544,7 +544,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
             builder.addServiceEndpoint(serviceEndpoint.toProtobuf());
         }
 
-        if (!associatedRegisteredNodes.isEmpty()) {
+        if (associatedRegisteredNodes != null) {
             builder.setAssociatedRegisteredNodeList(AssociatedRegisteredNodeList.newBuilder()
                     .addAllAssociatedRegisteredNode(associatedRegisteredNodes)
                     .build());
