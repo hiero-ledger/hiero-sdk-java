@@ -589,7 +589,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 new TokenCancelAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
                         .build());
             case TOKENCLAIMAIRDROP ->
-                new TokenClaimAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                new TokenClaimAirdropTransaction(body.setTokenClaimAirdrop(scheduled.getTokenClaimAirdrop())
                         .build());
             case SCHEDULEDELETE ->
                 new ScheduleDeleteTransaction(

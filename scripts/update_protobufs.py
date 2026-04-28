@@ -52,6 +52,19 @@ FREEZE_TYPE_OUT_PATH = os.path.join(JAVA_OUT_PATH, "FreezeType.java")
 
 
 PROTO_DO_NOT_REMOVE = (
+"consensus_service.proto",
+"mirror_network_service.proto",
+"event_consensus_data.proto",
+"event_core.proto",
+"event_descriptor.proto",
+"event_transaction.proto",
+"evm_hook_state.proto",
+"gossip_event.proto",
+"hook_dispatch.proto",
+"hook_store.proto",
+"hook_types.proto",
+"state_signature_transaction.proto",
+"transaction_list.proto"
 )
 
 
@@ -83,9 +96,9 @@ PROTO_REPLACEMENTS = (
 )
 
 PROTO_REPLACEMENTS_IMPORTS = (
-    # Match any import statement and captures just the part after the last /
+    # Match any import statement(skip google ones) and captures just the part after the last /
     # for example, `import "state/common.proto"` -> `import "common.proto"`
-    (r'import ".*\/(.*\.proto)"',
+    (r'import "(?!google).*\/(.*\.proto)"',
      r'import "\1"'),
 )
 
@@ -96,11 +109,6 @@ def do_replacements(s, replacements):
 
 def do_replacements_proto_imports(s, replacements):
     for r in replacements:
-        # Check if the replacement should be skipped
-        # Skip statements like `import "google/protobuf/wrappers.proto"`
-        # to update imports ONLY referred to hedera protobufs
-        if 'google' in s:
-            continue
         s = re.sub(r[0], r[1], s)
     return s
 
