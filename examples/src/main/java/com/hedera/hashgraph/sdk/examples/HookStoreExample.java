@@ -51,7 +51,7 @@ class HookStoreExample {
      */
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
-    public void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("Hook Store Example Start!");
 
         /*

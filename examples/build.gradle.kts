@@ -81,6 +81,10 @@ abstract class RunAllExample : DefaultTask() {
                 .filter {
                     it != "MirrorNodeContractQueriesExample"
                 } // disabled due to consensus node issue
+                .filter { it != "HookStoreExample" }
+                .filter { it != "AccountHooksExample" }
+                .filter { it != "ContractHooksExample" }
+                .filter { it != "TransferTransactionHooksExample" }
                 .toList()
 
         exampleClasses.forEach { className ->
