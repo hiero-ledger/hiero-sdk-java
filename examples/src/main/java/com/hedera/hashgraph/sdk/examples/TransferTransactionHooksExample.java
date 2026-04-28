@@ -54,7 +54,7 @@ class TransferTransactionHooksExample {
      */
     private static final String SDK_LOG_LEVEL = Dotenv.load().get("SDK_LOG_LEVEL", "SILENT");
 
-    public static void main(String[] args) throws Exception {
+    public void main(String[] args) throws Exception {
         System.out.println("Transfer Transaction Hooks Example Start!");
 
         /*
