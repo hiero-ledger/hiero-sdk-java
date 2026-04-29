@@ -62,7 +62,6 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(26);
         assertThat(stub.requestCount()).isEqualTo(2);
     }
@@ -78,7 +77,6 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(60);
         assertThat(stub.requestCount()).isEqualTo(2);
     }
@@ -92,8 +90,48 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
         assertThat(response.getTotal()).isEqualTo(3 * 10 + 10 + 20);
+        assertThat(response.getHighVolumeMultiplier()).isEqualTo(1);
+        assertThat(stub.requestCount()).isEqualTo(1);
+        assertThat(stub.getLastQueryParams()).doesNotContain("high_volume_throttle");
+    }
+
+    @Test
+    @DisplayName("Given a FeeEstimateQuery without explicit mode, it defaults to INTRINSIC")
+    void defaultsToIntrinsic() throws IOException, InterruptedException {
+        query.setTransaction(DUMMY_TRANSACTION);
+
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.INTRINSIC, 3, 10, 20)));
+
+        var response = query.execute(client);
+
+        assertThat(stub.getLastQueryParams()).contains("mode=INTRINSIC");
+    }
+
+    @Test
+    @DisplayName("Given a FeeEstimateQuery with high volume throttle, it sends the parameter in the URL")
+    void sendsHighVolumeThrottle() throws IOException, InterruptedException {
+        query.setTransaction(DUMMY_TRANSACTION).setHighVolumeThrottle(5000);
+
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.INTRINSIC, 3, 10, 20)));
+
+        var response = query.execute(client);
+
+        assertThat(stub.getLastQueryParams()).contains("high_volume_throttle=5000");
+        assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Given a FeeEstimateQuery receives HTTP 400, it does not retry")
+    void doesNotRetryOn400() {
+        query.setTransaction(DUMMY_TRANSACTION).setMaxAttempts(3);
+
+        stub.enqueue(new StubResponse(400, "bad request"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("400");
+
         assertThat(stub.requestCount()).isEqualTo(1);
     }
 
@@ -107,11 +145,10 @@ class FeeEstimateQueryMockTest {
                   "network": {"multiplier": %d, "subtotal": %d},
                   "node": {"base": %d, "extras": []},
                   "service": {"base": %d, "extras": []},
-                  "notes": [],
+                  "high_volume_multiplier": 1,
                   "total": %d
                 }
-                """
-                .formatted(mode, networkMultiplier, networkSubtotal, nodeBase, serviceBase, total);
+                """.formatted(mode, networkMultiplier, networkSubtotal, nodeBase, serviceBase, total);
     }
 
     private static final class StubResponse {
@@ -127,6 +164,7 @@ class FeeEstimateQueryMockTest {
     private static final class StubMirrorRestServer {
         private final Queue<StubResponse> responses = new ArrayDeque<>();
         private int observedRequests = 0;
+        private String lastQueryParams;
         private HttpServer server;
         private int port;
 
@@ -135,6 +173,7 @@ class FeeEstimateQueryMockTest {
             port = server.getAddress().getPort();
             server.createContext("/api/v1/network/fees", exchange -> {
                 observedRequests++;
+                lastQueryParams = exchange.getRequestURI().getQuery();
                 var response = responses.poll();
                 assertThat(response)
                         .as("response should be queued before invoking network fee estimation")
@@ -174,6 +213,10 @@ class FeeEstimateQueryMockTest {
 
         int getPort() {
             return port;
+        }
+
+        String getLastQueryParams() {
+            return lastQueryParams;
         }
 
         void verify() {

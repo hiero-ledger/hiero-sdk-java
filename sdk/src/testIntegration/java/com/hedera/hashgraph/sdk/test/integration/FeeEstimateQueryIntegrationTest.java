@@ -54,7 +54,6 @@ class FeeEstimateQueryIntegrationTest {
 
             // Then: The response includes appropriate fees
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -78,7 +77,6 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -101,15 +99,14 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
             assertComponentTotalsConsistent(response);
         }
     }
 
     @Test
     @DisplayName(
-            "Given a TransferTransaction without explicit mode, when fee estimate is requested, then STATE mode is used by default")
-    void transferTransactionDefaultModeIsState() throws Throwable {
+            "Given a TransferTransaction without explicit mode, when fee estimate is requested, then INTRINSIC mode is used by default")
+    void transferTransactionDefaultModeIsIntrinsic() throws Throwable {
         try (var testEnv = createFeeEstimateTestEnv()) {
             var transaction = new TransferTransaction()
                     .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(-1))
@@ -122,7 +119,30 @@ class FeeEstimateQueryIntegrationTest {
             var response = new FeeEstimateQuery().setTransaction(transaction).execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
+            assertComponentTotalsConsistent(response);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given a TransferTransaction with high volume throttle, when fee estimate is requested, then high volume multiplier is returned")
+    void feeEstimateQueryWithHighVolumeThrottle() throws Throwable {
+        try (var testEnv = createFeeEstimateTestEnv()) {
+            var transaction = new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(-1))
+                    .addHbarTransfer(AccountId.fromString("0.0.3"), Hbar.fromTinybars(1))
+                    .freezeWith(testEnv.client)
+                    .signWithOperator(testEnv.client);
+
+            waitForMirrorNodeSync();
+
+            var response = new FeeEstimateQuery()
+                    .setTransaction(transaction)
+                    .setHighVolumeThrottle(5000)
+                    .execute(testEnv.client);
+
+            assertFeeComponentsPresent(response);
+            assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -144,7 +164,7 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getNodeFee().getExtras()).isNotNull();
+            assertThat(response.getNode().getExtras()).isNotNull();
             assertComponentTotalsConsistent(response);
         }
     }
@@ -369,30 +389,30 @@ class FeeEstimateQueryIntegrationTest {
         assertThat(response).isNotNull();
 
         // Network fee validations
-        assertThat(response.getNetworkFee()).isNotNull();
-        assertThat(response.getNetworkFee().getMultiplier()).isGreaterThan(0);
-        assertThat(response.getNetworkFee().getSubtotal()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getNetwork()).isNotNull();
+        assertThat(response.getNetwork().getMultiplier()).isGreaterThan(0);
+        assertThat(response.getNetwork().getSubtotal()).isGreaterThanOrEqualTo(0);
 
         // Node fee validations
-        assertThat(response.getNodeFee()).isNotNull();
-        assertThat(response.getNodeFee().getBase()).isGreaterThanOrEqualTo(0);
-        assertThat(response.getNodeFee().getExtras()).isNotNull();
+        assertThat(response.getNode()).isNotNull();
+        assertThat(response.getNode().getBase()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getNode().getExtras()).isNotNull();
 
         // Service fee validations
-        assertThat(response.getServiceFee()).isNotNull();
-        assertThat(response.getServiceFee().getBase()).isGreaterThanOrEqualTo(0);
-        assertThat(response.getServiceFee().getExtras()).isNotNull();
+        assertThat(response.getService()).isNotNull();
+        assertThat(response.getService().getBase()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getService().getExtras()).isNotNull();
 
-        // Notes and total
-        assertThat(response.getNotes()).isNotNull();
+        // High volume multiplier and total
+        assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
         assertThat(response.getTotal()).isGreaterThan(0);
     }
 
     private static void assertComponentTotalsConsistent(FeeEstimateResponse response) {
         // TODO adjust when NetworkService.getFeeEstimate has actual implementation
-        var network = response.getNetworkFee();
-        var node = response.getNodeFee();
-        var service = response.getServiceFee();
+        var network = response.getNetwork();
+        var node = response.getNode();
+        var service = response.getService();
 
         var nodeSubtotal = subtotal(node);
         var serviceSubtotal = subtotal(service);
