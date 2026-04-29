@@ -14,17 +14,13 @@ import javax.annotation.Nullable;
  * along with the total estimated cost in tinycents.
  */
 public final class FeeEstimateResponse {
-    /**
-     * The mode that was used to calculate the fees.
-     */
-    private final FeeEstimateMode mode;
 
     /**
      * The network fee component which covers the cost of gossip, consensus,
      * signature verifications, fee payment, and storage.
      */
     @Nullable
-    private final NetworkFee networkFee;
+    private final NetworkFee network;
 
     /**
      * The node fee component which is to be paid to the node that submitted the
@@ -33,14 +29,14 @@ public final class FeeEstimateResponse {
      * incentivizes the node to accept new transactions from users.
      */
     @Nullable
-    private final FeeEstimate nodeFee;
+    private final FeeEstimate node;
 
     /**
      * The service fee component which covers execution costs, state saved in the
      * Merkle tree, and additional costs to the blockchain storage.
      */
     @Nullable
-    private final FeeEstimate serviceFee;
+    private final FeeEstimate service;
 
     /**
      * The high-volume throttle multiplier returned by the mirror node.
@@ -58,25 +54,22 @@ public final class FeeEstimateResponse {
     /**
      * Constructor.
      *
-     * @param mode                 the fee estimate mode used
-     * @param networkFee           the network fee component
-     * @param nodeFee              the node fee estimate
+     * @param network           the network fee component
+     * @param node              the node fee estimate
      * @param highVolumeMultiplier the high-volume throttle multiplier
-     * @param serviceFee           the service fee estimate
+     * @param service           the service fee estimate
      * @param total                the total fee in tinycents
      */
     FeeEstimateResponse(
-            FeeEstimateMode mode,
-            @Nullable NetworkFee networkFee,
-            @Nullable FeeEstimate nodeFee,
+            @Nullable NetworkFee network,
+            @Nullable FeeEstimate node,
             long highVolumeMultiplier,
-            @Nullable FeeEstimate serviceFee,
+            @Nullable FeeEstimate service,
             long total) {
-        this.mode = mode;
-        this.networkFee = networkFee;
-        this.nodeFee = nodeFee;
+        this.network = network;
+        this.node = node;
         this.highVolumeMultiplier = highVolumeMultiplier;
-        this.serviceFee = serviceFee;
+        this.service = service;
         this.total = total;
     }
 
@@ -84,14 +77,12 @@ public final class FeeEstimateResponse {
      * Create a FeeEstimateResponse from a REST JSON payload.
      *
      * @param json        the raw JSON response
-     * @param defaultMode the mode to fall back to when the response omits mode
      * @return the new FeeEstimateResponse
      */
-    static FeeEstimateResponse fromJson(String json, FeeEstimateMode defaultMode) {
+    static FeeEstimateResponse fromJson(String json) {
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         return new FeeEstimateResponse(
-                parseModeFromJson(root, defaultMode),
                 parseNetworkFeeFromJson(root),
                 parseFeeEstimateFromJson(root, "node"),
                 parseHighVolumeMultiplierFromJson(root),
@@ -168,22 +159,13 @@ public final class FeeEstimateResponse {
     }
 
     /**
-     * Extract the fee estimate mode used.
-     *
-     * @return the fee estimate mode
-     */
-    public FeeEstimateMode getMode() {
-        return mode;
-    }
-
-    /**
      * Extract the network fee component.
      *
      * @return the network fee component, or null if not set
      */
     @Nullable
-    public NetworkFee getNetworkFee() {
-        return networkFee;
+    public NetworkFee getNetwork() {
+        return network;
     }
 
     /**
@@ -192,8 +174,8 @@ public final class FeeEstimateResponse {
      * @return the node fee estimate, or null if not set
      */
     @Nullable
-    public FeeEstimate getNodeFee() {
-        return nodeFee;
+    public FeeEstimate getNode() {
+        return node;
     }
 
     /**
@@ -211,8 +193,8 @@ public final class FeeEstimateResponse {
      * @return the service fee estimate, or null if not set
      */
     @Nullable
-    public FeeEstimate getServiceFee() {
-        return serviceFee;
+    public FeeEstimate getService() {
+        return service;
     }
 
     /**
@@ -227,11 +209,10 @@ public final class FeeEstimateResponse {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("mode", mode)
-                .add("network", networkFee)
-                .add("node", nodeFee)
+                .add("network", network)
+                .add("node", node)
                 .add("highVolumeMultiplier", highVolumeMultiplier)
-                .add("service", serviceFee)
+                .add("service", service)
                 .add("total", total)
                 .toString();
     }
@@ -245,15 +226,14 @@ public final class FeeEstimateResponse {
             return false;
         }
         return total == that.total
-                && mode == that.mode
                 && highVolumeMultiplier == that.highVolumeMultiplier
-                && Objects.equals(networkFee, that.networkFee)
-                && Objects.equals(nodeFee, that.nodeFee)
-                && Objects.equals(serviceFee, that.serviceFee);
+                && Objects.equals(network, that.network)
+                && Objects.equals(node, that.node)
+                && Objects.equals(service, that.service);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mode, networkFee, nodeFee, highVolumeMultiplier, serviceFee, total);
+        return Objects.hash(network, node, highVolumeMultiplier, service, total);
     }
 }

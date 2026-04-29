@@ -62,7 +62,6 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(26);
         assertThat(stub.requestCount()).isEqualTo(2);
     }
@@ -78,7 +77,6 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
         assertThat(response.getTotal()).isEqualTo(60);
         assertThat(stub.requestCount()).isEqualTo(2);
     }
@@ -92,7 +90,6 @@ class FeeEstimateQueryMockTest {
 
         var response = query.execute(client);
 
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
         assertThat(response.getTotal()).isEqualTo(3 * 10 + 10 + 20);
         assertThat(response.getHighVolumeMultiplier()).isEqualTo(1);
         assertThat(stub.requestCount()).isEqualTo(1);
@@ -109,7 +106,6 @@ class FeeEstimateQueryMockTest {
         var response = query.execute(client);
 
         assertThat(stub.getLastQueryParams()).contains("mode=INTRINSIC");
-        assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
     }
 
     @Test

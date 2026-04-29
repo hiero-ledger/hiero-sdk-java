@@ -214,7 +214,7 @@ public class FeeEstimateQuery {
                 var response = HTTP_CLIENT.send(
                         buildHttpRequest(url, timeout, requestPayload), HttpResponse.BodyHandlers.ofString());
 
-                var result = handleResponse(response, resolvedMode, attempt);
+                var result = handleResponse(response, attempt);
                 if (result != null) {
                     return result;
                 }
@@ -231,9 +231,9 @@ public class FeeEstimateQuery {
      * Handle the HTTP response and return the result or null if retry is needed.
      */
     private FeeEstimateResponse handleResponse(
-            HttpResponse<String> response, FeeEstimateMode resolvedMode, int attempt) {
+            HttpResponse<String> response, int attempt) {
         if (isSuccessfulResponse(response.statusCode())) {
-            return FeeEstimateResponse.fromJson(response.body(), resolvedMode);
+            return FeeEstimateResponse.fromJson(response.body());
         }
 
         if (!shouldRetry(response.statusCode()) || attempt >= maxAttempts) {
@@ -343,7 +343,7 @@ public class FeeEstimateQuery {
             int attempt,
             HttpResponse<String> response) {
         if (isSuccessfulResponse(response.statusCode())) {
-            returnFuture.complete(FeeEstimateResponse.fromJson(response.body(), resolvedMode));
+            returnFuture.complete(FeeEstimateResponse.fromJson(response.body()));
             return;
         }
 

@@ -168,7 +168,7 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getNodeFee().getExtras()).isNotNull();
+            assertThat(response.getNode().getExtras()).isNotNull();
             assertComponentTotalsConsistent(response);
         }
     }
@@ -393,19 +393,19 @@ class FeeEstimateQueryIntegrationTest {
         assertThat(response).isNotNull();
 
         // Network fee validations
-        assertThat(response.getNetworkFee()).isNotNull();
-        assertThat(response.getNetworkFee().getMultiplier()).isGreaterThan(0);
-        assertThat(response.getNetworkFee().getSubtotal()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getNetwork()).isNotNull();
+        assertThat(response.getNetwork().getMultiplier()).isGreaterThan(0);
+        assertThat(response.getNetwork().getSubtotal()).isGreaterThanOrEqualTo(0);
 
         // Node fee validations
-        assertThat(response.getNodeFee()).isNotNull();
-        assertThat(response.getNodeFee().getBase()).isGreaterThanOrEqualTo(0);
-        assertThat(response.getNodeFee().getExtras()).isNotNull();
+        assertThat(response.getNode()).isNotNull();
+        assertThat(response.getNode().getBase()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getNode().getExtras()).isNotNull();
 
         // Service fee validations
-        assertThat(response.getServiceFee()).isNotNull();
-        assertThat(response.getServiceFee().getBase()).isGreaterThanOrEqualTo(0);
-        assertThat(response.getServiceFee().getExtras()).isNotNull();
+        assertThat(response.getService()).isNotNull();
+        assertThat(response.getService().getBase()).isGreaterThanOrEqualTo(0);
+        assertThat(response.getService().getExtras()).isNotNull();
 
         // High volume multiplier and total
         assertThat(response.getHighVolumeMultiplier()).isGreaterThanOrEqualTo(1);
@@ -414,9 +414,9 @@ class FeeEstimateQueryIntegrationTest {
 
     private static void assertComponentTotalsConsistent(FeeEstimateResponse response) {
         // TODO adjust when NetworkService.getFeeEstimate has actual implementation
-        var network = response.getNetworkFee();
-        var node = response.getNodeFee();
-        var service = response.getServiceFee();
+        var network = response.getNetwork();
+        var node = response.getNode();
+        var service = response.getService();
 
         var nodeSubtotal = subtotal(node);
         var serviceSubtotal = subtotal(service);
