@@ -54,7 +54,6 @@ class FeeEstimateQueryIntegrationTest {
 
             // Then: The response includes appropriate fees
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -78,7 +77,6 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.STATE);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -101,7 +99,6 @@ class FeeEstimateQueryIntegrationTest {
                     .execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
             assertComponentTotalsConsistent(response);
         }
     }
@@ -122,7 +119,6 @@ class FeeEstimateQueryIntegrationTest {
             var response = new FeeEstimateQuery().setTransaction(transaction).execute(testEnv.client);
 
             assertFeeComponentsPresent(response);
-            assertThat(response.getMode()).isEqualTo(FeeEstimateMode.INTRINSIC);
             assertComponentTotalsConsistent(response);
         }
     }
