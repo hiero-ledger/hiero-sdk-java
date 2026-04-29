@@ -85,13 +85,16 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
                     "RegisterServiceEndpoint must define either an ipAddress or  domainName");
         }
 
+        var generalService = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder();
+        if (description != null) {
+            generalService.setDescription(description);
+        }
+
         var registeredServiceEndpoint = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
                 .setPort(port)
                 .setRequiresTls(requiresTls)
-                .setGeneralService(
-                        com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.GeneralServiceEndpoint.newBuilder()
-                                .setDescription(this.description)
-                                .build());
+                .setGeneralService(generalService);
+
 
         if (ipAddress != null) {
             registeredServiceEndpoint.setIpAddress(ByteString.copyFrom(this.ipAddress));

@@ -50,13 +50,24 @@ public class RegisteredNodeAddressBookQuery {
      */
     public RegisteredNodeAddressBook execute(Client client) throws ExecutionException, InterruptedException {
         String json = executeMirrorNodeRequest(client).get();
+        System.out.println(json);
         return parseRegisterNodeAddressBook(json);
     }
 
     CompletableFuture<String> executeMirrorNodeRequest(Client client) {
         Objects.requireNonNull(client, "client must not be null");
-        String apiEndpoint = "/api/v1/network/registered-nodes?registerednode.id=" + registeredNodeId;
+        String apiEndpoint = "/network/registered-nodes?registerednode.id=" + registeredNodeId;
         String baseUrl = client.getMirrorRestBaseUrl();
+
+        // For localhost registered node calls, override to use port 8084 unless system property overrides
+        if (baseUrl.contains("localhost:5551") || baseUrl.contains("127.0.0.1:5551")) {
+            String registeredNodePort = System.getProperty("hedera.mirror.registerednode.port");
+            if (registeredNodePort != null && !registeredNodePort.isEmpty()) {
+                baseUrl = baseUrl.replace(":5551", ":" + registeredNodePort);
+            } else {
+                baseUrl = baseUrl.replace(":5551", ":8084");
+            }
+        }
 
         return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, null).exceptionally(ex -> {
             client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
