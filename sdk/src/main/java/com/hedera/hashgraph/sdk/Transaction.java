@@ -1595,6 +1595,20 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
+     * Create a {@link FeeEstimateQuery} pre-populated with this transaction.
+     * <p>
+     * This is a convenience method equivalent to:
+     * <pre>{@code
+     * new FeeEstimateQuery().setTransaction(transaction)
+     * }</pre>
+     *
+     * @return a new FeeEstimateQuery with this transaction set
+     */
+    public FeeEstimateQuery estimateFee() {
+        return new FeeEstimateQuery().setTransaction(this);
+    }
+
+    /**
      * This method retrieves the size of the transaction
      * @return
      */
