@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 2.71.0
 
 ### Added
+
 - feat: HIP-1313 (#2572)
 
 ### Changed
+
 - refactor: hip-1261 (#2722)
 
 ## 2.70.0
