@@ -159,8 +159,7 @@ class FeeEstimateQueryExample {
         System.out.println(
                 "Network Fee Subtotal: " + intrinsicEstimate.getNetwork().getSubtotal() + " tinycents");
         System.out.println("Node Fee Base: " + intrinsicEstimate.getNode().getBase() + " tinycents");
-        System.out.println(
-                "Service Fee Base: " + intrinsicEstimate.getService().getBase() + " tinycents");
+        System.out.println("Service Fee Base: " + intrinsicEstimate.getService().getBase() + " tinycents");
         System.out.println("Total Estimated Fee: " + intrinsicEstimate.getTotal() + " tinycents");
         System.out.println("Total Estimated Fee: " + Hbar.fromTinybars(intrinsicEstimate.getTotal() / 100));
 

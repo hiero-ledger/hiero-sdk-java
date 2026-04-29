@@ -230,8 +230,7 @@ public class FeeEstimateQuery {
     /**
      * Handle the HTTP response and return the result or null if retry is needed.
      */
-    private FeeEstimateResponse handleResponse(
-            HttpResponse<String> response, int attempt) {
+    private FeeEstimateResponse handleResponse(HttpResponse<String> response, int attempt) {
         if (isSuccessfulResponse(response.statusCode())) {
             return FeeEstimateResponse.fromJson(response.body());
         }
