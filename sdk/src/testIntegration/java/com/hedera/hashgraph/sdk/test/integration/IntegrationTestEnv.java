@@ -119,7 +119,7 @@ public class IntegrationTestEnv implements AutoCloseable {
     }
 
     public IntegrationTestEnv useThrowawayAccount() throws Exception {
-        return useThrowawayAccount(new Hbar(50));
+        return useThrowawayAccount(new Hbar(100));
     }
 
     // Note: this is a temporary workaround.
