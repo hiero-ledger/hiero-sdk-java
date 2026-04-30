@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: Apache-2.0
+package com.hedera.hashgraph.sdk;
+
+import com.google.common.base.MoreObjects;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nonnegative;
+
+/**
+ * Class representing single registered node in the network state.
+ * Each registered node in the network state SHALL represent a single
+ * non-consensus node that is registered on the network.
+ * Registered node identifiers SHALL only be unique within a single
+ * realm and shard combination.
+ */
+public class RegisteredNode {
+    /**
+     * A registered node identifier.
+     */
+    @Nonnegative
+    public final long registeredNodeId;
+
+    /**
+     * An administrative key controlled by the node operator.
+     */
+    public final Key adminKey;
+
+    /**
+     * A short description of the node.
+     */
+    public final String description;
+
+    /**
+     * A list of service endpoints for client calls.
+     */
+    public final List<RegisteredServiceEndpoint> serviceEndpoints;
+
+    /**
+     * Constructor.
+     *
+     * @param registeredNodeId the registered node identifier.
+     * @param adminKey the admin key.
+     * @param description the description of the node.
+     * @param serviceEndpoint the list of service endpoints.
+     */
+    RegisteredNode(
+            long registeredNodeId, Key adminKey, String description, List<RegisteredServiceEndpoint> serviceEndpoint) {
+        this.registeredNodeId = registeredNodeId;
+        this.adminKey = adminKey;
+        this.description = description;
+        this.serviceEndpoints = Collections.unmodifiableList(serviceEndpoint);
+    }
+
+    /**
+     * Extract the registeredNode from the protobuf.
+     *
+     * @param registeredNode the protobuf
+     * @return {@code this} the contract object
+     */
+    static RegisteredNode fromProtobuf(com.hedera.hashgraph.sdk.proto.RegisteredNode registeredNode) {
+        Objects.requireNonNull(registeredNode, "registeredNode cannot be null");
+        var registerNodeId = registeredNode.getRegisteredNodeId();
+        var adminKey = Key.fromProtobufKey(registeredNode.getAdminKey());
+        var description = registeredNode.getDescription();
+
+        var serviceEndpoint = registeredNode.getServiceEndpointList().stream()
+                .map(s -> RegisteredServiceEndpoint.fromProtobuf(s))
+                .toList();
+
+        return new RegisteredNode(registerNodeId, adminKey, description, serviceEndpoint);
+    }
+
+    /**
+     * Parses a single node entry from the Mirror Node 'registered_nodes' array.
+     *
+     * @param json the json containing specific data for registered node
+     * @return {@code this}
+     */
+    static RegisteredNode fromJson(JsonObject json) {
+        long id = json.get("registered_node_id").getAsLong();
+        String description = json.get("description").getAsString();
+        PublicKey adminKey = parseJsonKey(json.get("admin_key").getAsJsonObject());
+
+        List<RegisteredServiceEndpoint> endpoints = new ArrayList<>();
+        for (JsonElement endpoint : json.getAsJsonArray("service_endpoints")) {
+            endpoints.add(RegisteredServiceEndpoint.fromJson(endpoint.getAsJsonObject()));
+        }
+
+        return new RegisteredNode(id, adminKey, description, endpoints);
+    }
+
+    /**
+     * Parses the admin key from the JSON representation.
+     */
+    private static PublicKey parseJsonKey(JsonObject adminKey) {
+        Objects.requireNonNull(adminKey, "adminKey must not be null");
+        String type = adminKey.get("_type").getAsString() != null
+                ? adminKey.get("_type").getAsString()
+                : "";
+
+        String key = adminKey.get("key").getAsString();
+        return switch (type) {
+            case "ED25519" -> PublicKey.fromStringED25519(key);
+            case "ECDSA_SECP256K1" -> PublicKey.fromStringECDSA(key);
+            default -> PublicKey.fromString(key);
+        };
+    }
+
+    /**
+     * Extract the registeredNode from a byte array.
+     *
+     * @param bytes the byte array
+     * @return {@code RegisteredNode} the extracted registeredNode
+     * @throws InvalidProtocolBufferException when there is an issue with the protobuf
+     */
+    public static RegisteredNode fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.RegisteredNode.parseFrom(bytes).toBuilder()
+                .build());
+    }
+
+    /**
+     * Build the protobuf.
+     * @return {@code this} the protobuf representation
+     */
+    com.hedera.hashgraph.sdk.proto.RegisteredNode toProtobuf() {
+        var registeredNode = com.hedera.hashgraph.sdk.proto.RegisteredNode.newBuilder()
+                .setRegisteredNodeId(registeredNodeId)
+                .setAdminKey(adminKey.toProtobufKey())
+                .setDescription(description);
+
+        for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {
+            registeredNode.addServiceEndpoint(serviceEndpoint.toProtobuf());
+        }
+
+        return registeredNode.build();
+    }
+
+    /**
+     * Create a byte array representation.
+     * @return {@code byte[]} the byte array representation
+     */
+    public byte[] toBytes() {
+        return toProtobuf().toByteArray();
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("registeredNodeId", registeredNodeId)
+                .add("adminKey", adminKey)
+                .add("description", description)
+                .add("serviceEndpoints", serviceEndpoints)
+                .toString();
+    }
+}
