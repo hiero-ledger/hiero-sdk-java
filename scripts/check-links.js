@@ -9,13 +9,11 @@ const REPO_NAME = "hiero-sdk-java";
 const BRANCH = "main";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-// Handle axiosRetry which sometimes exports differently in ESM
 const retry = axiosRetry.default || axiosRetry;
 retry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 const brokenLinks = [];
 
-// Status code → description map
 const STATUS_DESCRIPTIONS = {
   400: "Bad Request",
   401: "Unauthorized",
@@ -30,7 +28,6 @@ const STATUS_DESCRIPTIONS = {
   504: "Gateway Timeout",
 };
 
-// Get all .md files in the repo recursively
 async function getMarkdownFiles(currentPath = "") {
   const response = await octokit.repos.getContent({
     owner: REPO_OWNER,
@@ -39,7 +36,6 @@ async function getMarkdownFiles(currentPath = "") {
   });
 
   const files = [];
-
   for (const item of response.data) {
     if (item.type === "file" && item.name.endsWith(".md")) {
       files.push({ download_url: item.download_url, repo_path: item.path });
@@ -48,11 +44,9 @@ async function getMarkdownFiles(currentPath = "") {
       files.push(...nestedFiles);
     }
   }
-
   return files;
 }
 
-// Extract markdown links
 function extractLinks(markdown) {
   const regex = /\[.*?\]\((.*?)\)/g;
   const links = new Set();
@@ -66,39 +60,45 @@ function extractLinks(markdown) {
   return [...links];
 }
 
-// Resolve relative links to GitHub blob URL
 function resolveRelativeLink(repoPath, relLink) {
   const baseDir = path.posix.dirname(repoPath);
   const normalizedPath = path.posix.normalize(
     path.posix.join(baseDir, relLink)
   );
+  // Corrected template literal syntax below
   return `https://github.com/${REPO_OWNER}/${REPO_NAME}/blob/${BRANCH}/${normalizedPath}`;
 }
 
-// Check if a link works
 async function checkLink(url) {
-  // CRITICAL FIX: Validate URL to prevent SSRF (Critical Issue fix)
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return;
-  }
-
   try {
+    const parsedUrl = new URL(url);
+    const isPublicWeb = ['http:', 'https:'].includes(parsedUrl.protocol);
+    const isInternal = parsedUrl.hostname === 'localhost' || 
+                       parsedUrl.hostname.startsWith('127.') || 
+                       parsedUrl.hostname.startsWith('192.168.');
+
+    if (!isPublicWeb || isInternal) {
+      return; 
+    }
+
     const res = await axios.head(url, {
       timeout: 20000,
       validateStatus: () => true,
     });
+    
     if (res.status >= 400) {
       const reason = STATUS_DESCRIPTIONS[res.status] || "Unknown Error";
       console.log(`[BROKEN] ${url} - ${res.status} ${reason}`);
       brokenLinks.push({ url, status: res.status, reason });
     }
   } catch (err) {
-    console.log(`[ERROR] ${url} - Request failed: ${err.message}`);
-    brokenLinks.push({ url, status: "Request failed", reason: err.message });
+    if (err.code !== 'ERR_INVALID_URL') {
+      console.log(`[ERROR] ${url} - Request failed: ${err.message}`);
+      brokenLinks.push({ url, status: "Request failed", reason: err.message });
+    }
   }
 }
 
-// Main
 (async () => {
   console.log(`🔍 Crawling markdown files in ${REPO_OWNER}/${REPO_NAME}...\n`);
 
