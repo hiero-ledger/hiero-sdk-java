@@ -7,6 +7,9 @@ import com.hedera.hashgraph.sdk.BlockNodeServiceEndpoint;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.RegisteredNode;
+import com.hedera.hashgraph.sdk.RegisteredNodeAddressBook;
+import com.hedera.hashgraph.sdk.RegisteredNodeAddressBookQuery;
 import com.hedera.hashgraph.sdk.RegisteredNodeCreateTransaction;
 import com.hedera.hashgraph.sdk.RegisteredNodeDeleteTransaction;
 import com.hedera.hashgraph.sdk.RegisteredNodeUpdateTransaction;
@@ -103,7 +106,14 @@ public class RegisteredNodeLifeCycleExample {
          * Execute a RegisteredNodeAddressBookQuery to verify the newly created
          * registered node appears in the RegisteredNodeAddressBook.
          */
-        System.out.println("Skipping registered node address book query because mirror node API is not available...");
+        RegisteredNodeAddressBookQuery addressBookQuery = new RegisteredNodeAddressBookQuery()
+            .setRegisteredNodeId(registeredNodeId);
+
+        System.out.println("Executing RegisteredNodeQuery....");
+        RegisteredNodeAddressBook addressBook = addressBookQuery.execute(client);
+        RegisteredNode registeredNode = addressBook.registeredNodes.getFirst();
+
+        System.out.println("Successfully fetch the registered node, " + registeredNode);
 
         /*
          * Step 4:
