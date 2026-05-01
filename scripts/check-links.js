@@ -1,15 +1,17 @@
-require("dotenv").config();
-const axios = require("axios");
-const axiosRetry = require("axios-retry").default;
-const { Octokit } = require("@octokit/rest");
-const path = require("path");
+import 'dotenv/config';
+import axios from 'axios';
+import axiosRetry from 'axios-retry';
+import { Octokit } from '@octokit/rest';
+import path from 'path';
 
 const REPO_OWNER = "hiero-ledger";
 const REPO_NAME = "hiero-sdk-java";
 const BRANCH = "main";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+// Handle axiosRetry which sometimes exports differently in ESM
+const retry = axiosRetry.default || axiosRetry;
+retry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 const brokenLinks = [];
 
@@ -29,11 +31,11 @@ const STATUS_DESCRIPTIONS = {
 };
 
 // Get all .md files in the repo recursively
-async function getMarkdownFiles(path = "") {
+async function getMarkdownFiles(currentPath = "") {
   const response = await octokit.repos.getContent({
     owner: REPO_OWNER,
     repo: REPO_NAME,
-    path,
+    path: currentPath,
   });
 
   const files = [];
@@ -75,6 +77,11 @@ function resolveRelativeLink(repoPath, relLink) {
 
 // Check if a link works
 async function checkLink(url) {
+  // CRITICAL FIX: Validate URL to prevent SSRF (Critical Issue fix)
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return;
+  }
+
   try {
     const res = await axios.head(url, {
       timeout: 20000,
