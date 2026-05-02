@@ -10,7 +10,24 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * How to reject a token (part of HIP-904).
+ * Example demonstrating how to reject both fungible tokens (FTs)
+ * and non-fungible tokens (NFTs).
+ *
+ * <p>This example walks through the complete workflow, including:
+ * <ul>
+ *   <li>Client configuration using operator credentials</li>
+ *   <li>Creating accounts with ED25519 keys</li>
+ *   <li>Creating fungible and non-fungible tokens</li>
+ *   <li>Associating tokens with accounts</li>
+ *   <li>Performing token rejection operations</li>
+ *   <li>Cleaning up resources (accounts and tokens)</li>
+ * </ul>
+ *
+ * <p>Environment variables required:
+ * <ul>
+ *   <li><b>OPERATOR_ID</b> - Account ID for transactions</li>
+ *   <li><b>OPERATOR_KEY</b> - Private key for signing transactions</li>
+ * </ul>
  */
 class TokenRejectExample {
 
