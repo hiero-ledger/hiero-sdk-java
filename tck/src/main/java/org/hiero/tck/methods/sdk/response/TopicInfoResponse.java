@@ -102,4 +102,3 @@ public class TopicInfoResponse implements JSONAware {
         }
     }
 }
-

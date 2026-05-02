@@ -136,4 +136,3 @@ public class TokenNftInfo {
         return toProtobuf().toByteArray();
     }
 }
-

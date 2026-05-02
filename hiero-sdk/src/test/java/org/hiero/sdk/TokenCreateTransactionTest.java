@@ -6,16 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.Iterables;
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TokenCreateTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TokenCreateTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -537,4 +537,3 @@ public class TokenCreateTransactionTest {
         assertThrows(IllegalStateException.class, () -> tx.setTokenMetadata(testMetadata));
     }
 }
-

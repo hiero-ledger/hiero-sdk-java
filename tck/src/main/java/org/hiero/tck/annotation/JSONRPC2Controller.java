@@ -18,4 +18,3 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @ResponseBody
 public @interface JSONRPC2Controller {}
-

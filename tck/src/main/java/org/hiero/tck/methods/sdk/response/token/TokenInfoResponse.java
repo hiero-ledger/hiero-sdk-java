@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response.token;
 
-import org.hiero.sdk.CustomFee;
-import org.hiero.sdk.TokenSupplyType;
-import org.hiero.sdk.TokenType;
 import java.util.List;
 import javax.annotation.Nullable;
 import lombok.Data;
+import org.hiero.sdk.CustomFee;
+import org.hiero.sdk.TokenSupplyType;
+import org.hiero.sdk.TokenType;
 
 @Data
 public class TokenInfoResponse {
@@ -169,4 +169,3 @@ public class TokenInfoResponse {
      */
     public final String ledgerId;
 }
-

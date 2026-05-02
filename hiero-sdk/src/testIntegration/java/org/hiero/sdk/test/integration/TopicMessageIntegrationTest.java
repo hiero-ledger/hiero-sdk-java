@@ -3,12 +3,12 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.hiero.sdk.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -173,4 +173,3 @@ public class TopicMessageIntegrationTest {
         }
     }
 }
-

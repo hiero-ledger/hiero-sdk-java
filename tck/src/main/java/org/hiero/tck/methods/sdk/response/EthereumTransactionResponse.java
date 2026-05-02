@@ -8,4 +8,3 @@ public class EthereumTransactionResponse {
     private final String status;
     private final String contractId;
 }
-

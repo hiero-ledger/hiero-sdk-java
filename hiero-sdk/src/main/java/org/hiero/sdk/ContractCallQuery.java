@@ -2,16 +2,16 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.ContractCallLocalQuery;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
-import org.hiero.sdk.proto.SmartContractServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ContractCallLocalQuery;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
+import org.hiero.sdk.proto.SmartContractServiceGrpc;
 
 /**
  * Call a function of the given smart contract instance, giving it functionParameters as its inputs.
@@ -223,8 +223,7 @@ public final class ContractCallQuery extends Query<ContractFunctionResult, Contr
     }
 
     @Override
-    ContractFunctionResult mapResponse(
-            Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
+    ContractFunctionResult mapResponse(Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
         return new ContractFunctionResult(response.getContractCallLocal().getFunctionResult());
     }
 
@@ -233,4 +232,3 @@ public final class ContractCallQuery extends Query<ContractFunctionResult, Contr
         return SmartContractServiceGrpc.getContractCallLocalMethodMethod();
     }
 }
-

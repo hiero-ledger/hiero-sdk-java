@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.Fraction;
-import org.hiero.sdk.proto.RoyaltyFee;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.Fraction;
+import org.hiero.sdk.proto.RoyaltyFee;
 
 /**
  * Custom royalty fee utility class.
@@ -129,8 +129,7 @@ public class CustomRoyaltyFee extends CustomFeeBase<CustomRoyaltyFee> {
 
     @Override
     org.hiero.sdk.proto.CustomFee toProtobuf() {
-        var customFeeBuilder =
-                org.hiero.sdk.proto.CustomFee.newBuilder().setRoyaltyFee(toRoyaltyFeeProtobuf());
+        var customFeeBuilder = org.hiero.sdk.proto.CustomFee.newBuilder().setRoyaltyFee(toRoyaltyFeeProtobuf());
         return finishToProtobuf(customFeeBuilder);
     }
 
@@ -143,4 +142,3 @@ public class CustomRoyaltyFee extends CustomFeeBase<CustomRoyaltyFee> {
                 .toString();
     }
 }
-

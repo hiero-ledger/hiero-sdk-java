@@ -2,14 +2,14 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.AddressBookServiceGrpc;
 import org.hiero.sdk.proto.NodeDeleteTransactionBody;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import javax.annotation.Nullable;
 
 /**
  * A transaction to delete a node from the network address book.
@@ -44,8 +44,7 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
      * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
-    NodeDeleteTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    NodeDeleteTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -150,4 +149,3 @@ public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
         return super.freezeWith(client);
     }
 }
-

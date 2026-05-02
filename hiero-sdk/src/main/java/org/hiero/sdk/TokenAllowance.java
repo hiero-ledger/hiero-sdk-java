@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.GrantedTokenAllowance;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.GrantedTokenAllowance;
 
 /**
  * An approved allowance of token transfers for a spender.
@@ -163,4 +163,3 @@ public class TokenAllowance {
                 .toString();
     }
 }
-

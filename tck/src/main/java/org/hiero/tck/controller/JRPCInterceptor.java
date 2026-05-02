@@ -43,4 +43,3 @@ public class JRPCInterceptor implements HandlerInterceptor {
         return JSONRPC2Request.parse(requestBody.toString());
     }
 }
-

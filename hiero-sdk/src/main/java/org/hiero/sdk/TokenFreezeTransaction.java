@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TokenFreezeAccountTransactionBody;
 import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Block transfers of a token type for an account.<br/>
@@ -52,8 +52,7 @@ public class TokenFreezeTransaction extends org.hiero.sdk.Transaction<TokenFreez
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TokenFreezeTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TokenFreezeTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -184,4 +183,3 @@ public class TokenFreezeTransaction extends org.hiero.sdk.Transaction<TokenFreez
         scheduled.setTokenFreeze(build());
     }
 }
-

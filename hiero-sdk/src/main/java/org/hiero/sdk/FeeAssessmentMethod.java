@@ -38,4 +38,3 @@ public enum FeeAssessmentMethod {
         return code ? "EXCLUSIVE" : "INCLUSIVE";
     }
 }
-

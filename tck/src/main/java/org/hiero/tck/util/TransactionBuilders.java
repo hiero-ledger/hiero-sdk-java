@@ -2,6 +2,14 @@
 package org.hiero.tck.util;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.AccountAllowanceApproveTransaction;
 import org.hiero.sdk.AccountAllowanceDeleteTransaction;
 import org.hiero.sdk.AccountCreateTransaction;
@@ -80,14 +88,6 @@ import org.hiero.tck.methods.sdk.param.topic.DeleteTopicParams;
 import org.hiero.tck.methods.sdk.param.topic.SubmitTopicMessageParams;
 import org.hiero.tck.methods.sdk.param.topic.UpdateTopicParams;
 import org.hiero.tck.methods.sdk.param.transfer.TransferCryptoParams;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Utility class for building Hedera transactions from parameters.
@@ -855,8 +855,7 @@ public class TransactionBuilders {
             TokenAirdropTransaction transaction = new TokenAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
             params.getTokenTransfers().ifPresent(transferParams -> {
-                for (org.hiero.tck.methods.sdk.param.transfer.TransferParams transferParam :
-                        transferParams) {
+                for (org.hiero.tck.methods.sdk.param.transfer.TransferParams transferParam : transferParams) {
                     try {
                         AirdropUtils.handleAirdropParam(transaction, transferParam);
                     } catch (Exception e) {
@@ -1237,8 +1236,7 @@ public class TransactionBuilders {
 
             params.getCustomFeeLimits().ifPresent(customFeeLimits -> {
                 for (CustomFeeLimit customFeeLimitParam : customFeeLimits) {
-                    org.hiero.sdk.CustomFeeLimit sdkCustomFeeLimit =
-                            new org.hiero.sdk.CustomFeeLimit();
+                    org.hiero.sdk.CustomFeeLimit sdkCustomFeeLimit = new org.hiero.sdk.CustomFeeLimit();
 
                     // Set payer ID if present
                     customFeeLimitParam.getPayerId().ifPresent(payerIdStr -> {
@@ -1452,4 +1450,3 @@ public class TransactionBuilders {
         }
     }
 }
-

@@ -4,6 +4,8 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Collections;
+import java.util.Objects;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.Hbar;
 import org.hiero.sdk.PrecheckStatusException;
@@ -17,8 +19,6 @@ import org.hiero.sdk.TokenMintTransaction;
 import org.hiero.sdk.TokenType;
 import org.hiero.sdk.TokenWipeTransaction;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Collections;
-import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -396,4 +396,3 @@ class TokenWipeIntegrationTest {
         }
     }
 }
-

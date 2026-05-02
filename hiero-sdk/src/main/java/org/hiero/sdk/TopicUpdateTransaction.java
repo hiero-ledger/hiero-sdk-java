@@ -3,13 +3,6 @@ package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.ConsensusServiceGrpc;
-import org.hiero.sdk.proto.ConsensusUpdateTopicTransactionBody;
-import org.hiero.sdk.proto.FeeExemptKeyList;
-import org.hiero.sdk.proto.FixedCustomFeeList;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +12,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ConsensusServiceGrpc;
+import org.hiero.sdk.proto.ConsensusUpdateTopicTransactionBody;
+import org.hiero.sdk.proto.FeeExemptKeyList;
+import org.hiero.sdk.proto.FixedCustomFeeList;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Update a topic.
@@ -73,8 +73,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TopicUpdateTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TopicUpdateTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -593,4 +592,3 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         scheduled.setConsensusUpdateTopic(build());
     }
 }
-

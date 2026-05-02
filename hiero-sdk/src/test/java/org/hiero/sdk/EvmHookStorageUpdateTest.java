@@ -90,9 +90,7 @@ class EvmHookStorageUpdateTest {
 
     @Test
     void fromProtobufWithoutUpdateThrows() {
-        var emptyProto =
-                org.hiero.sdk.proto.EvmHookStorageUpdate.newBuilder().build();
+        var emptyProto = org.hiero.sdk.proto.EvmHookStorageUpdate.newBuilder().build();
         assertThrows(IllegalArgumentException.class, () -> EvmHookStorageUpdate.fromProtobuf(emptyProto));
     }
 }
-

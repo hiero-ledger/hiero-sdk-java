@@ -352,4 +352,3 @@ class AccountIdTest {
         assertThat(id.toEvmAddress()).isEqualTo(expected);
     }
 }
-

@@ -175,4 +175,3 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
                 .toString();
     }
 }
-

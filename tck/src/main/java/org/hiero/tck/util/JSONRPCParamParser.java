@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.util;
 
-import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
-import org.hiero.tck.methods.sdk.param.CustomFee;
-import org.hiero.tck.methods.sdk.param.account.AllowanceParams;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
+import org.hiero.tck.methods.sdk.param.CustomFee;
+import org.hiero.tck.methods.sdk.param.account.AllowanceParams;
 
 public class JSONRPCParamParser {
 
@@ -63,4 +63,3 @@ public class JSONRPCParamParser {
         R apply(T t) throws Exception;
     }
 }
-

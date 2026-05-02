@@ -769,4 +769,3 @@ public class ContractCreateFlow {
         ConsumerHelper.twoConsumers(executeAsync(client, timeoutPerTransaction), onSuccess, onFailure);
     }
 }
-

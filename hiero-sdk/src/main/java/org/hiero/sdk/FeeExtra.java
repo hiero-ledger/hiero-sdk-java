@@ -175,4 +175,3 @@ public final class FeeExtra {
         return object.get(key).getAsLong();
     }
 }
-

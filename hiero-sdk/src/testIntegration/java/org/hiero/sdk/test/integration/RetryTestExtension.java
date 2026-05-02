@@ -47,4 +47,3 @@ public class RetryTestExtension implements TestExecutionExceptionHandler {
         throw lastThrowable;
     }
 }
-

@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.hiero.sdk.proto.CryptoApproveAllowanceTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.CryptoApproveAllowanceTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -133,4 +133,3 @@ public class AccountAllowanceApproveTransactionTest {
                 () -> tx.deleteTokenNftAllowanceAllSerials(testTokenId, testOwnerAccountId, testSpenderAccountId));
     }
 }
-

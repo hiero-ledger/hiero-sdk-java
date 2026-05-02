@@ -28,4 +28,3 @@ public class TopicResponse {
         this.status = status;
     }
 }
-

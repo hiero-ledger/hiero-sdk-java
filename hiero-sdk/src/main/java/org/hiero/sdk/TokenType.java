@@ -60,4 +60,3 @@ public enum TokenType {
         return this.code;
     }
 }
-

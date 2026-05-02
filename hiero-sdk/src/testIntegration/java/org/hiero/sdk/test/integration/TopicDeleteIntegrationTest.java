@@ -3,11 +3,11 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Objects;
 import org.hiero.sdk.ReceiptStatusException;
 import org.hiero.sdk.Status;
 import org.hiero.sdk.TopicCreateTransaction;
 import org.hiero.sdk.TopicDeleteTransaction;
-import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -51,4 +51,3 @@ public class TopicDeleteIntegrationTest {
         }
     }
 }
-

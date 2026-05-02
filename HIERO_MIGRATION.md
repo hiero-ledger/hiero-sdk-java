@@ -369,4 +369,3 @@ For additional support, create an issue in the [Hiero SDK repository](https://gi
 ---
 
 **Note**: This migration is part of the broader transition from the Hedera organization to the Hiero organization. The SDK functionality remains unchanged, and this is purely a namespace update to reflect the new organizational structure.
-

@@ -2,11 +2,11 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractGetInfoResponse;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractGetInfoResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -56,4 +56,3 @@ public class ContractInfoTest {
                 .toMatchSnapshot();
     }
 }
-

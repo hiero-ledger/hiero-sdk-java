@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.*;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -175,4 +175,3 @@ public class CryptoTransferTransactionTest {
         assertThat(tx).isInstanceOf(TransferTransaction.class);
     }
 }
-

@@ -32,4 +32,3 @@ public class HbarTransferParams {
         return new HbarTransferParams(parsedAccountId, parsedEvmAddress, parsedAmount);
     }
 }
-

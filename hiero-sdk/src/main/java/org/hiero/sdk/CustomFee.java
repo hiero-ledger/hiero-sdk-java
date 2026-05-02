@@ -68,8 +68,8 @@ public abstract class CustomFee {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static CustomFee fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.CustomFee.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.CustomFee.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -129,8 +129,7 @@ public abstract class CustomFee {
      * @param customFeeBuilder              the builder object
      * @return                              the protobuf
      */
-    protected org.hiero.sdk.proto.CustomFee finishToProtobuf(
-            org.hiero.sdk.proto.CustomFee.Builder customFeeBuilder) {
+    protected org.hiero.sdk.proto.CustomFee finishToProtobuf(org.hiero.sdk.proto.CustomFee.Builder customFeeBuilder) {
         if (feeCollectorAccountId != null) {
             customFeeBuilder.setFeeCollectorAccountId(feeCollectorAccountId.toProtobuf());
         }
@@ -165,4 +164,3 @@ public abstract class CustomFee {
                 .add("allCollectorsAreExempt", allCollectorsAreExempt);
     }
 }
-

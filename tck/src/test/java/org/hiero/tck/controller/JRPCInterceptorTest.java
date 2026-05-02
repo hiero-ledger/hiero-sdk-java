@@ -60,4 +60,3 @@ class JRPCInterceptorTest {
         verify(request).setAttribute(eq("jsonrpcRequest"), any(JSONRPC2Request.class));
     }
 }
-

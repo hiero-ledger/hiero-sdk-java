@@ -140,4 +140,3 @@ public class EthereumTransactionDataLegacy extends EthereumTransactionData {
                 .toString();
     }
 }
-

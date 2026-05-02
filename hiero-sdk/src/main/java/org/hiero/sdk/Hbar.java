@@ -251,4 +251,3 @@ public final class Hbar implements Comparable<Hbar> {
         return Long.compare(valueInTinybar, o.valueInTinybar);
     }
 }
-

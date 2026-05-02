@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.param.file;
 
-import org.hiero.tck.methods.JSONRPC2Param;
-import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
-import org.hiero.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hiero.tck.methods.JSONRPC2Param;
+import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
+import org.hiero.tck.util.JSONRPCParamParser;
 
 /**
  * FileCreateParams for file create method
@@ -54,4 +54,3 @@ public class FileCreateParams extends JSONRPC2Param {
         return Optional.empty();
     }
 }
-

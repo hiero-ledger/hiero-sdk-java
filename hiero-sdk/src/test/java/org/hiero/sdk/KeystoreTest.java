@@ -54,4 +54,3 @@ class KeystoreTest {
         assertThat(privateKey2.toString()).isEqualTo(TEST_KEY_STR);
     }
 }
-

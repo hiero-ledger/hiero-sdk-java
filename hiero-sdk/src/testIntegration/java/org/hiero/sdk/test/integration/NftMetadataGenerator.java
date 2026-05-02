@@ -27,4 +27,3 @@ public class NftMetadataGenerator {
         return Collections.singletonList(new byte[101]);
     }
 }
-

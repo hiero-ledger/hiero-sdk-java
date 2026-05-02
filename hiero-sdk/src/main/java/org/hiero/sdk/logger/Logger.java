@@ -135,4 +135,3 @@ public class Logger {
         return level.toInt() >= currentLevel.toInt();
     }
 }
-

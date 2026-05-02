@@ -20,4 +20,3 @@ class HookIdTest {
         assertThat(parsed.getHookId()).isEqualTo(42L);
     }
 }
-

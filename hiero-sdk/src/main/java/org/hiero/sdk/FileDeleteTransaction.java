@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.FileDeleteTransactionBody;
 import org.hiero.sdk.proto.FileServiceGrpc;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * <p>A transaction to delete a file on the Hedera network.
@@ -39,8 +39,7 @@ public final class FileDeleteTransaction extends Transaction<FileDeleteTransacti
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    FileDeleteTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    FileDeleteTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -129,4 +128,3 @@ public final class FileDeleteTransaction extends Transaction<FileDeleteTransacti
         scheduled.setFileDelete(build());
     }
 }
-

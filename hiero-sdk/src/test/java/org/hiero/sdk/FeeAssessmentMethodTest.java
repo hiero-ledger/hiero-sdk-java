@@ -12,4 +12,3 @@ class FeeAssessmentMethodTest {
         assertThat(FeeAssessmentMethod.valueOf(false)).hasToString(FeeAssessmentMethod.INCLUSIVE.toString());
     }
 }
-

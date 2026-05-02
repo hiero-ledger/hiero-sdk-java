@@ -99,12 +99,11 @@ class PendingAirdropIdTest {
 
     @Test
     void testFromProtobufWithTokenId() {
-        org.hiero.sdk.proto.PendingAirdropId proto =
-                org.hiero.sdk.proto.PendingAirdropId.newBuilder()
-                        .setSenderId(sender.toProtobuf())
-                        .setReceiverId(receiver.toProtobuf())
-                        .setFungibleTokenType(tokenId.toProtobuf())
-                        .build();
+        org.hiero.sdk.proto.PendingAirdropId proto = org.hiero.sdk.proto.PendingAirdropId.newBuilder()
+                .setSenderId(sender.toProtobuf())
+                .setReceiverId(receiver.toProtobuf())
+                .setFungibleTokenType(tokenId.toProtobuf())
+                .build();
 
         PendingAirdropId pendingAirdropId = PendingAirdropId.fromProtobuf(proto);
 
@@ -117,12 +116,11 @@ class PendingAirdropIdTest {
 
     @Test
     void testFromProtobufWithNftId() {
-        org.hiero.sdk.proto.PendingAirdropId proto =
-                org.hiero.sdk.proto.PendingAirdropId.newBuilder()
-                        .setSenderId(sender.toProtobuf())
-                        .setReceiverId(receiver.toProtobuf())
-                        .setNonFungibleToken(nftId.toProtobuf())
-                        .build();
+        org.hiero.sdk.proto.PendingAirdropId proto = org.hiero.sdk.proto.PendingAirdropId.newBuilder()
+                .setSenderId(sender.toProtobuf())
+                .setReceiverId(receiver.toProtobuf())
+                .setNonFungibleToken(nftId.toProtobuf())
+                .build();
 
         PendingAirdropId pendingAirdropId = PendingAirdropId.fromProtobuf(proto);
 
@@ -144,4 +142,3 @@ class PendingAirdropIdTest {
         assertTrue(result.contains("nftId"));
     }
 }
-

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
-import org.hiero.sdk.proto.TransactionGetRecordQuery;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
+import org.hiero.sdk.proto.TransactionGetRecordQuery;
 
 /**
  * Get the record for a transaction.
@@ -140,8 +140,7 @@ public final class TransactionRecordQuery extends Query<TransactionRecord, Trans
                 recordResponse.getTransactionRecord(), children, duplicates, transactionId);
     }
 
-    private List<TransactionRecord> mapRecordList(
-            List<org.hiero.sdk.proto.TransactionRecord> protoRecordList) {
+    private List<TransactionRecord> mapRecordList(List<org.hiero.sdk.proto.TransactionRecord> protoRecordList) {
         List<TransactionRecord> outList = new ArrayList<>(protoRecordList.size());
         for (var protoRecord : protoRecordList) {
             outList.add(TransactionRecord.fromProtobuf(protoRecord));
@@ -197,4 +196,3 @@ public final class TransactionRecordQuery extends Query<TransactionRecord, Trans
         }
     }
 }
-

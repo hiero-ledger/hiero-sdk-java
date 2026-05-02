@@ -55,4 +55,3 @@ Hiero uses the Linux Foundation Decentralised Trust [Code of Conduct](https://ww
 ## License
 
 [Apache License 2.0](LICENSE)
-

@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 import org.hiero.sdk.AccountId;
 import org.hiero.sdk.Client;
 import org.hiero.sdk.PrivateKey;
@@ -10,14 +18,6 @@ import org.hiero.tck.methods.AbstractJSONRPC2Service;
 import org.hiero.tck.methods.sdk.param.BaseParams;
 import org.hiero.tck.methods.sdk.param.SetupParams;
 import org.hiero.tck.methods.sdk.response.SetupResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 
 /**
  * SdkService for managing the {@link Client} setup and reset
@@ -84,4 +84,3 @@ public class SdkService extends AbstractJSONRPC2Service {
         }
     }
 }
-

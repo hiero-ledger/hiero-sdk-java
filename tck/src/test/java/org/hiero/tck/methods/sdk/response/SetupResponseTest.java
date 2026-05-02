@@ -50,4 +50,3 @@ class SetupResponseTest {
         assertEquals("SUCCESS", setupResponse.getStatus());
     }
 }
-

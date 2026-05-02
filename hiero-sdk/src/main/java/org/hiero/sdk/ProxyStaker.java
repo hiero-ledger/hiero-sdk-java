@@ -41,4 +41,3 @@ public final class ProxyStaker {
         return "ProxyStaker{" + "accountId=" + accountId + ", amount=" + amount + '}';
     }
 }
-

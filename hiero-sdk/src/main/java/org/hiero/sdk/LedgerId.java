@@ -202,4 +202,3 @@ public class LedgerId {
         return Arrays.hashCode(idBytes);
     }
 }
-

@@ -31,4 +31,3 @@ public class ExchangeRatesTest {
         assertThat(exchangeRates.nextRate.exchangeRateInCents).isEqualTo(19.588666666666665);
     }
 }
-

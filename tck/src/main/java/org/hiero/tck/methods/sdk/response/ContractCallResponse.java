@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response;
 
+import java.util.List;
+import javax.annotation.Nullable;
+import lombok.Data;
 import org.hiero.sdk.AccountId;
 import org.hiero.sdk.ContractId;
 import org.hiero.sdk.ContractLogInfo;
 import org.hiero.sdk.Hbar;
-import java.util.List;
-import javax.annotation.Nullable;
-import lombok.Data;
 
 @Data
 public class ContractCallResponse {
@@ -63,4 +63,3 @@ public class ContractCallResponse {
 
     private final String rawResult;
 }
-

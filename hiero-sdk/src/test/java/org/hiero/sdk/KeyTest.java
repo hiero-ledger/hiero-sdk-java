@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import static org.hiero.sdk.Key.fromBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.hiero.sdk.Key.fromBytes;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.Key;
-import org.hiero.sdk.proto.KeyList;
-import org.hiero.sdk.proto.ThresholdKey;
 import java.math.BigInteger;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.Key;
+import org.hiero.sdk.proto.KeyList;
+import org.hiero.sdk.proto.ThresholdKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -353,4 +353,3 @@ class KeyTest {
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> fromBytes(bytes));
     }
 }
-

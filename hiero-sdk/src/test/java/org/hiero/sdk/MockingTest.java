@@ -3,6 +3,22 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import io.grpc.Status;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.StreamObserver;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import org.hiero.sdk.proto.AccountID;
 import org.hiero.sdk.proto.CryptoGetAccountBalanceResponse;
 import org.hiero.sdk.proto.CryptoGetInfoResponse;
@@ -21,22 +37,6 @@ import org.hiero.sdk.proto.TransactionGetRecordResponse;
 import org.hiero.sdk.proto.TransactionReceipt;
 import org.hiero.sdk.proto.TransactionRecord;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
-import io.grpc.Status;
-import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.stub.StreamObserver;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -521,8 +521,7 @@ class MockingTest {
         "PLATFORM_TRANSACTION_NOT_CREATED, 3, async",
         "TRANSACTION_EXPIRED, 3, async"
     })
-    void shouldRetryFunctionsCorrectly(org.hiero.sdk.Status status, int numberOfErrors, String sync)
-            throws Exception {
+    void shouldRetryFunctionsCorrectly(org.hiero.sdk.Status status, int numberOfErrors, String sync) throws Exception {
         var service = new TestCryptoService();
         var server = new TestServer("shouldRetryFunctionsCorrectly" + status + numberOfErrors + sync, service);
 
@@ -547,8 +546,7 @@ class MockingTest {
 
         Assertions.assertEquals(numberOfErrors + 1, service.buffer.transactionRequestsReceived.size());
         // For BUSY and TRANSACTION_EXPIRED we retry on the same node; otherwise we expect a different node
-        if (status != org.hiero.sdk.Status.BUSY
-                && status != org.hiero.sdk.Status.TRANSACTION_EXPIRED) {
+        if (status != org.hiero.sdk.Status.BUSY && status != org.hiero.sdk.Status.TRANSACTION_EXPIRED) {
             assertFirstTwoRequestsNotDirectedAtSameNode(service);
         }
 
@@ -723,8 +721,7 @@ class MockingTest {
         var noReceiptResponse = TestResponse.query(Response.newBuilder()
                 .setTransactionGetReceipt(TransactionGetReceiptResponse.newBuilder()
                         .setHeader(ResponseHeader.newBuilder()
-                                .setNodeTransactionPrecheckCode(
-                                        org.hiero.sdk.Status.RECEIPT_NOT_FOUND.code)))
+                                .setNodeTransactionPrecheckCode(org.hiero.sdk.Status.RECEIPT_NOT_FOUND.code)))
                 .build());
 
         service.buffer.enqueueResponse(noReceiptResponse);
@@ -874,4 +871,3 @@ class MockingTest {
         }
     }
 }
-

@@ -82,4 +82,3 @@ public class ClientMirrorBaseUrlTest {
         assertThatThrownBy(() -> client.getMirrorRestBaseUrl()).isInstanceOf(RuntimeException.class);
     }
 }
-

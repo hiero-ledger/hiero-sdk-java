@@ -35,4 +35,3 @@ public class Bip32Utils {
         return (index & HARDENED_BIT) != 0;
     }
 }
-

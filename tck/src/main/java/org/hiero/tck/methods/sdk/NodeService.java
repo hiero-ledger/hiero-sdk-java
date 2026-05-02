@@ -2,6 +2,11 @@
 package org.hiero.tck.methods.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.*;
 import org.hiero.tck.annotation.JSONRPC2Method;
 import org.hiero.tck.annotation.JSONRPC2Service;
@@ -14,11 +19,6 @@ import org.hiero.tck.methods.sdk.param.node.ServiceEndpointParams;
 import org.hiero.tck.methods.sdk.response.AddressBookResponse;
 import org.hiero.tck.methods.sdk.response.NodeResponse;
 import org.hiero.tck.util.KeyUtils;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
 public class NodeService extends AbstractJSONRPC2Service {
@@ -165,4 +165,3 @@ public class NodeService extends AbstractJSONRPC2Service {
         setter.accept(eps);
     }
 }
-

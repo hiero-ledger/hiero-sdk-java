@@ -4,6 +4,9 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.esaulpaugh.headlong.abi.Address;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Objects;
 import org.hiero.sdk.ContractCallQuery;
 import org.hiero.sdk.ContractCreateTransaction;
 import org.hiero.sdk.ContractDeleteTransaction;
@@ -15,9 +18,6 @@ import org.hiero.sdk.FileDeleteTransaction;
 import org.hiero.sdk.FileId;
 import org.hiero.sdk.Hbar;
 import org.hiero.sdk.MirrorNodeContractEstimateGasQuery;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -3473,4 +3473,3 @@ public class ContractFunctionParametersIntegrationTest {
         assertThat(responseResult).isEqualTo(testBytesLen32);
     }
 }
-

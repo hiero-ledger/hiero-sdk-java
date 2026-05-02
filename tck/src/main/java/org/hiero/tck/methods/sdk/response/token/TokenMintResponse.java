@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response.token;
 
-import org.hiero.sdk.Status;
 import java.util.List;
+import org.hiero.sdk.Status;
 
 public class TokenMintResponse extends TokenResponse {
     private final String newTotalSupply;
@@ -22,4 +22,3 @@ public class TokenMintResponse extends TokenResponse {
         return serialNumbers;
     }
 }
-

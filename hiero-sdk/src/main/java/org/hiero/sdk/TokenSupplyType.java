@@ -55,4 +55,3 @@ public enum TokenSupplyType {
         return this.code;
     }
 }
-

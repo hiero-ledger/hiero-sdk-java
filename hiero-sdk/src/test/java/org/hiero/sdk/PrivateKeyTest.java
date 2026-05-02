@@ -49,4 +49,3 @@ public class PrivateKeyTest {
         PrivateKey.fromString("0x8776c6b831a1b61ac10dac0304a2843de4716f54b1919bb91a2685d0fe3f3048");
     }
 }
-

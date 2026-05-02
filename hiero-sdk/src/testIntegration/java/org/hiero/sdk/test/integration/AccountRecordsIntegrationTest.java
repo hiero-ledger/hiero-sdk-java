@@ -3,12 +3,12 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Objects;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.AccountRecordsQuery;
 import org.hiero.sdk.Hbar;
 import org.hiero.sdk.PrivateKey;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -49,4 +49,3 @@ class AccountRecordsIntegrationTest {
         }
     }
 }
-

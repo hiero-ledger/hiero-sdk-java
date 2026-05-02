@@ -97,4 +97,3 @@ class LoggerTest {
         verify(internalLogger, times(1)).warn(any(), any(Object[].class));
     }
 }
-

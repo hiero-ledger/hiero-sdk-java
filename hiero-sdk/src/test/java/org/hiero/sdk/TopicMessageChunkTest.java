@@ -4,10 +4,10 @@ package org.hiero.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import org.hiero.sdk.proto.ConsensusMessageChunkInfo;
 import org.hiero.sdk.proto.Timestamp;
 import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
-import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 public class TopicMessageChunkTest {
@@ -38,4 +38,3 @@ public class TopicMessageChunkTest {
         assertThat(topicMessageChunk.sequenceNumber).isEqualTo(testSequenceNumber);
     }
 }
-

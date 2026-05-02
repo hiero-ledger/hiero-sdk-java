@@ -32,4 +32,3 @@ public final class MaxQueryPaymentExceededException extends RuntimeException {
         this.maxQueryPayment = maxQueryPayment;
     }
 }
-

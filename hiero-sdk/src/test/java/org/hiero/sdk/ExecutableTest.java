@@ -9,13 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.hiero.sdk.Executable.GrpcRequest;
-import org.hiero.sdk.logger.LogLevel;
-import org.hiero.sdk.logger.Logger;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseCodeEnum;
-import org.hiero.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import io.grpc.StatusRuntimeException;
 import java.time.Duration;
@@ -28,6 +21,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
+import org.hiero.sdk.Executable.GrpcRequest;
+import org.hiero.sdk.logger.LogLevel;
+import org.hiero.sdk.logger.Logger;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseCodeEnum;
+import org.hiero.sdk.proto.ResponseHeader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -273,8 +273,7 @@ class ExecutableTest {
                 .build();
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
-        org.hiero.sdk.TransactionResponse resp =
-                (org.hiero.sdk.TransactionResponse) tx.execute(client);
+        org.hiero.sdk.TransactionResponse resp = (org.hiero.sdk.TransactionResponse) tx.execute(client);
 
         assertThat(resp.nodeId).isEqualTo(new AccountId(0, 0, 3));
         assertThat(resp.getValidateStatus()).isTrue();
@@ -314,8 +313,7 @@ class ExecutableTest {
                 .build();
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
-        org.hiero.sdk.TransactionResponse resp =
-                (org.hiero.sdk.TransactionResponse) tx.execute(client);
+        org.hiero.sdk.TransactionResponse resp = (org.hiero.sdk.TransactionResponse) tx.execute(client);
 
         verify(node3).channelFailedToConnect(any(Instant.class));
         verify(node4).channelFailedToConnect(any(Instant.class));
@@ -368,8 +366,7 @@ class ExecutableTest {
                 .build();
 
         tx.blockingUnaryCall = (grpcRequest) -> txResp;
-        org.hiero.sdk.TransactionResponse resp =
-                (org.hiero.sdk.TransactionResponse) tx.execute(client);
+        org.hiero.sdk.TransactionResponse resp = (org.hiero.sdk.TransactionResponse) tx.execute(client);
 
         verify(node3, times(2)).channelFailedToConnect(any(Instant.class));
         verify(node4).channelFailedToConnect(any(Instant.class));
@@ -592,10 +589,7 @@ class ExecutableTest {
 
     static class DummyTransaction<T extends Transaction<T>>
             extends Executable<
-                    T,
-                    org.hiero.sdk.proto.Transaction,
-                    org.hiero.sdk.proto.TransactionResponse,
-                    TransactionResponse> {
+                    T, org.hiero.sdk.proto.Transaction, org.hiero.sdk.proto.TransactionResponse, TransactionResponse> {
 
         @Override
         void onExecute(Client client) {}
@@ -645,8 +639,7 @@ class ExecutableTest {
         void onExecute(Client client) {}
 
         @Override
-        TransactionReceipt mapResponse(
-                Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
+        TransactionReceipt mapResponse(Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
             return null;
         }
 
@@ -677,4 +670,3 @@ class ExecutableTest {
         void validateChecksums(Client client) {}
     }
 }
-

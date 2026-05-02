@@ -92,8 +92,7 @@ public class AssessedCustomFee {
      * @return {@link org.hiero.sdk.proto.AssessedCustomFee}
      */
     org.hiero.sdk.proto.AssessedCustomFee toProtobuf() {
-        var builder =
-                org.hiero.sdk.proto.AssessedCustomFee.newBuilder().setAmount(amount);
+        var builder = org.hiero.sdk.proto.AssessedCustomFee.newBuilder().setAmount(amount);
         if (tokenId != null) {
             builder.setTokenId(tokenId.toProtobuf());
         }
@@ -115,4 +114,3 @@ public class AssessedCustomFee {
         return toProtobuf().toByteArray();
     }
 }
-

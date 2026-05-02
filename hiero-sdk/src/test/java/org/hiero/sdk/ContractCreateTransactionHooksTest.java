@@ -102,9 +102,7 @@ public class ContractCreateTransactionHooksTest {
         assertEquals(1, protoBody.getHookCreationDetailsCount());
 
         var protoHook = protoBody.getHookCreationDetails(0);
-        assertEquals(
-                org.hiero.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-                protoHook.getExtensionPoint());
+        assertEquals(org.hiero.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, protoHook.getExtensionPoint());
         assertEquals(1L, protoHook.getHookId());
         assertTrue(protoHook.hasEvmHook());
     }
@@ -146,4 +144,3 @@ public class ContractCreateTransactionHooksTest {
         assertTrue(parsedHook.getHook().getStorageUpdates().isEmpty());
     }
 }
-

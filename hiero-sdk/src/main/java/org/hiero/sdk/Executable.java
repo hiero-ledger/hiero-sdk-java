@@ -5,8 +5,6 @@ import static org.hiero.sdk.FutureConverter.toCompletableFuture;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.MessageLite;
-import org.hiero.sdk.logger.LogLevel;
-import org.hiero.sdk.logger.Logger;
 import io.grpc.CallOptions;
 import io.grpc.ClientCall;
 import io.grpc.MethodDescriptor;
@@ -31,6 +29,8 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.logger.LogLevel;
+import org.hiero.sdk.logger.Logger;
 
 /**
  * Abstract base utility class.
@@ -1089,4 +1089,3 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         }
     }
 }
-

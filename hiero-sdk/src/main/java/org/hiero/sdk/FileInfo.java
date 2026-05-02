@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.FileGetInfoResponse;
 import java.time.Instant;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.FileGetInfoResponse;
 
 /**
  * Current information for a file, including its size.
@@ -147,4 +147,3 @@ public final class FileInfo {
         return toProtobuf().toByteArray();
     }
 }
-

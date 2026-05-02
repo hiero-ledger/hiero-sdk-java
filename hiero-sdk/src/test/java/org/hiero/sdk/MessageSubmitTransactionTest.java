@@ -3,11 +3,11 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.ConsensusSubmitMessageTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.ConsensusSubmitMessageTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -70,4 +70,3 @@ public class MessageSubmitTransactionTest {
         assertThat(tx).isInstanceOf(TopicMessageSubmitTransaction.class);
     }
 }
-

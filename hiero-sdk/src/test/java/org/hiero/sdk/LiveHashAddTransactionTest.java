@@ -60,4 +60,3 @@ class LiveHashAddTransactionTest {
         assertThat(tx2).hasToString(tx.toString());
     }
 }
-

@@ -21,4 +21,3 @@ public class MirrorNodeContractCallQuery extends MirrorNodeContractQuery<MirrorN
         return "MirrorNodeContractCallQuery" + super.toString();
     }
 }
-

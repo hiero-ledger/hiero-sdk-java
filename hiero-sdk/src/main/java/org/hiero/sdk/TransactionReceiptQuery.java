@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
-import org.hiero.sdk.proto.TransactionGetReceiptQuery;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
+import org.hiero.sdk.proto.TransactionGetReceiptQuery;
 
 /**
  * Get the receipt of a transaction, given its transaction ID.
@@ -205,4 +205,3 @@ public final class TransactionReceiptQuery extends Query<TransactionReceipt, Tra
         }
     }
 }
-

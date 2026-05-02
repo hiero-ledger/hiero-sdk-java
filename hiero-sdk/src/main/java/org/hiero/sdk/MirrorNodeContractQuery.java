@@ -352,4 +352,3 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 + block + '}';
     }
 }
-

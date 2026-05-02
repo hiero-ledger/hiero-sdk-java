@@ -4,11 +4,11 @@ package org.hiero.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.ByteString;
+import java.time.Instant;
+import java.util.List;
 import org.hiero.sdk.proto.ConsensusMessageChunkInfo;
 import org.hiero.sdk.proto.Timestamp;
 import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
-import java.time.Instant;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class TopicMessageTest {
@@ -105,4 +105,3 @@ public class TopicMessageTest {
         assertThat(topicMessage.transactionId).isEqualTo(testTransactionId);
     }
 }
-

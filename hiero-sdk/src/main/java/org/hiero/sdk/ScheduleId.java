@@ -2,10 +2,10 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ScheduleID;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ScheduleID;
 
 /**
  * The entity ID of a schedule transaction.
@@ -207,4 +207,3 @@ public final class ScheduleId implements Comparable<ScheduleId> {
         return Long.compare(num, o.num);
     }
 }
-

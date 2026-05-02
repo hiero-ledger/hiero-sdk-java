@@ -5,7 +5,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.TransactionID;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -16,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.TransactionID;
 
 /**
  * The client-generated ID for a transaction.
@@ -537,4 +537,3 @@ public final class TransactionId implements Comparable<TransactionId> {
         return 0;
     }
 }
-

@@ -75,4 +75,3 @@ class EvmHookTest {
         assertTrue(s.contains("storageUpdates"));
     }
 }
-

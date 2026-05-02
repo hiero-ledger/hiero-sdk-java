@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.CustomFee;
-import org.hiero.sdk.proto.FixedFee;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hiero.sdk.proto.CustomFee;
+import org.hiero.sdk.proto.FixedFee;
 
 /**
  * A maximum custom fee that the user is willing to pay.
@@ -64,8 +64,7 @@ public class CustomFeeLimit {
     }
 
     org.hiero.sdk.proto.CustomFeeLimit toProtobuf() {
-        org.hiero.sdk.proto.CustomFeeLimit.Builder builder =
-                org.hiero.sdk.proto.CustomFeeLimit.newBuilder();
+        org.hiero.sdk.proto.CustomFeeLimit.Builder builder = org.hiero.sdk.proto.CustomFeeLimit.newBuilder();
 
         builder.setAccountId(payerId.toProtobuf());
 
@@ -79,4 +78,3 @@ public class CustomFeeLimit {
         return builder.build();
     }
 }
-

@@ -3,13 +3,13 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ConsensusGetTopicInfoResponse;
-import org.hiero.sdk.proto.ConsensusTopicInfo;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ConsensusGetTopicInfoResponse;
+import org.hiero.sdk.proto.ConsensusTopicInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -87,4 +87,3 @@ public class TopicInfoTest {
                 .toMatchSnapshot();
     }
 }
-

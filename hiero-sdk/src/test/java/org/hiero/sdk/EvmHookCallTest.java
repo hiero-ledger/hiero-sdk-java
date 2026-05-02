@@ -36,4 +36,3 @@ class EvmHookCallTest {
                 .hasMessage("data cannot be null");
     }
 }
-

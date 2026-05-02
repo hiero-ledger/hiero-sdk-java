@@ -4,12 +4,12 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CryptoGetAccountBalanceResponse;
-import org.hiero.sdk.proto.TokenBalance;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
+import org.hiero.sdk.proto.CryptoGetAccountBalanceResponse;
+import org.hiero.sdk.proto.TokenBalance;
 
 /**
  * This class represents the account balance object
@@ -107,4 +107,3 @@ public class AccountBalance {
                 .toString();
     }
 }
-

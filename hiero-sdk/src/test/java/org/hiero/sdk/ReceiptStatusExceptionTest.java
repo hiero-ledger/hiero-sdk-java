@@ -3,8 +3,8 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.ResponseCodeEnum;
 import java.time.Instant;
+import org.hiero.sdk.proto.ResponseCodeEnum;
 import org.junit.jupiter.api.Test;
 
 class ReceiptStatusExceptionTest {
@@ -22,4 +22,3 @@ class ReceiptStatusExceptionTest {
                 .isEqualTo("receipt for transaction 0.0.100@1554158542.000000000 raised status INSUFFICIENT_TX_FEE");
     }
 }
-

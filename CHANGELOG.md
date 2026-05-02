@@ -2065,4 +2065,3 @@ implementation 'io.grpc:grpc-netty:1.24.0'
 // okhttp transport (for lighter-weight applications or Android)
 implementation 'io.grpc:grpc-okhttp:1.24.0'
 ```
-

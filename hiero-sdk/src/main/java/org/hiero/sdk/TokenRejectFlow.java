@@ -345,4 +345,3 @@ public class TokenRejectFlow {
         ConsumerHelper.twoConsumers(executeAsync(client, timeoutPerTransaction), onSuccess, onFailure);
     }
 }
-

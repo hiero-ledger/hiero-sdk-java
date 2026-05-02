@@ -3,8 +3,8 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.QueryHeader;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.QueryHeader;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,4 +49,3 @@ public class TokenNftInfoQueryTest {
         assertThat(query.getEnd()).isEqualTo(8);
     }
 }
-

@@ -3,7 +3,6 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractID;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractID;
 
 /**
  * The ID for a smart contract instance on Hedera.
@@ -275,9 +275,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
 
     @Override
     org.hiero.sdk.proto.Key toProtobufKey() {
-        return org.hiero.sdk.proto.Key.newBuilder()
-                .setContractID(toProtobuf())
-                .build();
+        return org.hiero.sdk.proto.Key.newBuilder().setContractID(toProtobuf()).build();
     }
 
     @Override
@@ -368,4 +366,3 @@ public class ContractId extends Key implements Comparable<ContractId> {
         return 0;
     }
 }
-

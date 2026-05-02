@@ -6,17 +6,17 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.AddressBookServiceGrpc;
-import org.hiero.sdk.proto.NodeUpdateTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.AddressBookServiceGrpc;
+import org.hiero.sdk.proto.NodeUpdateTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * A transaction to modify address book node attributes.
@@ -78,8 +78,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
-    NodeUpdateTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    NodeUpdateTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -611,4 +610,3 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      */
     // validation moved to Endpoint.validateNoIpAndDomain
 }
-

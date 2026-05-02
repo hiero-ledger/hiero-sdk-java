@@ -8,14 +8,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.AccountID;
-import org.hiero.sdk.proto.ConsensusMessageChunkInfo;
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TopicID;
-import org.hiero.sdk.proto.TransactionID;
-import org.hiero.sdk.proto.mirror.ConsensusServiceGrpc;
-import org.hiero.sdk.proto.mirror.ConsensusTopicQuery;
-import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import io.grpc.Server;
 import io.grpc.Status;
@@ -35,6 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.hiero.sdk.proto.AccountID;
+import org.hiero.sdk.proto.ConsensusMessageChunkInfo;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TopicID;
+import org.hiero.sdk.proto.TransactionID;
+import org.hiero.sdk.proto.mirror.ConsensusServiceGrpc;
+import org.hiero.sdk.proto.mirror.ConsensusTopicQuery;
+import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -542,4 +542,3 @@ class TopicMessageQueryTest {
         return joinedArray;
     }
 }
-

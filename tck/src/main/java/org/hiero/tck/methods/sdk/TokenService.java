@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk;
 
+import java.util.List;
+import java.util.Map;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.Client;
 import org.hiero.sdk.Status;
 import org.hiero.sdk.TokenAirdropTransaction;
@@ -55,9 +58,6 @@ import org.hiero.tck.methods.sdk.response.token.TokenMintResponse;
 import org.hiero.tck.methods.sdk.response.token.TokenResponse;
 import org.hiero.tck.util.QueryBuilders;
 import org.hiero.tck.util.TransactionBuilders;
-import java.util.List;
-import java.util.Map;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * TokenService for token related methods
@@ -399,4 +399,3 @@ public class TokenService extends AbstractJSONRPC2Service {
         return Map.of("status", receipt.status.toString());
     }
 }
-

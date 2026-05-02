@@ -141,4 +141,3 @@ class Node extends BaseNode<Node, AccountId> {
         return address.toString() + "->" + accountId.toString();
     }
 }
-

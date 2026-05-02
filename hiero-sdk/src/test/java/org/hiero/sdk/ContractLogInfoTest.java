@@ -3,10 +3,10 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractLoginfo;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.nio.charset.StandardCharsets;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractLoginfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,4 +53,3 @@ public class ContractLogInfoTest {
                 .toMatchSnapshot();
     }
 }
-

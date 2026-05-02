@@ -40,4 +40,3 @@ public class EthereumService extends AbstractJSONRPC2Service {
         return new EthereumTransactionResponse(receipt.status.toString(), contractId);
     }
 }
-

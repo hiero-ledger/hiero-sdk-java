@@ -42,8 +42,8 @@ public final class ExchangeRates {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static ExchangeRates fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.ExchangeRateSet.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.ExchangeRateSet.parseFrom(bytes).toBuilder().build());
     }
 
     @Override
@@ -54,4 +54,3 @@ public final class ExchangeRates {
                 .toString();
     }
 }
-

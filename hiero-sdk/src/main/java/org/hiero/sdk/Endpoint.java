@@ -2,8 +2,8 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.ServiceEndpoint;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ServiceEndpoint;
 
 /**
  * Utility class used internally by the sdk.
@@ -156,4 +156,3 @@ public class Endpoint implements Cloneable {
         }
     }
 }
-

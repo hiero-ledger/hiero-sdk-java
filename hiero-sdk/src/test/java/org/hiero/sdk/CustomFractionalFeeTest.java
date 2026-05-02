@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.jsonSnapshot.SnapshotMatcher;
 import org.hiero.sdk.proto.Fraction;
 import org.hiero.sdk.proto.FractionalFee;
-import io.github.jsonSnapshot.SnapshotMatcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -89,4 +89,3 @@ public class CustomFractionalFeeTest {
         assertThat(customFractionalFee.getAssessmentMethod()).isEqualTo(feeAssessmentMethod);
     }
 }
-

@@ -3,12 +3,6 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenMintTransactionBody;
-import org.hiero.sdk.proto.TokenServiceGrpc;
-import org.hiero.sdk.proto.Transaction;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,6 +10,12 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenMintTransactionBody;
+import org.hiero.sdk.proto.TokenServiceGrpc;
+import org.hiero.sdk.proto.Transaction;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Mint tokens and deliver the new tokens to the token treasury account.
@@ -60,8 +60,7 @@ public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTra
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TokenMintTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TokenMintTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -231,4 +230,3 @@ public class TokenMintTransaction extends org.hiero.sdk.Transaction<TokenMintTra
         scheduled.setTokenMint(build());
     }
 }
-

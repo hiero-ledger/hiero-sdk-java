@@ -121,4 +121,3 @@ public class HbarTest {
         assertThat(new Hbar(1).hashCode()).isEqualTo(100000031);
     }
 }
-

@@ -13,4 +13,3 @@ public class HederaReceiptStatusException extends ReceiptStatusException {
         super(transactionId, receipt);
     }
 }
-

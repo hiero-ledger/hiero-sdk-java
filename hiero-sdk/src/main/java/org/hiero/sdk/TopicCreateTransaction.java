@@ -2,11 +2,6 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ConsensusCreateTopicTransactionBody;
-import org.hiero.sdk.proto.ConsensusServiceGrpc;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -15,6 +10,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ConsensusCreateTopicTransactionBody;
+import org.hiero.sdk.proto.ConsensusServiceGrpc;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Create a topic to accept and group consensus messages.
@@ -87,8 +87,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TopicCreateTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TopicCreateTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -468,4 +467,3 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
         return super.freezeWith(client);
     }
 }
-

@@ -2,14 +2,14 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.ContractGetBytecodeQuery;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
 import org.hiero.sdk.proto.SmartContractServiceGrpc;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Get the bytecode for a smart contract instance.
@@ -82,4 +82,3 @@ public final class ContractByteCodeQuery extends Query<ByteString, ContractByteC
         return SmartContractServiceGrpc.getContractGetBytecodeMethod();
     }
 }
-

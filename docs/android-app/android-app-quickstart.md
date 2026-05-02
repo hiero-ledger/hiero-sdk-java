@@ -25,4 +25,3 @@ To make it easier to start your Android project using the Hedera™ Java SDK,
 we recommend checking out the [Android example](../../example-android/README.md).
 This examples show different uses and workflows,
 giving you valuable insights into how you can use the Hedera platform in your Android projects.
-

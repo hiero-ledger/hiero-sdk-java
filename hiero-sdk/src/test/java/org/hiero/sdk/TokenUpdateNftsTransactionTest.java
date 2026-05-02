@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenUpdateNftsTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenUpdateNftsTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -130,4 +130,3 @@ public class TokenUpdateNftsTransactionTest {
         assertThrows(IllegalStateException.class, () -> tx.setSerials(testSerialNumbers));
     }
 }
-

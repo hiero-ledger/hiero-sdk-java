@@ -9,4 +9,3 @@ module org.hiero.sdk.test.integration {
 
     opens org.hiero.sdk.test.integration;
 }
-

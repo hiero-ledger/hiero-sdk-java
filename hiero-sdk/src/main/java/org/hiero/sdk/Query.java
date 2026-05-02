@@ -3,12 +3,6 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
-import org.hiero.sdk.proto.ResponseType;
-import org.hiero.sdk.proto.Transaction;
-import org.hiero.sdk.proto.TransactionBody;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,6 +15,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
+import org.hiero.sdk.proto.ResponseType;
+import org.hiero.sdk.proto.Transaction;
+import org.hiero.sdk.proto.TransactionBody;
 
 /**
  * Base class for all queries that can be submitted to Hedera.
@@ -28,8 +28,7 @@ import javax.annotation.Nullable;
  * @param <O> The output type of the query.
  * @param <T> The type of the query itself. Used to enable chaining.
  */
-public abstract class Query<O, T extends Query<O, T>>
-        extends Executable<T, org.hiero.sdk.proto.Query, Response, O> {
+public abstract class Query<O, T extends Query<O, T>> extends Executable<T, org.hiero.sdk.proto.Query, Response, O> {
     private final org.hiero.sdk.proto.Query.Builder builder;
 
     private final QueryHeader.Builder headerBuilder;
@@ -561,4 +560,3 @@ public abstract class Query<O, T extends Query<O, T>>
         }
     }
 }
-

@@ -4,13 +4,13 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.NftAllowance;
-import org.hiero.sdk.proto.NftRemoveAllowance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.NftAllowance;
+import org.hiero.sdk.proto.NftRemoveAllowance;
 
 /**
  * Class to encapsulate the nft methods for token allowance's.
@@ -215,4 +215,3 @@ public class TokenNftAllowance {
         return stringHelper.toString();
     }
 }
-

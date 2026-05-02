@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.utils.Bip32Utils;
 import java.io.IOException;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.utils.Bip32Utils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -356,4 +356,3 @@ public class ECDSAPrivateKeyTest {
         assertThat(ecdsaPrivateKey4.getPublicKey().toStringRaw()).isEqualTo(PUBLIC_KEY4);
     }
 }
-

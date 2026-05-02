@@ -49,4 +49,3 @@ public class EndpointTest {
         assertThatCode(() -> Endpoint.validateNoIpAndDomain(ep)).doesNotThrowAnyException();
     }
 }
-

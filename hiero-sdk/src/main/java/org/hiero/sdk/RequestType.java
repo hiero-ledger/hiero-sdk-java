@@ -755,4 +755,3 @@ public enum RequestType {
         };
     }
 }
-

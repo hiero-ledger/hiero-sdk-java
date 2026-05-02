@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
 import org.hiero.sdk.proto.UtilPrngTransactionBody;
 import org.hiero.sdk.proto.UtilServiceGrpc;
-import io.grpc.MethodDescriptor;
-import javax.annotation.Nullable;
 
 /**
  * Random Number Generator Transaction.
@@ -74,4 +74,3 @@ public class PrngTransaction extends Transaction<PrngTransaction> {
         return UtilServiceGrpc.getPrngMethod();
     }
 }
-

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.FixedCustomFee;
 import org.hiero.sdk.proto.FixedFee;
-import javax.annotation.Nullable;
 
 /**
  * Custom fixed fee utility class.
@@ -180,9 +180,7 @@ public class CustomFixedFee extends CustomFeeBase<CustomFixedFee> {
 
     @Override
     org.hiero.sdk.proto.CustomFee toProtobuf() {
-        var customFeeBuilder =
-                org.hiero.sdk.proto.CustomFee.newBuilder().setFixedFee(toFixedFeeProtobuf());
+        var customFeeBuilder = org.hiero.sdk.proto.CustomFee.newBuilder().setFixedFee(toFixedFeeProtobuf());
         return finishToProtobuf(customFeeBuilder);
     }
 }
-

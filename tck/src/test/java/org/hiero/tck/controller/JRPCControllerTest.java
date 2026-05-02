@@ -60,4 +60,3 @@ class JRPCControllerTest {
         verify(dispatcher).process(jsonrpcRequest, null);
     }
 }
-

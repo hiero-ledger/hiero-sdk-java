@@ -51,4 +51,3 @@ public abstract class EvmHookSpec {
         return "EvmHookSpec{contractId=" + contractId + "}";
     }
 }
-

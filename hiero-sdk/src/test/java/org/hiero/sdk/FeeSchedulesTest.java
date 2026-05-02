@@ -59,4 +59,3 @@ public class FeeSchedulesTest {
         assertThat(copyFeeSchedules.toString()).isEqualTo(originalFeeSchedules.toString());
     }
 }
-

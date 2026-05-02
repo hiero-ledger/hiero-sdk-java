@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
 import java.time.Instant;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
 
 /**
  * A query that returns information about the current state of a scheduled
@@ -176,8 +176,8 @@ public final class ScheduleInfo {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static ScheduleInfo fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.ScheduleInfo.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.ScheduleInfo.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -255,4 +255,3 @@ public final class ScheduleInfo {
         return toProtobuf().toByteArray();
     }
 }
-

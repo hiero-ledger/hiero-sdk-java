@@ -132,4 +132,3 @@ public class GetAccountInfoResponse {
         private String stakedNodeId;
     }
 }
-

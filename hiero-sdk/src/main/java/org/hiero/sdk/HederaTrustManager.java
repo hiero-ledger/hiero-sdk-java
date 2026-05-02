@@ -97,4 +97,3 @@ class HederaTrustManager implements X509TrustManager {
         return new X509Certificate[0];
     }
 }
-

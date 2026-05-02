@@ -102,4 +102,3 @@ public class StorageChange {
     //     return toProtobuf().toByteArray();
     // }
 }
-

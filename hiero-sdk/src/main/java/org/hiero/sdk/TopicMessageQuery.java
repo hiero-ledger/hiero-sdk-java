@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TransactionID;
-import org.hiero.sdk.proto.mirror.ConsensusServiceGrpc;
-import org.hiero.sdk.proto.mirror.ConsensusTopicQuery;
-import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import io.grpc.CallOptions;
 import io.grpc.ClientCall;
 import io.grpc.Status;
@@ -23,6 +18,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TransactionID;
+import org.hiero.sdk.proto.mirror.ConsensusServiceGrpc;
+import org.hiero.sdk.proto.mirror.ConsensusTopicQuery;
+import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -361,4 +361,3 @@ public final class TopicMessageQuery {
         });
     }
 }
-

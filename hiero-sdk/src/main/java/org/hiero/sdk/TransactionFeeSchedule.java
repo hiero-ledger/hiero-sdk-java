@@ -37,8 +37,7 @@ public class TransactionFeeSchedule implements Cloneable {
      * @param transactionFeeSchedule    the protobuf
      * @return                          the new transaction fee schedule
      */
-    static TransactionFeeSchedule fromProtobuf(
-            org.hiero.sdk.proto.TransactionFeeSchedule transactionFeeSchedule) {
+    static TransactionFeeSchedule fromProtobuf(org.hiero.sdk.proto.TransactionFeeSchedule transactionFeeSchedule) {
         var returnFeeSchedule = new TransactionFeeSchedule()
                 .setRequestType(RequestType.valueOf(transactionFeeSchedule.getHederaFunctionality()))
                 .setFeeData(
@@ -133,8 +132,8 @@ public class TransactionFeeSchedule implements Cloneable {
      *         org.hiero.sdk.proto.TransactionFeeSchedule}
      */
     org.hiero.sdk.proto.TransactionFeeSchedule toProtobuf() {
-        var returnBuilder = org.hiero.sdk.proto.TransactionFeeSchedule.newBuilder()
-                .setHederaFunctionality(getRequestType().code);
+        var returnBuilder =
+                org.hiero.sdk.proto.TransactionFeeSchedule.newBuilder().setHederaFunctionality(getRequestType().code);
         if (feeData != null) {
             returnBuilder.setFeeData(feeData.toProtobuf());
         }
@@ -182,4 +181,3 @@ public class TransactionFeeSchedule implements Cloneable {
         }
     }
 }
-

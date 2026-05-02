@@ -38,4 +38,3 @@ class CommonTransactionParamsTest {
                 params.getSigners());
     }
 }
-

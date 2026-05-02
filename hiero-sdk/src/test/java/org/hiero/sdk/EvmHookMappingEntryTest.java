@@ -68,8 +68,7 @@ class EvmHookMappingEntryTest {
 
     @Test
     void fromProtobufWithoutKeyThrows() {
-        var emptyProto =
-                org.hiero.sdk.proto.EvmHookMappingEntry.newBuilder().build();
+        var emptyProto = org.hiero.sdk.proto.EvmHookMappingEntry.newBuilder().build();
         assertThrows(IllegalArgumentException.class, () -> EvmHookMappingEntry.fromProtobuf(emptyProto));
     }
 
@@ -88,4 +87,3 @@ class EvmHookMappingEntryTest {
         assertTrue(s.contains("value"));
     }
 }
-

@@ -5,17 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.ConsensusUpdateTopicTransactionBody;
-import org.hiero.sdk.proto.CryptoDeleteTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.hiero.sdk.proto.ConsensusUpdateTopicTransactionBody;
+import org.hiero.sdk.proto.CryptoDeleteTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -400,4 +400,3 @@ public class TopicUpdateTransactionTest {
         assertThat(topicUpdateTransaction.getCustomFees()).isEmpty();
     }
 }
-

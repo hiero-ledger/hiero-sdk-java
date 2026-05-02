@@ -48,8 +48,8 @@ public class FeeData implements Cloneable {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static FeeData fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.FeeData.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.FeeData.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -187,4 +187,3 @@ public class FeeData implements Cloneable {
         }
     }
 }
-

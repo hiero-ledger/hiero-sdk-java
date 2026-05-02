@@ -4,15 +4,15 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.TokenFreezeStatus;
-import org.hiero.sdk.proto.TokenGetInfoResponse;
-import org.hiero.sdk.proto.TokenKycStatus;
-import org.hiero.sdk.proto.TokenPauseStatus;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.TokenFreezeStatus;
+import org.hiero.sdk.proto.TokenGetInfoResponse;
+import org.hiero.sdk.proto.TokenKycStatus;
+import org.hiero.sdk.proto.TokenPauseStatus;
 
 /**
  * Gets information about a fungible or non-fungible token instance.
@@ -477,4 +477,3 @@ public class TokenInfo {
         return toProtobuf().toByteArray();
     }
 }
-

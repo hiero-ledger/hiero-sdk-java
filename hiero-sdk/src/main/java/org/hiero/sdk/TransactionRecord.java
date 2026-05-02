@@ -4,10 +4,6 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.AccountAmount;
-import org.hiero.sdk.proto.NftTransfer;
-import org.hiero.sdk.proto.TokenTransferList;
-import org.hiero.sdk.proto.TransferList;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +13,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.AccountAmount;
+import org.hiero.sdk.proto.NftTransfer;
+import org.hiero.sdk.proto.TokenTransferList;
+import org.hiero.sdk.proto.TransferList;
 
 /**
  * The complete record for a transaction on Hedera that has reached consensus.
@@ -533,4 +533,3 @@ public final class TransactionRecord {
         return toProtobuf().toByteArray();
     }
 }
-

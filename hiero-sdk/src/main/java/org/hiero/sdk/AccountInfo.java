@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CryptoGetInfoResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -14,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoGetInfoResponse;
 
 /**
  * Current information about an account, including the balance.
@@ -370,4 +370,3 @@ public final class AccountInfo {
         return toProtobuf().toByteArray();
     }
 }
-

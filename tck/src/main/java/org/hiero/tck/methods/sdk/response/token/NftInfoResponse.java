@@ -38,4 +38,3 @@ public class NftInfoResponse {
     @Nullable
     public final String spenderId;
 }
-

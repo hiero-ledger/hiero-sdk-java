@@ -100,4 +100,3 @@ public class HederaTrustManagerTest {
                         .checkServerTrusted(CERTIFICATE_CHAIN, ""));
     }
 }
-

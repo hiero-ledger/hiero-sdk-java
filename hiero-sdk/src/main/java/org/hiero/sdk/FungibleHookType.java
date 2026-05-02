@@ -8,4 +8,3 @@ public enum FungibleHookType {
     PRE_TX_ALLOWANCE_HOOK,
     PRE_POST_TX_ALLOWANCE_HOOK
 }
-

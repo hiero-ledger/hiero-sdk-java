@@ -35,4 +35,3 @@ class HookEntityIdTest {
         assertThat(parsed).isEqualTo(id);
     }
 }
-

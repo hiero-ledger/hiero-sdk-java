@@ -4,12 +4,12 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ConsensusGetTopicInfoResponse;
-import org.hiero.sdk.proto.ConsensusTopicInfo;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ConsensusGetTopicInfoResponse;
+import org.hiero.sdk.proto.ConsensusTopicInfo;
 
 /**
  * Current state of a topic.
@@ -236,4 +236,3 @@ public final class TopicInfo {
         return toProtobuf().toByteArray();
     }
 }
-

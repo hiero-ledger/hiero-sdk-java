@@ -163,4 +163,3 @@ class TokenIdTest {
         assertEquals("000000000000000000000000000000000000007b", id.toEvmAddress());
     }
 }
-

@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
+import io.grpc.MethodDescriptor;
+import java.util.Arrays;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.CryptoGetLiveHashQuery;
 import org.hiero.sdk.proto.CryptoServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
-import java.util.Arrays;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * @deprecated This query is no longer supported.
@@ -108,4 +108,3 @@ public final class LiveHashQuery extends Query<LiveHash, LiveHashQuery> {
         return CryptoServiceGrpc.getCryptoGetBalanceMethod();
     }
 }
-

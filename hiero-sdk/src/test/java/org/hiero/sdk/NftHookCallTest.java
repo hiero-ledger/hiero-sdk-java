@@ -53,4 +53,3 @@ class NftHookCallTest {
         assertThat(rebuiltNfts.get(token)).hasSize(1);
     }
 }
-

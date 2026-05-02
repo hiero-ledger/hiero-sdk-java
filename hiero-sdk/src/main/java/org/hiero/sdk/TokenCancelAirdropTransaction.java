@@ -2,13 +2,13 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TokenCancelAirdropTransactionBody;
 import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.hiero.sdk.proto.TransactionBody.Builder;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
 
 /**
  * Token cancel airdrop<br/>
@@ -96,4 +96,3 @@ public class TokenCancelAirdropTransaction extends PendingAirdropLogic<TokenCanc
         scheduled.setTokenCancelAirdrop(build());
     }
 }
-

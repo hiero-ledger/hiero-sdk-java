@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.Query;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.Transaction;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayDeque;
@@ -12,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.Query;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.Transaction;
+import org.hiero.sdk.proto.TransactionResponse;
 
 public interface TestService {
 
@@ -68,4 +68,3 @@ public interface TestService {
         }
     }
 }
-

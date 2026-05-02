@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.Query;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
 import org.hiero.sdk.proto.TokenGetInfoQuery;
 import org.hiero.sdk.proto.TokenServiceGrpc;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 
 /**
  * Initializes the TokenInfoQuery object.
@@ -91,4 +91,3 @@ public class TokenInfoQuery extends org.hiero.sdk.Query<TokenInfo, TokenInfoQuer
         return super.getCostAsync(client).thenApply((cost) -> Hbar.fromTinybars(Math.max(cost.toTinybars(), 25)));
     }
 }
-

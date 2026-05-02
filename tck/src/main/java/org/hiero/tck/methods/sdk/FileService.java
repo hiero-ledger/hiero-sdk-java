@@ -2,6 +2,8 @@
 package org.hiero.tck.methods.sdk;
 
 import com.google.protobuf.ByteString;
+import java.time.Duration;
+import java.util.List;
 import org.hiero.sdk.Client;
 import org.hiero.sdk.FileAppendTransaction;
 import org.hiero.sdk.FileContentsQuery;
@@ -27,8 +29,6 @@ import org.hiero.tck.methods.sdk.response.FileInfoResponse;
 import org.hiero.tck.methods.sdk.response.FileResponse;
 import org.hiero.tck.util.QueryBuilders;
 import org.hiero.tck.util.TransactionBuilders;
-import java.time.Duration;
-import java.util.List;
 
 /**
  * FileService for file related methods
@@ -144,4 +144,3 @@ public class FileService extends AbstractJSONRPC2Service {
         return new FileContentsResponse(contents);
     }
 }
-

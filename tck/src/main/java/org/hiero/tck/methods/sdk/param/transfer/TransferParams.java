@@ -70,4 +70,3 @@ public class TransferParams {
         return new TransferParams(parsedHbar, parsedToken, parsedNft, parsedApproved);
     }
 }
-

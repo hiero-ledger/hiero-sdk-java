@@ -3,10 +3,10 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CryptoAllowance;
-import org.hiero.sdk.proto.GrantedCryptoAllowance;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoAllowance;
+import org.hiero.sdk.proto.GrantedCryptoAllowance;
 
 /**
  * An approved allowance of hbar transfers for a spender.
@@ -144,4 +144,3 @@ public class HbarAllowance {
                 .toString();
     }
 }
-

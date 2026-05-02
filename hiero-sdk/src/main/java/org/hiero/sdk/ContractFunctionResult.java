@@ -7,7 +7,6 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.Int64Value;
-import org.hiero.sdk.proto.ContractFunctionResultOrBuilder;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractFunctionResultOrBuilder;
 
 /**
  * Result of invoking a contract via {@link ContractCallQuery}, or {@link ContractExecuteTransaction}, or the result of
@@ -485,4 +485,3 @@ public final class ContractFunctionResult {
         return tupleType.decode(rawResult.toByteArray());
     }
 }
-

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.mirror.NetworkServiceGrpc;
 import io.grpc.CallOptions;
 import io.grpc.ClientCall;
 import io.grpc.Deadline;
@@ -17,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.mirror.NetworkServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,9 +205,7 @@ public class AddressBookQuery {
     void executeAsync(Client client, Deadline deadline, CompletableFuture<NodeAddressBook> returnFuture, int attempt) {
         List<NodeAddress> addresses = new ArrayList<>();
         ClientCalls.asyncServerStreamingCall(
-                buildCall(client, deadline),
-                buildQuery(),
-                new StreamObserver<org.hiero.sdk.proto.NodeAddress>() {
+                buildCall(client, deadline), buildQuery(), new StreamObserver<org.hiero.sdk.proto.NodeAddress>() {
                     @Override
                     public void onNext(org.hiero.sdk.proto.NodeAddress addressProto) {
                         addresses.add(NodeAddress.fromProtobuf(addressProto));
@@ -248,9 +246,8 @@ public class AddressBookQuery {
         return builder.build();
     }
 
-    private ClientCall<
-                    org.hiero.sdk.proto.mirror.AddressBookQuery, org.hiero.sdk.proto.NodeAddress>
-            buildCall(Client client, Deadline deadline) {
+    private ClientCall<org.hiero.sdk.proto.mirror.AddressBookQuery, org.hiero.sdk.proto.NodeAddress> buildCall(
+            Client client, Deadline deadline) {
         try {
             return client.mirrorNetwork
                     .getNextMirrorNode()
@@ -277,4 +274,3 @@ public class AddressBookQuery {
         }
     }
 }
-

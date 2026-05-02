@@ -114,4 +114,3 @@ class MirrorNetwork extends BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNo
         return getNextMirrorNode().getRestBaseUrl();
     }
 }
-

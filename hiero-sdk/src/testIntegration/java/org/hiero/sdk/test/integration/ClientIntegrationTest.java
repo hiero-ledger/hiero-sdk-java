@@ -4,12 +4,12 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import org.hiero.sdk.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.hiero.sdk.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -244,4 +244,3 @@ public class ClientIntegrationTest {
         assertThat(client.getNetwork()).isNotEmpty();
     }
 }
-

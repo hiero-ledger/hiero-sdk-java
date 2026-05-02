@@ -2,16 +2,16 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TokenDeleteTransactionBody;
 import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.hiero.sdk.proto.Transaction;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Deleting a token marks a token as deleted, though it will remain in the
@@ -39,8 +39,7 @@ public class TokenDeleteTransaction extends org.hiero.sdk.Transaction<TokenDelet
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TokenDeleteTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TokenDeleteTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -129,4 +128,3 @@ public class TokenDeleteTransaction extends org.hiero.sdk.Transaction<TokenDelet
         scheduled.setTokenDeletion(build());
     }
 }
-

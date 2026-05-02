@@ -91,8 +91,6 @@ tasks.register<Exec>("updateProto") {
 
 tasks.withType<Test>().configureEach {
     if (project.hasProperty("skipNodeUpdateTest")) {
-        exclude(
-            "org/hiero/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class"
-        )
+        exclude("org/hiero/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class")
     }
 }

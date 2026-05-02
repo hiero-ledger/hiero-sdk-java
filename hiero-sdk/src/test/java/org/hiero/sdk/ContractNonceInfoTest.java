@@ -9,11 +9,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ContractNonceInfoTest {
-    private final org.hiero.sdk.proto.ContractNonceInfo info =
-            org.hiero.sdk.proto.ContractNonceInfo.newBuilder()
-                    .setContractId(new ContractId(0, 0, 1).toProtobuf())
-                    .setNonce(2)
-                    .build();
+    private final org.hiero.sdk.proto.ContractNonceInfo info = org.hiero.sdk.proto.ContractNonceInfo.newBuilder()
+            .setContractId(new ContractId(0, 0, 1).toProtobuf())
+            .setNonce(2)
+            .build();
 
     @BeforeAll
     public static void beforeAll() {
@@ -49,4 +48,3 @@ public class ContractNonceInfoTest {
                 .toMatchSnapshot();
     }
 }
-

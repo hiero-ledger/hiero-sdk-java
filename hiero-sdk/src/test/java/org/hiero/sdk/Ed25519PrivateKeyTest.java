@@ -524,4 +524,3 @@ class Ed25519PrivateKeyTest {
         assertThat(ed25519PrivateKey1.getPublicKey().toStringRaw()).isEqualTo(PUBLIC_KEY1);
     }
 }
-

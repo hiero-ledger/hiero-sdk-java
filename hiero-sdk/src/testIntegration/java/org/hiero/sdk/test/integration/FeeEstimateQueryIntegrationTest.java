@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.hiero.sdk.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -421,4 +421,3 @@ class FeeEstimateQueryIntegrationTest {
         assertThat(response.getTotal()).isEqualTo(network.getSubtotal() + nodeSubtotal + serviceSubtotal);
     }
 }
-

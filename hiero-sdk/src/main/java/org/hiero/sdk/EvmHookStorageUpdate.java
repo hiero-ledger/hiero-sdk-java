@@ -197,4 +197,3 @@ public abstract class EvmHookStorageUpdate {
         }
     }
 }
-

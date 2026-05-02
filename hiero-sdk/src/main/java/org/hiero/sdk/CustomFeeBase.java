@@ -53,4 +53,3 @@ abstract class CustomFeeBase<F extends CustomFeeBase<F>> extends CustomFee {
         return deepCloneSubclass();
     }
 }
-

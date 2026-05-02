@@ -2604,4 +2604,3 @@ public final class ContractFunctionParameters {
         }
     }
 }
-

@@ -632,4 +632,3 @@ public class ContractFunctionParametersTest {
         SnapshotMatcher.expect(snapshotStrings.toArray()).toMatchSnapshot();
     }
 }
-

@@ -2,17 +2,17 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.AtomicBatchTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
-import org.hiero.sdk.proto.UtilServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.hiero.sdk.proto.AtomicBatchTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
+import org.hiero.sdk.proto.UtilServiceGrpc;
 
 /**
  * Execute multiple transactions in a single consensus event. This allows for atomic execution of multiple
@@ -73,8 +73,7 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
      * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
-    BatchTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    BatchTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -224,8 +223,8 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         var body = sourceTransactionBody.getAtomicBatch();
 
         for (var atomicTransactionBytes : body.getTransactionsList()) {
-            var transaction = org.hiero.sdk.proto.Transaction.newBuilder()
-                    .setSignedTransactionBytes(atomicTransactionBytes);
+            var transaction =
+                    org.hiero.sdk.proto.Transaction.newBuilder().setSignedTransactionBytes(atomicTransactionBytes);
             innerTransactions.add(Transaction.fromBytes(transaction.build().toByteArray()));
         }
     }
@@ -258,4 +257,3 @@ public final class BatchTransaction extends Transaction<BatchTransaction> {
         throw new UnsupportedOperationException("Cannot schedule Atomic Batch");
     }
 }
-
