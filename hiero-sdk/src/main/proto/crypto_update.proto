@@ -15,7 +15,7 @@ package proto;
 
 // SPDX-License-Identifier: Apache-2.0
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.token">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.token">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 import "basic_types.proto";
@@ -225,6 +225,6 @@ message CryptoUpdateTransactionBody {
     /**
      * The hooks to create for the account.
      */
-    repeated com.hedera.hapi.node.hooks.HookCreationDetails hook_creation_details = 20;
+    repeated org.hiero.hapi.node.hooks.HookCreationDetails hook_creation_details = 20;
 }
 

@@ -10,11 +10,11 @@
  */
 syntax = "proto3";
 
-package com.hedera.hapi.node.state.hooks;
+package org.hiero.hapi.node.state.hooks;
 
 // SPDX-License-Identifier: Apache-2.0
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.state.hooks">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.state.hooks">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 import "basic_types.proto";
@@ -38,7 +38,7 @@ message EvmHookState {
   /**
    * The type of the extension point the hook implements.
    */
-  com.hedera.hapi.node.hooks.HookExtensionPoint extension_point = 3;
+  org.hiero.hapi.node.hooks.HookExtensionPoint extension_point = 3;
 
   /**
    * The id of the contract with this hook's bytecode.

@@ -10,14 +10,14 @@
  */
 syntax = "proto3";
 
-package com.hedera.hapi.services.auxiliary.history;
+package org.hiero.hapi.services.auxiliary.history;
 
 // SPDX-License-Identifier: Apache-2.0
 import "history_types.proto";
 
 // SPDX-License-Identifier: Apache-2.0
-option java_package = "com.hedera.hapi.services.auxiliary.history.legacy";
-// <<<pbj.java_package = "com.hedera.hapi.services.auxiliary.history">>> This comment is special code for setting PBJ Compiler java package
+option java_package = "org.hiero.hapi.services.auxiliary.history.legacy";
+// <<<pbj.java_package = "org.hiero.hapi.services.auxiliary.history">>> This comment is special code for setting PBJ Compiler java package
 
 option java_multiple_files = true;
 
@@ -49,5 +49,5 @@ message HistoryProofKeyPublicationTransactionBody {
    * The phase of the proof construction this key is being
    * published for.
    */
-  com.hedera.hapi.node.state.history.WrapsPhase phase = 4;
+  org.hiero.hapi.node.state.history.WrapsPhase phase = 4;
 }

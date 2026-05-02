@@ -17,7 +17,7 @@ package proto;
 
 // SPDX-License-Identifier: Apache-2.0
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.scheduled">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.scheduled">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 import "system_delete.proto";
@@ -344,20 +344,20 @@ message SchedulableTransactionBody {
          * Create a new node in the network address book.<br/>
          * This is a privileged operation.
          */
-        com.hedera.hapi.node.addressbook.NodeCreateTransactionBody nodeCreate = 42;
+        org.hiero.hapi.node.addressbook.NodeCreateTransactionBody nodeCreate = 42;
 
         /**
          * Update a node in the network address book.<br/>
          * This is a privileged operation.
          */
-        com.hedera.hapi.node.addressbook.NodeUpdateTransactionBody nodeUpdate = 43;
+        org.hiero.hapi.node.addressbook.NodeUpdateTransactionBody nodeUpdate = 43;
 
         /**
          * Delete a node from the network address book.<br/>
          * This will mark the node as deleted.<br/>
          * This is a privileged operation.
          */
-        com.hedera.hapi.node.addressbook.NodeDeleteTransactionBody nodeDelete = 44;
+        org.hiero.hapi.node.addressbook.NodeDeleteTransactionBody nodeDelete = 44;
 
         /**
          * "Reject" undesired tokens.<br/>
@@ -411,17 +411,17 @@ message SchedulableTransactionBody {
         /**
          * Create a new registered node in the network address book.
          */
-        com.hedera.hapi.node.addressbook.RegisteredNodeCreateTransactionBody registeredNodeCreate = 49;
+        org.hiero.hapi.node.addressbook.RegisteredNodeCreateTransactionBody registeredNodeCreate = 49;
 
         /**
          * Update a registered node in the network address book.
          */
-        com.hedera.hapi.node.addressbook.RegisteredNodeUpdateTransactionBody registeredNodeUpdate = 50;
+        org.hiero.hapi.node.addressbook.RegisteredNodeUpdateTransactionBody registeredNodeUpdate = 50;
 
         /**
          * Delete a registered node from the network address book.
          */
-        com.hedera.hapi.node.addressbook.RegisteredNodeDeleteTransactionBody registeredNodeDelete = 51;
+        org.hiero.hapi.node.addressbook.RegisteredNodeDeleteTransactionBody registeredNodeDelete = 51;
     }
 
     /**

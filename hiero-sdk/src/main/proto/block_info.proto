@@ -17,7 +17,7 @@ package proto;
 import "timestamp.proto";
 
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.state.blockrecords">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.state.blockrecords">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 /**

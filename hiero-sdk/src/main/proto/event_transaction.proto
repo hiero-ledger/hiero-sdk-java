@@ -11,7 +11,7 @@
  */
 syntax = "proto3";
 
-package com.hedera.hapi.platform.event;
+package org.hiero.hapi.platform.event;
 
 /*
  * Copyright (C) 2024 Hedera Hashgraph, LLC
@@ -31,8 +31,8 @@ package com.hedera.hapi.platform.event;
 
 import "state_signature_transaction.proto";
 
-option java_package = "com.hedera.hapi.platform.event.legacy";
-// <<<pbj.java_package = "com.hedera.hapi.platform.event">>> This comment is special code for setting PBJ Compiler java package
+option java_package = "org.hiero.hapi.platform.event.legacy";
+// <<<pbj.java_package = "org.hiero.hapi.platform.event">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 /**

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.hedera.hapi.node.state.entity;
+package org.hiero.hapi.node.state.entity;
 // SPDX-License-Identifier: Apache-2.0
 /**
  * This proto file contains primitive value messages.
@@ -10,7 +10,7 @@ package com.hedera.hapi.node.state.entity;
  */
 
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.state.entity">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.state.entity">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 /**

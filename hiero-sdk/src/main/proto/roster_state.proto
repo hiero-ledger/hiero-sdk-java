@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package com.hedera.hapi.node.state.roster;
+package org.hiero.hapi.node.state.roster;
 
 // SPDX-License-Identifier: Apache-2.0
 option java_package = "org.hiero.sdk.proto";
-// <<<pbj.java_package = "com.hedera.hapi.node.state.roster">>> This comment is special code for setting PBJ Compiler java package
+// <<<pbj.java_package = "org.hiero.hapi.node.state.roster">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
 /**
