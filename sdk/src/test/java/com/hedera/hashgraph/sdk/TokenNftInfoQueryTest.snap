@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.TokenNftInfoQueryTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.Query\ntoken_get_nft_info {\n  header {\n  }\n  nft_i_d {\n    serial_number: 101\n    token_i_d {\n      realm_num: 0\n      shard_num: 0\n      token_num: 5005\n    }\n  }\n}"
-]

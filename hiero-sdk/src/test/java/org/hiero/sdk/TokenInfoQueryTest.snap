@@ -1,0 +1,4 @@
+org.hiero.sdk.TokenInfoQueryTest.shouldSerialize=[
+  "# org.hiero.sdk.proto.Query\ntoken_get_info {\n  header {\n  }\n  token {\n    realm_num: 2\n    shard_num: 4\n    token_num: 0\n  }\n}"
+]
+

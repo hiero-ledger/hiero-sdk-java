@@ -1,0 +1,23 @@
+org.hiero.sdk.TokenIdTest.fromBytes=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TokenIdTest.fromSolidityAddress=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TokenIdTest.shouldSerializeFromString=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TokenIdTest.toBytes=[
+  "188d27"
+]
+
+
+org.hiero.sdk.TokenIdTest.toSolidityAddress=[
+  "000000000000000000000000000000000000138d"
+]

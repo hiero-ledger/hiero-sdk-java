@@ -1,0 +1,4 @@
+org.hiero.sdk.ScheduleInfoQueryTest.shouldSerialize=[
+  "# org.hiero.sdk.proto.Query\nschedule_get_info {\n  header {\n  }\n  schedule_i_d {\n    realm_num: 0\n    schedule_num: 5005\n    shard_num: 0\n  }\n}"
+]
+

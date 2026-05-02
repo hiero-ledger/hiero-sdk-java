@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: Apache-2.0
+package org.hiero.tck.methods.sdk.param.schedule;
+
+import org.hiero.tck.methods.JSONRPC2Param;
+import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
+import org.hiero.tck.util.JSONRPCParamParser;
+import java.util.Map;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+/**
+ * ScheduleDeleteParams for delete schedule method
+ */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ScheduleDeleteParams extends JSONRPC2Param {
+    private Optional<String> scheduleId;
+    private Optional<CommonTransactionParams> commonTransactionParams;
+    private String sessionId;
+
+    @Override
+    public ScheduleDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
+        var parsedScheduleId = Optional.ofNullable((String) jrpcParams.get("scheduleId"));
+        var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
+
+        return new ScheduleDeleteParams(
+                parsedScheduleId, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
+    }
+}
+

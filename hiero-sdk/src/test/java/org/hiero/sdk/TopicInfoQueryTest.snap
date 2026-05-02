@@ -1,0 +1,4 @@
+org.hiero.sdk.TopicInfoQueryTest.shouldSerialize=[
+  "# org.hiero.sdk.proto.Query\nconsensus_get_topic_info {\n  header {\n  }\n  topic_i_d {\n    realm_num: 0\n    shard_num: 0\n    topic_num: 5005\n  }\n}"
+]
+

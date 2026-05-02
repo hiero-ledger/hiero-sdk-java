@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.AccountBalanceQueryTest.shouldSerializeWithAccountId=[
-  "# com.hedera.hashgraph.sdk.proto.Query\ncryptoget_account_balance {\n  account_i_d {\n    account_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
-]
-
-
-com.hedera.hashgraph.sdk.AccountBalanceQueryTest.shouldSerializeWithContractId=[
-  "# com.hedera.hashgraph.sdk.proto.Query\ncryptoget_account_balance {\n  contract_i_d {\n    contract_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
-]

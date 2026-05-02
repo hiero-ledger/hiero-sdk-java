@@ -1,0 +1,38 @@
+org.hiero.sdk.FileIdTest.fromBytes=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.FileIdTest.fromSolidityAddress=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.FileIdTest.getAddressBookFileIdForReturnsCorrectFileId=[
+  "5.10.102"
+]
+
+
+org.hiero.sdk.FileIdTest.getExchangeRatesFileIdForReturnsCorrectFileId=[
+  "3.9.112"
+]
+
+
+org.hiero.sdk.FileIdTest.getFeeScheduleFileIdForReturnsCorrectFileId=[
+  "7.12.111"
+]
+
+
+org.hiero.sdk.FileIdTest.shouldSerializeFromString=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.FileIdTest.toBytes=[
+  "188d27"
+]
+
+
+org.hiero.sdk.FileIdTest.toSolidityAddress=[
+  "000000000000000000000000000000000000138d"
+]

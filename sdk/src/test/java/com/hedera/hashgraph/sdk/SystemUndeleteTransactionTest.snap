@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.SystemUndeleteTransactionTest.shouldSerializeContract=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\nsystem_undelete {\n  contract_i_d {\n    contract_num: 444\n    realm_num: 0\n    shard_num: 0\n  }\n}\ntransaction_fee: 100000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]
-
-
-com.hedera.hashgraph.sdk.SystemUndeleteTransactionTest.shouldSerializeFile=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\nsystem_undelete {\n  file_i_d {\n    file_num: 444\n    realm_num: 0\n    shard_num: 0\n  }\n}\ntransaction_fee: 100000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]

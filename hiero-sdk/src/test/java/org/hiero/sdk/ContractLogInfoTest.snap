@@ -1,0 +1,19 @@
+org.hiero.sdk.ContractLogInfoTest.fromBytes=[
+  "ContractLogInfo{contractId=0.0.10, bloom=626c6f6f6d, topics=[626c6f6f6d]}"
+]
+
+
+org.hiero.sdk.ContractLogInfoTest.fromProtobuf=[
+  "ContractLogInfo{contractId=0.0.10, bloom=626c6f6f6d, topics=[626c6f6f6d]}"
+]
+
+
+org.hiero.sdk.ContractLogInfoTest.toBytes=[
+  "0a02180a1205626c6f6f6d1a05626c6f6f6d"
+]
+
+
+org.hiero.sdk.ContractLogInfoTest.toProtobuf=[
+  "# org.hiero.sdk.proto.ContractLoginfo@cb39e330\nbloom: \"bloom\"\ncontract_i_d {\n  contract_num: 10\n  realm_num: 0\n  shard_num: 0\n}\ntopic: \"bloom\""
+]
+

@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.TransactionIdTest.shouldSerialize2=[
-  "0.0.23847@1588539964.632521325?scheduled/3"
-]
-
-
-com.hedera.hashgraph.sdk.TransactionIdTest.shouldSerialize=[
-  "0.0.23847@1588539964.632521325"
-]

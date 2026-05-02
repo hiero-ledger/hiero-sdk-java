@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.TokenAssociationTest.shouldSerializeAccount=[
-  "TokenAssociation{tokenId=1.2.3, accountId=4.5.6}"
-]

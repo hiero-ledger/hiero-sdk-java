@@ -2004,7 +2004,7 @@ All changes are not immediately breaking as the previous method still should exi
   the SDK can work with the current iteration of it. Due to its experimental nature, a system property must be set before use.
 
   ```java
-  System.setPropery("com.hedera.hashgraph.sdk.experimental", "true")
+  System.setPropery("org.hiero.sdk.experimental", "true")
   ```
 - `Client.forTestnet` makes a new client configured to talk to TestNet (use `.setOperator` to set an operater)
 - `Client.forMainnet` makes a new client configured to talk to Mainnet (use `.setOperator` to set an operater)
@@ -2065,3 +2065,4 @@ implementation 'io.grpc:grpc-netty:1.24.0'
 // okhttp transport (for lighter-weight applications or Android)
 implementation 'io.grpc:grpc-okhttp:1.24.0'
 ```
+

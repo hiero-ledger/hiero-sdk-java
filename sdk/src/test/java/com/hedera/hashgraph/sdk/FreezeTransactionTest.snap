@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.FreezeTransactionTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nfreeze {\n  file_hash: \"\\027#\\220E\\207\\022\\t8\\225G\\0024\\230W\"\n  freeze_type: TELEMETRY_UPGRADE\n  freeze_type_value: 5\n  start_time {\n    seconds: 1554158542\n  }\n  update_file {\n    file_num: 6\n    realm_num: 5\n    shard_num: 4\n  }\n}\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntransaction_fee: 100000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]

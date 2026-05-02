@@ -1,6 +1,0 @@
-com.hedera.hashgraph.sdk.AllowancesTest.shouldSerialize=[
-  "HbarAllowance{ownerAccountId=1.1.1, spenderAccountId=2.2.2, amount=3 ℏ}",
-  "TokenAllowance{tokenId=1.2.3, ownerAccountId=4.5.6, spenderAccountId=5.5.5, amount=777}",
-  "TokenNftAllowance{tokenId=1.1.1, ownerAccountId=2.2.2, spenderAccountId=3.3.3, delegatingSpender=null, serials=[123, 456]}",
-  "TokenNftAllowance{tokenId=1.1.1, ownerAccountId=2.2.2, spenderAccountId=3.3.3, delegatingSpender=null, allSerials=true}"
-]

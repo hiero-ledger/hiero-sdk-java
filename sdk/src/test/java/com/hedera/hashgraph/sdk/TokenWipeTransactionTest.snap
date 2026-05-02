@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.TokenWipeTransactionTest.shouldSerializeFungible=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntoken_wipe {\n  account {\n    account_num: 9\n    realm_num: 6\n    shard_num: 0\n  }\n  amount: 4\n  serial_numbers: 8\n  serial_numbers: 9\n  serial_numbers: 10\n  token {\n    realm_num: 0\n    shard_num: 0\n    token_num: 111\n  }\n}\ntransaction_fee: 100000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]
-
-
-com.hedera.hashgraph.sdk.TokenWipeTransactionTest.shouldSerializeNft=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntoken_wipe {\n  account {\n    account_num: 9\n    realm_num: 6\n    shard_num: 0\n  }\n  amount: 0\n  serial_numbers: 444\n  token {\n    realm_num: 0\n    shard_num: 0\n    token_num: 111\n  }\n}\ntransaction_fee: 100000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]
