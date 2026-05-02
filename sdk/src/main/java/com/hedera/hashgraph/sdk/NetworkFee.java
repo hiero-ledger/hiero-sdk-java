@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import java.util.Objects;
 
 /**
  * The network fee component which covers the cost of gossip, consensus,
@@ -66,5 +67,21 @@ public final class NetworkFee {
                 .add("multiplier", multiplier)
                 .add("subtotal", subtotal)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NetworkFee that)) {
+            return false;
+        }
+        return multiplier == that.multiplier && subtotal == that.subtotal;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(multiplier, subtotal);
     }
 }
