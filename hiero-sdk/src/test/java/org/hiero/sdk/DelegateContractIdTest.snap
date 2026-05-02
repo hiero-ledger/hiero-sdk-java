@@ -1,0 +1,28 @@
+org.hiero.sdk.DelegateContractIdTest.fromBytes=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.DelegateContractIdTest.fromSolidityAddress=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.DelegateContractIdTest.fromSolidityAddressWith0x=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.DelegateContractIdTest.fromString=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.DelegateContractIdTest.toBytes=[
+  "188d27"
+]
+
+
+org.hiero.sdk.DelegateContractIdTest.toSolidityAddress=[
+  "000000000000000000000000000000000000138d"
+]

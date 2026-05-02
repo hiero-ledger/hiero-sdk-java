@@ -9,15 +9,15 @@ To get started with a Java project, you'll need to add the following **three** d
 _Gradle:_
 
 ```groovy
-implementation 'com.hedera.hashgraph:sdk:2.71.0'
+implementation 'org.hiero:hiero-sdk:2.71.0'
 ```
 
 _Maven:_
 
 ```xml
 <dependency>
-  <groupId>com.hedera.hashgraph</groupId>
-  <artifactId>sdk</artifactId>
+  <groupId>org.hiero</groupId>
+  <artifactId>hiero-sdk</artifactId>
   <version>2.71.0</version>
 </dependency>
 ```

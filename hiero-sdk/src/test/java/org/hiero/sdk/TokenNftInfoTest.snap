@@ -1,0 +1,9 @@
+org.hiero.sdk.TokenNftInfoTest.shouldSerialize=[
+  "TokenNftInfo{nftId=1.2.3/4, accountId=5.6.7, creationTime=2019-04-01T22:42:22Z, metadata=[-34, -83, -66, -17], ledgerId=mainnet, spenderId=8.9.10}"
+]
+
+
+org.hiero.sdk.TokenNftInfoTest.shouldSerializeNullSpender=[
+  "TokenNftInfo{nftId=1.2.3/4, accountId=5.6.7, creationTime=2019-04-01T22:42:22Z, metadata=[-34, -83, -66, -17], ledgerId=mainnet, spenderId=null}"
+]
+

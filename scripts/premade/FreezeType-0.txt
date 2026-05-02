@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.sdk;
+package org.hiero.sdk;
 
 /**
  * Enum for the freeze types.
  */
 public enum FreezeType {
+

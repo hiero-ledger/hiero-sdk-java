@@ -1,0 +1,19 @@
+org.hiero.sdk.TopicInfoTest.fromBytes=[
+  "TopicInfo{topicId=0.0.0, topicMemo=1, runningHash=[2], sequenceNumber=3, expirationTime=1970-01-01T00:00:00.004Z, adminKey=302a300506032b6570032100e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b7, submitKey=302a300506032b6570032100e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b7, autoRenewPeriod=PT120H, autoRenewAccountId=0.0.4, ledgerId=testnet}"
+]
+
+
+org.hiero.sdk.TopicInfoTest.fromProtobuf=[
+  "TopicInfo{topicId=0.0.0, topicMemo=1, runningHash=[2], sequenceNumber=3, expirationTime=1970-01-01T00:00:00.004Z, adminKey=302a300506032b6570032100e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b7, submitKey=302a300506032b6570032100e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b7, autoRenewPeriod=PT120H, autoRenewAccountId=0.0.4, ledgerId=testnet}"
+]
+
+
+org.hiero.sdk.TopicInfoTest.toBytes=[
+  "12002adc010a013112010218032205108092f4012a221220e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b732221220e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b73a040880af1a420218044a010152221220cce0ca9ad24b8cba903f4c73c79fd50aa90953bc05d67c4299f72f071b672d5a5a221220e0c8ec2758a5879ffac226a13c0c516b799e72e35141a0dd828f94d37988a4b75a221220cce0ca9ad24b8cba903f4c73c79fd50aa90953bc05d67c4299f72f071b672d5a620a0a040864120012021803"
+]
+
+
+org.hiero.sdk.TopicInfoTest.toProtobuf=[
+  "# org.hiero.sdk.proto.ConsensusGetTopicInfoResponse@9c638798\ntopic_i_d {\n  realm_num: 0\n  shard_num: 0\n  topic_num: 0\n}\ntopic_info {\n  admin_key {\n    ed25519: \"\\340\\310\\354\\'X\\245\\207\\237\\372\\302&\\241<\\fQky\\236r\\343QA\\240\\335\\202\\217\\224\\323y\\210\\244\\267\"\n  }\n  auto_renew_account {\n    account_num: 4\n    realm_num: 0\n    shard_num: 0\n  }\n  auto_renew_period {\n    seconds: 432000\n  }\n  custom_fees {\n    fee_collector_account_id {\n      account_num: 3\n      realm_num: 0\n      shard_num: 0\n    }\n    fixed_fee {\n      amount: 100\n      denominating_token_id {\n        realm_num: 0\n        shard_num: 0\n        token_num: 0\n      }\n    }\n  }\n  expiration_time {\n    nanos: 4000000\n    seconds: 0\n  }\n  fee_exempt_key_list {\n    ed25519: \"\\340\\310\\354\\'X\\245\\207\\237\\372\\302&\\241<\\fQky\\236r\\343QA\\240\\335\\202\\217\\224\\323y\\210\\244\\267\"\n  }\n  fee_exempt_key_list {\n    ed25519: \"\\314\\340\\312\\232\\322K\\214\\272\\220?Ls\\307\\237\\325\\n\\251\\tS\\274\\005\\326|B\\231\\367/\\a\\033g-Z\"\n  }\n  fee_schedule_key {\n    ed25519: \"\\314\\340\\312\\232\\322K\\214\\272\\220?Ls\\307\\237\\325\\n\\251\\tS\\274\\005\\326|B\\231\\367/\\a\\033g-Z\"\n  }\n  ledger_id: \"\\001\"\n  memo: \"1\"\n  running_hash: \"\\002\"\n  sequence_number: 3\n  submit_key {\n    ed25519: \"\\340\\310\\354\\'X\\245\\207\\237\\372\\302&\\241<\\fQky\\236r\\343QA\\240\\335\\202\\217\\224\\323y\\210\\244\\267\"\n  }\n}"
+]
+

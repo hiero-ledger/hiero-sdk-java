@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 dependencies {
-    published(project(":sdk"))
-    published(project(":sdk-full"))
+    published(project(":hiero-sdk"))
+    published(project(":hiero-sdk-full"))
 
     implementation(project(":tck"))
     implementation("io.grpc:grpc-protobuf")

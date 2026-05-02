@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.FileInfoQueryTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.Query\nfile_get_info {\n  file_i_d {\n    file_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
-]

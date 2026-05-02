@@ -8,7 +8,7 @@ This document provides a comprehensive guide for migrating from the Hedera Java 
 
 The Maven group ID and artifact ID are being updated to reflect the new organization ownership:
 - **Group ID**: `com.hedera.hashgraph` → `org.hiero`
-- **Artifact ID**: `sdk` → `sdk-java`
+- **Artifact ID**: `sdk` → `hiero-sdk`
 - **Package namespace**: `com.hedera.hashgraph.sdk` → `org.hiero.sdk`
 
 The functionality, API, features, and codebase remain exactly the same - only the dependency coordinates and import statements need to be updated.
@@ -29,7 +29,7 @@ dependencies {
 
 ```gradle
 dependencies {
-    implementation 'org.hiero:sdk:2.67.0'
+    implementation 'org.hiero:hiero-sdk:2.67.0'
 }
 ```
 
@@ -50,7 +50,7 @@ dependencies {
 ```xml
 <dependency>
     <groupId>org.hiero</groupId>
-    <artifactId>sdk</artifactId>
+    <artifactId>hiero-sdk</artifactId>
     <version>2.67.0</version>
 </dependency>
 ```
@@ -144,7 +144,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'org.hiero:sdk:2.67.0'
+    implementation 'org.hiero:hiero-sdk:2.67.0'
     testImplementation 'junit:junit:4.13.2'
 }
 ```
@@ -171,7 +171,7 @@ Update `pom.xml` files:
 <dependencies>
     <dependency>
         <groupId>org.hiero</groupId>
-        <artifactId>sdk</artifactId>
+        <artifactId>hiero-sdk</artifactId>
         <version>2.67.0</version>
     </dependency>
 </dependencies>
@@ -254,9 +254,9 @@ public class Example {
 **Before:**
 
 ```java
-import com.hedera.hashgraph.sdk.AccountCreateTransaction;
-import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.sdk.Hbar;
+import org.hiero.sdk.AccountCreateTransaction;
+import org.hiero.sdk.PrivateKey;
+import org.hiero.sdk.Hbar;
 
 AccountCreateTransaction transaction = new AccountCreateTransaction()
     .setKey(PrivateKey.generate().getPublicKey())
@@ -282,9 +282,9 @@ AccountCreateTransaction transaction = new AccountCreateTransaction()
 **Before:**
 
 ```java
-import com.hedera.hashgraph.sdk.TransferTransaction;
-import com.hedera.hashgraph.sdk.AccountId;
-import com.hedera.hashgraph.sdk.Hbar;
+import org.hiero.sdk.TransferTransaction;
+import org.hiero.sdk.AccountId;
+import org.hiero.sdk.Hbar;
 
 TransferTransaction transferTx = new TransferTransaction()
     .addHbarTransfer(AccountId.fromString("0.0.1234"), Hbar.fromTinybars(-1000))
@@ -315,7 +315,7 @@ TransferTransaction transferTx = new TransferTransaction()
 
 ## Version Compatibility
 
-The new `org.hiero:sdk` artifact maintains full compatibility with the previous `com.hedera.hashgraph:sdk` versions. You can directly replace the dependency coordinates without any code changes beyond the import statements.
+The new `org.hiero:sdk` artifact maintains full compatibility with the previous `org.hiero:sdk` versions. You can directly replace the dependency coordinates without any code changes beyond the import statements.
 
 ## IDE Configuration
 
@@ -363,7 +363,7 @@ For additional support, create an issue in the [Hiero SDK repository](https://gi
 ## Timeline
 
 - **Effective Date**: The new `org.hiero:sdk` artifact is available immediately
-- **Deprecation**: The `com.hedera.hashgraph:sdk` artifact will continue to work but will eventually be deprecated
+- **Deprecation**: The `org.hiero:sdk` artifact will continue to work but will eventually be deprecated
 - **Recommendation**: Migrate as soon as possible to ensure you're using the officially supported artifact
 
 ---

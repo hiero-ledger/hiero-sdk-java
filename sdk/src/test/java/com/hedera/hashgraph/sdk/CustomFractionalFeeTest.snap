@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.CustomFractionalFeeTest.fromProtobuf=[
-  "CustomFractionalFee{feeCollectorAccountId=null, allCollectorsAreExempt=false, numerator=4, denominator=5, min=6, max=7, assessmentMethod=EXCLUSIVE}"
-]
-
-
-com.hedera.hashgraph.sdk.CustomFractionalFeeTest.toProtobuf=[
-  "# com.hedera.hashgraph.sdk.proto.CustomFee@b2abef2c\nfractional_fee {\n  fractional_amount {\n    denominator: 5\n    numerator: 4\n  }\n  maximum_amount: 7\n  minimum_amount: 6\n  net_of_transfers: true\n}"
-]

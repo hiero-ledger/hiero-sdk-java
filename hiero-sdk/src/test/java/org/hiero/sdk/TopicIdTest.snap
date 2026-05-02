@@ -1,0 +1,23 @@
+org.hiero.sdk.TopicIdTest.fromBytes=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TopicIdTest.fromSolidityAddress=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TopicIdTest.shouldSerializeFromString=[
+  "0.0.5005"
+]
+
+
+org.hiero.sdk.TopicIdTest.toBytes=[
+  "188d27"
+]
+
+
+org.hiero.sdk.TopicIdTest.toSolidityAddress=[
+  "000000000000000000000000000000000000138d"
+]

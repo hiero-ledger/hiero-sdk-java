@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.TokenDissociateTransactionTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntoken_dissociate {\n  account {\n    account_num: 0\n    realm_num: 9\n    shard_num: 6\n  }\n  tokens {\n    realm_num: 2\n    shard_num: 4\n    token_num: 0\n  }\n  tokens {\n    realm_num: 2\n    shard_num: 4\n    token_num: 1\n  }\n  tokens {\n    realm_num: 2\n    shard_num: 4\n    token_num: 2\n  }\n}\ntransaction_fee: 100000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]

@@ -39,6 +39,6 @@ You can then build and install the application on a connected device or emulator
 
 The example uses the local SDK version. If you want to use the example stand-alone with an SDK version published to
 Maven Central you need to remove the line `includeBuild("..")` from [settings.gradle.kts](settings.gradle.kts)
-and `implementation(platform("com.hedera.hashgraph:sdk-dependency-versions"))` from
+and `implementation(platform("org.hiero:sdk-dependency-versions"))` from
 [app/build.gradle.kts](app/build.gradle.kts). You can define the version of the SDK you would like to use by modifying
-the `implementation("com.hedera.hashgraph:sdk:<version>")` dependency in [app/build.gradle.kts](app/build.gradle.kts).
+the `implementation("org.hiero:sdk:<version>")` dependency in [app/build.gradle.kts](app/build.gradle.kts).
