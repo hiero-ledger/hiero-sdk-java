@@ -10,13 +10,13 @@
  */
 syntax = "proto3";
 
-package com.hedera.hapi.services.auxiliary.history;
+package org.hiero.hapi.services.auxiliary.history;
 
 // SPDX-License-Identifier: Apache-2.0
 import "history_types.proto";
 
-option java_package = "com.hedera.hapi.services.auxiliary.history.legacy";
-// <<<pbj.java_package = "com.hedera.hapi.services.auxiliary.history">>> This comment is special code for setting PBJ Compiler java package
+option java_package = "org.hiero.hapi.services.auxiliary.history.legacy";
+// <<<pbj.java_package = "org.hiero.hapi.services.auxiliary.history">>> This comment is special code for setting PBJ Compiler java package
 
 option java_multiple_files = true;
 
@@ -33,5 +33,5 @@ message HistoryProofVoteTransactionBody {
   /**
    * The submitting node's vote on the history proof.
    */
-  com.hedera.hapi.node.state.history.HistoryProofVote vote = 2;
+  org.hiero.hapi.node.state.history.HistoryProofVote vote = 2;
 }

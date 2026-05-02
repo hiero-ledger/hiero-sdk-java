@@ -20,7 +20,7 @@
 
 syntax = "proto3";
 
-package com.hedera.mirror.api.proto;
+package org.hiero.mirror.api.proto;
 
 /**
  * Required for the reactor-grpc generator to work correctly
