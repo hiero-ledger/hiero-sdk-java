@@ -7,7 +7,7 @@ To get started with an Android project, you'll need to add the following **two**
 1. **Hedera™ Java SDK:**
 
 ```groovy
-implementation 'org.hiero:sdk:2.71.0'
+implementation 'org.hiero:hiero-sdk:2.71.0'
 ```
 
 2. **gRPC implementation:**

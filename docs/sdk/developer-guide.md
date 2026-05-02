@@ -20,7 +20,7 @@ Gradle setup. More details on how to work with the project can be found in the
 ### Unit Tests
 
 ```sh
-./gradlew :sdk:test
+./gradlew :hiero-sdk:test
 ```
 
 ### Integration Tests
@@ -34,17 +34,17 @@ Gradle setup. More details on how to work with the project can be found in the
 `HEDERA_NETWORK` can be set to `localhost`, `testnet` or `previewnet`.
 
 ```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="<network>"
+./gradlew :hiero-sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="<network>"
 ```
 
 #### Using configuration file
 
 ```sh
-./gradlew :sdk:testIntegration -PCONFIG_FILE="<ConfigurationFilePath>"
+./gradlew :hiero-sdk:testIntegration -PCONFIG_FILE="<ConfigurationFilePath>"
 ```
 
 An example configuration file can be found in the repo here:
-[sdk/src/test/resources/client-config-with-operator.json](../../sdk/src/test/resources/client-config-with-operator.json)
+[hiero-sdk/src/test/resources/client-config-with-operator.json](../../hiero-sdk/src/test/resources/client-config-with-operator.json)
 
 **Running against the local network**
 
@@ -87,13 +87,13 @@ The format of the configuration file should be as follows:
 Running test class:
 
 ```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass>"
+./gradlew :hiero-sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass>"
 ```
 
 Running test function:
 
 ```sh
-./gradlew :sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass.functionName>"
+./gradlew :hiero-sdk:testIntegration -POPERATOR_ID="<shard.realm.num>" -POPERATOR_KEY="<PrivateKey>" -PHEDERA_NETWORK="testnet" --tests "<TestClass.functionName>"
 ```
 
 #### Running with Intellij IDEA
@@ -106,8 +106,8 @@ Running test function:
 
 This project uses a combination of Java Modules (JPMS) and Gradle to define and manage dependencies to 3rd party
 libraries. In this structure, dependencies of the SDK are defined in
-[sdk/src/main/java/module-info.java](../../sdk/src/main/java/module-info.java) (which is mirrored in
-[sdk-full/src/main/java/module-info.java](../../sdk-full/src/main/java/module-info.java)).
+[hiero-sdk/src/main/java/module-info.java](../../hiero-sdk/src/main/java/module-info.java) (which is mirrored in
+[hiero-sdk-full/src/main/java/module-info.java](../../hiero-sdk-full/src/main/java/module-info.java)).
 Running `./gradlew qualityGate` contains a _dependency scope check_ that makes sure that both files are in sync.
 Versions of 3rd party dependencies are defined in
 [hiero-dependency-versions/build.gradle.kts](../../hiero-dependency-versions/build.gradle.kts).
