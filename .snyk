@@ -11,6 +11,6 @@ patch: {}
 exclude:
   global:
     - >-
-      sdk/src/main/java/org.hiero/sdk/PrivateKeyED25519.java
+      hiero-sdk/src/main/java/org/hiero/sdk/PrivateKeyED25519.java
     - >-
-      sdk/src/main/java/org.hiero/sdk/PrivateKeyECDSA.java
+      hiero-sdk/src/main/java/org/hiero/sdk/PrivateKeyECDSA.java
