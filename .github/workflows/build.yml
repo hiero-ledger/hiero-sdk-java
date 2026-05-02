@@ -179,7 +179,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@328bc84c3b00a990a151418144fd682a4eb76ea6 # v0.17
         with:
           installMirrorNode: true
-          soloVersion: v0.65.0
+          soloVersion: v0.68.0
           mirrorNodeVersion: v0.153.0
           hieroVersion: v0.73.0
 
@@ -253,7 +253,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@328bc84c3b00a990a151418144fd682a4eb76ea6 # v0.17
         with:
           installMirrorNode: true
-          soloVersion: v0.65.0
+          soloVersion: v0.68.0
           dualMode: true
           hieroVersion: v0.68.0
           mirrorNodeVersion: v0.142.0
@@ -311,7 +311,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@328bc84c3b00a990a151418144fd682a4eb76ea6 # v0.17
         with:
           installMirrorNode: true
-          soloVersion: v0.65.0
+          soloVersion: v0.68.0
           mirrorNodeVersion: v0.153.0
           hieroVersion: v0.73.0
 
