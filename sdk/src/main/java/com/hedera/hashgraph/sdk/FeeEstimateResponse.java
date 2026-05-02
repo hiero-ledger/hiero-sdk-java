@@ -39,7 +39,7 @@ public final class FeeEstimateResponse {
     private final FeeEstimate service;
 
     /**
-     * The high-volume throttle multiplier returned by the mirror node.
+     * The high-volume throttle multiplier returned by the mirror node under HIP-1261.
      * <p>
      * When non-zero high-volume throttle utilization is requested, this value
      * will be greater than or equal to 1.

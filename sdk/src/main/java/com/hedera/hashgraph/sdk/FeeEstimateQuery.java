@@ -25,12 +25,12 @@ public class FeeEstimateQuery {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Nullable
-    private FeeEstimateMode mode = null;
+    private FeeEstimateMode mode = FeeEstimateMode.INTRINSIC;
 
     @Nullable
     private com.hedera.hashgraph.sdk.proto.Transaction transaction = null;
 
-    private int highVolumeThrottle = 0;
+    private short highVolumeThrottle = 0;
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
 
@@ -81,25 +81,32 @@ public class FeeEstimateQuery {
      *
      * @return the high-volume throttle value (0–10000)
      */
-    public int getHighVolumeThrottle() {
+    public short getHighVolumeThrottle() {
         return highVolumeThrottle;
     }
 
     /**
      * Set the high-volume throttle utilization in basis points (0–10000, where 10000 = 100%).
-     * <p>
-     * When non-zero, the mirror node returns a high-volume pricing multiplier
-     * in the response.
      *
      * @param highVolumeThrottle the throttle utilization in basis points
      * @return {@code this}
      */
-    public FeeEstimateQuery setHighVolumeThrottle(int highVolumeThrottle) {
+    public FeeEstimateQuery setHighVolumeThrottle(short highVolumeThrottle) {
         if (highVolumeThrottle < 0 || highVolumeThrottle > 10000) {
             throw new IllegalArgumentException("highVolumeThrottle must be between 0 and 10000");
         }
         this.highVolumeThrottle = highVolumeThrottle;
         return this;
+    }
+
+    /**
+     * Set the high-volume throttle utilization as int for backward compatibility.
+     *
+     * @param highVolumeThrottle the throttle utilization in basis points
+     * @return {@code this}
+     */
+    public FeeEstimateQuery setHighVolumeThrottle(int highVolumeThrottle) {
+        return setHighVolumeThrottle((short) highVolumeThrottle);
     }
 
     /**
@@ -408,4 +415,68 @@ public class FeeEstimateQuery {
             Thread.currentThread().interrupt();
         }
     }
+
+    /**
+     * Execute the query for a chunked transaction by summing up fees across all chunks consistently.
+     *
+     * @param client             the client
+     * @param chunkedTransaction the chunked transaction
+     * @return the combined fee estimate response
+     * @throws IOException if an I/O error occurs
+     * @throws InterruptedException if the operation is interrupted
+     */
+    public <T extends ChunkedTransaction<T>> FeeEstimateResponse executeChunked(
+            Client client, ChunkedTransaction<T> chunkedTransaction) throws IOException, InterruptedException {
+        Objects.requireNonNull(chunkedTransaction);
+        if (!chunkedTransaction.isFrozen()) {
+            chunkedTransaction.freezeWith(client);
+        }
+
+        byte[] bytes = chunkedTransaction.toBytes();
+        com.hedera.hashgraph.sdk.proto.TransactionList list =
+                com.hedera.hashgraph.sdk.proto.TransactionList.parseFrom(bytes);
+        java.util.List<com.hedera.hashgraph.sdk.proto.Transaction> chunkTxs = list.getTransactionListList();
+
+        long totalNetworkSubtotal = 0;
+        int maxNetworkMultiplier = 1;
+        long totalNodeBase = 0;
+        java.util.List<FeeExtra> combinedNodeExtras = new java.util.ArrayList<>();
+        long totalServiceBase = 0;
+        java.util.List<FeeExtra> combinedServiceExtras = new java.util.ArrayList<>();
+        long totalTotal = 0;
+        long highVolumeMultiplier = 1;
+
+        for (var tx : chunkTxs) {
+            FeeEstimateQuery query = new FeeEstimateQuery()
+                    .setMode(this.getMode() != null ? this.getMode() : FeeEstimateMode.INTRINSIC)
+                    .setHighVolumeThrottle(this.getHighVolumeThrottle())
+                    .setTransaction(tx);
+            FeeEstimateResponse res = query.execute(client);
+            if (res.getNetwork() != null) {
+                totalNetworkSubtotal += res.getNetwork().getSubtotal();
+                maxNetworkMultiplier = Math.max(maxNetworkMultiplier, res.getNetwork().getMultiplier());
+            }
+            if (res.getNode() != null) {
+                totalNodeBase += res.getNode().getBase();
+                combinedNodeExtras.addAll(res.getNode().getExtras());
+            }
+            if (res.getService() != null) {
+                totalServiceBase += res.getService().getBase();
+                combinedServiceExtras.addAll(res.getService().getExtras());
+            }
+            totalTotal += res.getTotal();
+            // Under HIP-1261, use the maximum high-volume multiplier across all chunks
+            highVolumeMultiplier = Math.max(highVolumeMultiplier, res.getHighVolumeMultiplier());
+        }
+
+        return new FeeEstimateResponse(
+                new NetworkFee(maxNetworkMultiplier, totalNetworkSubtotal),
+                new FeeEstimate(totalNodeBase, combinedNodeExtras),
+                highVolumeMultiplier,
+                new FeeEstimate(totalServiceBase, combinedServiceExtras),
+                totalTotal
+        );
+    }
 }
+
+
