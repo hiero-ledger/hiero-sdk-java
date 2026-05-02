@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.sdk;
+package org.hiero.sdk;
 
-import com.hedera.hashgraph.sdk.proto.SubType;
+import org.hiero.sdk.proto.SubType;
 
 /**
  * Enum for the fee data types.
  */
 public enum FeeDataType {
+

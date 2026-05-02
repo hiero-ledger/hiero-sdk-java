@@ -1,0 +1,9 @@
+org.hiero.sdk.PrngTransactionTest.shouldSerialize2=[
+  "# org.hiero.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntransaction_fee: 100000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}\nutil_prng {\n  range: 100\n}"
+]
+
+
+org.hiero.sdk.PrngTransactionTest.shouldSerialize=[
+  "# org.hiero.sdk.proto.TransactionBody\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntransaction_fee: 100000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}\nutil_prng {\n}"
+]
+

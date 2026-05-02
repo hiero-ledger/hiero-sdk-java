@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.LiveHashDeleteTransactionTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.TransactionBody\ncrypto_delete_live_hash {\n  account_of_live_hash {\n    account_num: 100\n    realm_num: 0\n    shard_num: 0\n  }\n  live_hash_to_delete: \"hash\"\n}\nnode_account_i_d {\n  account_num: 5005\n  realm_num: 0\n  shard_num: 0\n}\ntransaction_fee: 200000000\ntransaction_i_d {\n  account_i_d {\n    account_num: 5006\n    realm_num: 0\n    shard_num: 0\n  }\n  transaction_valid_start {\n    seconds: 1554158542\n  }\n}\ntransaction_valid_duration {\n  seconds: 120\n}"
-]

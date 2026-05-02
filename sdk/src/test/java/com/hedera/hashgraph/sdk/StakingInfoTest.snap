@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.StakingInfoTest.shouldSerializeAccount=[
-  "StakingInfo{declineStakingReward=true, stakePeriodStart=2019-04-01T22:42:22Z, pendingReward=5 ℏ, stakedToMe=10 ℏ, stakedAccountId=1.2.3, stakedNodeId=null}"
-]
-
-
-com.hedera.hashgraph.sdk.StakingInfoTest.shouldSerializeNode=[
-  "StakingInfo{declineStakingReward=true, stakePeriodStart=2019-04-01T22:42:22Z, pendingReward=5 ℏ, stakedToMe=10 ℏ, stakedAccountId=null, stakedNodeId=3}"
-]

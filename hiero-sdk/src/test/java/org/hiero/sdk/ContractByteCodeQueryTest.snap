@@ -1,0 +1,4 @@
+org.hiero.sdk.ContractByteCodeQueryTest.shouldSerialize=[
+  "# org.hiero.sdk.proto.Query\ncontract_get_bytecode {\n  contract_i_d {\n    contract_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
+]
+

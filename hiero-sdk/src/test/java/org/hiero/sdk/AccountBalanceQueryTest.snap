@@ -1,0 +1,9 @@
+org.hiero.sdk.AccountBalanceQueryTest.shouldSerializeWithAccountId=[
+  "# org.hiero.sdk.proto.Query\ncryptoget_account_balance {\n  account_i_d {\n    account_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
+]
+
+
+org.hiero.sdk.AccountBalanceQueryTest.shouldSerializeWithContractId=[
+  "# org.hiero.sdk.proto.Query\ncryptoget_account_balance {\n  contract_i_d {\n    contract_num: 5005\n    realm_num: 0\n    shard_num: 0\n  }\n  header {\n  }\n}"
+]
+

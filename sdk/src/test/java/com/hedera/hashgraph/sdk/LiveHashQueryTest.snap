@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.LiveHashQueryTest.shouldSerialize=[
-  "# com.hedera.hashgraph.sdk.proto.Query\ncrypto_get_live_hash {\n  account_i_d {\n    account_num: 100\n    realm_num: 0\n    shard_num: 0\n  }\n  hash: \"\\000\\001\\002\"\n  header {\n  }\n}"
-]

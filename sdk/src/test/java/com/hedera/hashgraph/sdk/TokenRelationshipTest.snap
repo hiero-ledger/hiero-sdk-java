@@ -1,3 +1,0 @@
-com.hedera.hashgraph.sdk.TokenRelationshipTest.shouldSerializeTokenRelationship=[
-  "TokenRelationship{tokenId=1.2.3, symbol=ABC, balance=55, kycStatus=true, freezeStatus=true, decimals=4, automaticAssociation=true}"
-]

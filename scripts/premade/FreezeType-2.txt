@@ -1,8 +1,9 @@
-    final com.hedera.hashgraph.sdk.proto.FreezeType code;
+    final org.hiero.sdk.proto.FreezeType code;
 
-    FreezeType(com.hedera.hashgraph.sdk.proto.FreezeType code) {
+    FreezeType(org.hiero.sdk.proto.FreezeType code) {
         this.code = code;
     }
 
-    static FreezeType valueOf(com.hedera.hashgraph.sdk.proto.FreezeType code) {
+    static FreezeType valueOf(org.hiero.sdk.proto.FreezeType code) {
         return switch (code) {
+

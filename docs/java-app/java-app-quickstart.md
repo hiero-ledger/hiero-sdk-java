@@ -9,14 +9,14 @@ To get started with a Java project, you'll need to add the following **three** d
 _Gradle:_
 
 ```groovy
-implementation 'com.hedera.hashgraph:sdk:2.71.0'
+implementation 'org.hiero:sdk:2.71.0'
 ```
 
 _Maven:_
 
 ```xml
 <dependency>
-  <groupId>com.hedera.hashgraph</groupId>
+  <groupId>org.hiero</groupId>
   <artifactId>sdk</artifactId>
   <version>2.71.0</version>
 </dependency>
@@ -116,3 +116,4 @@ These examples show different uses and workflows,
 giving you valuable insights into how you can use the Hedera platform in your projects.
 They will also help you explore the capabilities of the Hedera™ Java SDK
 and start your project confidently.
+

@@ -1,8 +1,0 @@
-com.hedera.hashgraph.sdk.CustomRoyaltyFeeTest.fromProtobuf=[
-  "CustomRoyaltyFee{feeCollectorAccountId=null, allCollectorsAreExempt=false, numerator=4, denominator=5, fallbackFee=CustomFixedFee{feeCollectorAccountId=null, allCollectorsAreExempt=false, amount=6, demoninatingTokenId=null}}"
-]
-
-
-com.hedera.hashgraph.sdk.CustomRoyaltyFeeTest.toProtobuf=[
-  "# com.hedera.hashgraph.sdk.proto.CustomFee@1abe2492\nroyalty_fee {\n  exchange_value_fraction {\n    denominator: 5\n    numerator: 4\n  }\n  fallback_fee {\n    amount: 6\n  }\n}"
-]

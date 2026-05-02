@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.sdk;
+package org.hiero.sdk;
 
-import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
+import org.hiero.sdk.proto.ResponseCodeEnum;
 
 import java.util.Objects;
 
@@ -13,3 +13,4 @@ import java.util.Objects;
  * successful transaction.
  */
 public enum Status {
+

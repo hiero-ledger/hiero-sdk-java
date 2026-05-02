@@ -1,0 +1,402 @@
+// SPDX-License-Identifier: Apache-2.0
+package org.hiero.tck.methods.sdk;
+
+import org.hiero.sdk.Client;
+import org.hiero.sdk.Status;
+import org.hiero.sdk.TokenAirdropTransaction;
+import org.hiero.sdk.TokenAssociateTransaction;
+import org.hiero.sdk.TokenBurnTransaction;
+import org.hiero.sdk.TokenCancelAirdropTransaction;
+import org.hiero.sdk.TokenClaimAirdropTransaction;
+import org.hiero.sdk.TokenCreateTransaction;
+import org.hiero.sdk.TokenDeleteTransaction;
+import org.hiero.sdk.TokenDissociateTransaction;
+import org.hiero.sdk.TokenFeeScheduleUpdateTransaction;
+import org.hiero.sdk.TokenFreezeTransaction;
+import org.hiero.sdk.TokenGrantKycTransaction;
+import org.hiero.sdk.TokenInfo;
+import org.hiero.sdk.TokenInfoQuery;
+import org.hiero.sdk.TokenMintTransaction;
+import org.hiero.sdk.TokenNftInfo;
+import org.hiero.sdk.TokenNftInfoQuery;
+import org.hiero.sdk.TokenPauseTransaction;
+import org.hiero.sdk.TokenRejectTransaction;
+import org.hiero.sdk.TokenRevokeKycTransaction;
+import org.hiero.sdk.TokenUnfreezeTransaction;
+import org.hiero.sdk.TokenUnpauseTransaction;
+import org.hiero.sdk.TokenUpdateTransaction;
+import org.hiero.sdk.TokenWipeTransaction;
+import org.hiero.sdk.TransactionReceipt;
+import org.hiero.sdk.TransactionResponse;
+import org.hiero.tck.annotation.JSONRPC2Method;
+import org.hiero.tck.annotation.JSONRPC2Service;
+import org.hiero.tck.methods.AbstractJSONRPC2Service;
+import org.hiero.tck.methods.sdk.param.token.AssociateDisassociateTokenParams;
+import org.hiero.tck.methods.sdk.param.token.BurnTokenParams;
+import org.hiero.tck.methods.sdk.param.token.FreezeUnfreezeTokenParams;
+import org.hiero.tck.methods.sdk.param.token.GrantRevokeTokenKycParams;
+import org.hiero.tck.methods.sdk.param.token.MintTokenParams;
+import org.hiero.tck.methods.sdk.param.token.NftInfoQueryParams;
+import org.hiero.tck.methods.sdk.param.token.PauseUnpauseTokenParams;
+import org.hiero.tck.methods.sdk.param.token.TokenAirdropCancelParams;
+import org.hiero.tck.methods.sdk.param.token.TokenAirdropParams;
+import org.hiero.tck.methods.sdk.param.token.TokenClaimAirdropParams;
+import org.hiero.tck.methods.sdk.param.token.TokenCreateParams;
+import org.hiero.tck.methods.sdk.param.token.TokenDeleteParams;
+import org.hiero.tck.methods.sdk.param.token.TokenInfoQueryParams;
+import org.hiero.tck.methods.sdk.param.token.TokenRejectAirdropParams;
+import org.hiero.tck.methods.sdk.param.token.TokenUpdateFeeScheduleParams;
+import org.hiero.tck.methods.sdk.param.token.TokenUpdateParams;
+import org.hiero.tck.methods.sdk.param.token.TokenWipeParams;
+import org.hiero.tck.methods.sdk.response.token.NftInfoResponse;
+import org.hiero.tck.methods.sdk.response.token.TokenBurnResponse;
+import org.hiero.tck.methods.sdk.response.token.TokenInfoResponse;
+import org.hiero.tck.methods.sdk.response.token.TokenMintResponse;
+import org.hiero.tck.methods.sdk.response.token.TokenResponse;
+import org.hiero.tck.util.QueryBuilders;
+import org.hiero.tck.util.TransactionBuilders;
+import java.util.List;
+import java.util.Map;
+import org.bouncycastle.util.encoders.Hex;
+
+/**
+ * TokenService for token related methods
+ */
+@JSONRPC2Service
+public class TokenService extends AbstractJSONRPC2Service {
+
+    private final SdkService sdkService;
+
+    public TokenService(SdkService sdkService) {
+        this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getTokenNftInfo")
+    public NftInfoResponse getNftInfo(final NftInfoQueryParams params) throws Exception {
+        TokenNftInfoQuery query = QueryBuilders.TokenBuilder.buildNftInfo(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        List<TokenNftInfo> txResponse = query.execute(client);
+        TokenNftInfo tokenNftInfo = txResponse.get(0);
+
+        return new NftInfoResponse(
+                tokenNftInfo.nftId.toString(),
+                tokenNftInfo.accountId.toString(),
+                String.valueOf(tokenNftInfo.creationTime.getEpochSecond()),
+                Hex.toHexString(tokenNftInfo.metadata),
+                tokenNftInfo.ledgerId.toString(),
+                tokenNftInfo.spenderId != null ? tokenNftInfo.spenderId.toString() : null);
+    }
+
+    @JSONRPC2Method("getTokenInfo")
+    public TokenInfoResponse getTokenInfo(final TokenInfoQueryParams params) throws Exception {
+        TokenInfoQuery query = QueryBuilders.TokenBuilder.buildTokenInfo(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        TokenInfo txResponse = query.execute(client);
+
+        return new TokenInfoResponse(
+                txResponse.tokenId.toString(),
+                txResponse.name,
+                txResponse.symbol,
+                txResponse.decimals,
+                String.valueOf(txResponse.totalSupply),
+                txResponse.treasuryAccountId.toString(),
+                txResponse.adminKey != null ? txResponse.adminKey.toString() : "",
+                txResponse.kycKey != null ? txResponse.kycKey.toString() : "",
+                txResponse.freezeKey != null ? txResponse.freezeKey.toString() : "",
+                txResponse.wipeKey != null ? txResponse.wipeKey.toString() : "",
+                txResponse.supplyKey != null ? txResponse.supplyKey.toString() : "",
+                txResponse.feeScheduleKey != null ? txResponse.feeScheduleKey.toString() : "",
+                txResponse.defaultFreezeStatus,
+                txResponse.defaultKycStatus,
+                txResponse.isDeleted,
+                txResponse.autoRenewAccount != null ? txResponse.autoRenewAccount.toString() : "",
+                String.valueOf(txResponse.autoRenewPeriod.getSeconds()),
+                String.valueOf(txResponse.expirationTime.getEpochSecond()),
+                txResponse.tokenMemo,
+                txResponse.customFees,
+                txResponse.tokenType,
+                txResponse.supplyType,
+                String.valueOf(txResponse.maxSupply),
+                txResponse.pauseKey != null ? txResponse.pauseKey.toString() : "",
+                txResponse.pauseStatus,
+                txResponse.metadata != null ? txResponse.metadata.toString() : "",
+                txResponse.metadataKey != null ? txResponse.metadataKey.toString() : "",
+                txResponse.ledgerId.toString());
+    }
+
+    @JSONRPC2Method("createToken")
+    public TokenResponse createToken(final TokenCreateParams params) throws Exception {
+        TokenCreateTransaction tokenCreateTransaction = TransactionBuilders.TokenBuilder.buildCreate(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenCreateTransaction, client));
+
+        TransactionReceipt transactionReceipt =
+                tokenCreateTransaction.execute(client).getReceipt(client);
+
+        String tokenId = "";
+        if (transactionReceipt.status == Status.SUCCESS) {
+            tokenId = transactionReceipt.tokenId.toString();
+        }
+
+        return new TokenResponse(tokenId, transactionReceipt.status);
+    }
+
+    @JSONRPC2Method("updateToken")
+    public TokenResponse updateToken(final TokenUpdateParams params) throws Exception {
+        TokenUpdateTransaction tokenUpdateTransaction = TransactionBuilders.TokenBuilder.buildUpdate(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenUpdateTransaction, client));
+
+        TransactionReceipt transactionReceipt =
+                tokenUpdateTransaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", transactionReceipt.status);
+    }
+
+    @JSONRPC2Method("deleteToken")
+    public TokenResponse deleteToken(final TokenDeleteParams params) throws Exception {
+        TokenDeleteTransaction tokenDeleteTransaction = TransactionBuilders.TokenBuilder.buildDelete(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenDeleteTransaction, client));
+
+        TransactionReceipt transactionReceipt =
+                tokenDeleteTransaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", transactionReceipt.status);
+    }
+
+    @JSONRPC2Method("updateTokenFeeSchedule")
+    public TokenResponse updateTokenFeeSchedule(TokenUpdateFeeScheduleParams params) throws Exception {
+        TokenFeeScheduleUpdateTransaction transaction = TransactionBuilders.TokenBuilder.buildUpdateFeeSchedule(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("freezeToken")
+    public TokenResponse tokenFreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
+        TokenFreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildFreeze(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("unfreezeToken")
+    public TokenResponse tokenUnfreezeTransaction(FreezeUnfreezeTokenParams params) throws Exception {
+        TokenUnfreezeTransaction transaction = TransactionBuilders.TokenBuilder.buildUnfreeze(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("associateToken")
+    public TokenResponse associateToken(AssociateDisassociateTokenParams params) throws Exception {
+        TokenAssociateTransaction transaction = TransactionBuilders.TokenBuilder.buildAssociate(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("dissociateToken")
+    public TokenResponse dissociateToken(AssociateDisassociateTokenParams params) throws Exception {
+        TokenDissociateTransaction transaction = TransactionBuilders.TokenBuilder.buildDissociate(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("pauseToken")
+    public TokenResponse pauseToken(PauseUnpauseTokenParams params) throws Exception {
+        TokenPauseTransaction transaction = TransactionBuilders.TokenBuilder.buildPause(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("unpauseToken")
+    public TokenResponse tokenUnpauseTransaction(PauseUnpauseTokenParams params) throws Exception {
+        TokenUnpauseTransaction transaction = TransactionBuilders.TokenBuilder.buildUnpause(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("grantTokenKyc")
+    public TokenResponse grantTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
+        TokenGrantKycTransaction transaction = TransactionBuilders.TokenBuilder.buildGrantKyc(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("revokeTokenKyc")
+    public TokenResponse revokeTokenKyc(GrantRevokeTokenKycParams params) throws Exception {
+        TokenRevokeKycTransaction transaction = TransactionBuilders.TokenBuilder.buildRevokeKyc(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenResponse("", receipt.status);
+    }
+
+    @JSONRPC2Method("mintToken")
+    public TokenMintResponse mintToken(MintTokenParams params) throws Exception {
+        TokenMintTransaction transaction = TransactionBuilders.TokenBuilder.buildMint(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenMintResponse(
+                "",
+                receipt.status,
+                receipt.totalSupply.toString(),
+                receipt.serials.stream().map(String::valueOf).toList());
+    }
+
+    @JSONRPC2Method("burnToken")
+    public TokenBurnResponse burnToken(BurnTokenParams params) throws Exception {
+        TokenBurnTransaction transaction = TransactionBuilders.TokenBuilder.buildBurn(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
+
+        TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
+
+        return new TokenBurnResponse("", receipt.status, receipt.totalSupply.toString());
+    }
+
+    @JSONRPC2Method("wipeToken")
+    public Map<String, String> wipeToken(final TokenWipeParams params) throws Exception {
+        TokenWipeTransaction tokenWipeTransaction = TransactionBuilders.TokenBuilder.buildWipe(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenWipeTransaction, client));
+
+        TransactionReceipt receipt = tokenWipeTransaction.execute(client).getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("airdropToken")
+    public Map<String, String> airdropToken(final TokenAirdropParams params) throws Exception {
+        TokenAirdropTransaction tokenAirdropTransaction = TransactionBuilders.TokenBuilder.buildAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenAirdropTransaction, client));
+
+        TransactionResponse txResponse = tokenAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("cancelAirdrop")
+    public Map<String, String> cancelAirdrop(final TokenAirdropCancelParams params) throws Exception {
+        TokenCancelAirdropTransaction tokenCancelAirdropTransaction =
+                TransactionBuilders.TokenBuilder.buildCancelAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenCancelAirdropTransaction, client));
+
+        TransactionResponse txResponse = tokenCancelAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("claimToken")
+    public Map<String, String> claimToken(final TokenClaimAirdropParams params) throws Exception {
+        TokenClaimAirdropTransaction tokenClaimAirdropTransaction =
+                TransactionBuilders.TokenBuilder.buildClaimAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenClaimAirdropTransaction, client));
+
+        TransactionResponse txResponse = tokenClaimAirdropTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+
+    @JSONRPC2Method("rejectToken")
+    public Map<String, String> rejectToken(final TokenRejectAirdropParams params) throws Exception {
+        TokenRejectTransaction tokenRejectTransaction = TransactionBuilders.TokenBuilder.buildRejectAirdrop(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        params.getCommonTransactionParams()
+                .ifPresent(commonTransactionParams ->
+                        commonTransactionParams.fillOutTransaction(tokenRejectTransaction, client));
+
+        TransactionResponse txResponse = tokenRejectTransaction.execute(client);
+        TransactionReceipt receipt = txResponse.getReceipt(client);
+
+        return Map.of("status", receipt.status.toString());
+    }
+}
+

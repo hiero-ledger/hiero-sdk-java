@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/java-17%2B-blue?style=flat-square)
 ![](https://img.shields.io/badge/android-26%2B-blue?style=flat-square)
 [![](https://img.shields.io/github/actions/workflow/status/hiero-ledger/hiero-sdk-java/build.yml?style=flat-square)](https://github.com/hiero-ledger/hiero-sdk-java/actions)
-[![](https://img.shields.io/maven-central/v/com.hedera.hashgraph/sdk/2?label=maven&style=flat-square)](https://search.maven.org/artifact/com.hedera.hashgraph/sdk)
+[![](https://img.shields.io/maven-central/v/org.hiero/hiero-sdk/2?label=maven&style=flat-square)](https://search.maven.org/artifact/org.hiero/hiero-sdk)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/hiero-ledger/hiero-sdk-java/badge)](https://scorecard.dev/viewer/?uri=github.com/hiero-ledger/hiero-sdk-java)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/10697/badge)](https://bestpractices.coreinfrastructure.org/projects/10697)
 [![License](https://img.shields.io/badge/license-apache2-blue.svg)](LICENSE)
@@ -55,3 +55,4 @@ Hiero uses the Linux Foundation Decentralised Trust [Code of Conduct](https://ww
 ## License
 
 [Apache License 2.0](LICENSE)
+
