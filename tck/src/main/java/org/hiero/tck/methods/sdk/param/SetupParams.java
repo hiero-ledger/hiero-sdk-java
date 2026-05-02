@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.param;
 
-import org.hiero.tck.methods.JSONRPC2Param;
-import org.hiero.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hiero.tck.methods.JSONRPC2Param;
+import org.hiero.tck.util.JSONRPCParamParser;
 
 /**
  * SetupParams for SDK client
@@ -41,4 +41,3 @@ public class SetupParams extends JSONRPC2Param {
                 JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
-

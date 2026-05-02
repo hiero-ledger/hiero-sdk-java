@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.ResponseCodeEnum;
 import java.util.Objects;
+import org.hiero.sdk.proto.ResponseCodeEnum;
 
 /**
  * Returned in {@link TransactionReceipt}, {@link PrecheckStatusException}
@@ -2518,4 +2518,3 @@ public enum Status {
         return code.name();
     }
 }
-

@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.FileGetContentsQuery;
 import org.hiero.sdk.proto.FileServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 
 /**
  * Get the contents of a file. The content field is empty (no bytes) if the
@@ -99,4 +99,3 @@ public final class FileContentsQuery extends Query<ByteString, FileContentsQuery
         return FileServiceGrpc.getGetFileContentMethod();
     }
 }
-

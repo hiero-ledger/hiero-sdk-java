@@ -2,9 +2,9 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
+import io.github.jsonSnapshot.SnapshotMatcher;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Transaction;
-import io.github.jsonSnapshot.SnapshotMatcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,4 +36,3 @@ public class NetworkVersionInfoQueryTest {
                 .toMatchSnapshot();
     }
 }
-

@@ -2,11 +2,11 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.UInt32Value;
-import org.hiero.sdk.proto.AccountAmount;
-import org.hiero.sdk.proto.NftTransfer;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.AccountAmount;
+import org.hiero.sdk.proto.NftTransfer;
 
 class TokenTransferList {
     final TokenId tokenId;
@@ -59,4 +59,3 @@ class TokenTransferList {
         return builder.build();
     }
 }
-

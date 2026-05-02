@@ -352,4 +352,3 @@ public class EntityIdHelper {
         R apply(long shard, long realm, long num, @Nullable String checksum);
     }
 }
-

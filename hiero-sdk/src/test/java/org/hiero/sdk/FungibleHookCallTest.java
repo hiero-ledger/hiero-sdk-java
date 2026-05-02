@@ -78,4 +78,3 @@ class FungibleHookCallTest {
         assertThat(tokenTransfers.get(token).get(sender)).isEqualTo(-100L);
     }
 }
-

@@ -3,13 +3,13 @@ package org.hiero.tck.methods.sdk.param;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.hiero.tck.methods.sdk.param.account.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.hiero.tck.methods.sdk.param.account.*;
 import org.junit.jupiter.api.Test;
 
 class AccountCreateParamsTest {
@@ -123,4 +123,3 @@ class AccountCreateParamsTest {
         assertEquals(Optional.empty(), params.getCommonTransactionParams());
     }
 }
-

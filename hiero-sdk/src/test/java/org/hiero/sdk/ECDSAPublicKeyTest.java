@@ -275,4 +275,3 @@ public class ECDSAPublicKeyTest {
         assertThat(ecdsaPublicKey3.toStringRaw()).isEqualTo(PUBLIC_KEY3);
     }
 }
-

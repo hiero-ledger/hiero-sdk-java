@@ -124,4 +124,3 @@ public enum FreezeType {
         return code.name();
     }
 }
-

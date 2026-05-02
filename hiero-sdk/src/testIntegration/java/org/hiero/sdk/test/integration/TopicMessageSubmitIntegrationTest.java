@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
+import java.util.Objects;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.PrecheckStatusException;
 import org.hiero.sdk.Status;
 import org.hiero.sdk.TopicCreateTransaction;
@@ -12,8 +14,6 @@ import org.hiero.sdk.TopicDeleteTransaction;
 import org.hiero.sdk.TopicInfoQuery;
 import org.hiero.sdk.TopicMessageSubmitTransaction;
 import org.hiero.sdk.Transaction;
-import java.util.Objects;
-import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -156,4 +156,3 @@ public class TopicMessageSubmitIntegrationTest {
         String transactionString = transaction.toString();
     }
 }
-

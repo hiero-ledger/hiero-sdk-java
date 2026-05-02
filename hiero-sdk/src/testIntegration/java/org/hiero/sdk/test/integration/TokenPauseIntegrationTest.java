@@ -3,6 +3,7 @@ package org.hiero.sdk.test.integration;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collections;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.Hbar;
 import org.hiero.sdk.PrecheckStatusException;
@@ -12,7 +13,6 @@ import org.hiero.sdk.TokenAssociateTransaction;
 import org.hiero.sdk.TokenCreateTransaction;
 import org.hiero.sdk.TokenPauseTransaction;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -88,4 +88,3 @@ public class TokenPauseIntegrationTest {
         }
     }
 }
-

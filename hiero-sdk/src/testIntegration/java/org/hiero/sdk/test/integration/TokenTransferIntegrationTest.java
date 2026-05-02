@@ -4,6 +4,7 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Collections;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.CustomFixedFee;
 import org.hiero.sdk.Hbar;
@@ -15,7 +16,6 @@ import org.hiero.sdk.TokenCreateTransaction;
 import org.hiero.sdk.TokenGrantKycTransaction;
 import org.hiero.sdk.TransactionResponse;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -150,4 +150,3 @@ class TokenTransferIntegrationTest {
         }
     }
 }
-

@@ -76,10 +76,9 @@ class AccountInfoIntegrationTest {
                     .isThrownBy(() -> {
                         info.execute(testEnv.client);
                     })
-                    .withMessage(
-                            "org.hiero.sdk.MaxQueryPaymentExceededException: cost for AccountInfoQuery, of "
-                                    + cost.toString()
-                                    + ", without explicit payment is greater than the maximum allowed payment of 1 tℏ");
+                    .withMessage("org.hiero.sdk.MaxQueryPaymentExceededException: cost for AccountInfoQuery, of "
+                            + cost.toString()
+                            + ", without explicit payment is greater than the maximum allowed payment of 1 tℏ");
         }
     }
 
@@ -129,4 +128,3 @@ class AccountInfoIntegrationTest {
         }
     }
 }
-

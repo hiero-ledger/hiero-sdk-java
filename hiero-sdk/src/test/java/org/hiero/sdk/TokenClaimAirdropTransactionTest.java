@@ -3,15 +3,15 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenClaimAirdropTransactionBody;
-import org.hiero.sdk.proto.TokenServiceGrpc;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenClaimAirdropTransactionBody;
+import org.hiero.sdk.proto.TokenServiceGrpc;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -173,4 +173,3 @@ class TokenClaimAirdropTransactionTest {
         assertThat(((TokenClaimAirdropTransaction) tx).getPendingAirdropIds()).hasSize(1);
     }
 }
-

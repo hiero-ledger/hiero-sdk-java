@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk;
 
+import java.time.Duration;
+import java.util.List;
 import org.hiero.sdk.Client;
 import org.hiero.sdk.CustomFixedFee;
 import org.hiero.sdk.Status;
@@ -24,8 +26,6 @@ import org.hiero.tck.methods.sdk.response.TopicInfoResponse;
 import org.hiero.tck.methods.sdk.response.TopicResponse;
 import org.hiero.tck.util.QueryBuilders;
 import org.hiero.tck.util.TransactionBuilders;
-import java.time.Duration;
-import java.util.List;
 
 /**
  * TopicService for topic related methods
@@ -163,4 +163,3 @@ public class TopicService extends AbstractJSONRPC2Service {
                 fixedFee);
     }
 }
-

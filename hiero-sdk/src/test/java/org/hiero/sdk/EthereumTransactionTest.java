@@ -58,4 +58,3 @@ public class EthereumTransactionTest {
         assertThat(tx2.toString()).isEqualTo(tx2.toString());
     }
 }
-

@@ -56,4 +56,3 @@ public final class ExchangeRate {
                 .toString();
     }
 }
-

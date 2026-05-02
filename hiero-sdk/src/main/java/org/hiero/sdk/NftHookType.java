@@ -10,4 +10,3 @@ public enum NftHookType {
     PRE_HOOK_RECEIVER,
     PRE_POST_HOOK_RECEIVER
 }
-

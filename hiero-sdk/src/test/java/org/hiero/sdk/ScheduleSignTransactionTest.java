@@ -55,4 +55,3 @@ public class ScheduleSignTransactionTest {
         assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
 }
-

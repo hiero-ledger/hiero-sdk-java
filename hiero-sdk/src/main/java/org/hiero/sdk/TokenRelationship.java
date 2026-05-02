@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.TokenFreezeStatus;
 import org.hiero.sdk.proto.TokenKycStatus;
-import javax.annotation.Nullable;
 
 /**
  * Token's information related to the given Account.
@@ -185,4 +185,3 @@ public class TokenRelationship {
         return toProtobuf().toByteArray();
     }
 }
-

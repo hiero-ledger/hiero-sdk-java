@@ -8,4 +8,3 @@ public class ContractByteCodeResponse {
     private final String contractId;
     private final String bytecode;
 }
-

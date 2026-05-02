@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response.schedule;
 
-import org.hiero.sdk.Status;
 import lombok.Data;
+import org.hiero.sdk.Status;
 
 @Data
 public class ScheduleResponse {
@@ -16,4 +16,3 @@ public class ScheduleResponse {
         this.status = status;
     }
 }
-

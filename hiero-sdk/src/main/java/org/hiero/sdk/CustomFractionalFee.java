@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import java.util.Objects;
 import org.hiero.sdk.proto.Fraction;
 import org.hiero.sdk.proto.FractionalFee;
-import java.util.Objects;
 
 /**
  * Custom fractional fee utility class.
@@ -185,9 +185,7 @@ public class CustomFractionalFee extends CustomFeeBase<CustomFractionalFee> {
 
     @Override
     org.hiero.sdk.proto.CustomFee toProtobuf() {
-        var customFeeBuilder =
-                org.hiero.sdk.proto.CustomFee.newBuilder().setFractionalFee(toFractionalFeeProtobuf());
+        var customFeeBuilder = org.hiero.sdk.proto.CustomFee.newBuilder().setFractionalFee(toFractionalFeeProtobuf());
         return finishToProtobuf(customFeeBuilder);
     }
 }
-

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.ConsensusGetTopicInfoQuery;
 import org.hiero.sdk.proto.ConsensusServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Retrieve the latest state of a topic.
@@ -83,4 +83,3 @@ public final class TopicInfoQuery extends Query<TopicInfo, TopicInfoQuery> {
         return ConsensusServiceGrpc.getGetTopicInfoMethod();
     }
 }
-

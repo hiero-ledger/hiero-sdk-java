@@ -2,16 +2,16 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.HookStoreTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.SmartContractServiceGrpc;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import org.hiero.sdk.proto.HookStoreTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.SmartContractServiceGrpc;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Adds or removes key/value pairs in the storage of an EVM hook.
@@ -26,8 +26,7 @@ public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
      */
     public HookStoreTransaction() {}
 
-    HookStoreTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    HookStoreTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -142,4 +141,3 @@ public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
         throw new UnsupportedOperationException("cannot schedule HookStoreTransaction");
     }
 }
-

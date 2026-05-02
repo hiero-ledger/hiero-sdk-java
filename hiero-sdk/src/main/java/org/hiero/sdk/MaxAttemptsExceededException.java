@@ -11,4 +11,3 @@ public class MaxAttemptsExceededException extends IllegalStateException {
         super("exceeded maximum attempts for request with last exception being", e);
     }
 }
-

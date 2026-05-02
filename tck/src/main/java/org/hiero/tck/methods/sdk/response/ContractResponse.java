@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response;
 
-import org.hiero.sdk.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hiero.sdk.Status;
 
 @Data
 @AllArgsConstructor
@@ -45,4 +45,3 @@ public class ContractResponse {
         }
     }
 }
-

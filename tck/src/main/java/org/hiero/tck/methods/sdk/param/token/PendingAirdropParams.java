@@ -27,4 +27,3 @@ public class PendingAirdropParams {
                 parsedTokenId, parsedSenderAccountId, parsedReceiverAccountId, parsedSerialNumbers);
     }
 }
-

@@ -51,4 +51,3 @@ public class TokenAllowanceTest {
         assertThat(AccountId.fromProtobuf(tokenAllowanceProtobuf.getSpender())).isEqualTo(testSpenderAccountId);
     }
 }
-

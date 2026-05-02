@@ -142,4 +142,3 @@ Concrete example:
 ### Running with Intellij
 
 Simply execute the main function of the desired example.
-

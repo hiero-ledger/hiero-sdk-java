@@ -81,4 +81,3 @@ public class AllowancesTest {
         assertThat(allNft2.toString()).isEqualTo(allNft1.toString());
     }
 }
-

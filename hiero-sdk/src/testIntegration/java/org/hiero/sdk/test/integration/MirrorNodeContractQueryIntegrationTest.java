@@ -4,6 +4,8 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.ContractCallQuery;
 import org.hiero.sdk.ContractCreateTransaction;
@@ -17,8 +19,6 @@ import org.hiero.sdk.Hbar;
 import org.hiero.sdk.MirrorNodeContractCallQuery;
 import org.hiero.sdk.MirrorNodeContractEstimateGasQuery;
 import org.hiero.sdk.PrivateKey;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -279,4 +279,3 @@ class MirrorNodeContractQueryIntegrationTest {
         }
     }
 }
-

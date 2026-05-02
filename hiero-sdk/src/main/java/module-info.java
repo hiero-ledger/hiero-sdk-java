@@ -22,4 +22,3 @@ module org.hiero.sdk {
     // for reflective access e.g. by com.fasterxml.jackson.databind
     opens org.hiero.sdk.proto;
 }
-

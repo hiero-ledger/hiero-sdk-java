@@ -3,13 +3,13 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Objects;
 import org.hiero.sdk.ContractCreateTransaction;
 import org.hiero.sdk.ContractDeleteTransaction;
 import org.hiero.sdk.ContractId;
 import org.hiero.sdk.ContractNonceInfo;
 import org.hiero.sdk.FileCreateTransaction;
 import org.hiero.sdk.FileDeleteTransaction;
-import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -76,4 +76,3 @@ public class ContractNonceInfoIntegrationTest {
         }
     }
 }
-

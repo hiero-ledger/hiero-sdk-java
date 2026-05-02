@@ -93,4 +93,3 @@ public class TokenAssociation {
         return toProtobuf().toByteArray();
     }
 }
-

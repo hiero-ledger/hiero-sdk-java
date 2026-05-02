@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.ContractCallTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.ContractCallTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -91,4 +91,3 @@ public class ContractExecuteTransactionTest {
         assertThat(tx.getGas()).isEqualTo(123456);
     }
 }
-

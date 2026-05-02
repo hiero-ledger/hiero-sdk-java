@@ -61,4 +61,3 @@ public class EthereumTransactionDataLegacyTest {
                 .isEqualTo("1aaf7ae92bee896651dfc9d99ae422a296bf5d9f1ca49b2d96d82b79eb112d66");
     }
 }
-

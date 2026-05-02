@@ -23,4 +23,3 @@ public class InvalidJSONRPC2ParamsException extends Exception {
         super(cause);
     }
 }
-

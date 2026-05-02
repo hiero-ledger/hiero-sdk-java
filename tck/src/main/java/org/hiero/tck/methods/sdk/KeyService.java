@@ -2,6 +2,7 @@
 package org.hiero.tck.methods.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.Key;
 import org.hiero.sdk.KeyList;
 import org.hiero.sdk.PrivateKey;
@@ -14,7 +15,6 @@ import org.hiero.tck.methods.sdk.param.GenerateKeyParams;
 import org.hiero.tck.methods.sdk.response.GenerateKeyResponse;
 import org.hiero.tck.util.KeyUtils;
 import org.hiero.tck.util.KeyUtils.KeyType;
-import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
 public class KeyService extends AbstractJSONRPC2Service {
@@ -129,4 +129,3 @@ public class KeyService extends AbstractJSONRPC2Service {
         }
     }
 }
-

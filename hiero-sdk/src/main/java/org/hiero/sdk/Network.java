@@ -320,4 +320,3 @@ class Network extends BaseNetwork<Network, AccountId, Node> {
         return this;
     }
 }
-

@@ -75,4 +75,3 @@ public enum HbarUnit {
         return name().toLowerCase();
     }
 }
-

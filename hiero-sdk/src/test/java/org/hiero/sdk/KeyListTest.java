@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.Key;
 import java.util.List;
+import org.hiero.sdk.proto.Key;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -167,4 +167,3 @@ class KeyListTest {
         assertTrue(keyList.isEmpty());
     }
 }
-

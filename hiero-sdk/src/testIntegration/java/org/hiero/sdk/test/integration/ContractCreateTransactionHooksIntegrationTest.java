@@ -4,6 +4,8 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.List;
+import java.util.Objects;
 import org.hiero.sdk.ContractCreateTransaction;
 import org.hiero.sdk.ContractId;
 import org.hiero.sdk.EvmHook;
@@ -16,8 +18,6 @@ import org.hiero.sdk.HookExtensionPoint;
 import org.hiero.sdk.PrecheckStatusException;
 import org.hiero.sdk.PrivateKey;
 import org.hiero.sdk.Status;
-import java.util.List;
-import java.util.Objects;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -144,4 +144,3 @@ class ContractCreateTransactionHooksIntegrationTest {
         return Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
     }
 }
-

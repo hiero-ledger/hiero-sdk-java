@@ -55,4 +55,3 @@ public class ContractFunctionSelectorTest {
         assertThatNoException().isThrownBy(signature::finish);
     }
 }
-

@@ -87,8 +87,8 @@ public class FeeComponents implements Cloneable {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static FeeComponents fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.FeeComponents.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.FeeComponents.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -367,4 +367,3 @@ public class FeeComponents implements Cloneable {
         }
     }
 }
-

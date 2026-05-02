@@ -108,4 +108,3 @@ public class ContractFunctionResultTest {
     @DisplayName("Can to/from bytes with state changes")
     void canToFromBytesStateChanges() {}
 }
-

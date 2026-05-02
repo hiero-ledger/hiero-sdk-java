@@ -17,4 +17,3 @@ public class JSONRPC2Error {
 
     public record ErrorData(Status status, String message) {}
 }
-

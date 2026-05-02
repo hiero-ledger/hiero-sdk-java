@@ -90,4 +90,3 @@ public abstract class Key {
         return fromProtobufKey(org.hiero.sdk.proto.Key.parseFrom(bytes));
     }
 }
-

@@ -270,4 +270,3 @@ public class TokenInfoTest {
         assertThat(bytes).isEqualTo(tokenInfo.toProtobuf().toByteArray());
     }
 }
-

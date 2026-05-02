@@ -3,8 +3,8 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.FixedFee;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.FixedFee;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -81,4 +81,3 @@ public class CustomFixedFeeTest {
         assertThat(customFixedFee.getDenominatingTokenId()).isEqualTo(new TokenId(0, 0, 0));
     }
 }
-

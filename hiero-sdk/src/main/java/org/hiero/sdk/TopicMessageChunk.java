@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import java.time.Instant;
+import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 
 /**
  * A chunk of the topic message.
@@ -25,4 +25,3 @@ final class TopicMessageChunk {
         sequenceNumber = response.getSequenceNumber();
     }
 }
-

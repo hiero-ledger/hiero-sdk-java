@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.CryptoGetInfoQuery;
 import org.hiero.sdk.proto.CryptoServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 
 /**
  * Get all the information about an account, including the balance.
@@ -93,4 +93,3 @@ public final class AccountInfoQuery extends Query<AccountInfo, AccountInfoQuery>
         return super.getCostAsync(client).thenApply((cost) -> Hbar.fromTinybars(Math.max(cost.toTinybars(), 25)));
     }
 }
-

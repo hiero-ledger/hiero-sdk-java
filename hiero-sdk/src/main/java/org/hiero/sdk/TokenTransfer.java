@@ -4,11 +4,11 @@ package org.hiero.sdk;
 import static org.hiero.sdk.TransferTransaction.toFungibleHook;
 
 import com.google.common.base.MoreObjects;
-import org.hiero.sdk.proto.AccountAmount;
-import org.hiero.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.AccountAmount;
+import org.hiero.sdk.proto.TokenTransferList;
 
 /**
  * A token transfer record.
@@ -131,4 +131,3 @@ public class TokenTransfer {
                 .toString();
     }
 }
-

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.ProxyStaker;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.ProxyStaker;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,9 +25,8 @@ public class ProxyStakerTest {
 
     @Test
     void fromProtobuf() {
-        SnapshotMatcher.expect(org.hiero.sdk.ProxyStaker.fromProtobuf(proxyStaker)
-                        .toString())
+        SnapshotMatcher.expect(
+                        org.hiero.sdk.ProxyStaker.fromProtobuf(proxyStaker).toString())
                 .toMatchSnapshot();
     }
 }
-

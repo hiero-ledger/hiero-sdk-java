@@ -3,11 +3,11 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.ScheduleDeleteTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.ScheduleDeleteTransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -68,4 +68,3 @@ public class ScheduleDeleteTransactionTest {
         assertThat(tx).isInstanceOf(ScheduleDeleteTransaction.class);
     }
 }
-

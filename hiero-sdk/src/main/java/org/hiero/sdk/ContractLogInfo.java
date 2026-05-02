@@ -4,10 +4,10 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractLoginfo;
 import java.util.ArrayList;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractLoginfo;
 
 /**
  * The log information for an event returned by a smart contract function call.
@@ -115,4 +115,3 @@ public final class ContractLogInfo {
         return stringHelper.add("topics", topicList).toString();
     }
 }
-

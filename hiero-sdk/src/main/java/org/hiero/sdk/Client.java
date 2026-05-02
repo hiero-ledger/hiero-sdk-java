@@ -8,8 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.hiero.sdk.logger.LogLevel;
-import org.hiero.sdk.logger.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -39,6 +37,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
+import org.hiero.sdk.logger.LogLevel;
+import org.hiero.sdk.logger.Logger;
 
 /**
  * Managed client for use on the Hedera Hashgraph network.
@@ -1707,4 +1707,3 @@ public final class Client implements AutoCloseable {
         }
     }
 }
-

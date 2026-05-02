@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk.test.integration;
 
+import java.util.concurrent.TimeoutException;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.AccountId;
 import org.hiero.sdk.ContractCreateFlow;
@@ -14,7 +15,6 @@ import org.hiero.sdk.TokenCreateTransaction;
 import org.hiero.sdk.TokenId;
 import org.hiero.sdk.TokenSupplyType;
 import org.hiero.sdk.TokenType;
-import java.util.concurrent.TimeoutException;
 
 /**
  * The EntityCreator class provides static methods for creating different entities in a Hedera network, such as token, account, and contract.
@@ -134,4 +134,3 @@ public final class EntityHelper {
                 .contractId;
     }
 }
-

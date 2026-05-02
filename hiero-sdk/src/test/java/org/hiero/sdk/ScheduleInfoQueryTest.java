@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.QueryHeader;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.QueryHeader;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,4 +29,3 @@ public class ScheduleInfoQueryTest {
                 .toMatchSnapshot();
     }
 }
-

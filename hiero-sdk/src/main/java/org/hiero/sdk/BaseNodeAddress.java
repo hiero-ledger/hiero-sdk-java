@@ -162,4 +162,3 @@ class BaseNodeAddress {
         return Objects.hash(getName(), getAddress(), getPort());
     }
 }
-

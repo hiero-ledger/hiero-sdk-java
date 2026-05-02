@@ -187,4 +187,3 @@ class TransactionIdTest {
                 "equals/hashCode contract violation: equal objects must have same hashCode");
     }
 }
-

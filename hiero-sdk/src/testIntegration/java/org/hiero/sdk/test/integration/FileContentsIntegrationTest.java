@@ -4,6 +4,7 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Objects;
 import org.hiero.sdk.FileContentsQuery;
 import org.hiero.sdk.FileCreateTransaction;
 import org.hiero.sdk.FileDeleteTransaction;
@@ -11,7 +12,6 @@ import org.hiero.sdk.Hbar;
 import org.hiero.sdk.MaxQueryPaymentExceededException;
 import org.hiero.sdk.PrecheckStatusException;
 import org.hiero.sdk.Status;
-import java.util.Objects;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -153,4 +153,3 @@ public class FileContentsIntegrationTest {
         }
     }
 }
-

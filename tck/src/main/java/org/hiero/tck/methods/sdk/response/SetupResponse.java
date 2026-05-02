@@ -15,4 +15,3 @@ public class SetupResponse {
         this.status = "SUCCESS";
     }
 }
-

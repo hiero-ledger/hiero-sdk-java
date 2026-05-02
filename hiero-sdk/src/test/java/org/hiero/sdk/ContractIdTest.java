@@ -223,4 +223,3 @@ class ContractIdTest {
         assertThat(id.toEvmAddress()).isEqualTo(expected);
     }
 }
-

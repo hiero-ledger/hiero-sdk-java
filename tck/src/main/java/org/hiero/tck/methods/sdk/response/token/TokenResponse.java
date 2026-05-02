@@ -28,4 +28,3 @@ public class TokenResponse {
         this.status = status;
     }
 }
-

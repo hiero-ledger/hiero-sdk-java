@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hiero.sdk.BaseNodeAddress.PORT_MIRROR_TLS;
 import static org.hiero.sdk.BaseNodeAddress.PORT_NODE_PLAIN;
 import static org.hiero.sdk.BaseNodeAddress.PORT_NODE_TLS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.Test;
 
@@ -84,4 +84,3 @@ public class BaseNodeAddressTest {
                 .isThrownBy(() -> BaseNodeAddress.fromString("mainnet-public.mirrornode.hedera.com:notarealport"));
     }
 }
-

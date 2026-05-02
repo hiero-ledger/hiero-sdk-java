@@ -3,12 +3,12 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.mirror.ConsensusTopicResponse;
 
 /**
  * Topic message records.
@@ -137,4 +137,3 @@ public final class TopicMessage {
                 .toString();
     }
 }
-

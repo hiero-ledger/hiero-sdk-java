@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import static org.hiero.sdk.BaseNodeAddress.PORT_NODE_PLAIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.hiero.sdk.BaseNodeAddress.PORT_NODE_PLAIN;
 
-import org.hiero.sdk.proto.mirror.NetworkServiceGrpc;
 import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -15,6 +14,7 @@ import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import org.hiero.sdk.proto.mirror.NetworkServiceGrpc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -220,4 +220,3 @@ class AddressBookQueryMockTest {
         }
     }
 }
-

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.stub.StreamObserver;
+import java.util.List;
 import org.hiero.sdk.proto.CryptoServiceGrpc;
 import org.hiero.sdk.proto.Query;
 import org.hiero.sdk.proto.Response;
@@ -10,8 +12,6 @@ import org.hiero.sdk.proto.Transaction;
 import org.hiero.sdk.proto.TransactionGetRecordResponse;
 import org.hiero.sdk.proto.TransactionRecord;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -251,4 +251,3 @@ class TransactionResponseTest {
         }
     }
 }
-

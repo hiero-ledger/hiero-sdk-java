@@ -4,9 +4,9 @@ package org.hiero.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import org.hiero.sdk.utils.Bip32Utils;
 import java.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.utils.Bip32Utils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -753,4 +753,3 @@ public class MnemonicTest {
         assertThat(key3.getPublicKey().toStringRaw()).isSubstringOf(PUBLIC_KEY_3);
     }
 }
-

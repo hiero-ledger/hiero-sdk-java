@@ -4,6 +4,8 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Collections;
+import java.util.List;
 import org.hiero.sdk.AccountBalanceQuery;
 import org.hiero.sdk.PrivateKey;
 import org.hiero.sdk.TokenAssociateTransaction;
@@ -12,8 +14,6 @@ import org.hiero.sdk.TokenMintTransaction;
 import org.hiero.sdk.TokenNftInfoQuery;
 import org.hiero.sdk.TokenRejectFlow;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -247,4 +247,3 @@ public class TokenRejectFlowIntegrationTest {
         }
     }
 }
-

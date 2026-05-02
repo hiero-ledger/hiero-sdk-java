@@ -98,4 +98,3 @@ public class EvmHook extends EvmHookSpec {
         return "EvmHook{contractId=" + getContractId() + ", storageUpdates=" + storageUpdates + "}";
     }
 }
-

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.util;
 
+import java.time.Duration;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.AccountBalanceQuery;
 import org.hiero.sdk.AccountId;
 import org.hiero.sdk.ContractByteCodeQuery;
@@ -27,8 +29,6 @@ import org.hiero.tck.methods.sdk.param.schedule.ScheduleInfoParams;
 import org.hiero.tck.methods.sdk.param.token.NftInfoQueryParams;
 import org.hiero.tck.methods.sdk.param.token.TokenInfoQueryParams;
 import org.hiero.tck.methods.sdk.param.topic.TopicInfoQueryParams;
-import java.time.Duration;
-import org.bouncycastle.util.encoders.Hex;
 
 public class QueryBuilders {
 
@@ -191,4 +191,3 @@ public class QueryBuilders {
         return query;
     }
 }
-

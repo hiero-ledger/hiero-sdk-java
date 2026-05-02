@@ -120,8 +120,7 @@ public class AccountCreateTransactionHooksTest {
 
         var protoHookDetails = protoBody.getHookCreationDetails(0);
         assertEquals(
-                org.hiero.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK,
-                protoHookDetails.getExtensionPoint());
+                org.hiero.sdk.proto.HookExtensionPoint.ACCOUNT_ALLOWANCE_HOOK, protoHookDetails.getExtensionPoint());
         assertEquals(1L, protoHookDetails.getHookId());
         assertTrue(protoHookDetails.hasEvmHook());
     }
@@ -173,4 +172,3 @@ public class AccountCreateTransactionHooksTest {
         assertTrue(parsedHook.getHook().getStorageUpdates().isEmpty());
     }
 }
-

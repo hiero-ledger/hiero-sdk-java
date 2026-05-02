@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.utils.Bip32Utils;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -23,6 +22,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.util.Arrays;
+import org.hiero.sdk.utils.Bip32Utils;
 
 /**
  * Encapsulate the ECDSA private key.
@@ -318,4 +318,3 @@ public class PrivateKeyECDSA extends PrivateKey {
         return true;
     }
 }
-

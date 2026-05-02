@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.util;
 
-import org.hiero.tck.annotation.JSONRPC2Service;
 import com.thetransactioncompany.jsonrpc2.server.*;
+import org.hiero.tck.annotation.JSONRPC2Service;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -24,4 +24,3 @@ public class JSONRPC2ServiceScanner {
         }
     }
 }
-

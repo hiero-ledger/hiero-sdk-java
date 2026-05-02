@@ -458,4 +458,3 @@ public abstract class PrivateKey extends Key {
      */
     public abstract KeyParameter getChainCode();
 }
-

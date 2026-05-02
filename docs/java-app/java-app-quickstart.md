@@ -116,4 +116,3 @@ These examples show different uses and workflows,
 giving you valuable insights into how you can use the Hedera platform in your projects.
 They will also help you explore the capabilities of the Hedera™ Java SDK
 and start your project confidently.
-

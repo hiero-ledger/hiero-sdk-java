@@ -3,16 +3,16 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.FileAppendTransactionBody;
 import org.hiero.sdk.proto.FileServiceGrpc;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionID;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * A transaction body for an `appendContent` transaction.<br/>
@@ -62,8 +62,7 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    FileAppendTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    FileAppendTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
 
@@ -245,4 +244,3 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
         scheduled.setFileAppend(build().setContents(data));
     }
 }
-

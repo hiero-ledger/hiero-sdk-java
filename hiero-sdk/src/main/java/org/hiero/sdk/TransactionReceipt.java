@@ -4,12 +4,12 @@ package org.hiero.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ExchangeRateSet;
-import org.hiero.sdk.proto.TimestampSeconds;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ExchangeRateSet;
+import org.hiero.sdk.proto.TimestampSeconds;
 
 /**
  * The consensus result for a transaction, which might not be currently
@@ -245,14 +245,12 @@ public final class TransactionReceipt {
      * @param transactionReceipt        the protobuf
      * @return                          the new transaction receipt
      */
-    public static TransactionReceipt fromProtobuf(
-            org.hiero.sdk.proto.TransactionReceipt transactionReceipt) {
+    public static TransactionReceipt fromProtobuf(org.hiero.sdk.proto.TransactionReceipt transactionReceipt) {
         return fromProtobuf(transactionReceipt, new ArrayList<>(), new ArrayList<>(), null);
     }
 
     static TransactionReceipt fromProtobuf(
-            org.hiero.sdk.proto.TransactionReceipt transactionReceipt,
-            @Nullable TransactionId transactionId) {
+            org.hiero.sdk.proto.TransactionReceipt transactionReceipt, @Nullable TransactionId transactionId) {
         return fromProtobuf(transactionReceipt, new ArrayList<>(), new ArrayList<>(), transactionId);
     }
 
@@ -381,4 +379,3 @@ public final class TransactionReceipt {
         return toProtobuf().toByteArray();
     }
 }
-

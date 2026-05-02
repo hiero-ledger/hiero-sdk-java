@@ -52,4 +52,3 @@ class ConsumerHelperTest {
         verify(onFailure, times(1)).accept(exception);
     }
 }
-

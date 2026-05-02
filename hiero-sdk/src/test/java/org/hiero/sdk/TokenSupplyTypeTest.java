@@ -3,8 +3,8 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.TokenSupplyType;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.TokenSupplyType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,4 +49,3 @@ public class TokenSupplyTypeTest {
         assertThat(org.hiero.sdk.TokenSupplyType.FINITE).hasToString("FINITE");
     }
 }
-

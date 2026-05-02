@@ -66,4 +66,3 @@ public class AddressBookResponse {
         nodeAddresses.add(nodeAddress);
     }
 }
-

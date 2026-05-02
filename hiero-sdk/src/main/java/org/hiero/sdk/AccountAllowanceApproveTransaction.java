@@ -2,11 +2,6 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CryptoApproveAllowanceTransactionBody;
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoApproveAllowanceTransactionBody;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * # Approve Allowance
@@ -425,4 +425,3 @@ public class AccountAllowanceApproveTransaction extends Transaction<AccountAllow
         }
     }
 }
-

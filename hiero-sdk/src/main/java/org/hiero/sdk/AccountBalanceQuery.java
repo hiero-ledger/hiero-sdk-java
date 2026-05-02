@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.CryptoGetAccountBalanceQuery;
 import org.hiero.sdk.proto.CryptoServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Get the balance of a Hedera™ crypto-currency account. This returns only the balance, so it is a
@@ -126,4 +126,3 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
         return CryptoServiceGrpc.getCryptoGetBalanceMethod();
     }
 }
-

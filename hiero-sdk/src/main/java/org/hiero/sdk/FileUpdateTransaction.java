@@ -4,11 +4,6 @@ package org.hiero.sdk;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.FileServiceGrpc;
-import org.hiero.sdk.proto.FileUpdateTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -19,6 +14,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.FileServiceGrpc;
+import org.hiero.sdk.proto.FileUpdateTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Update the metadata, and/or replace the content, of a file in the
@@ -74,8 +74,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    FileUpdateTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    FileUpdateTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -354,4 +353,3 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
         scheduled.setFileUpdate(build());
     }
 }
-

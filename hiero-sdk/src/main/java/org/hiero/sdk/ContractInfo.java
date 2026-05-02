@@ -3,12 +3,12 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractGetInfoResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ContractGetInfoResponse;
 
 /**
  * Current information on the smart contract instance, including its balance.
@@ -255,4 +255,3 @@ public final class ContractInfo {
         return toProtobuf().toByteArray();
     }
 }
-

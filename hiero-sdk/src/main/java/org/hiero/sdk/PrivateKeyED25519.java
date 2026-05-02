@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.utils.Bip32Utils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -17,6 +16,7 @@ import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
+import org.hiero.sdk.utils.Bip32Utils;
 
 /**
  * Encapsulate the ED25519 private key.
@@ -271,4 +271,3 @@ class PrivateKeyED25519 extends PrivateKey {
         return false;
     }
 }
-

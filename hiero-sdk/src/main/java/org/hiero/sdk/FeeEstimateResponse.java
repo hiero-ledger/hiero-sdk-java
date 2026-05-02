@@ -237,4 +237,3 @@ public final class FeeEstimateResponse {
         return Objects.hash(network, node, highVolumeMultiplier, service, total);
     }
 }
-

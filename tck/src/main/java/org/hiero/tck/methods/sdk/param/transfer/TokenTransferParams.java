@@ -28,4 +28,3 @@ public class TokenTransferParams {
         return new TokenTransferParams(parsedAccountId, parsedTokenId, parsedAmount, parsedDecimals);
     }
 }
-

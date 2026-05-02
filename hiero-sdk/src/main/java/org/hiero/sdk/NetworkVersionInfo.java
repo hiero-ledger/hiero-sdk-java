@@ -73,4 +73,3 @@ public class NetworkVersionInfo {
         return toProtobuf().toByteArray();
     }
 }
-

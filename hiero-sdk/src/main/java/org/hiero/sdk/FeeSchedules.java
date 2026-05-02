@@ -3,8 +3,8 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CurrentAndNextFeeSchedule;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CurrentAndNextFeeSchedule;
 
 /**
  * This contains two Fee Schedules with expiry timestamp.
@@ -130,4 +130,3 @@ public class FeeSchedules {
                 .toString();
     }
 }
-

@@ -4,12 +4,12 @@ package org.hiero.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenPauseTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenPauseTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -94,4 +94,3 @@ public class TokenPauseTransactionTest {
         assertThrows(IllegalStateException.class, () -> tx.setTokenId(testTokenId));
     }
 }
-

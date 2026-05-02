@@ -301,8 +301,8 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
                     transferLists.add(new org.hiero.sdk.TokenTransferList(
                             iTokenId, this.tokenTransfers.get(i).expectedDecimals, this.tokenTransfers.get(i++), null));
                 } else {
-                    transferLists.add(new org.hiero.sdk.TokenTransferList(
-                            jTokenId, null, null, this.nftTransfers.get(j++)));
+                    transferLists.add(
+                            new org.hiero.sdk.TokenTransferList(jTokenId, null, null, this.nftTransfers.get(j++)));
                 }
             } else if (i < this.tokenTransfers.size()) {
                 var iTokenId = this.tokenTransfers.get(i).tokenId;
@@ -326,8 +326,8 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
                     continue;
                 }
 
-                transferLists.add(new org.hiero.sdk.TokenTransferList(
-                        jTokenId, null, null, this.nftTransfers.get(j++)));
+                transferLists.add(
+                        new org.hiero.sdk.TokenTransferList(jTokenId, null, null, this.nftTransfers.get(j++)));
             }
         }
         return transferLists;
@@ -347,4 +347,3 @@ abstract class AbstractTokenTransferTransaction<T extends AbstractTokenTransferT
         }
     }
 }
-

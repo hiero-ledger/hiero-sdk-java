@@ -15,4 +15,3 @@ class MaxQueryPaymentExceededExceptionTest {
                         "cost for AccountBalanceQuery, of 30 ℏ, without explicit payment is greater than the maximum allowed payment of 15 ℏ");
     }
 }
-

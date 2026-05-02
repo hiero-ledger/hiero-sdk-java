@@ -7,4 +7,3 @@ import lombok.Data;
 public class FileContentsResponse {
     private final String contents;
 }
-

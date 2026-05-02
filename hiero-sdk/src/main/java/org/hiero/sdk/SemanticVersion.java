@@ -86,4 +86,3 @@ public class SemanticVersion {
         return String.format("%d.%d.%d", major, minor, patch);
     }
 }
-

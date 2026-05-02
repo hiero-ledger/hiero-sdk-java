@@ -252,4 +252,3 @@ public class AccountUpdateTransactionHooksTest {
         assertThat(tx.getHooksToDelete()).containsExactlyInAnyOrder(100L, 200L);
     }
 }
-

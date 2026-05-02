@@ -54,4 +54,3 @@ public class PrngTransactionTest {
         SnapshotMatcher.expect(spawnTestTransaction2().toString()).toMatchSnapshot();
     }
 }
-

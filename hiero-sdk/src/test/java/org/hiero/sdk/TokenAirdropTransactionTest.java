@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenAirdropTransactionBody;
-import org.hiero.sdk.proto.TokenServiceGrpc;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenAirdropTransactionBody;
+import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -220,4 +220,3 @@ class TokenAirdropTransactionTest {
         assertEquals(TokenServiceGrpc.getAirdropTokensMethod(), transaction.getMethodDescriptor());
     }
 }
-

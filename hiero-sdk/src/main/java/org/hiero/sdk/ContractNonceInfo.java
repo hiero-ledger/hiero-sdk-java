@@ -95,4 +95,3 @@ public final class ContractNonceInfo {
         return toProtobuf().toByteArray();
     }
 }
-

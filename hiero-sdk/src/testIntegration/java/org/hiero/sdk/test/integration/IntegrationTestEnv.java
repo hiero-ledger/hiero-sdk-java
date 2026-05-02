@@ -3,14 +3,6 @@ package org.hiero.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.AccountBalanceQuery;
-import org.hiero.sdk.AccountCreateTransaction;
-import org.hiero.sdk.AccountId;
-import org.hiero.sdk.Client;
-import org.hiero.sdk.Hbar;
-import org.hiero.sdk.PrivateKey;
-import org.hiero.sdk.PublicKey;
-import org.hiero.sdk.TransferTransaction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +11,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.hiero.sdk.AccountBalanceQuery;
+import org.hiero.sdk.AccountCreateTransaction;
+import org.hiero.sdk.AccountId;
+import org.hiero.sdk.Client;
+import org.hiero.sdk.Hbar;
+import org.hiero.sdk.PrivateKey;
+import org.hiero.sdk.PublicKey;
+import org.hiero.sdk.TransferTransaction;
 import org.junit.jupiter.api.Assumptions;
 
 public class IntegrationTestEnv implements AutoCloseable {
@@ -194,4 +194,3 @@ public class IntegrationTestEnv implements AutoCloseable {
         }
     }
 }
-

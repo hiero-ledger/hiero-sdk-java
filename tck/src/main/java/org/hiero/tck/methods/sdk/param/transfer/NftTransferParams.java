@@ -28,4 +28,3 @@ public class NftTransferParams {
         return new NftTransferParams(parsedSenderAccountId, parsedReceiverAccountId, parsedTokenId, parsedSerialNumber);
     }
 }
-

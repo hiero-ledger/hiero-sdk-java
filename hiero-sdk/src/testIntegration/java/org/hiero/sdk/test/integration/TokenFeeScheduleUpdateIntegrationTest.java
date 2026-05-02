@@ -4,6 +4,8 @@ package org.hiero.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.ArrayList;
+import java.util.Objects;
 import org.hiero.sdk.CustomFee;
 import org.hiero.sdk.CustomFixedFee;
 import org.hiero.sdk.CustomFractionalFee;
@@ -13,8 +15,6 @@ import org.hiero.sdk.Status;
 import org.hiero.sdk.TokenCreateTransaction;
 import org.hiero.sdk.TokenFeeScheduleUpdateTransaction;
 import org.hiero.sdk.TokenInfoQuery;
-import java.util.ArrayList;
-import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -166,4 +166,3 @@ class TokenFeeScheduleUpdateIntegrationTest {
         }
     }
 }
-

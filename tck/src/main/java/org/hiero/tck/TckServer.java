@@ -10,4 +10,3 @@ public class TckServer {
         SpringApplication.run(TckServer.class, args);
     }
 }
-

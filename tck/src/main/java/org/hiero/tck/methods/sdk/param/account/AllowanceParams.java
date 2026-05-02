@@ -109,4 +109,3 @@ public class AllowanceParams {
         private Boolean allSerials;
     }
 }
-

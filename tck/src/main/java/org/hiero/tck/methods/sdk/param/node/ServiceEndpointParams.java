@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.param.node;
 
-import org.hiero.sdk.Endpoint;
 import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.Endpoint;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
@@ -37,4 +37,3 @@ public class ServiceEndpointParams {
         return ep;
     }
 }
-

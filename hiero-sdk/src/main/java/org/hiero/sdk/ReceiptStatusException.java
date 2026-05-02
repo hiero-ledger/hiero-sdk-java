@@ -39,4 +39,3 @@ public class ReceiptStatusException extends Exception {
         return "receipt for transaction " + transactionId + " raised status " + receipt.status;
     }
 }
-

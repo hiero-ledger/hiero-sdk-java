@@ -3,6 +3,7 @@ package org.hiero.sdk.test.integration;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collections;
 import org.hiero.sdk.AccountCreateTransaction;
 import org.hiero.sdk.AccountDeleteTransaction;
 import org.hiero.sdk.Hbar;
@@ -14,7 +15,6 @@ import org.hiero.sdk.TokenDeleteTransaction;
 import org.hiero.sdk.TokenUnpauseTransaction;
 import org.hiero.sdk.TokenWipeTransaction;
 import org.hiero.sdk.TransferTransaction;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -101,4 +101,3 @@ public class TokenUnpauseIntegrationTest {
         }
     }
 }
-

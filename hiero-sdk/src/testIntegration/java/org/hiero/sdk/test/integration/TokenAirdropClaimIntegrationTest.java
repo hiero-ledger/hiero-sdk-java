@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk.test.integration;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hiero.sdk.test.integration.EntityHelper.fungibleInitialBalance;
 import static org.hiero.sdk.test.integration.EntityHelper.mitedNfts;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import org.hiero.sdk.AccountBalanceQuery;
 import org.hiero.sdk.PendingAirdropId;
 import org.hiero.sdk.PendingAirdropRecord;
@@ -21,8 +23,6 @@ import org.hiero.sdk.TokenDeleteTransaction;
 import org.hiero.sdk.TokenFreezeTransaction;
 import org.hiero.sdk.TokenMintTransaction;
 import org.hiero.sdk.TokenPauseTransaction;
-import java.util.ArrayList;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -510,4 +510,3 @@ class TokenAirdropClaimIntegrationTest {
         }
     }
 }
-

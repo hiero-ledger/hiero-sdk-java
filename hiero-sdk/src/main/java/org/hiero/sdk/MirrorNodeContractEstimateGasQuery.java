@@ -22,4 +22,3 @@ public class MirrorNodeContractEstimateGasQuery extends MirrorNodeContractQuery<
         return "MirrorNodeContractEstimateGasQuery" + super.toString();
     }
 }
-

@@ -303,4 +303,3 @@ public class EthereumFlow {
         ConsumerHelper.twoConsumers(executeAsync(client, timeoutPerTransaction), onSuccess, onFailure);
     }
 }
-

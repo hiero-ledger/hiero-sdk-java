@@ -89,4 +89,3 @@ public class AccountInfoFlow {
         return getAccountPublicKeyAsync(client, accountId).thenApply(pubKey -> pubKey.verifyTransaction(transaction));
     }
 }
-

@@ -20,4 +20,3 @@ module org.hiero.sdk.full {
 
     opens org.hiero.sdk;
 }
-

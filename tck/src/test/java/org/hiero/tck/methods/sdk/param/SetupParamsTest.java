@@ -32,4 +32,3 @@ class SetupParamsTest {
         assertEquals(Optional.of("testMirrorNetworkIp"), result.getMirrorNetworkIp());
     }
 }
-

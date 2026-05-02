@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.param.file;
 
-import org.hiero.tck.methods.JSONRPC2Param;
-import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
-import org.hiero.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hiero.tck.methods.JSONRPC2Param;
+import org.hiero.tck.methods.sdk.param.CommonTransactionParams;
+import org.hiero.tck.util.JSONRPCParamParser;
 
 /**
  * FileDeleteParams for file delete method
@@ -31,4 +31,3 @@ public class FileDeleteParams extends JSONRPC2Param {
                 parsedFileId, parsedCommonTransactionParams, JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }
-

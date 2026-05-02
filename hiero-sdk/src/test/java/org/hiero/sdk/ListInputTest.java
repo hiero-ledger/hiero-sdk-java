@@ -158,4 +158,3 @@ public class ListInputTest {
         assertEquals(v1.toString(), v3.toString());
     }
 }
-

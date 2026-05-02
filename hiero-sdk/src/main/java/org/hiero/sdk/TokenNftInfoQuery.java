@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.Query;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
-import org.hiero.sdk.proto.TokenGetNftInfoQuery;
-import org.hiero.sdk.proto.TokenServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +8,12 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.Query;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
+import org.hiero.sdk.proto.TokenGetNftInfoQuery;
+import org.hiero.sdk.proto.TokenServiceGrpc;
 
 /**
  * A query that returns information about a non-fungible token (NFT).
@@ -233,4 +233,3 @@ public class TokenNftInfoQuery extends org.hiero.sdk.Query<List<TokenNftInfo>, T
         return super.getCostAsync(client).thenApply((cost) -> Hbar.fromTinybars(Math.max(cost.toTinybars(), 25)));
     }
 }
-

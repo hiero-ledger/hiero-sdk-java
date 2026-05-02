@@ -22,4 +22,3 @@ public final class BadKeyException extends IllegalArgumentException {
         super(cause);
     }
 }
-

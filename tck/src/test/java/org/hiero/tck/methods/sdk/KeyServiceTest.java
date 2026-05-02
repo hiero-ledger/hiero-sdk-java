@@ -4,11 +4,11 @@ package org.hiero.tck.methods.sdk;
 import static org.hiero.tck.util.KeyUtils.KeyType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Collections;
+import java.util.Optional;
 import org.hiero.tck.exception.InvalidJSONRPC2RequestException;
 import org.hiero.tck.methods.sdk.param.*;
 import org.hiero.tck.methods.sdk.response.*;
-import java.util.Collections;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -148,4 +148,3 @@ class KeyServiceTest {
         assertNotNull(response.getKey());
     }
 }
-

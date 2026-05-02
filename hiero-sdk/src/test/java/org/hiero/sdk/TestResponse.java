@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.StatusRuntimeException;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.TransactionGetReceiptResponse;
 import org.hiero.sdk.proto.TransactionReceipt;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.StatusRuntimeException;
-import javax.annotation.Nullable;
 
 public class TestResponse {
     @Nullable
@@ -73,4 +73,3 @@ public class TestResponse {
                 .build();
     }
 }
-

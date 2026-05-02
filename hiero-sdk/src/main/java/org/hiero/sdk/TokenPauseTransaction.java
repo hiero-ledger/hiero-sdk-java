@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TokenPauseTransactionBody;
 import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Pause transaction activity for a token.
@@ -43,8 +43,7 @@ public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TokenPauseTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TokenPauseTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -130,4 +129,3 @@ public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
         }
     }
 }
-

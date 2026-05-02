@@ -4,7 +4,6 @@ package org.hiero.sdk;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Joiner;
-import org.hiero.sdk.utils.Bip32Utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +27,7 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.hiero.sdk.utils.Bip32Utils;
 
 /**
  * BIP-39 24-word mnemonic phrases compatible with the Android and iOS mobile wallets.
@@ -634,4 +634,3 @@ public final class Mnemonic {
         return toStandardECDSAsecp256k1PrivateKeyImpl(passphrase, derivationPathValues);
     }
 }
-

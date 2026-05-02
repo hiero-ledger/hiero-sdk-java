@@ -21,4 +21,3 @@ public @interface JSONRPC2Method {
      */
     String value();
 }
-

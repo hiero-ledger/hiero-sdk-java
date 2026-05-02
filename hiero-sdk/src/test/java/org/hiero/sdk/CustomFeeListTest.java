@@ -74,4 +74,3 @@ public class CustomFeeListTest {
         SnapshotMatcher.expect(originalCustomFeeList.toString()).toMatchSnapshot();
     }
 }
-

@@ -409,4 +409,3 @@ public class FeeEstimateQuery {
         }
     }
 }
-

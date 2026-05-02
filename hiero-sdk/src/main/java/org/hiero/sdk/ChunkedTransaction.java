@@ -3,10 +3,6 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.SignatureMap;
-import org.hiero.sdk.proto.SignedTransaction;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionID;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +18,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.SignatureMap;
+import org.hiero.sdk.proto.SignedTransaction;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionID;
 
 /**
  * A common base for file and topic message transactions.
@@ -46,8 +46,7 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
      * @param txs                       Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    ChunkedTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    ChunkedTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
     }
@@ -427,8 +426,7 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
     }
 
     @Override
-    public CompletableFuture<org.hiero.sdk.TransactionResponse> executeAsync(
-            Client client, Duration timeoutPerChunk) {
+    public CompletableFuture<org.hiero.sdk.TransactionResponse> executeAsync(Client client, Duration timeoutPerChunk) {
         return executeAllAsync(client, timeoutPerChunk).thenApply(responses -> responses.get(0));
     }
 
@@ -555,4 +553,3 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
         return list;
     }
 }
-

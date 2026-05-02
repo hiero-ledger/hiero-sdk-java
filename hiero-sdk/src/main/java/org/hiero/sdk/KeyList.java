@@ -2,7 +2,6 @@
 package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
-import org.hiero.sdk.proto.ThresholdKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.ThresholdKey;
 
 /**
  * A list of keys that are required to sign in unison, with an optional threshold controlling how many keys of
@@ -188,9 +188,7 @@ public final class KeyList extends Key implements Collection<Key> {
                     .build();
         }
 
-        return org.hiero.sdk.proto.Key.newBuilder()
-                .setKeyList(protoKeyList)
-                .build();
+        return org.hiero.sdk.proto.Key.newBuilder().setKeyList(protoKeyList).build();
     }
 
     /**
@@ -246,4 +244,3 @@ public final class KeyList extends Key implements Collection<Key> {
         return Objects.hash(keys.hashCode(), threshold != null ? threshold : -1);
     }
 }
-

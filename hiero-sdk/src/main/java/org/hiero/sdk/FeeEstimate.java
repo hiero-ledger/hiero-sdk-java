@@ -111,4 +111,3 @@ public final class FeeEstimate {
         throw new IllegalArgumentException("Missing expected fee estimate field: " + primaryKey);
     }
 }
-

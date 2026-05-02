@@ -2,13 +2,13 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.SignaturePair;
 import java.io.IOException;
 import java.util.Arrays;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
+import org.hiero.sdk.proto.SignaturePair;
 
 /**
  * Encapsulate the ED25519 public key.
@@ -134,4 +134,3 @@ class PublicKeyED25519 extends PublicKey {
         return false;
     }
 }
-

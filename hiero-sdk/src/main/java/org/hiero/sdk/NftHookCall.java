@@ -18,4 +18,3 @@ public class NftHookCall extends HookCall {
         return type;
     }
 }
-

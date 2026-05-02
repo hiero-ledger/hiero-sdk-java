@@ -10,4 +10,3 @@ public class InvalidJSONRPC2RequestException extends Exception {
         super(message);
     }
 }
-

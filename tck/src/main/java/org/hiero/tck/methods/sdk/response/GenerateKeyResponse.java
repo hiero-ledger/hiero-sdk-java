@@ -10,4 +10,3 @@ public class GenerateKeyResponse {
     private String key;
     private List<String> privateKeys = new ArrayList<>();
 }
-

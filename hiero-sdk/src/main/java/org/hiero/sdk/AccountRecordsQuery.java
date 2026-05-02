@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.CryptoGetAccountRecordsQuery;
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.QueryHeader;
-import org.hiero.sdk.proto.Response;
-import org.hiero.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoGetAccountRecordsQuery;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.QueryHeader;
+import org.hiero.sdk.proto.Response;
+import org.hiero.sdk.proto.ResponseHeader;
 
 /**
  * Get all the records for an account for any transfers into it and out of it,
@@ -76,8 +76,7 @@ public final class AccountRecordsQuery extends Query<List<TransactionRecord>, Ac
     }
 
     @Override
-    List<TransactionRecord> mapResponse(
-            Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
+    List<TransactionRecord> mapResponse(Response response, AccountId nodeId, org.hiero.sdk.proto.Query request) {
         var rawTransactionRecords = response.getCryptoGetAccountRecords().getRecordsList();
         var transactionRecords = new ArrayList<TransactionRecord>(rawTransactionRecords.size());
 
@@ -93,4 +92,3 @@ public final class AccountRecordsQuery extends Query<List<TransactionRecord>, Ac
         return CryptoServiceGrpc.getGetAccountRecordsMethod();
     }
 }
-

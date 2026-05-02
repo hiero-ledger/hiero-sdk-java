@@ -2,9 +2,9 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.NftID;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
+import org.hiero.sdk.proto.NftID;
 
 /**
  * The (non-fungible) token of which this NFT is an instance
@@ -135,4 +135,3 @@ public class NftId implements Comparable<NftId> {
         return Long.compare(serial, o.serial);
     }
 }
-

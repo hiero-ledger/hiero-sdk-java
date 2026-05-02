@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk.response;
 
-import org.hiero.sdk.TokenId;
 import java.util.Map;
 import javax.annotation.Nonnegative;
 import lombok.Data;
+import org.hiero.sdk.TokenId;
 
 @Data
 public class AccountBalanceResponse {
@@ -20,4 +20,3 @@ public class AccountBalanceResponse {
     @Nonnegative
     public final Map<TokenId, Integer> tokenDecimals;
 }
-

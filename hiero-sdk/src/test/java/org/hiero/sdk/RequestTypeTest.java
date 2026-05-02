@@ -3,9 +3,9 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.HederaFunctionality;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.hiero.sdk.proto.HederaFunctionality;
 import org.junit.jupiter.api.Test;
 
 class RequestTypeTest {
@@ -60,4 +60,3 @@ class RequestTypeTest {
         }
     }
 }
-

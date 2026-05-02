@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.TokenType;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import org.hiero.sdk.proto.TokenType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,21 +25,16 @@ public class TokenTypeTest {
     @Test
     void fromProtobuf() {
         SnapshotMatcher.expect(
-                        org.hiero.sdk.TokenType.valueOf(tokenTypeFungible)
-                                .toString(),
-                        org.hiero.sdk.TokenType.valueOf(tokenTypeNonFungible)
-                                .toString())
+                        org.hiero.sdk.TokenType.valueOf(tokenTypeFungible).toString(),
+                        org.hiero.sdk.TokenType.valueOf(tokenTypeNonFungible).toString())
                 .toMatchSnapshot();
     }
 
     @Test
     void toProtobuf() {
         SnapshotMatcher.expect(
-                        org.hiero.sdk.TokenType.valueOf(tokenTypeFungible)
-                                .toProtobuf(),
-                        org.hiero.sdk.TokenType.valueOf(tokenTypeNonFungible)
-                                .toProtobuf())
+                        org.hiero.sdk.TokenType.valueOf(tokenTypeFungible).toProtobuf(),
+                        org.hiero.sdk.TokenType.valueOf(tokenTypeNonFungible).toProtobuf())
                 .toMatchSnapshot();
     }
 }
-

@@ -3,6 +3,8 @@ package org.hiero.tck.methods.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.time.Duration;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.AccountId;
 import org.hiero.sdk.Client;
 import org.hiero.sdk.ContractByteCodeQuery;
@@ -37,8 +39,6 @@ import org.hiero.tck.methods.sdk.response.ContractResponse.ContractInfoQueryResp
 import org.hiero.tck.methods.sdk.response.ContractResponse.ContractInfoQueryResponse.StakingInfoResponse;
 import org.hiero.tck.util.KeyUtils;
 import org.hiero.tck.util.QueryBuilders;
-import java.time.Duration;
-import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
 public class ContractService extends AbstractJSONRPC2Service {
@@ -309,4 +309,3 @@ public class ContractService extends AbstractJSONRPC2Service {
         return value == null || value.isEmpty() ? null : value;
     }
 }
-

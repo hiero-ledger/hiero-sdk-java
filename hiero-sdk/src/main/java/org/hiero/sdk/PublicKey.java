@@ -3,13 +3,13 @@ package org.hiero.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.SignaturePair;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.SignaturePair;
 
 /**
  * A public key on the Hedera™ network.
@@ -280,4 +280,3 @@ public abstract class PublicKey extends Key {
         return PublicKey.fromStringED25519("0000000000000000000000000000000000000000000000000000000000000000");
     }
 }
-

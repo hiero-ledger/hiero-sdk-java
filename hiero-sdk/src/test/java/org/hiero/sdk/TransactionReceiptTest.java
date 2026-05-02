@@ -57,4 +57,3 @@ public class TransactionReceiptTest {
         SnapshotMatcher.expect(originalTransactionReceipt.toString()).toMatchSnapshot();
     }
 }
-

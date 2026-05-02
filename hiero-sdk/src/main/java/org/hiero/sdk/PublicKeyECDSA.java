@@ -4,7 +4,6 @@ package org.hiero.sdk;
 import static org.hiero.sdk.Crypto.calcKeccak256;
 
 import com.google.protobuf.ByteString;
-import org.hiero.sdk.proto.SignaturePair;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.hiero.sdk.proto.SignaturePair;
 
 /**
  * Encapsulate the ECDSA public key.
@@ -156,4 +156,3 @@ class PublicKeyECDSA extends PublicKey {
         return true;
     }
 }
-

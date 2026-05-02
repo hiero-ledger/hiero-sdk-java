@@ -2,15 +2,15 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import io.grpc.MethodDescriptor;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.hiero.sdk.proto.TokenRevokeKycTransactionBody;
 import org.hiero.sdk.proto.TokenServiceGrpc;
 import org.hiero.sdk.proto.TransactionBody;
 import org.hiero.sdk.proto.TransactionResponse;
-import io.grpc.MethodDescriptor;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Revoke "Know Your Customer"(KYC) from one account for a single token.
@@ -175,4 +175,3 @@ public class TokenRevokeKycTransaction extends org.hiero.sdk.Transaction<TokenRe
         scheduled.setTokenRevokeKyc(build());
     }
 }
-

@@ -5,11 +5,6 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.CryptoUpdateTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
@@ -18,6 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.CryptoUpdateTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Modify the current state of an account.
@@ -703,4 +703,3 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         scheduled.setCryptoUpdateAccount(build());
     }
 }
-

@@ -57,4 +57,3 @@ class LiveHashDeleteTransactionTest {
         assertThat(tx2.toString()).isEqualTo(tx.toString());
     }
 }
-

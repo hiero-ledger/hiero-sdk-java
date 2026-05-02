@@ -86,4 +86,3 @@ public final class EvmAddress extends Key {
         return Arrays.equals(bytes, other.bytes);
     }
 }
-

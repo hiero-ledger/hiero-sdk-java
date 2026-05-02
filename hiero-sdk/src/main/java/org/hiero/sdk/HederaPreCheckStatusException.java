@@ -15,4 +15,3 @@ public final class HederaPreCheckStatusException extends PrecheckStatusException
         super(status, transactionId);
     }
 }
-

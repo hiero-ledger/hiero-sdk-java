@@ -9,13 +9,13 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.NodeUpdateTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import org.hiero.sdk.proto.NodeUpdateTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -619,4 +619,3 @@ public class NodeUpdateTransactionTest {
         assertThatCode(() -> transaction.setGrpcCertificateHash(new byte[] {})).doesNotThrowAnyException();
     }
 }
-

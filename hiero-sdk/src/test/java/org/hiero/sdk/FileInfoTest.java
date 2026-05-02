@@ -2,11 +2,11 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.FileGetInfoResponse;
-import org.hiero.sdk.proto.KeyList;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.FileGetInfoResponse;
+import org.hiero.sdk.proto.KeyList;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -57,4 +57,3 @@ public class FileInfoTest {
                 .toMatchSnapshot();
     }
 }
-

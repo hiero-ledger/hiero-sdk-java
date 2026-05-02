@@ -52,4 +52,3 @@ public class TokenNftInfoTest {
         SnapshotMatcher.expect(originalTokenInfo.toString()).toMatchSnapshot();
     }
 }
-

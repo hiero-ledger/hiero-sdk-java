@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
+import io.grpc.MethodDescriptor;
 import org.hiero.sdk.proto.NetworkGetVersionInfoQuery;
 import org.hiero.sdk.proto.NetworkServiceGrpc;
 import org.hiero.sdk.proto.QueryHeader;
 import org.hiero.sdk.proto.Response;
 import org.hiero.sdk.proto.ResponseHeader;
-import io.grpc.MethodDescriptor;
 
 /**
  * Information about the versions of protobuf and hedera.
@@ -48,4 +48,3 @@ public class NetworkVersionInfoQuery extends Query<NetworkVersionInfo, NetworkVe
         return NetworkServiceGrpc.getGetVersionInfoMethod();
     }
 }
-

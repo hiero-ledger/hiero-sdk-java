@@ -314,4 +314,3 @@ public final class ContractFunctionSelector {
         return finished;
     }
 }
-

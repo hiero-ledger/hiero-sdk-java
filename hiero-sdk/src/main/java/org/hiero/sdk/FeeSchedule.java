@@ -52,8 +52,8 @@ public class FeeSchedule implements Cloneable {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static FeeSchedule fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.FeeSchedule.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.FeeSchedule.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -160,4 +160,3 @@ public class FeeSchedule implements Cloneable {
         }
     }
 }
-

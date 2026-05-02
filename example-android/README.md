@@ -42,4 +42,3 @@ Maven Central you need to remove the line `includeBuild("..")` from [settings.gr
 and `implementation(platform("org.hiero:sdk-dependency-versions"))` from
 [app/build.gradle.kts](app/build.gradle.kts). You can define the version of the SDK you would like to use by modifying
 the `implementation("org.hiero:sdk:<version>")` dependency in [app/build.gradle.kts](app/build.gradle.kts).
-

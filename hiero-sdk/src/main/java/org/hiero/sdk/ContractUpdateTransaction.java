@@ -5,12 +5,6 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.AccountID;
-import org.hiero.sdk.proto.ContractUpdateTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.SmartContractServiceGrpc;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.AccountID;
+import org.hiero.sdk.proto.ContractUpdateTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.SmartContractServiceGrpc;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Modify a smart contract instance to have the given parameter values.
@@ -744,4 +744,3 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
         scheduled.setContractUpdateInstance(build());
     }
 }
-

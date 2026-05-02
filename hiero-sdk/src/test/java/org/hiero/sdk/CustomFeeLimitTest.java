@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.CustomFeeLimit;
-import org.hiero.sdk.proto.FixedFee;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hiero.sdk.proto.CustomFeeLimit;
+import org.hiero.sdk.proto.FixedFee;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -129,4 +129,3 @@ public class CustomFeeLimitTest {
                 converted.getCustomFees().get(0).feeCollectorAccountId);
     }
 }
-

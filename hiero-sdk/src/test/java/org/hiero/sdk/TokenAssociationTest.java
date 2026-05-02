@@ -79,4 +79,3 @@ public class TokenAssociationTest {
         assertThat(bytes).isEqualTo(tokenAssociation.toProtobuf().toByteArray());
     }
 }
-

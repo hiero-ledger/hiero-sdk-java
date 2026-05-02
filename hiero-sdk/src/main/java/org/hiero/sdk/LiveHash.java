@@ -74,8 +74,8 @@ public class LiveHash {
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
     public static LiveHash fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(org.hiero.sdk.proto.LiveHash.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(
+                org.hiero.sdk.proto.LiveHash.parseFrom(bytes).toBuilder().build());
     }
 
     /**
@@ -116,4 +116,3 @@ public class LiveHash {
                 .toString();
     }
 }
-

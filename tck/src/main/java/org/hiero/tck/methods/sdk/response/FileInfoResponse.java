@@ -16,4 +16,3 @@ public class FileInfoResponse {
     private final String ledgerId;
     private final List<String> keys;
 }
-

@@ -101,4 +101,3 @@ public class ScheduleCreateTransactionTest {
         assertThat(tx.getExpirationTime()).isEqualTo(instant);
     }
 }
-

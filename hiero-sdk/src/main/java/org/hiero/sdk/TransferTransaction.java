@@ -3,13 +3,6 @@ package org.hiero.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.AccountAmount;
-import org.hiero.sdk.proto.CryptoServiceGrpc;
-import org.hiero.sdk.proto.CryptoTransferTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
-import org.hiero.sdk.proto.TransferList;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +11,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.AccountAmount;
+import org.hiero.sdk.proto.CryptoServiceGrpc;
+import org.hiero.sdk.proto.CryptoTransferTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
+import org.hiero.sdk.proto.TransferList;
 
 /**
  * A transaction that transfers hbars and tokens between Hedera accounts. You can enter multiple transfers in a single
@@ -110,8 +110,7 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
      * @param txs Compound list of transaction id's list of (AccountId, Transaction) records
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
-    TransferTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TransferTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -346,4 +345,3 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         return new NftHookCall(base.getHookId(), base.getEvmHookCall(), type);
     }
 }
-

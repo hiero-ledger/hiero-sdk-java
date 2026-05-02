@@ -18,4 +18,3 @@ public class FungibleHookCall extends HookCall {
         return type;
     }
 }
-

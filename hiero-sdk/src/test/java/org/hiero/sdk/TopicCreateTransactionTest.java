@@ -3,14 +3,14 @@ package org.hiero.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hiero.sdk.proto.ConsensusCreateTopicTransactionBody;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.hiero.sdk.proto.ConsensusCreateTopicTransactionBody;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -174,4 +174,3 @@ public class TopicCreateTransactionTest {
         assertThat(topicCreateTransaction.getCustomFees()).hasSize(1).containsExactly(customFixedFeeToBeAdded);
     }
 }
-

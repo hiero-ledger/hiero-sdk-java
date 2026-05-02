@@ -86,4 +86,3 @@ class HookCreationDetailsTest {
         assertTrue(s.contains("hook"));
     }
 }
-

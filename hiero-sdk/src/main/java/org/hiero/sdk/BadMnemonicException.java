@@ -52,4 +52,3 @@ public class BadMnemonicException extends Exception {
         this.unknownWordIndices = null;
     }
 }
-

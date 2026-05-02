@@ -5,6 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.esaulpaugh.headlong.rlp.RLPEncoder;
 import com.esaulpaugh.headlong.util.Integers;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Objects;
+import org.bouncycastle.util.encoders.Hex;
 import org.hiero.sdk.ContractCreateTransaction;
 import org.hiero.sdk.ContractDeleteTransaction;
 import org.hiero.sdk.ContractExecuteTransaction;
@@ -16,10 +20,6 @@ import org.hiero.sdk.Hbar;
 import org.hiero.sdk.PrivateKey;
 import org.hiero.sdk.PrivateKeyECDSA;
 import org.hiero.sdk.TransferTransaction;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Objects;
-import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -238,4 +238,3 @@ public class EthereumTransactionIntegrationTest {
         }
     }
 }
-

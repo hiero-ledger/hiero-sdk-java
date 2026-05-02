@@ -12,4 +12,3 @@ public class BeanConfig {
         return new Dispatcher();
     }
 }
-

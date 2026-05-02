@@ -165,4 +165,3 @@ public class ClientCloseTest {
                 .withMessage("No healthy node was found");
     }
 }
-

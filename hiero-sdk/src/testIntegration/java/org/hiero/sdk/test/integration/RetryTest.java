@@ -26,4 +26,3 @@ public @interface RetryTest {
      */
     long maxDelayMs() default 10000;
 }
-

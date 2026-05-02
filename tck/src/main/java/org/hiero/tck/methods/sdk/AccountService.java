@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.tck.methods.sdk;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.hiero.sdk.*;
 import org.hiero.tck.annotation.JSONRPC2Method;
 import org.hiero.tck.annotation.JSONRPC2Service;
@@ -23,11 +28,6 @@ import org.hiero.tck.methods.sdk.response.AccountResponse;
 import org.hiero.tck.methods.sdk.response.GetAccountInfoResponse;
 import org.hiero.tck.util.QueryBuilders;
 import org.hiero.tck.util.TransactionBuilders;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * AccountService for account related methods
@@ -357,4 +357,3 @@ public class AccountService extends AbstractJSONRPC2Service {
                 info.stakedNodeId != null ? String.valueOf(info.stakedNodeId) : null);
     }
 }
-

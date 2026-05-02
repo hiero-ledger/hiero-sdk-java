@@ -379,4 +379,3 @@ class BatchTransactionTest {
                 .withMessageContaining("Batch key needs to be set");
     }
 }
-

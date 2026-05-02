@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.hiero.sdk;
 
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TimestampSeconds;
 import java.time.Duration;
 import java.time.Instant;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TimestampSeconds;
 
 /**
  * Instance in time utilities.
@@ -67,4 +67,3 @@ final class InstantConverter {
                 .build();
     }
 }
-

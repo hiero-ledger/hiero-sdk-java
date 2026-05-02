@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.Timestamp;
-import org.hiero.sdk.proto.TokenUpdateTransactionBody;
-import org.hiero.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.Timestamp;
+import org.hiero.sdk.proto.TokenUpdateTransactionBody;
+import org.hiero.sdk.proto.TransactionBody;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -391,4 +391,3 @@ public class TokenUpdateTransactionTest {
         assertThrows(IllegalStateException.class, () -> tx.setKeyVerificationMode(TokenKeyValidation.NO_VALIDATION));
     }
 }
-

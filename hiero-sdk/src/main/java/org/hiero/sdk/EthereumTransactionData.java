@@ -42,4 +42,3 @@ public abstract class EthereumTransactionData {
      */
     public abstract String toString();
 }
-

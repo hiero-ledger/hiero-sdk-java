@@ -5,13 +5,13 @@ import static org.hiero.sdk.TransferTransaction.toNftHook;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.NftTransfer;
-import org.hiero.sdk.proto.TokenID;
-import org.hiero.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.NftTransfer;
+import org.hiero.sdk.proto.TokenID;
+import org.hiero.sdk.proto.TokenTransferList;
 
 /**
  * Internal utility class.
@@ -217,4 +217,3 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
         return Objects.hash(tokenId, sender, receiver, serial, isApproved);
     }
 }
-

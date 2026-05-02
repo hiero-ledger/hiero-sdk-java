@@ -2,11 +2,11 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.ContractID;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.hiero.sdk.proto.ContractID;
 
 /**
  * The ID for a smart contract instance on Hedera.
@@ -134,4 +134,3 @@ public final class DelegateContractId extends ContractId {
         }
     }
 }
-

@@ -2,12 +2,6 @@
 package org.hiero.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hiero.sdk.proto.SchedulableTransactionBody;
-import org.hiero.sdk.proto.TokenBurnTransactionBody;
-import org.hiero.sdk.proto.TokenServiceGrpc;
-import org.hiero.sdk.proto.Transaction;
-import org.hiero.sdk.proto.TransactionBody;
-import org.hiero.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,6 +9,12 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
+import org.hiero.sdk.proto.SchedulableTransactionBody;
+import org.hiero.sdk.proto.TokenBurnTransactionBody;
+import org.hiero.sdk.proto.TokenServiceGrpc;
+import org.hiero.sdk.proto.Transaction;
+import org.hiero.sdk.proto.TransactionBody;
+import org.hiero.sdk.proto.TransactionResponse;
 
 /**
  * Burns tokens from the Token's treasury Account.
@@ -57,8 +57,7 @@ public class TokenBurnTransaction extends org.hiero.sdk.Transaction<TokenBurnTra
      *            records
      * @throws InvalidProtocolBufferException       when there is an issue with the protobuf
      */
-    TokenBurnTransaction(
-            LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
+    TokenBurnTransaction(LinkedHashMap<TransactionId, LinkedHashMap<AccountId, org.hiero.sdk.proto.Transaction>> txs)
             throws InvalidProtocolBufferException {
         super(txs);
         initFromTransactionBody();
@@ -224,4 +223,3 @@ public class TokenBurnTransaction extends org.hiero.sdk.Transaction<TokenBurnTra
         scheduled.setTokenBurn(build());
     }
 }
-

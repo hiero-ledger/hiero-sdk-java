@@ -416,4 +416,3 @@ public final class TransactionResponse {
                 .toString();
     }
 }
-

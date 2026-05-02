@@ -80,4 +80,3 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
         return ("http".equals(scheme) && port == 80) || ("https".equals(scheme) && port == 443);
     }
 }
-

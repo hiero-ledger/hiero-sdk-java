@@ -137,4 +137,3 @@ class DelegateContractIdTest {
         assertThat(id.toEvmAddress()).isEqualTo(expected);
     }
 }
-
