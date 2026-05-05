@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
@@ -423,9 +424,6 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
     public NodeCreateTransaction setAssociatedRegisteredNodes(List<Long> associatedRegisteredNodes) {
         requireNotFrozen();
         Objects.requireNonNull(associatedRegisteredNodes);
-        if (associatedRegisteredNodes.size() > 20) {
-            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
-        }
 
         this.associatedRegisteredNodes = new ArrayList<>(associatedRegisteredNodes);
         return this;
@@ -436,11 +434,8 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * @param associatedRegisteredNode the associated registered node.
      * @return {@code this}
      */
-    public NodeCreateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
+    public NodeCreateTransaction addAssociatedRegisteredNode(@Nonnegative long associatedRegisteredNode) {
         requireNotFrozen();
-        if (associatedRegisteredNodes.size() >= 20) {
-            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
-        }
         associatedRegisteredNodes.add(associatedRegisteredNode);
         return this;
     }

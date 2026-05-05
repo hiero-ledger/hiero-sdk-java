@@ -8,7 +8,6 @@ import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,16 +98,10 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      * @param description The string to be set as description for the node.
      * @return {@code this}
      */
-    public RegisteredNodeCreateTransaction setDescription(@Nullable String description) {
+    public RegisteredNodeCreateTransaction setDescription(String description) {
         this.requireNotFrozen();
-        if (description == null) {
-            this.description = "";
-            return this;
-        }
+        Objects.requireNonNull(description, "description must not be null");
 
-        if (description.getBytes(StandardCharsets.UTF_8).length > 100) {
-            throw new IllegalArgumentException("description must not exceed 100 bytes when UTF-8 encoded");
-        }
         this.description = description;
         return this;
     }
@@ -140,13 +133,6 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
         this.requireNotFrozen();
         Objects.requireNonNull(serviceEndpoints, "serviceEndpoints cannot be null");
 
-        if (serviceEndpoints.isEmpty()) {
-            throw new IllegalArgumentException("serviceEndpoints list must not be empty.");
-        }
-        if (serviceEndpoints.size() > 50) {
-            throw new IllegalArgumentException("serviceEndpoints must not contain more than 50 entries");
-        }
-
         for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {
             RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         }
@@ -162,9 +148,6 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      */
     public RegisteredNodeCreateTransaction addServiceEndpoint(RegisteredServiceEndpoint serviceEndpoint) {
         this.requireNotFrozen();
-        if (serviceEndpoints.size() >= 50) {
-            throw new IllegalArgumentException("serviceEndpoints must not contain more than 50 entries");
-        }
 
         RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         serviceEndpoints.add(serviceEndpoint);

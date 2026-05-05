@@ -433,30 +433,10 @@ public class NodeCreateTransactionTest {
     }
 
     @Test
-    void setAssociatedRegisteredNodesMoreThan20() {
-        var tx = new NodeCreateTransaction();
-        var nodes = new java.util.ArrayList<Long>();
-        for (int i = 0; i < 21; i++) {
-            nodes.add((long) i);
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> tx.setAssociatedRegisteredNodes(nodes));
-    }
-
-    @Test
     void addAssociatedRegisteredNode() {
         var tx = new NodeCreateTransaction();
         tx.addAssociatedRegisteredNode(1L);
         assertThat(tx.getAssociatedRegisteredNodes()).hasSize(1);
         assertThat(tx.getAssociatedRegisteredNodes().get(0)).isEqualTo(1);
-    }
-
-    @Test
-    void addAssociatedRegisteredNodeMoreThan20() {
-        var tx = new NodeCreateTransaction();
-        for (int i = 0; i < 20; i++) {
-            tx.addAssociatedRegisteredNode((long) i);
-        }
-        assertThrows(IllegalArgumentException.class, () -> tx.addAssociatedRegisteredNode(21L));
     }
 }

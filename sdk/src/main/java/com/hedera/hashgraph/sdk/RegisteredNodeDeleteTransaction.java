@@ -9,7 +9,6 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
-import javax.annotation.Nullable;
 
 /**
  * A transaction to delete a registered node from the network
@@ -77,10 +76,6 @@ public class RegisteredNodeDeleteTransaction extends Transaction<RegisteredNodeD
      */
     public RegisteredNodeDeleteTransaction setRegisteredNodeId(long registeredNodeId) {
         this.requireNotFrozen();
-        if (registeredNodeId < 0) {
-            throw new IllegalArgumentException(
-                    "RegisteredNodeDeleteTransaction: 'registeredNodeId' must be non-negative");
-        }
         this.registeredNodeId = registeredNodeId;
         return this;
     }
@@ -123,21 +118,5 @@ public class RegisteredNodeDeleteTransaction extends Transaction<RegisteredNodeD
     @Override
     MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {
         return AddressBookServiceGrpc.getDeleteRegisteredNodeMethod();
-    }
-
-    /**
-     * Freeze this transaction with the given client.
-     *
-     * @param client the client to freeze with
-     * @return this transaction
-     * @throws IllegalStateException if registeredNodeId is not set
-     */
-    @Override
-    public RegisteredNodeDeleteTransaction freezeWith(@Nullable Client client) {
-        if (registeredNodeId == null) {
-            throw new IllegalStateException(
-                    "RegisteredNodeDeleteTransaction: 'registeredNodeId' must be explicitly set before calling freeze().");
-        }
-        return super.freezeWith(client);
     }
 }

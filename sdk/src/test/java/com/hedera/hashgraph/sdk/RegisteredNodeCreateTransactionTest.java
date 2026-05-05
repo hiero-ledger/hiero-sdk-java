@@ -10,7 +10,6 @@ import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -120,13 +119,6 @@ public class RegisteredNodeCreateTransactionTest {
     }
 
     @Test
-    void setDescriptionRejectsOver100Utf8Bytes() {
-        var tx = new RegisteredNodeCreateTransaction();
-        String tooLong = "a".repeat(101);
-        assertThrows(IllegalArgumentException.class, () -> tx.setDescription(tooLong));
-    }
-
-    @Test
     void setDescriptionAcceptsExactly100Utf8Bytes() {
         var tx = new RegisteredNodeCreateTransaction();
         String exact = "a".repeat(100);
@@ -148,17 +140,6 @@ public class RegisteredNodeCreateTransactionTest {
     }
 
     @Test
-    void setServiceEndpointRejectsMoreThan50() {
-        var tx = new RegisteredNodeCreateTransaction();
-        var serviceEndpoints = new ArrayList<RegisteredServiceEndpoint>();
-        for (int i = 0; i < 51; i++) {
-            serviceEndpoints.add(spawnTestEndpoint((byte) i));
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> tx.setServiceEndpoints(serviceEndpoints));
-    }
-
-    @Test
     void addServiceEndpoint() {
         var tx = new RegisteredNodeCreateTransaction();
         var serviceEndpoint = spawnTestEndpoint((byte) 1);
@@ -166,16 +147,6 @@ public class RegisteredNodeCreateTransactionTest {
         tx.addServiceEndpoint(serviceEndpoint);
         assertThat(tx.getServiceEndpoints()).hasSize(1);
         assertThat(tx.getServiceEndpoints().get(0)).isEqualTo(serviceEndpoint);
-    }
-
-    @Test
-    void addServiceEndpointRejectsMoreThan50() {
-        var tx = new RegisteredNodeCreateTransaction();
-        for (int i = 0; i < 50; i++) {
-            tx.addServiceEndpoint(spawnTestEndpoint((byte) i));
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> tx.addServiceEndpoint(spawnTestEndpoint((byte) 50)));
     }
 
     @Test

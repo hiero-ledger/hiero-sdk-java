@@ -11,7 +11,6 @@ import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import io.github.jsonSnapshot.SnapshotMatcher;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -120,12 +119,6 @@ public class RegisteredNodeUpdateTransactionTest {
     }
 
     @Test
-    void setRegisteredNodeIdValueLessThanZero() {
-        var tx = new RegisteredNodeUpdateTransaction();
-        assertThrows(IllegalArgumentException.class, () -> tx.setRegisteredNodeId(-1));
-    }
-
-    @Test
     void setAdminKey() {
         var tx = new RegisteredNodeUpdateTransaction().setAdminKey(TEST_ADMIN_KEY);
         assertThat(tx.getAdminKey()).isEqualTo(TEST_ADMIN_KEY);
@@ -150,13 +143,6 @@ public class RegisteredNodeUpdateTransactionTest {
     }
 
     @Test
-    void setDescriptionRejectsOver100Utf8Bytes() {
-        var tx = new RegisteredNodeUpdateTransaction();
-        String tooLong = "a".repeat(101);
-        assertThrows(IllegalArgumentException.class, () -> tx.setDescription(tooLong));
-    }
-
-    @Test
     void setDescriptionAcceptsExactly100Utf8Bytes() {
         var tx = new RegisteredNodeUpdateTransaction();
         String exact = "a".repeat(100);
@@ -178,17 +164,6 @@ public class RegisteredNodeUpdateTransactionTest {
     }
 
     @Test
-    void setServiceEndpointRejectsMoreThan50() {
-        var tx = new RegisteredNodeUpdateTransaction();
-        var serviceEndpoints = new ArrayList<RegisteredServiceEndpoint>();
-        for (int i = 0; i < 51; i++) {
-            serviceEndpoints.add(spawnTestEndpoint((byte) i));
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> tx.setServiceEndpoints(serviceEndpoints));
-    }
-
-    @Test
     void addServiceEndpoint() {
         var tx = new RegisteredNodeUpdateTransaction();
         var serviceEndpoint = spawnTestEndpoint((byte) 1);
@@ -196,16 +171,6 @@ public class RegisteredNodeUpdateTransactionTest {
         tx.addServiceEndpoint(serviceEndpoint);
         assertThat(tx.getServiceEndpoints()).hasSize(1);
         assertThat(tx.getServiceEndpoints().get(0)).isEqualTo(serviceEndpoint);
-    }
-
-    @Test
-    void addServiceEndpointRejectsMoreThan50() {
-        var tx = new RegisteredNodeUpdateTransaction();
-        for (int i = 0; i < 50; i++) {
-            tx.addServiceEndpoint(spawnTestEndpoint((byte) i));
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> tx.addServiceEndpoint(spawnTestEndpoint((byte) 50)));
     }
 
     @Test
@@ -243,20 +208,5 @@ public class RegisteredNodeUpdateTransactionTest {
 
         assertThatCode(() -> tx.freezeWith(null)).doesNotThrowAnyException();
         assertThat(tx.getRegisteredNodeId()).isEqualTo(TEST_REGISTERED_NODE_ID);
-    }
-
-    @Test
-    void shouldThrowErrorWhenFreezingWithoutRegisteredNodeId() {
-        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
-        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
-
-        var tx = new RegisteredNodeUpdateTransaction()
-                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
-                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
-
-        var exception = assertThrows(IllegalStateException.class, () -> tx.freezeWith(null));
-        assertThat(exception.getMessage())
-                .isEqualTo(
-                        "RegisteredNodeUpdateTransaction: 'registeredNodeId' must be explicitly set before calling freeze().");
     }
 }

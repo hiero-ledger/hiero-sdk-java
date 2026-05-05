@@ -109,15 +109,6 @@ public class RegisteredNodeDeleteTransactionTest {
     }
 
     @Test
-    void shouldThrowErrorWhenSettingNegativeRegisteredNodeId() {
-        var tx = new RegisteredNodeDeleteTransaction();
-
-        var exception = assertThrows(IllegalArgumentException.class, () -> tx.setRegisteredNodeId(-1));
-        assertThat(exception.getMessage())
-                .isEqualTo("RegisteredNodeDeleteTransaction: 'registeredNodeId' must be non-negative");
-    }
-
-    @Test
     void shouldAllowSettingRegisteredNodeIdToZero() {
         var tx = new RegisteredNodeDeleteTransaction().setRegisteredNodeId(0);
         assertThat(tx.getRegisteredNodeId()).isEqualTo(0);
@@ -135,20 +126,5 @@ public class RegisteredNodeDeleteTransactionTest {
 
         assertThatCode(() -> tx.freezeWith(null)).doesNotThrowAnyException();
         assertThat(tx.getRegisteredNodeId()).isEqualTo(420);
-    }
-
-    @Test
-    void shouldThrowErrorWhenFreezingWithZeroRegisteredNodeId() {
-        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
-        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
-
-        var tx = new RegisteredNodeDeleteTransaction()
-                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
-                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
-
-        var exception = assertThrows(IllegalStateException.class, () -> tx.freezeWith(null));
-        assertThat(exception.getMessage())
-                .isEqualTo(
-                        "RegisteredNodeDeleteTransaction: 'registeredNodeId' must be explicitly set before calling freeze().");
     }
 }

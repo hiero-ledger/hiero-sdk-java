@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
@@ -495,9 +496,6 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     public NodeUpdateTransaction setAssociatedRegisteredNodes(List<Long> associatedRegisteredNodes) {
         requireNotFrozen();
         Objects.requireNonNull(associatedRegisteredNodes);
-        if (associatedRegisteredNodes.size() > 20) {
-            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
-        }
 
         this.associatedRegisteredNodes = new ArrayList<>(associatedRegisteredNodes);
         return this;
@@ -508,17 +506,23 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * @param associatedRegisteredNode the associated registered node.
      * @return {@code this}
      */
-    public NodeUpdateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
+    public NodeUpdateTransaction addAssociatedRegisteredNode(@Nonnegative long associatedRegisteredNode) {
         requireNotFrozen();
         if (associatedRegisteredNodes == null) {
             associatedRegisteredNodes = new ArrayList<>();
         }
 
-        if (associatedRegisteredNodes.size() >= 20) {
-            throw new IllegalArgumentException("associatedRegisteredNodes must not contain more than 20 entries");
-        }
-
         associatedRegisteredNodes.add(associatedRegisteredNode);
+        return this;
+    }
+
+    /**
+     * Clear all registered nodes operated by the same entity as this node.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction clearAssociatedRegisteredNode() {
+        requireNotFrozen();
+        associatedRegisteredNodes.clear();
         return this;
     }
 

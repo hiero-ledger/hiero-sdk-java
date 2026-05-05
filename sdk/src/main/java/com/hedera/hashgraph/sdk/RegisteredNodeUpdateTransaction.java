@@ -9,7 +9,6 @@ import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,10 +87,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
      */
     public RegisteredNodeUpdateTransaction setRegisteredNodeId(long registeredNodeId) {
         this.requireNotFrozen();
-        if (registeredNodeId < 0) {
-            throw new IllegalArgumentException(
-                    "RegisteredNodeDeleteTransaction: 'registeredNodeId' must be non-negative");
-        }
         this.registeredNodeId = registeredNodeId;
         return this;
     }
@@ -138,11 +133,10 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
      * @param description The string to be set as description for the node.
      * @return {@code this}
      */
-    public RegisteredNodeUpdateTransaction setDescription(@Nullable String description) {
+    public RegisteredNodeUpdateTransaction setDescription(String description) {
         this.requireNotFrozen();
-        if (description != null && description.getBytes(StandardCharsets.UTF_8).length > 100) {
-            throw new IllegalArgumentException("description must not exceed 100 bytes when UTF-8 encoded");
-        }
+        Objects.requireNonNull(description, "description must not be null");
+
         this.description = description;
         return this;
     }
@@ -174,13 +168,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
         this.requireNotFrozen();
         Objects.requireNonNull(serviceEndpoints, "serviceEndpoints cannot be null");
 
-        if (serviceEndpoints.isEmpty()) {
-            throw new IllegalArgumentException("ServiceEndpoints list must not be empty.");
-        }
-        if (serviceEndpoints.size() > 50) {
-            throw new IllegalArgumentException("ServiceEndpoints list must not contain more than 50 entries.");
-        }
-
         for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {
             RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         }
@@ -196,9 +183,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
      */
     public RegisteredNodeUpdateTransaction addServiceEndpoint(RegisteredServiceEndpoint serviceEndpoint) {
         requireNotFrozen();
-        if (serviceEndpoints.size() >= 50) {
-            throw new IllegalArgumentException("serviceEndpoints must not contain more than 50 entries");
-        }
 
         RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         serviceEndpoints.add(serviceEndpoint);
@@ -268,21 +252,5 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
     @Override
     MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, TransactionResponse> getMethodDescriptor() {
         return AddressBookServiceGrpc.getUpdateRegisteredNodeMethod();
-    }
-
-    /**
-     * Freeze this transaction with the given client.
-     *
-     * @param client the client to freeze with
-     * @return this transaction
-     * @throws IllegalStateException if registeredNodeId is not set
-     */
-    @Override
-    public RegisteredNodeUpdateTransaction freezeWith(@Nullable Client client) {
-        if (registeredNodeId == null) {
-            throw new IllegalStateException(
-                    "RegisteredNodeUpdateTransaction: 'registeredNodeId' must be explicitly set before calling freeze().");
-        }
-        return super.freezeWith(client);
     }
 }
