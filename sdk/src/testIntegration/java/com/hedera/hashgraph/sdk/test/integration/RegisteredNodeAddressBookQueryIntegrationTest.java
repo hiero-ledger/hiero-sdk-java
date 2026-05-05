@@ -36,8 +36,6 @@ public class RegisteredNodeAddressBookQueryIntegrationTest {
                             .setDomainName("test.general.com")
                             .setPort(8080));
 
-            System.out.println(testEnv.client);
-
             var response = new RegisteredNodeCreateTransaction()
                     .setAdminKey(adminKey)
                     .setDescription(description)

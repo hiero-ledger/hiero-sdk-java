@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * A transaction to create a new registered node in the network
@@ -206,21 +205,5 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
     @Override
     void onScheduled(SchedulableTransactionBody.Builder scheduled) {
         scheduled.setRegisteredNodeCreate(build());
-    }
-
-    /**
-     * Freeze this transaction with the given client.
-     *
-     * @param client the client to freeze with
-     * @return this transaction
-     * @throws IllegalStateException if adminKey is not set
-     */
-    @Override
-    public RegisteredNodeCreateTransaction freezeWith(@Nullable Client client) {
-        if (adminKey == null) {
-            throw new IllegalStateException(
-                    "RegisteredNodeCreateTransaction: 'adminKey' must be explicitly set before calling freeze().");
-        }
-        return super.freezeWith(client);
     }
 }

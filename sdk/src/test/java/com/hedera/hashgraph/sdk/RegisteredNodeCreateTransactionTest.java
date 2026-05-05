@@ -183,19 +183,4 @@ public class RegisteredNodeCreateTransactionTest {
         assertThatCode(() -> tx.freezeWith(null)).doesNotThrowAnyException();
         assertThat(tx.getAdminKey()).isEqualTo(TEST_ADMIN_KEY);
     }
-
-    @Test
-    void shouldThrowErrorWhenFreezingWithoutAdminKey() {
-        final Instant VALID_START = Instant.ofEpochSecond(1596210382);
-        final AccountId ACCOUNT_ID = AccountId.fromString("0.6.9");
-
-        var tx = new RegisteredNodeCreateTransaction()
-                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.3")))
-                .setTransactionId(TransactionId.withValidStart(ACCOUNT_ID, VALID_START));
-
-        var exception = assertThrows(IllegalStateException.class, () -> tx.freezeWith(null));
-        assertThat(exception.getMessage())
-                .isEqualTo(
-                        "RegisteredNodeCreateTransaction: 'adminKey' must be explicitly set before calling freeze().");
-    }
 }

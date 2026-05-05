@@ -106,6 +106,9 @@ public class RegisteredNodeLifeCycleExample {
          * Execute a RegisteredNodeAddressBookQuery to verify the newly created
          * registered node appears in the RegisteredNodeAddressBook.
          */
+
+        // Wait for mirror node to update
+        Thread.sleep(5000);
         RegisteredNodeAddressBookQuery addressBookQuery =
                 new RegisteredNodeAddressBookQuery().setRegisteredNodeId(registeredNodeId);
 

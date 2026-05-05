@@ -2,10 +2,12 @@
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.BlockNodeApi;
 import com.hedera.hashgraph.sdk.BlockNodeServiceEndpoint;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.RegisteredNodeCreateTransaction;
 import com.hedera.hashgraph.sdk.RegisteredNodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.RegisteredServiceEndpoint;
@@ -26,17 +28,15 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
                     .setPort(443)
                     .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM));
 
-            var createResponse = new RegisteredNodeCreateTransaction()
+            var nodeId = new RegisteredNodeCreateTransaction()
                     .setAdminKey(key)
                     .setDescription("test initial node")
                     .setServiceEndpoints(endpoints)
                     .freezeWith(testEnv.client)
                     .sign(key)
-                    .execute(testEnv.client);
-
-            var createReceipt = createResponse.getReceipt(testEnv.client);
-
-            var nodeId = createReceipt.registeredNodeId;
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .registeredNodeId;
 
             List<RegisteredServiceEndpoint> updatedEndpoints = List.of(new BlockNodeServiceEndpoint()
                     .setDomainName("updated.blocks.com")
@@ -68,16 +68,15 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
                     .setPort(443)
                     .addEndpointApi(BlockNodeApi.STATUS));
 
-            var createReceipt = new RegisteredNodeCreateTransaction()
+            var nodeId = new RegisteredNodeCreateTransaction()
                     .setAdminKey(oldKey)
                     .setDescription("test node")
                     .setServiceEndpoints(endpoints)
                     .freezeWith(testEnv.client)
                     .sign(oldKey)
                     .execute(testEnv.client)
-                    .getReceipt(testEnv.client);
-
-            var nodeId = createReceipt.registeredNodeId;
+                    .getReceipt(testEnv.client)
+                    .registeredNodeId;
 
             var newKey = PrivateKey.generateED25519();
 
@@ -91,6 +90,57 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
 
             var receipt = tx.execute(testEnv.client).getReceipt(testEnv.client);
             assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "When RegisteredNodeUpdateTransaction sets a new admin key but only the old admin key signs fails with INVALID_SIGNATURE")
+    void registeredUpdateNodeFailsInvalidSignature() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var oldKey = PrivateKey.generateED25519();
+
+            List<RegisteredServiceEndpoint> endpoints = List.of(new BlockNodeServiceEndpoint()
+                    .setDomainName("blocks.example.com")
+                    .setPort(443)
+                    .addEndpointApi(BlockNodeApi.STATUS));
+
+            var nodeId = new RegisteredNodeCreateTransaction()
+                    .setAdminKey(oldKey)
+                    .setDescription("test node")
+                    .setServiceEndpoints(endpoints)
+                    .freezeWith(testEnv.client)
+                    .sign(oldKey)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .registeredNodeId;
+
+            var newKey = PrivateKey.generateED25519();
+            var tx = new RegisteredNodeUpdateTransaction()
+                    .setRegisteredNodeId(nodeId)
+                    .setAdminKey(newKey)
+                    .freezeWith(testEnv.client);
+
+            tx.sign(oldKey);
+
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> tx.execute(testEnv.client).getReceipt(testEnv.client))
+                    .withMessageContaining(Status.INVALID_SIGNATURE.toString());
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given a RegisteredNodeUpdateTransaction targeting a non-existent registeredNodeId fails with INVALID_REGISTERED_NODE_ID")
+    void registeredUpdateNodeFailsInvalidId() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var tx = new RegisteredNodeUpdateTransaction()
+                    .setRegisteredNodeId(10000)
+                    .freezeWith(testEnv.client);
+
+            assertThatExceptionOfType(ReceiptStatusException.class)
+                    .isThrownBy(() -> tx.execute(testEnv.client).getReceipt(testEnv.client))
+                    .withMessageContaining(Status.INVALID_REGISTERED_NODE_ID.toString());
         }
     }
 }
