@@ -106,8 +106,8 @@ public class RegisteredNodeLifeCycleExample {
          * Execute a RegisteredNodeAddressBookQuery to verify the newly created
          * registered node appears in the RegisteredNodeAddressBook.
          */
-        RegisteredNodeAddressBookQuery addressBookQuery = new RegisteredNodeAddressBookQuery()
-            .setRegisteredNodeId(registeredNodeId);
+        RegisteredNodeAddressBookQuery addressBookQuery =
+                new RegisteredNodeAddressBookQuery().setRegisteredNodeId(registeredNodeId);
 
         System.out.println("Executing RegisteredNodeQuery....");
         RegisteredNodeAddressBook addressBook = addressBookQuery.execute(client);

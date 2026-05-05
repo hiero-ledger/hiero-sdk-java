@@ -161,7 +161,7 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      * @return {@code this}
      */
     public RegisteredNodeCreateTransaction addServiceEndpoint(RegisteredServiceEndpoint serviceEndpoint) {
-        requireNotFrozen();
+        this.requireNotFrozen();
         if (serviceEndpoints.size() >= 50) {
             throw new IllegalArgumentException("serviceEndpoints must not contain more than 50 entries");
         }
