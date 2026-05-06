@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
@@ -434,7 +433,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * @param associatedRegisteredNode the associated registered node.
      * @return {@code this}
      */
-    public NodeCreateTransaction addAssociatedRegisteredNode(@Nonnegative long associatedRegisteredNode) {
+    public NodeCreateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
         requireNotFrozen();
         associatedRegisteredNodes.add(associatedRegisteredNode);
         return this;

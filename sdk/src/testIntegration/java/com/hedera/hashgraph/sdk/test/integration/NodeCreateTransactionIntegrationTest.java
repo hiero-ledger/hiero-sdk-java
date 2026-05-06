@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk.test.integration;
 
 import static com.hedera.hashgraph.sdk.test.integration.IntegrationTestEnv.LOCAL_CONSENSUS_NODE_ACCOUNT_ID;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hedera.hashgraph.sdk.*;
 import java.util.HashMap;
@@ -65,6 +66,70 @@ class NodeCreateTransactionIntegrationTest {
                     .sign(adminKey)
                     .execute(client)
                     .getReceipt(client);
+        }
+    }
+
+    @Test
+    @DisplayName("Can create new network node with the registered node's ID in associatedRegisteredNodes")
+    void canCreateNewNetworkNodeWithRegisteredNode() throws Exception {
+        // Set the network
+        var network = new HashMap<String, AccountId>();
+        network.put("localhost:50211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
+
+        try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
+
+            // Set the operator to be account 0.0.2
+            var originalOperatorKey = PrivateKey.fromString(
+                    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+            client.setOperator(new AccountId(0, 0, 2), originalOperatorKey);
+
+            var registeredNodeKey = PrivateKey.generateED25519();
+            List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new BlockNodeServiceEndpoint()
+                    .setDomainName("test.block.com")
+                    .setPort(443)
+                    .addEndpointApi(BlockNodeApi.STATUS));
+
+            var registeredNodeId = new RegisteredNodeCreateTransaction()
+                    .setAdminKey(registeredNodeKey)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(client)
+                    .sign(registeredNodeKey)
+                    .execute(client)
+                    .getReceipt(client)
+                    .registeredNodeId;
+
+            // The account of the new node
+            var accountID = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(PrivateKey.generateECDSA().getPublicKey())
+                    .setInitialBalance(Hbar.from(1))
+                    .execute(client)
+                    .getReceipt(client)
+                    .accountId;
+
+            // Node description
+            String description = "test";
+            var endpoint = new Endpoint().setDomainName("tset.com").setPort(123);
+            var grpcWebProxyEndpoint = new Endpoint().setDomainName("test.com").setPort(12345);
+            var validGossipCert = Hex.decode(validGossipCertDER.getBytes());
+            var adminKey = PrivateKeyECDSA.generateED25519();
+
+            var receipt = new NodeCreateTransaction()
+                    .setAccountId(accountID)
+                    .setAdminKey(adminKey)
+                    .setDescription(description)
+                    .setGossipCaCertificate(validGossipCert)
+                    .setGossipEndpoints(List.of(endpoint))
+                    .setServiceEndpoints(List.of(endpoint))
+                    .setDeclineReward(true)
+                    .setGrpcWebProxyEndpoint(grpcWebProxyEndpoint)
+                    .addAssociatedRegisteredNode(registeredNodeId)
+                    .freezeWith(client)
+                    .sign(adminKey)
+                    .execute(client)
+                    .getReceipt(client);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
         }
     }
 }

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
@@ -506,7 +505,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * @param associatedRegisteredNode the associated registered node.
      * @return {@code this}
      */
-    public NodeUpdateTransaction addAssociatedRegisteredNode(@Nonnegative long associatedRegisteredNode) {
+    public NodeUpdateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
         requireNotFrozen();
         if (associatedRegisteredNodes == null) {
             associatedRegisteredNodes = new ArrayList<>();
@@ -517,12 +516,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Clear all registered nodes operated by the same entity as this node.
+     * Clear all registered nodes associated with this node.
      * @return {@code this}
      */
     public NodeUpdateTransaction clearAssociatedRegisteredNode() {
         requireNotFrozen();
-        associatedRegisteredNodes.clear();
+        associatedRegisteredNodes = new ArrayList<>();
         return this;
     }
 
