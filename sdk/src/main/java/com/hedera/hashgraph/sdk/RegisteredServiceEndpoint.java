@@ -103,8 +103,9 @@ public abstract class RegisteredServiceEndpoint {
 
         String type = json.get("type").getAsString().toUpperCase();
 
-        int port = json.get("port").getAsInt();
-        boolean requiresTls = json.get("requires_tls").getAsBoolean();
+        int port = json.has("port") ? json.get("port").getAsInt() : 0;
+        boolean requiresTls =
+                json.has("requires_tls") && json.get("requires_tls").getAsBoolean();
         String domainName = json.has("domain_name") && !json.get("domain_name").isJsonNull()
                 ? json.get("domain_name").getAsString()
                 : null;

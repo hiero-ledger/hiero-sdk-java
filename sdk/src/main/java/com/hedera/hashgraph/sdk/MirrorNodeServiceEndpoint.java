@@ -12,7 +12,6 @@ import java.util.Objects;
 public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<MirrorNodeServiceEndpoint> {
     /**
      * Constructor.
-     *
      */
     public MirrorNodeServiceEndpoint() {}
 

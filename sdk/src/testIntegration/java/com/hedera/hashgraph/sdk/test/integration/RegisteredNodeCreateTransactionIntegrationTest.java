@@ -10,6 +10,7 @@ import com.hedera.hashgraph.sdk.GeneralServiceEndpoint;
 import com.hedera.hashgraph.sdk.MirrorNodeServiceEndpoint;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.RegisteredNodeAddressBookQuery;
 import com.hedera.hashgraph.sdk.RegisteredNodeCreateTransaction;
 import com.hedera.hashgraph.sdk.RegisteredServiceEndpoint;
 import com.hedera.hashgraph.sdk.RpcRelayServiceEndpoint;
@@ -147,6 +148,18 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
 
             assertThat(receipt.status).isEqualTo(Status.SUCCESS);
             assertThat(receipt.registeredNodeId).isGreaterThan(0);
+
+            // Wait for mirror node to update
+            Thread.sleep(5000);
+
+            var registeredNodes = new RegisteredNodeAddressBookQuery()
+                    .setRegisteredNodeId(receipt.registeredNodeId)
+                    .execute(testEnv.client)
+                    .registeredNodes;
+            assertThat(registeredNodes).hasSize(1);
+
+            var registeredNode = registeredNodes.getFirst();
+            assertThat(registeredNode.serviceEndpoints).hasSize(serviceEndpoints.size());
         }
     }
 

@@ -87,8 +87,10 @@ public class RegisteredNode {
         PublicKey adminKey = parseJsonKey(json.get("admin_key").getAsJsonObject());
 
         List<RegisteredServiceEndpoint> endpoints = new ArrayList<>();
-        for (JsonElement endpoint : json.getAsJsonArray("service_endpoints")) {
-            endpoints.add(RegisteredServiceEndpoint.fromJson(endpoint.getAsJsonObject()));
+        if (json.has("service_endpoints")) {
+            for (JsonElement endpoint : json.getAsJsonArray("service_endpoints")) {
+                endpoints.add(RegisteredServiceEndpoint.fromJson(endpoint.getAsJsonObject()));
+            }
         }
 
         return new RegisteredNode(id, adminKey, description, endpoints);

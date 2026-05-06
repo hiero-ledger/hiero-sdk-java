@@ -36,16 +36,15 @@ public class RegisteredNodeAddressBookQueryIntegrationTest {
                             .setDomainName("test.general.com")
                             .setPort(8080));
 
-            var response = new RegisteredNodeCreateTransaction()
+            var nodeId = new RegisteredNodeCreateTransaction()
                     .setAdminKey(adminKey)
                     .setDescription(description)
                     .setServiceEndpoints(serviceEndpoints)
                     .freezeWith(testEnv.client)
                     .sign(adminKey)
-                    .execute(testEnv.client);
-
-            var receipt = response.getReceipt(testEnv.client);
-            var nodeId = receipt.registeredNodeId;
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client)
+                    .registeredNodeId;
 
             // Wait for mirror node to update
             Thread.sleep(5000);
@@ -56,7 +55,7 @@ public class RegisteredNodeAddressBookQueryIntegrationTest {
 
             Assertions.assertThat(registeredNodeBook.registeredNodes).hasSize(1);
 
-            var node = registeredNodeBook.registeredNodes.get(0);
+            var node = registeredNodeBook.registeredNodes.getFirst();
 
             Assertions.assertThat(node.description).isEqualTo(description);
             Assertions.assertThat(node.serviceEndpoints).hasSize(4);

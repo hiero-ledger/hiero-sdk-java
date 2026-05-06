@@ -50,7 +50,6 @@ public class RegisteredNodeAddressBookQuery {
      */
     public RegisteredNodeAddressBook execute(Client client) throws ExecutionException, InterruptedException {
         String json = executeMirrorNodeRequest(client).get();
-        System.out.println(json);
         return parseRegisterNodeAddressBook(json);
     }
 
@@ -80,12 +79,14 @@ public class RegisteredNodeAddressBookQuery {
      */
     private RegisteredNodeAddressBook parseRegisterNodeAddressBook(String json) {
         List<RegisteredNode> registeredNodes = new ArrayList<>();
-
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-        JsonArray registeredNodesJSON = jsonObject.getAsJsonArray("registered_nodes");
 
-        for (JsonElement node : registeredNodesJSON) {
-            registeredNodes.add(RegisteredNode.fromJson(node.getAsJsonObject()));
+        if (jsonObject.has("registered_nodes")) {
+            JsonArray registeredNodesJSON = jsonObject.getAsJsonArray("registered_nodes");
+
+            for (JsonElement node : registeredNodesJSON) {
+                registeredNodes.add(RegisteredNode.fromJson(node.getAsJsonObject()));
+            }
         }
 
         return new RegisteredNodeAddressBook(registeredNodes);
