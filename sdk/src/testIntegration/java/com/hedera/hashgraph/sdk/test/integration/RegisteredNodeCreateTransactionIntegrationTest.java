@@ -47,7 +47,7 @@ public class RegisteredNodeCreateTransactionIntegrationTest {
 
     @Test
     @DisplayName("Can create a registered node with mirrorNodeServiceEndpoint")
-    void canCreateRegisteredNodeWitMirrorNode() throws Exception {
+    void canCreateRegisteredNodeWithMirrorNode() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new MirrorNodeServiceEndpoint()

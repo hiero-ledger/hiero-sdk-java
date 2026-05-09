@@ -83,7 +83,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
      *
      * @param registeredNodeId the registered node identifier.
      * @return {@code this}
-     * @throws IllegalArgumentException if registeredNodeId is negative
      */
     public RegisteredNodeUpdateTransaction setRegisteredNodeId(long registeredNodeId) {
         this.requireNotFrozen();
@@ -105,7 +104,6 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
      * This key MUST sign this transaction.<br/>
      * This key MUST sign each transaction to update this node.<br/>
      * This field MUST contain a valid `Key` value.<br/>
-     * This field is REQUIRED.
      *
      * @param adminKey the admin key for the registered node.
      * @return  {@code this}
@@ -172,7 +170,7 @@ public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeU
             RegisteredServiceEndpoint.validateNoIpAndDomain(serviceEndpoint);
         }
 
-        this.serviceEndpoints = serviceEndpoints;
+        this.serviceEndpoints = new ArrayList<>(serviceEndpoints);
         return this;
     }
 

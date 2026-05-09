@@ -114,7 +114,7 @@ public class RegisteredNodeUpdateTransactionIntegrationTest {
 
             var registeredNode = registeredNodes.getFirst();
             assertThat(registeredNode.serviceEndpoints).hasSize(1);
-            assertThat(registeredNode.serviceEndpoints.getFirst() instanceof BlockNodeServiceEndpoint);
+            assertThat(registeredNode.serviceEndpoints.getFirst()).isInstanceOf(BlockNodeServiceEndpoint.class);
 
             var endpoint = (BlockNodeServiceEndpoint) registeredNode.serviceEndpoints.getFirst();
             assertThat(endpoint.getDomainName())

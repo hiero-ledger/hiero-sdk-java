@@ -92,7 +92,7 @@ public class BlockNodeServiceEndpoint extends RegisteredServiceEndpointBase<Bloc
     com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint toProtobuf() {
         if (ipAddress == null && domainName == null) {
             throw new IllegalArgumentException(
-                    "RegisterServiceEndpoint must define either an ipAddress or  domainName");
+                    "RegisteredServiceEndpoint must define either an ipAddress or a domainName");
         }
 
         var blockNodeBuilder = RegisteredServiceEndpoint.BlockNodeEndpoint.newBuilder()

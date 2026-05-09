@@ -321,16 +321,6 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
-     * Clear serviceEndpoint lists.
-     * @return {@code this}
-     */
-    public NodeUpdateTransaction clearServiceEndpoint() {
-        requireNotFrozen();
-        serviceEndpoints.clear();
-        return this;
-    }
-
-    /**
      * Extract the certificate used to sign gossip events.
      * @return the DER encoding of the certificate presented.
      */
@@ -490,7 +480,6 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      *
      * @param associatedRegisteredNodes list of associated registered node.
      * @return {@code this}
-     * @throws IllegalArgumentException if the list is empty or contains more than 8 endpoints
      */
     public NodeUpdateTransaction setAssociatedRegisteredNodes(List<Long> associatedRegisteredNodes) {
         requireNotFrozen();
@@ -519,7 +508,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Clear all registered nodes associated with this node.
      * @return {@code this}
      */
-    public NodeUpdateTransaction clearAssociatedRegisteredNode() {
+    public NodeUpdateTransaction clearAssociatedRegisteredNodes() {
         requireNotFrozen();
         associatedRegisteredNodes = new ArrayList<>();
         return this;

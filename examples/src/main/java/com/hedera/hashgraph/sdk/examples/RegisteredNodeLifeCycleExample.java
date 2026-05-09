@@ -78,7 +78,7 @@ public class RegisteredNodeLifeCycleExample {
                 .setIpAddress(new byte[] {127, 0, 0, 1})
                 .setPort(443)
                 .setRequiresTls(true)
-                .addEndpointApi(BlockNodeApi.SUBSCRIBE_STREAM);
+                .setEndpointApis(List.of(BlockNodeApi.SUBSCRIBE_STREAM, BlockNodeApi.STATUS));
 
         /*
          * Step 2:
@@ -142,6 +142,8 @@ public class RegisteredNodeLifeCycleExample {
         /*
          * Step 5:
          * Add the registeredNodeId as associatedRegisteredNodes to a Node.
+         * NOTE: This transaction must be signed by the consensus node's admin key.
+         * In this example, we assume the operator is the node admin.
          */
 
         NodeUpdateTransaction associateTx = new NodeUpdateTransaction()
@@ -160,12 +162,12 @@ public class RegisteredNodeLifeCycleExample {
 
         NodeUpdateTransaction disassociateTx = new NodeUpdateTransaction()
                 .setNodeId(0)
-                .setAssociatedRegisteredNodes(List.of()) // Empty list clear associated registeredNode
+                .clearAssociatedRegisteredNodes() // Empty list to clear associated registeredNode
                 .freezeWith(client);
 
         System.out.println("Disassociating registered node " + registeredNodeId + " with consensus node...");
-        disassociateTx.execute(client);
-        associateTxResponse.getReceipt(client);
+        TransactionResponse disassociatedTxResponse = disassociateTx.execute(client);
+        disassociatedTxResponse.getReceipt(client);
 
         /*
          * Step 7:

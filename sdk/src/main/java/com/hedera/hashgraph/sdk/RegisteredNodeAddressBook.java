@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +18,6 @@ public class RegisteredNodeAddressBook {
      */
     RegisteredNodeAddressBook(List<RegisteredNode> registeredNodes) {
         Objects.requireNonNull(registeredNodes, "registeredNodes must not be null");
-        this.registeredNodes = registeredNodes;
+        this.registeredNodes = Collections.unmodifiableList(registeredNodes);
     }
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * A transaction to create a new registered node in the network
@@ -24,7 +25,10 @@ import java.util.Objects;
  */
 public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeCreateTransaction> {
     private Key adminKey;
-    private String description = "";
+
+    @Nullable
+    private String description;
+
     private List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
 
     /**
@@ -84,7 +88,7 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      * Get short description of the node.
      * @return {@code String} the node's description
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -158,10 +162,14 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      * @return {@link com.hedera.hashgraph.sdk.proto.RegisteredNodeCreateTransactionBody}
      */
     RegisteredNodeCreateTransactionBody.Builder build() {
-        var builder = RegisteredNodeCreateTransactionBody.newBuilder().setDescription(description);
+        var builder = RegisteredNodeCreateTransactionBody.newBuilder();
 
         if (adminKey != null) {
             builder.setAdminKey(adminKey.toProtobufKey());
+        }
+
+        if (description != null) {
+            builder.setDescription(description);
         }
 
         for (RegisteredServiceEndpoint serviceEndpoint : serviceEndpoints) {

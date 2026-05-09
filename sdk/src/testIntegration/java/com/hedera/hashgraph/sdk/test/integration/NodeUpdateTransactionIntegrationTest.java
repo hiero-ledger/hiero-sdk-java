@@ -553,7 +553,7 @@ class NodeUpdateTransactionIntegrationTest {
 
             new NodeUpdateTransaction()
                     .setNodeId(0)
-                    .clearAssociatedRegisteredNode()
+                    .clearAssociatedRegisteredNodes()
                     .execute(client)
                     .getReceipt(client);
         }

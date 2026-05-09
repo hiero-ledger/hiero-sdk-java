@@ -18,7 +18,7 @@ import javax.annotation.Nonnegative;
  * Registered node identifiers SHALL only be unique within a single
  * realm and shard combination.
  */
-public class RegisteredNode {
+public final class RegisteredNode {
     /**
      * A registered node identifier.
      */
@@ -121,8 +121,7 @@ public class RegisteredNode {
      * @throws InvalidProtocolBufferException when there is an issue with the protobuf
      */
     public static RegisteredNode fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return fromProtobuf(com.hedera.hashgraph.sdk.proto.RegisteredNode.parseFrom(bytes).toBuilder()
-                .build());
+        return fromProtobuf(com.hedera.hashgraph.sdk.proto.RegisteredNode.parseFrom(bytes));
     }
 
     /**

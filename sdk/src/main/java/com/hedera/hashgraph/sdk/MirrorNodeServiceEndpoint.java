@@ -42,6 +42,11 @@ public class MirrorNodeServiceEndpoint extends RegisteredServiceEndpointBase<Mir
 
     @Override
     com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint toProtobuf() {
+        if (ipAddress == null && domainName == null) {
+            throw new IllegalArgumentException(
+                    "RegisteredServiceEndpoint must define either an ipAddress or a domainName");
+        }
+
         var registeredServiceEndpoint = com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint.newBuilder()
                 .setPort(port)
                 .setRequiresTls(requiresTls)
