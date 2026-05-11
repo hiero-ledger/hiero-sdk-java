@@ -28,7 +28,7 @@ public class RegisteredNodeAddressBookQuery {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private final int DEFAULT_LIMIT = 25;
 
-    private long registeredNodeId;
+    private long registeredNodeId = -1;
     private int limit;
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
@@ -151,6 +151,7 @@ public class RegisteredNodeAddressBookQuery {
     public RegisteredNodeAddressBook execute(Client client, Duration timeout)
             throws ExecutionException, InterruptedException {
         Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(timeout, "timeout must not be null");
         return executeAsync(client, timeout).get();
     }
 
@@ -162,8 +163,6 @@ public class RegisteredNodeAddressBookQuery {
      */
     public CompletableFuture<RegisteredNodeAddressBook> executeAsync(Client client) {
         Objects.requireNonNull(client, "client must not be null");
-        Objects.requireNonNull(client, "client must not be null");
-
         return executeAsync(client, client.getRequestTimeout());
     }
 
@@ -176,7 +175,7 @@ public class RegisteredNodeAddressBookQuery {
      */
     public CompletableFuture<RegisteredNodeAddressBook> executeAsync(Client client, Duration timeout) {
         Objects.requireNonNull(client, "client must not be null");
-        Objects.requireNonNull(client, "client must not be null");
+        Objects.requireNonNull(timeout, "timeout must not be null");
 
         return fetchAllPagesAsync(client, timeout)
                 .thenApply(registeredNodes -> new RegisteredNodeAddressBook(registeredNodes));
@@ -276,7 +275,7 @@ public class RegisteredNodeAddressBookQuery {
         limit = limit > 0 ? limit : DEFAULT_LIMIT;
         path.append("?limit=").append(limit);
 
-        if (registeredNodeId > 0) {
+        if (registeredNodeId > -1) {
             path.append("&registerednode.id=").append(registeredNodeId);
         }
 
