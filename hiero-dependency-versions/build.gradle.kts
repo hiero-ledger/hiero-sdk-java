@@ -2,7 +2,7 @@
 group = "org.hiero"
 
 val bouncycastle = "1.84"
-val grpc = "1.80.0"
+val grpc = "1.81.0"
 val protobuf = "4.34.1"
 val slf4j = "2.0.17"
 val mockito = "5.23.0"
@@ -31,7 +31,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.21.2") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.21.3") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.6.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
