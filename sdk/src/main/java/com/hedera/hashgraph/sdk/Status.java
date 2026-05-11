@@ -2087,7 +2087,47 @@ public enum Status {
     /**
      * The number of hook invocations exceeds the maximum allowed per transaction.
      */
-    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS);
+    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS),
+
+    /**
+     * A registered node ID is invalid or does not exist.
+     */
+    INVALID_REGISTERED_NODE_ID(ResponseCodeEnum.INVALID_REGISTERED_NODE_ID),
+
+    /**
+     * A registered service endpoint is invalid.<br/>
+     * The port is out of range, or the address field is not set.
+     */
+    INVALID_REGISTERED_ENDPOINT(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT),
+
+    /**
+     * The number of registered service endpoints exceeds the configured limit.
+     */
+    REGISTERED_ENDPOINTS_EXCEEDED_LIMIT(ResponseCodeEnum.REGISTERED_ENDPOINTS_EXCEEDED_LIMIT),
+
+    /**
+     * A registered service endpoint has an invalid address.<br/>
+     * The IP address length is not 4 (IPv4) or 16 (IPv6), or the
+     * domain name is not a valid ASCII FQDN.
+     */
+    INVALID_REGISTERED_ENDPOINT_ADDRESS(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT_ADDRESS),
+
+    /**
+     * A registered service endpoint does not specify an endpoint type.<br/>
+     * Exactly one of block_node, mirror_node, or rpc_relay MUST be set.
+     */
+    INVALID_REGISTERED_ENDPOINT_TYPE(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT_TYPE),
+
+    /**
+     * A registered node cannot be deleted because it is still associated
+     * with a consensus node via their associated registered node list.
+     */
+    REGISTERED_NODE_STILL_ASSOCIATED(ResponseCodeEnum.REGISTERED_NODE_STILL_ASSOCIATED),
+
+    /**
+     * The number of associated registered nodes exceeds the maximum allowed limit.
+     */
+    MAX_REGISTERED_NODES_EXCEEDED(ResponseCodeEnum.MAX_REGISTERED_NODES_EXCEEDED);
 
     final ResponseCodeEnum code;
 
@@ -2498,6 +2538,13 @@ public enum Status {
             case NODE_ACCOUNT_HAS_ZERO_BALANCE -> NODE_ACCOUNT_HAS_ZERO_BALANCE;
             case TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED -> TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED;
             case TOO_MANY_HOOK_INVOCATIONS -> TOO_MANY_HOOK_INVOCATIONS;
+            case INVALID_REGISTERED_NODE_ID -> INVALID_REGISTERED_NODE_ID;
+            case INVALID_REGISTERED_ENDPOINT -> INVALID_REGISTERED_ENDPOINT;
+            case REGISTERED_ENDPOINTS_EXCEEDED_LIMIT -> REGISTERED_ENDPOINTS_EXCEEDED_LIMIT;
+            case INVALID_REGISTERED_ENDPOINT_ADDRESS -> INVALID_REGISTERED_ENDPOINT_ADDRESS;
+            case INVALID_REGISTERED_ENDPOINT_TYPE -> INVALID_REGISTERED_ENDPOINT_TYPE;
+            case REGISTERED_NODE_STILL_ASSOCIATED -> REGISTERED_NODE_STILL_ASSOCIATED;
+            case MAX_REGISTERED_NODES_EXCEEDED -> MAX_REGISTERED_NODES_EXCEEDED;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(

@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.BlockNodeApi;
+import com.hedera.hashgraph.sdk.BlockNodeServiceEndpoint;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Endpoint;
 import com.hedera.hashgraph.sdk.Hbar;
@@ -15,6 +17,8 @@ import com.hedera.hashgraph.sdk.Key;
 import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
+import com.hedera.hashgraph.sdk.RegisteredNodeCreateTransaction;
+import com.hedera.hashgraph.sdk.RegisteredServiceEndpoint;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.HashMap;
 import java.util.List;
@@ -506,6 +510,52 @@ class NodeUpdateTransactionIntegrationTest {
 
             // Cleanup
             updateNodeAccountId(client, 0, new AccountId(0, 0, 3), List.of(newNodeAccountID));
+        }
+    }
+
+    @Test
+    @DisplayName(
+            "Given an existing consensus node and an existing registered node, when a NodeUpdateTransaction sets associatedRegisteredNodes to include the registered node id then the consensus node is updated with the association.")
+    void testNodeUpdateTransactionCanAssociateWithRegisteredNodeId() throws Exception {
+        // Set up the local network with 2 nodes
+        var network = new HashMap<String, AccountId>();
+        network.put("localhost:50211", new AccountId(0, 0, 3));
+
+        try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
+            // Set the operator to be account 0.0.2
+            var originalOperatorKey = PrivateKey.fromString(
+                    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+            client.setOperator(new AccountId(0, 0, 2), originalOperatorKey);
+
+            var registeredNodeKey = PrivateKey.generateED25519();
+            List<RegisteredServiceEndpoint> serviceEndpoints = List.of(new BlockNodeServiceEndpoint()
+                    .setDomainName("test.block.com")
+                    .setPort(443)
+                    .addEndpointApi(BlockNodeApi.STATUS));
+
+            var registeredNodeId = new RegisteredNodeCreateTransaction()
+                    .setAdminKey(registeredNodeKey)
+                    .setDescription("test description")
+                    .setServiceEndpoints(serviceEndpoints)
+                    .freezeWith(client)
+                    .sign(registeredNodeKey)
+                    .execute(client)
+                    .getReceipt(client)
+                    .registeredNodeId;
+
+            var receipt = new NodeUpdateTransaction()
+                    .setNodeId(0)
+                    .setAssociatedRegisteredNodes(List.of(registeredNodeId))
+                    .execute(client)
+                    .getReceipt(client);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+
+            new NodeUpdateTransaction()
+                    .setNodeId(0)
+                    .clearAssociatedRegisteredNodes()
+                    .execute(client)
+                    .getReceipt(client);
         }
     }
 
