@@ -12,10 +12,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Temporarily disabled. Will be enabled with PR for refactoring")
 class FeeEstimateQueryIntegrationTest {
 
-    private static final long MIRROR_SYNC_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(2);
+    private static final long MIRROR_SYNC_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(3);
 
     private IntegrationTestEnv createFeeEstimateTestEnv() throws Exception {
         var testEnv = new IntegrationTestEnv(1);
