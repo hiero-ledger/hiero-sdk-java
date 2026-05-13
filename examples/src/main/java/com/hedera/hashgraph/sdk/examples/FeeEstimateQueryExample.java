@@ -61,11 +61,9 @@ class FeeEstimateQueryExample {
         TransferTransaction tx = createTransferTransaction(client, recipientId);
         FeeEstimateResponse stateEstimate = estimateWithStateMode(client, tx);
         FeeEstimateResponse intrinsicEstimate = estimateWithIntrinsicMode(client, tx);
-        if (stateEstimate != null && intrinsicEstimate != null) {
-            compareEstimates(stateEstimate, intrinsicEstimate);
-        } else {
-            System.out.println("\n=== Skipping Comparison due to missing estimate ===");
-        }
+
+        compareEstimates(stateEstimate, intrinsicEstimate);
+
         demonstrateTokenCreationEstimate(client);
 
         client.close();
@@ -104,24 +102,19 @@ class FeeEstimateQueryExample {
     private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx) throws Exception {
         System.out.println("\n=== Estimating Fees with STATE Mode ===");
 
-        try {
-            FeeEstimateResponse stateEstimate = new FeeEstimateQuery()
-                    .setMode(FeeEstimateMode.STATE)
-                    .setTransaction(tx)
-                    .execute(client);
+        FeeEstimateQuery query = new FeeEstimateQuery()
+                .setMode(FeeEstimateMode.STATE)
+                .setTransaction(tx);
 
-            printNetworkFee(stateEstimate);
-            printNodeFee(stateEstimate);
-            printServiceFee(stateEstimate);
-            printTotalFee(stateEstimate);
-            System.out.println("\nHigh Volume Multiplier: " + stateEstimate.getHighVolumeMultiplier());
+        FeeEstimateResponse stateEstimate = executeWithRetry(query, client);
 
-            return stateEstimate;
-        } catch (IllegalStateException e) {
-            System.err.println("Failed to estimate fees with STATE mode: " + e.getMessage());
-            System.err.println("This might be due to compatibility issues with the Mirror Node version.");
-            return null;
-        }
+        printNetworkFee(stateEstimate);
+        printNodeFee(stateEstimate);
+        printServiceFee(stateEstimate);
+        printTotalFee(stateEstimate);
+        System.out.println("\nHigh Volume Multiplier: " + stateEstimate.getHighVolumeMultiplier());
+
+        return stateEstimate;
     }
 
     private static void printNetworkFee(FeeEstimateResponse estimate) {
@@ -161,10 +154,11 @@ class FeeEstimateQueryExample {
             throws Exception {
         System.out.println("\n=== Estimating Fees with INTRINSIC Mode ===");
 
-        FeeEstimateResponse intrinsicEstimate = new FeeEstimateQuery()
+        FeeEstimateQuery query = new FeeEstimateQuery()
                 .setMode(FeeEstimateMode.INTRINSIC)
-                .setTransaction(tx)
-                .execute(client);
+                .setTransaction(tx);
+
+        FeeEstimateResponse intrinsicEstimate = executeWithRetry(query, client);
 
         System.out.println(
                 "Network Fee Subtotal: " + intrinsicEstimate.getNetwork().getSubtotal() + " tinycents");
@@ -197,16 +191,33 @@ class FeeEstimateQueryExample {
                 .freezeWith(client)
                 .signWithOperator(client);
 
-        try {
-            FeeEstimateResponse tokenEstimate = new FeeEstimateQuery()
-                    .setMode(FeeEstimateMode.STATE)
-                    .setTransaction(tokenTx)
-                    .execute(client);
+        FeeEstimateQuery query = new FeeEstimateQuery()
+                .setMode(FeeEstimateMode.STATE)
+                .setTransaction(tokenTx);
 
-            System.out.println("Token Creation Estimated Fee:  " + tokenEstimate.getTotal() + " tinycents");
-            System.out.println("Token Creation Estimated Fee: " + Hbar.fromTinybars(tokenEstimate.getTotal() / 100));
-        } catch (IllegalStateException e) {
-            System.err.println("Failed to estimate token creation fees: " + e.getMessage());
+        FeeEstimateResponse tokenEstimate = executeWithRetry(query, client);
+
+        System.out.println("Token Creation Estimated Fee:  " + tokenEstimate.getTotal() + " tinycents");
+        System.out.println("Token Creation Estimated Fee: " + Hbar.fromTinybars(tokenEstimate.getTotal() / 100));
+    }
+
+    private static FeeEstimateResponse executeWithRetry(FeeEstimateQuery query, Client client) throws Exception {
+        int maxAttempts = 5;
+        int waitMillis = 2000;
+        IllegalStateException lastException = null;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return query.execute(client);
+            } catch (IllegalStateException e) {
+                lastException = e;
+                System.err.println("Attempt " + attempt + " failed: " + e.getMessage());
+                if (attempt < maxAttempts) {
+                    System.out.println("Waiting " + (waitMillis / 1000) + " seconds before retry...");
+                    Thread.sleep(waitMillis);
+                }
+            }
         }
+        throw new RuntimeException("Failed to execute FeeEstimateQuery after " + maxAttempts + " attempts", lastException);
     }
 }
