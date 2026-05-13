@@ -45,7 +45,8 @@ dependencies.constraints {
 
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
 
-    // Temporary override
+    // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
+    // TO BE removed when spring-boot-dependencies gets updated
     api("org.apache.tomcat.embed:tomcat-embed-core:11.0.22")
 
     tasks.checkVersionConsistency {
