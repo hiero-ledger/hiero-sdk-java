@@ -2835,6 +2835,8 @@ public class ContractFunctionParametersIntegrationTest {
     void canCallContractFunctionInt200Max() throws Exception {
         BigInteger int200Max = new BigInteger("803469022129495137770981046170581301261101496891396417650687");
 
+        Thread.sleep(10); // Avoid DUPLICATE_TRANSACTION
+
         var response = new ContractCallQuery()
                 .setContractId(contractId)
                 .setGas(30_000)
