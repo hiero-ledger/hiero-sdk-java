@@ -3,11 +3,25 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.proto.*;
+import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
+import com.hedera.hashgraph.sdk.proto.SignatureMap;
+import com.hedera.hashgraph.sdk.proto.SignaturePair;
+import com.hedera.hashgraph.sdk.proto.SignedTransaction;
+import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionList;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -118,6 +132,8 @@ public abstract class Transaction<T extends Transaction<T>>
 
     private String memo = "";
 
+    private boolean highVolume = false;
+
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
     private Key batchKey = null;
@@ -142,6 +158,7 @@ public abstract class Transaction<T extends Transaction<T>>
         setTransactionValidDuration(DEFAULT_TRANSACTION_VALID_DURATION);
         setMaxTransactionFee(Hbar.fromTinybars(txBody.getTransactionFee()));
         setTransactionMemo(txBody.getMemo());
+        setHighVolume(txBody.getHighVolume());
 
         sourceTransactionBody = txBody;
     }
@@ -168,6 +185,12 @@ public abstract class Transaction<T extends Transaction<T>>
         } else {
             var txCount = txs.keySet().size();
             var nodeCount = txs.values().iterator().next().size();
+            // Reject multiple transaction chunks for non-chunked types
+            if (txCount > 1 && !(this instanceof ChunkedTransaction)) {
+                throw new IllegalArgumentException(
+                        "Non-chunked transaction cannot contain multiple transaction chunks (found " + txCount
+                                + " chunks). Only ChunkedTransaction types may have multiple chunks.");
+            }
 
             nodeAccountIds.ensureCapacity(nodeCount);
             sigPairLists = new ArrayList<>(nodeCount * txCount);
@@ -225,6 +248,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 DurationConverter.fromProtobuf(sourceTransactionBody.getTransactionValidDuration()));
         setMaxTransactionFee(Hbar.fromTinybars(sourceTransactionBody.getTransactionFee()));
         setTransactionMemo(sourceTransactionBody.getMemo());
+        setHighVolume(sourceTransactionBody.getHighVolume());
 
         this.customFeeLimits = sourceTransactionBody.getMaxCustomFeesList().stream()
                 .map(CustomFeeLimit::fromProtobuf)
@@ -415,6 +439,9 @@ public abstract class Transaction<T extends Transaction<T>>
             case CRYPTODELETEALLOWANCE -> new AccountAllowanceDeleteTransaction(txs);
             case ATOMIC_BATCH -> new BatchTransaction(txs);
             case HOOK_STORE -> new HookStoreTransaction(txs);
+            case REGISTEREDNODECREATE -> new RegisteredNodeCreateTransaction(txs);
+            case REGISTEREDNODEUPDATE -> new RegisteredNodeUpdateTransaction(txs);
+            case REGISTEREDNODEDELETE -> new RegisteredNodeDeleteTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }
@@ -565,11 +592,20 @@ public abstract class Transaction<T extends Transaction<T>>
                 new TokenCancelAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
                         .build());
             case TOKENCLAIMAIRDROP ->
-                new TokenClaimAirdropTransaction(body.setTokenCancelAirdrop(scheduled.getTokenCancelAirdrop())
+                new TokenClaimAirdropTransaction(body.setTokenClaimAirdrop(scheduled.getTokenClaimAirdrop())
                         .build());
             case SCHEDULEDELETE ->
                 new ScheduleDeleteTransaction(
                         body.setScheduleDelete(scheduled.getScheduleDelete()).build());
+            case REGISTEREDNODECREATE ->
+                new RegisteredNodeCreateTransaction(body.setRegisteredNodeCreate(scheduled.getRegisteredNodeCreate())
+                        .build());
+            case REGISTEREDNODEUPDATE ->
+                new RegisteredNodeUpdateTransaction(body.setRegisteredNodeUpdate(scheduled.getRegisteredNodeUpdate())
+                        .build());
+            case REGISTEREDNODEDELETE ->
+                new RegisteredNodeDeleteTransaction(body.setRegisteredNodeDelete(scheduled.getRegisteredNodeDelete())
+                        .build());
             default -> throw new IllegalStateException("schedulable transaction did not have a transaction set");
         };
     }
@@ -835,6 +871,30 @@ public abstract class Transaction<T extends Transaction<T>>
         requireNotFrozen();
         Objects.requireNonNull(memo);
         this.memo = memo;
+        // noinspection unchecked
+        return (T) this;
+    }
+
+    /**
+     * Extract the high-volume flag.
+     *
+     * @return true if high-volume throttles are enabled, false otherwise
+     */
+    public final boolean getHighVolume() {
+        return highVolume;
+    }
+
+    /**
+     * If set to true, this transaction uses high-volume throttles and pricing
+     * for entity creation. It only affects supported transaction types; otherwise,
+     * it is ignored.
+     *
+     * @param highVolume true to enable high-volume throttles, false otherwise
+     * @return {@code this}
+     */
+    public final T setHighVolume(boolean highVolume) {
+        requireNotFrozen();
+        this.highVolume = highVolume;
         // noinspection unchecked
         return (T) this;
     }
@@ -1129,6 +1189,7 @@ public abstract class Transaction<T extends Transaction<T>>
         publicKeys.add(publicKey);
         signers.add(null);
         sigPairLists.get(0).addSigPair(publicKey.toSignaturePairProtobuf(signature));
+        innerSignedTransactions.get(0).setSigMap(sigPairLists.get(0));
 
         // noinspection unchecked
         return (T) this;
@@ -1215,7 +1276,8 @@ public abstract class Transaction<T extends Transaction<T>>
                 .setTransactionValidDuration(DurationConverter.toProtobuf(transactionValidDuration).toBuilder())
                 .addAllMaxCustomFees(
                         customFeeLimits.stream().map(CustomFeeLimit::toProtobuf).collect(Collectors.toList()))
-                .setMemo(memo);
+                .setMemo(memo)
+                .setHighVolume(highVolume);
         if (batchKey != null) {
             builder.setBatchKey(batchKey.toProtobufKey());
         }
@@ -1545,6 +1607,20 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
+     * Create a {@link FeeEstimateQuery} pre-populated with this transaction.
+     * <p>
+     * This is a convenience method equivalent to:
+     * <pre>{@code
+     * new FeeEstimateQuery().setTransaction(transaction)
+     * }</pre>
+     *
+     * @return a new FeeEstimateQuery with this transaction set
+     */
+    public FeeEstimateQuery estimateFee() {
+        return new FeeEstimateQuery().setTransaction(this);
+    }
+
+    /**
      * This method retrieves the size of the transaction
      * @return
      */
@@ -1747,6 +1823,7 @@ public abstract class Transaction<T extends Transaction<T>>
         // Add the signature to the signature map
         SignaturePair newSigPair = publicKey.toSignaturePairProtobuf(signature);
         sigMapBuilder.addSigPair(newSigPair);
+        innerSignedTransactions.get(index).setSigMap(sigMapBuilder);
 
         return true;
     }

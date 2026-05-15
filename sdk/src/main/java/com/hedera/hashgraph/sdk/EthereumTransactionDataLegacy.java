@@ -124,6 +124,7 @@ public class EthereumTransactionDataLegacy extends EthereumTransactionData {
         return RLPEncoder.list(nonce, gasPrice, gasLimit, to, value, callData, v, r, s);
     }
 
+    @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("chainId", Hex.toHexString(this.chainId))

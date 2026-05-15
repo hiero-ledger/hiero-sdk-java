@@ -306,8 +306,6 @@ class MockingTest {
                 .setNodeAccountIds(List.of(AccountId.fromString("0.0.3")))
                 .freeze();
 
-        var properlySignedTx = makeTx.get().sign(privateKey);
-        var improperlySignedTx = makeTx.get().sign(otherPrivateKey);
         var properBigBytesSignature = privateKey.sign(BIG_BYTES);
         var improperBigBytesSignature = otherPrivateKey.sign(BIG_BYTES);
 
@@ -331,19 +329,10 @@ class MockingTest {
                     .build()));
         }
 
-        Assertions.assertTrue(AccountInfoFlow.verifyTransactionSignature(server.client, accountId, properlySignedTx));
-        Assertions.assertFalse(
-                AccountInfoFlow.verifyTransactionSignature(server.client, accountId, improperlySignedTx));
         Assertions.assertTrue(
                 AccountInfoFlow.verifySignature(server.client, accountId, BIG_BYTES, properBigBytesSignature));
         Assertions.assertFalse(
                 AccountInfoFlow.verifySignature(server.client, accountId, BIG_BYTES, improperBigBytesSignature));
-        Assertions.assertTrue(
-                AccountInfoFlow.verifyTransactionSignatureAsync(server.client, accountId, properlySignedTx)
-                        .get());
-        Assertions.assertFalse(
-                AccountInfoFlow.verifyTransactionSignatureAsync(server.client, accountId, improperlySignedTx)
-                        .get());
         Assertions.assertTrue(
                 AccountInfoFlow.verifySignatureAsync(server.client, accountId, BIG_BYTES, properBigBytesSignature)
                         .get());
@@ -351,8 +340,8 @@ class MockingTest {
                 AccountInfoFlow.verifySignatureAsync(server.client, accountId, BIG_BYTES, improperBigBytesSignature)
                         .get());
 
-        Assertions.assertEquals(16, cryptoService.buffer.queryRequestsReceived.size());
-        for (int i = 0; i < 16; i += 2) {
+        Assertions.assertEquals(8, cryptoService.buffer.queryRequestsReceived.size());
+        for (int i = 0; i < 8; i += 2) {
             var costQueryRequest = cryptoService.buffer.queryRequestsReceived.get(i);
             var queryRequest = cryptoService.buffer.queryRequestsReceived.get(i + 1);
 
@@ -368,6 +357,60 @@ class MockingTest {
                     AccountId.fromProtobuf(queryRequest.getCryptoGetInfo().getAccountID()));
         }
         server.close();
+    }
+
+    @Test
+    void testVerifyTransactionFail() throws InvalidProtocolBufferException {
+        var key = PrivateKey.generateED25519();
+        var bogusSignature = new byte[64];
+
+        var serialized = new TokenMintTransaction()
+                .setTokenId(TokenId.fromString("1.2.3"))
+                .setAmount(5)
+                .setTransactionId(TransactionId.generate(AccountId.fromString("1.2.4")))
+                .setNodeAccountIds(List.of(AccountId.fromString("0.0.3")))
+                .freeze()
+                .addSignature(key.getPublicKey(), bogusSignature)
+                .toBytes();
+
+        var signedTransaction = SignedTransaction.parseFrom(
+                com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(serialized).getSignedTransactionBytes());
+        com.hedera.hashgraph.sdk.Transaction<?> roundTrip = com.hedera.hashgraph.sdk.Transaction.fromBytes(serialized);
+
+        boolean rawVerify =
+                key.getPublicKey().verify(signedTransaction.getBodyBytes().toByteArray(), bogusSignature);
+        boolean txVerify = key.getPublicKey().verifyTransaction(roundTrip);
+
+        Assertions.assertFalse(rawVerify);
+        Assertions.assertFalse(txVerify);
+    }
+
+    @Test
+    void testVerifyTransactionFailSpecificNode() throws InvalidProtocolBufferException {
+        var key = PrivateKey.generateED25519();
+        var bogusSignature = new byte[64];
+        TransactionId transactionId = TransactionId.generate(AccountId.fromString("1.2.4"));
+        List<AccountId> nodeId = List.of(AccountId.fromString("0.0.3"));
+
+        var serialized = new TokenMintTransaction()
+                .setTokenId(TokenId.fromString("1.2.3"))
+                .setAmount(5)
+                .setTransactionId(transactionId)
+                .setNodeAccountIds(nodeId)
+                .freeze()
+                .addSignature(key.getPublicKey(), bogusSignature, transactionId, nodeId.getFirst())
+                .toBytes();
+
+        var signedTransaction = SignedTransaction.parseFrom(
+                com.hedera.hashgraph.sdk.proto.Transaction.parseFrom(serialized).getSignedTransactionBytes());
+        com.hedera.hashgraph.sdk.Transaction<?> roundTrip = com.hedera.hashgraph.sdk.Transaction.fromBytes(serialized);
+
+        boolean rawVerify =
+                key.getPublicKey().verify(signedTransaction.getBodyBytes().toByteArray(), bogusSignature);
+        boolean txVerify = key.getPublicKey().verifyTransaction(roundTrip);
+
+        Assertions.assertFalse(rawVerify);
+        Assertions.assertFalse(txVerify);
     }
 
     @Test

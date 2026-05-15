@@ -169,12 +169,6 @@ public abstract class PublicKey extends Key {
             transaction.freeze();
         }
 
-        for (var publicKey : transaction.publicKeys) {
-            if (publicKey.equals(this)) {
-                return true;
-            }
-        }
-
         for (var signedTransaction : transaction.innerSignedTransactions) {
             var found = false;
 

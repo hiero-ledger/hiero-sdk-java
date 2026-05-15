@@ -57,7 +57,7 @@ class StatusTest {
             {Status.HOOKS_NOT_ENABLED, ResponseCodeEnum.HOOKS_NOT_ENABLED},
             {Status.HOOK_IS_NOT_AN_EVM_HOOK, ResponseCodeEnum.HOOK_IS_NOT_AN_EVM_HOOK},
             {Status.HOOK_DELETED, ResponseCodeEnum.HOOK_DELETED},
-            {Status.TOO_MANY_LAMBDA_STORAGE_UPDATES, ResponseCodeEnum.TOO_MANY_LAMBDA_STORAGE_UPDATES},
+            {Status.TOO_MANY_EVM_HOOK_STORAGE_UPDATES, ResponseCodeEnum.TOO_MANY_EVM_HOOK_STORAGE_UPDATES},
             {
                 Status.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION,
                 ResponseCodeEnum.HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION

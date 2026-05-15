@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-package com.hedera.hashgraph.tck.methods.sdk.response;
+package com.hedera.hashgraph.tck.methods.sdk.response.schedule;
 
 import com.hedera.hashgraph.sdk.Status;
 import lombok.Data;

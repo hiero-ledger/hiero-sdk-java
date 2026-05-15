@@ -31,7 +31,7 @@ message EvmHookState {
   proto.HookId hook_id = 1;
 
   /**
-   * The type of the hook.
+   * The type of the EVM hook.
    */
   HookType type = 2;
 
@@ -47,8 +47,7 @@ message EvmHookState {
 
   /**
    * If set, a key that that can be used to remove or replace the hook; or (if
-   * applicable, as with an EVM hook) perform transactions that customize
-   * the hook.
+   * applicable, as with an EVM hook) perform transactions that customize the hook.
    */
   proto.Key admin_key = 5;
 
@@ -91,6 +90,7 @@ enum HookType {
 
 /**
  * The key of an EVM hook's storage slot.
+ *
  * For each EVM hook, its storage is a mapping of 256-bit keys (or "words")
  * to 256-bit values.
  */

@@ -6,9 +6,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hedera.hashgraph.sdk.proto.AccountAmount;
+import com.hedera.hashgraph.sdk.proto.AccountID;
+import com.hedera.hashgraph.sdk.proto.CryptoTransferTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
+import com.hedera.hashgraph.sdk.proto.Timestamp;
 import com.hedera.hashgraph.sdk.proto.TokenAssociateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionID;
+import com.hedera.hashgraph.sdk.proto.TransactionList;
+import com.hedera.hashgraph.sdk.proto.TransferList;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -555,6 +562,62 @@ public class TransactionTest {
     }
 
     @Test
+    @DisplayName("fromBytes rejects multi-group TransactionList for non-chunked types")
+    void fromBytesRejectsMultiGroupNonChunkedTransaction() {
+        // Build two CryptoTransfer chunks with different TransactionIds and amounts
+        var txId1 = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158542))
+                .build();
+        var txId2 = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158543))
+                .build();
+
+        var fistTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-1))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(1)))
+                .build();
+
+        var maliciousTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-100_000_000_000L))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(100_000_000_000L)))
+                .build();
+
+        var list = TransactionList.newBuilder();
+        for (var txId : List.of(txId1, txId2)) {
+            var transfer = txId == txId1 ? fistTransfer : maliciousTransfer;
+            for (var nodeNum : List.of(5005L, 5006L)) {
+                var body = TransactionBody.newBuilder()
+                        .setTransactionID(txId)
+                        .setNodeAccountID(AccountID.newBuilder().setAccountNum(nodeNum))
+                        .setTransactionFee(100_000_000L)
+                        .setCryptoTransfer(transfer)
+                        .build();
+                var signed = SignedTransaction.newBuilder()
+                        .setBodyBytes(body.toByteString())
+                        .build();
+                list.addTransactionList(com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                        .setSignedTransactionBytes(signed.toByteString())
+                        .build());
+            }
+        }
+
+        byte[] payload = list.build().toByteArray();
+        assertThrows(IllegalArgumentException.class, () -> Transaction.fromBytes(payload));
+    }
+
+    @Test
     @DisplayName("GetSignableNodeBodyBytesList - FileAppend Multiple Chunks")
     void testGetSignableNodeBodyBytesListFileAppendMultipleChunks() throws InvalidProtocolBufferException {
         byte[] content = new byte[4096];
@@ -617,5 +680,67 @@ public class TransactionTest {
                         .isTrue();
             }
         }
+    }
+
+    @Test
+    void highVolumeDefaultsToFalse() {
+        var transaction = new AccountCreateTransaction();
+
+        assertThat(transaction.getHighVolume()).isFalse();
+    }
+
+    @Test
+    void highVolumeCanBeSerialized() throws InvalidProtocolBufferException {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setHighVolume(true);
+
+        var transactionFromBytes = Transaction.fromBytes(transaction.toBytes());
+
+        assertThat(transactionFromBytes).isInstanceOf(AccountCreateTransaction.class);
+        assertThat(((AccountCreateTransaction) transactionFromBytes).getHighVolume())
+                .isTrue();
+    }
+
+    @Test
+    void highVolumeCannotChangeAfterFreeze() {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .freeze();
+
+        assertThrows(IllegalStateException.class, () -> transaction.setHighVolume(true));
+    }
+
+    @Test
+    void highVolumeIsIncludedInProtobufOutput() throws InvalidProtocolBufferException {
+        var transaction = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .setHighVolume(true)
+                .freeze();
+
+        List<Transaction.SignableNodeTransactionBodyBytes> signableBodies = transaction.getSignableNodeBodyBytesList();
+        assertThat(signableBodies).isNotEmpty();
+
+        // Parse the first body and verify high_volume is set
+        TransactionBody body = TransactionBody.parseFrom(signableBodies.get(0).getBody());
+        assertThat(body.getHighVolume()).isTrue();
+
+        // Test with highVolume set to false
+        var transactionFalse = new AccountCreateTransaction()
+                .setKey(PrivateKey.generateED25519())
+                .setTransactionId(testTransactionID)
+                .setNodeAccountIds(testNodeAccountIds)
+                .setHighVolume(false)
+                .freeze();
+
+        List<Transaction.SignableNodeTransactionBodyBytes> signableBodiesFalse =
+                transactionFalse.getSignableNodeBodyBytesList();
+        TransactionBody bodyFalse =
+                TransactionBody.parseFrom(signableBodiesFalse.get(0).getBody());
+        assertThat(bodyFalse.getHighVolume()).isFalse();
     }
 }

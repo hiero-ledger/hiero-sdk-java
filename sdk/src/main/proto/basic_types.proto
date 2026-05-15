@@ -867,6 +867,11 @@ enum SubType {
      * for a topic with custom fees.
      */
     SUBMIT_MESSAGE_WITH_CUSTOM_FEES = 7;
+
+    /**
+     * The resource cost for the transaction type that includes a CryptoTransfer with hook invocations
+     */
+    CRYPTO_TRANSFER_WITH_HOOKS = 8;
 }
 
 /**
@@ -1835,7 +1840,6 @@ enum HederaFunctionality {
     AtomicBatch = 108;
 
     /**
-     * Update one or more storage slots in an lambda EVM hook.
      * (DEPRECATED) Remove once no production throttle assets reference it.
      */
     LambdaSStore = 109;
@@ -1849,6 +1853,26 @@ enum HederaFunctionality {
      * Update one or more storage slots in an EVM hook.
      */
     HookStore = 111;
+
+    /**
+     * (Internal-only) Publish a new ledger id and chain-of-trust key.
+     */
+    LedgerIdPublication = 112;
+
+    /**
+     * Create a registered node
+     */
+    RegisteredNodeCreate = 113;
+
+    /**
+     * Update a registered node
+     */
+    RegisteredNodeUpdate = 114;
+
+    /**
+     * Delete a registered node
+     */
+    RegisteredNodeDelete = 115;
 }
 
 /**

@@ -29,8 +29,10 @@ public class TopicInfoTest {
 
     private static final byte[] hash = {2};
 
-    private static final List<CustomFixedFee> customFees =
-            List.of(new CustomFixedFee().setAmount(100).setDenominatingTokenId(new TokenId(0, 0, 0)));
+    private static final List<CustomFixedFee> customFees = List.of(new CustomFixedFee()
+            .setAmount(100)
+            .setFeeCollectorAccountId(new AccountId(0, 0, 3))
+            .setDenominatingTokenId(new TokenId(0, 0, 0)));
 
     private static final ConsensusGetTopicInfoResponse info = ConsensusGetTopicInfoResponse.newBuilder()
             .setTopicInfo(ConsensusTopicInfo.newBuilder()

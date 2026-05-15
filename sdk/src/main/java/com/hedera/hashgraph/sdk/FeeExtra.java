@@ -15,12 +15,12 @@ public final class FeeExtra {
     /**
      * The charged count of items as calculated by max(0, count - included).
      */
-    private final int charged;
+    private final long charged;
 
     /**
      * The actual count of items received.
      */
-    private final int count;
+    private final long count;
 
     /**
      * The fee price per unit in tinycents.
@@ -30,7 +30,7 @@ public final class FeeExtra {
     /**
      * The count of this "extra" that is included for free.
      */
-    private final int included;
+    private final long included;
 
     /**
      * The unique name of this extra fee as defined in the fee schedule.
@@ -55,7 +55,7 @@ public final class FeeExtra {
      * @param name       the unique name of this extra fee
      * @param subtotal   the subtotal in tinycents
      */
-    FeeExtra(int charged, int count, long feePerUnit, int included, @Nullable String name, long subtotal) {
+    FeeExtra(long charged, long count, long feePerUnit, long included, @Nullable String name, long subtotal) {
         this.charged = charged;
         this.count = count;
         this.feePerUnit = feePerUnit;
@@ -71,10 +71,10 @@ public final class FeeExtra {
      * @return the new FeeExtra
      */
     static FeeExtra fromJson(com.google.gson.JsonObject feeExtra) {
-        int charged = getInt(feeExtra, "charged");
-        int count = getInt(feeExtra, "count");
+        long charged = getLong(feeExtra, "charged");
+        long count = getLong(feeExtra, "count");
         long feePerUnit = getLong(feeExtra, "fee_per_unit");
-        int included = getInt(feeExtra, "included");
+        long included = getLong(feeExtra, "included");
         String name = feeExtra.has("name") && !feeExtra.get("name").isJsonNull()
                 ? feeExtra.get("name").getAsString()
                 : null;
@@ -88,7 +88,7 @@ public final class FeeExtra {
      *
      * @return the charged count of items
      */
-    public int getCharged() {
+    public long getCharged() {
         return charged;
     }
 
@@ -97,7 +97,7 @@ public final class FeeExtra {
      *
      * @return the actual count of items
      */
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
@@ -115,7 +115,7 @@ public final class FeeExtra {
      *
      * @return the count included for free
      */
-    public int getIncluded() {
+    public long getIncluded() {
         return included;
     }
 
@@ -169,10 +169,6 @@ public final class FeeExtra {
     @Override
     public int hashCode() {
         return Objects.hash(charged, count, feePerUnit, included, name, subtotal);
-    }
-
-    private static int getInt(com.google.gson.JsonObject object, String key) {
-        return object.get(key).getAsInt();
     }
 
     private static long getLong(com.google.gson.JsonObject object, String key) {

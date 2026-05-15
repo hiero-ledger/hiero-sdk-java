@@ -119,6 +119,16 @@ public final class TransactionReceipt {
     public final long nodeId;
 
     /**
+     * The identifier of a newly created RegisteredNode.
+     * <p>
+     * This value SHALL be set following a `createRegisteredNode`
+     * transaction.<br/>
+     * This value SHALL NOT be set following any other transaction.<br/>
+     * This value SHALL be unique within a given network.
+     */
+    public final long registeredNodeId;
+
+    /**
      * The receipts of processing all transactions with the given id, in consensus time order.
      */
     public final List<TransactionReceipt> duplicates;
@@ -146,6 +156,7 @@ public final class TransactionReceipt {
             @Nullable TransactionId scheduledTransactionId,
             List<Long> serials,
             long nodeId,
+            long registeredNodeId,
             List<TransactionReceipt> duplicates,
             List<TransactionReceipt> children) {
         this.transactionId = transactionId;
@@ -164,6 +175,7 @@ public final class TransactionReceipt {
         this.scheduledTransactionId = scheduledTransactionId;
         this.serials = serials;
         this.nodeId = nodeId;
+        this.registeredNodeId = registeredNodeId;
         this.duplicates = duplicates;
         this.children = children;
     }
@@ -218,6 +230,8 @@ public final class TransactionReceipt {
 
         var nodeId = transactionReceipt.getNodeId();
 
+        var registeredNodeId = transactionReceipt.getRegisteredNodeId();
+
         return new TransactionReceipt(
                 transactionId,
                 status,
@@ -235,6 +249,7 @@ public final class TransactionReceipt {
                 scheduledTransactionId,
                 serials,
                 nodeId,
+                registeredNodeId,
                 duplicates,
                 children);
     }
@@ -345,6 +360,8 @@ public final class TransactionReceipt {
 
         transactionReceiptBuilder.setNodeId(nodeId);
 
+        transactionReceiptBuilder.setRegisteredNodeId(registeredNodeId);
+
         return transactionReceiptBuilder.build();
     }
 
@@ -367,6 +384,7 @@ public final class TransactionReceipt {
                 .add("scheduledTransactionId", scheduledTransactionId)
                 .add("serials", serials)
                 .add("nodeId", nodeId)
+                .add("registeredNodeId", registeredNodeId)
                 .add("duplicates", duplicates)
                 .add("children", children)
                 .toString();

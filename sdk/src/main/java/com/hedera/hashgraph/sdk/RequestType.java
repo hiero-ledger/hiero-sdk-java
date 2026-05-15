@@ -507,12 +507,14 @@ public enum RequestType {
     ATOMIC_BATCH(HederaFunctionality.AtomicBatch),
 
     /**
-     * Update one or more storage slots in an lambda EVM hook.
-     *
-     * @deprecated Use {@link #HOOK_STORE} instead.
+     * (DEPRECATED) Remove once no production throttle assets reference it.
      */
-    @Deprecated
     LAMBDA_S_STORE(HederaFunctionality.LambdaSStore),
+
+    /**
+     * (Internal-only) Dispatch a hook action.
+     */
+    HOOK_DISPATCH(HederaFunctionality.HookDispatch),
 
     /**
      * Update one or more storage slots in an EVM hook.
@@ -520,9 +522,24 @@ public enum RequestType {
     HOOK_STORE(HederaFunctionality.HookStore),
 
     /**
-     * (Internal-only) Dispatch a hook action.
+     * (Internal-only) Publish a new ledger id and chain-of-trust key.
      */
-    HOOK_DISPATCH(HederaFunctionality.HookDispatch);
+    LEDGER_ID_PUBLICATION(HederaFunctionality.LedgerIdPublication),
+
+    /**
+     * Create a registered node
+     */
+    REGISTERED_NODE_CREATE(HederaFunctionality.RegisteredNodeCreate),
+
+    /**
+     * Update a registered node
+     */
+    REGISTERED_NODE_UPDATE(HederaFunctionality.RegisteredNodeUpdate),
+
+    /**
+     * Delete a registered node
+     */
+    REGISTERED_NODE_DELETE(HederaFunctionality.RegisteredNodeDelete);
 
     final HederaFunctionality code;
 
@@ -624,8 +641,12 @@ public enum RequestType {
             case CrsPublication -> CRS_PUBLICATION;
             case AtomicBatch -> ATOMIC_BATCH;
             case LambdaSStore -> LAMBDA_S_STORE;
-            case HookStore -> HOOK_STORE;
             case HookDispatch -> HOOK_DISPATCH;
+            case HookStore -> HOOK_STORE;
+            case LedgerIdPublication -> LEDGER_ID_PUBLICATION;
+            case RegisteredNodeCreate -> REGISTERED_NODE_CREATE;
+            case RegisteredNodeUpdate -> REGISTERED_NODE_UPDATE;
+            case RegisteredNodeDelete -> REGISTERED_NODE_DELETE;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -725,8 +746,12 @@ public enum RequestType {
             case CRS_PUBLICATION -> "CRS_PUBLICATION";
             case ATOMIC_BATCH -> "ATOMIC_BATCH";
             case LAMBDA_S_STORE -> "LAMBDA_S_STORE";
-            case HOOK_STORE -> "HOOK_STORE";
             case HOOK_DISPATCH -> "HOOK_DISPATCH";
+            case HOOK_STORE -> "HOOK_STORE";
+            case LEDGER_ID_PUBLICATION -> "LEDGER_ID_PUBLICATION";
+            case REGISTERED_NODE_CREATE -> "REGISTERED_NODE_CREATE";
+            case REGISTERED_NODE_UPDATE -> "REGISTERED_NODE_UPDATE";
+            case REGISTERED_NODE_DELETE -> "REGISTERED_NODE_DELETE";
         };
     }
 }

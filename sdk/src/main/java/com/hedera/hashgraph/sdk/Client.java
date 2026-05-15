@@ -25,7 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -74,6 +81,7 @@ public final class Client implements AutoCloseable {
     private volatile Duration minBackoff = DEFAULT_MIN_BACKOFF;
     private boolean autoValidateChecksums = false;
     private boolean defaultRegenerateTransactionId = true;
+    private boolean allowReceiptNodeFailover = false;
     private final boolean shouldShutdownExecutor;
     private final long shard;
     private final long realm;
@@ -1296,6 +1304,15 @@ public final class Client implements AutoCloseable {
     }
 
     /**
+     * Should node failover be enabled
+     *
+     * @return the node failover mode
+     */
+    public synchronized boolean isAllowReceiptNodeFailover() {
+        return allowReceiptNodeFailover;
+    }
+
+    /**
      * Assign the default regenerate transaction id.
      *
      * @param regenerateTransactionId should there be a regenerated transaction id
@@ -1303,6 +1320,21 @@ public final class Client implements AutoCloseable {
      */
     public synchronized Client setDefaultRegenerateTransactionId(boolean regenerateTransactionId) {
         this.defaultRegenerateTransactionId = regenerateTransactionId;
+        return this;
+    }
+
+    /**
+     * Enable or disable receipt query failover to other nodes when the submitting node
+     * is unresponsive. When enabled, receipt queries will start with the submitting node
+     * but can fail over to other nodes in the network if needed.
+     * Default is `false` to preserve existing behavior where receipt queries are pinned
+     * to the submitting node only.
+     *
+     * @param allowReceiptNodeFailover should node failover be enabled
+     * @return {@code this}
+     */
+    public synchronized Client setAllowReceiptNodeFailover(boolean allowReceiptNodeFailover) {
+        this.allowReceiptNodeFailover = allowReceiptNodeFailover;
         return this;
     }
 

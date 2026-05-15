@@ -192,6 +192,17 @@ public final class TransactionRecord {
      */
     public final List<PendingAirdropRecord> pendingAirdropRecords;
 
+    /**
+     * A pricing multiplier for high-volume entity creation.
+     * <p>
+     * If the transaction that produced this record was flagged as
+     * high-volume, this field SHALL contain the pricing multiplier
+     * applied to the transaction fee.<br/>
+     * If the transaction was not flagged as high-volume, this field
+     * SHALL be zero.
+     */
+    public final long highVolumePricingMultiplier;
+
     TransactionRecord(
             TransactionReceipt transactionReceipt,
             ByteString transactionHash,
@@ -216,7 +227,8 @@ public final class TransactionRecord {
             @Nullable ByteString prngBytes,
             @Nullable Integer prngNumber,
             ByteString evmAddress,
-            List<PendingAirdropRecord> pendingAirdropRecords) {
+            List<PendingAirdropRecord> pendingAirdropRecords,
+            long highVolumePricingMultiplier) {
         this.receipt = transactionReceipt;
         this.transactionHash = transactionHash;
         this.consensusTimestamp = consensusTimestamp;
@@ -244,6 +256,7 @@ public final class TransactionRecord {
         this.prngBytes = prngBytes;
         this.prngNumber = prngNumber;
         this.evmAddress = evmAddress;
+        this.highVolumePricingMultiplier = highVolumePricingMultiplier;
     }
 
     /**
@@ -345,7 +358,8 @@ public final class TransactionRecord {
                 transactionRecord.hasPrngBytes() ? transactionRecord.getPrngBytes() : null,
                 transactionRecord.hasPrngNumber() ? transactionRecord.getPrngNumber() : null,
                 transactionRecord.getEvmAddress(),
-                pendingAirdropRecords);
+                pendingAirdropRecords,
+                transactionRecord.getHighVolumePricingMultiplier());
     }
 
     /**
@@ -475,6 +489,8 @@ public final class TransactionRecord {
             }
         }
 
+        transactionRecord.setHighVolumePricingMultiplier(highVolumePricingMultiplier);
+
         return transactionRecord.build();
     }
 
@@ -504,6 +520,7 @@ public final class TransactionRecord {
                 .add("prngNumber", prngNumber)
                 .add("evmAddress", Hex.toHexString(evmAddress.toByteArray()))
                 .add("pendingAirdropRecords", pendingAirdropRecords.toString())
+                .add("highVolumePricingMultiplier", highVolumePricingMultiplier)
                 .toString();
     }
 

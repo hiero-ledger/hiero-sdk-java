@@ -3,7 +3,12 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.StringValue;
-import com.hedera.hashgraph.sdk.proto.*;
+import com.hedera.hashgraph.sdk.proto.ConsensusServiceGrpc;
+import com.hedera.hashgraph.sdk.proto.ConsensusUpdateTopicTransactionBody;
+import com.hedera.hashgraph.sdk.proto.FeeExemptKeyList;
+import com.hedera.hashgraph.sdk.proto.FixedCustomFeeList;
+import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.time.Duration;
@@ -503,7 +508,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
         }
         if (body.hasCustomFees()) {
             customFees = body.getCustomFees().getFeesList().stream()
-                    .map(x -> CustomFixedFee.fromProtobuf(x.getFixedFee()))
+                    .map(CustomFixedFee::fromProtobuf)
                     .collect(Collectors.toList());
         }
     }

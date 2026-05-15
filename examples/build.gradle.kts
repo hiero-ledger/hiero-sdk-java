@@ -19,8 +19,8 @@ dependencyAnalysis {
 dependencies.constraints {
     implementation("com.google.guava:guava:33.4.8-android")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
-    implementation("com.hedera.hashgraph:sdk:2.67.0-beta.1")
-    implementation("com.hedera.hashgraph:sdk-full:2.67.0-beta.1")
+    implementation("com.hedera.hashgraph:sdk:2.72.0")
+    implementation("com.hedera.hashgraph:sdk-full:2.72.0")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 }
 
@@ -81,6 +81,10 @@ abstract class RunAllExample : DefaultTask() {
                 .filter {
                     it != "MirrorNodeContractQueriesExample"
                 } // disabled due to consensus node issue
+                .filter { it != "HookStoreExample" }
+                .filter { it != "AccountHooksExample" }
+                .filter { it != "ContractHooksExample" }
+                .filter { it != "TransferTransactionHooksExample" }
                 .toList()
 
         exampleClasses.forEach { className ->

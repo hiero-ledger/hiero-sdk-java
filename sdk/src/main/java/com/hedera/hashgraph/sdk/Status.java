@@ -1922,6 +1922,11 @@ public enum Status {
     INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM(ResponseCodeEnum.INVALID_SERIALIZED_TX_MESSAGE_HASH_ALGORITHM),
 
     /**
+     * A HookStore referenced a valid entity number but with the wrong entity type.
+     */
+    WRONG_HOOK_ENTITY_TYPE(ResponseCodeEnum.WRONG_HOOK_ENTITY_TYPE),
+
+    /**
      * An EVM hook execution was throttled due to high network gas utilization.
      */
     EVM_HOOK_GAS_THROTTLED(ResponseCodeEnum.EVM_HOOK_GAS_THROTTLED),
@@ -1992,7 +1997,7 @@ public enum Status {
     /**
      * The HookStore tried to update too many storage slots in a single transaction.
      */
-    TOO_MANY_LAMBDA_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_LAMBDA_STORAGE_UPDATES),
+    TOO_MANY_EVM_HOOK_STORAGE_UPDATES(ResponseCodeEnum.TOO_MANY_EVM_HOOK_STORAGE_UPDATES),
 
     /**
      * An EVM hook mapping slot, storage key, or storage value failed to use the
@@ -2046,14 +2051,35 @@ public enum Status {
      */
     HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS(ResponseCodeEnum.HOOKS_ARE_NOT_SUPPORTED_IN_AIRDROPS),
 
-    WRONG_HOOK_ENTITY_TYPE(ResponseCodeEnum.WRONG_HOOK_ENTITY_TYPE),
+    /**
+     * This operation cannot be completed because the target
+     * account is a "Node Account".<br/>
+     * This account is currently in use as the "Node Account" for a
+     * consensus node, and therefore the requested change is
+     * not permitted. The transaction may be resubmitted once the
+     * account is no longer in use as a "Node Account" for any
+     * consensus node.
+     */
     ACCOUNT_IS_LINKED_TO_A_NODE(ResponseCodeEnum.ACCOUNT_IS_LINKED_TO_A_NODE),
+
+    /**
+     * Hooks are not supported to be used in Batch transactions and Scheduled transactions.
+     * They are only supported in a top level CryptoTransfer transaction.
+     */
     HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER(
             ResponseCodeEnum.HOOKS_EXECUTIONS_REQUIRE_TOP_LEVEL_CRYPTO_TRANSFER),
+
+    /**
+     * This operation cannot be completed because the target
+     * account has a zero balance.<br/>
+     * Node accounts require a positive balance. The transaction may be
+     * resubmitted once the account has been funded.
+     */
     NODE_ACCOUNT_HAS_ZERO_BALANCE(ResponseCodeEnum.NODE_ACCOUNT_HAS_ZERO_BALANCE),
 
     /**
-     * This operation cannot be completed because the target account is a "Fee Collection Account".<br/>
+     * This operation cannot be completed because the target
+     * account is a "Fee Collection Account".<br/>
      * Any attempt to transfer to a fee collection account is not permitted.
      */
     TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED(ResponseCodeEnum.TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED),
@@ -2061,7 +2087,47 @@ public enum Status {
     /**
      * The number of hook invocations exceeds the maximum allowed per transaction.
      */
-    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS);
+    TOO_MANY_HOOK_INVOCATIONS(ResponseCodeEnum.TOO_MANY_HOOK_INVOCATIONS),
+
+    /**
+     * A registered node ID is invalid or does not exist.
+     */
+    INVALID_REGISTERED_NODE_ID(ResponseCodeEnum.INVALID_REGISTERED_NODE_ID),
+
+    /**
+     * A registered service endpoint is invalid.<br/>
+     * The port is out of range, or the address field is not set.
+     */
+    INVALID_REGISTERED_ENDPOINT(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT),
+
+    /**
+     * The number of registered service endpoints exceeds the configured limit.
+     */
+    REGISTERED_ENDPOINTS_EXCEEDED_LIMIT(ResponseCodeEnum.REGISTERED_ENDPOINTS_EXCEEDED_LIMIT),
+
+    /**
+     * A registered service endpoint has an invalid address.<br/>
+     * The IP address length is not 4 (IPv4) or 16 (IPv6), or the
+     * domain name is not a valid ASCII FQDN.
+     */
+    INVALID_REGISTERED_ENDPOINT_ADDRESS(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT_ADDRESS),
+
+    /**
+     * A registered service endpoint does not specify an endpoint type.<br/>
+     * Exactly one of block_node, mirror_node, or rpc_relay MUST be set.
+     */
+    INVALID_REGISTERED_ENDPOINT_TYPE(ResponseCodeEnum.INVALID_REGISTERED_ENDPOINT_TYPE),
+
+    /**
+     * A registered node cannot be deleted because it is still associated
+     * with a consensus node via their associated registered node list.
+     */
+    REGISTERED_NODE_STILL_ASSOCIATED(ResponseCodeEnum.REGISTERED_NODE_STILL_ASSOCIATED),
+
+    /**
+     * The number of associated registered nodes exceeds the maximum allowed limit.
+     */
+    MAX_REGISTERED_NODES_EXCEEDED(ResponseCodeEnum.MAX_REGISTERED_NODES_EXCEEDED);
 
     final ResponseCodeEnum code;
 
@@ -2454,7 +2520,7 @@ public enum Status {
             case HOOKS_NOT_ENABLED -> HOOKS_NOT_ENABLED;
             case HOOK_IS_NOT_AN_EVM_HOOK -> HOOK_IS_NOT_AN_EVM_HOOK;
             case HOOK_DELETED -> HOOK_DELETED;
-            case TOO_MANY_LAMBDA_STORAGE_UPDATES -> TOO_MANY_LAMBDA_STORAGE_UPDATES;
+            case TOO_MANY_EVM_HOOK_STORAGE_UPDATES -> TOO_MANY_EVM_HOOK_STORAGE_UPDATES;
             case HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION ->
                 HOOK_CREATION_BYTES_MUST_USE_MINIMAL_REPRESENTATION;
             case HOOK_CREATION_BYTES_TOO_LONG -> HOOK_CREATION_BYTES_TOO_LONG;
@@ -2472,6 +2538,13 @@ public enum Status {
             case NODE_ACCOUNT_HAS_ZERO_BALANCE -> NODE_ACCOUNT_HAS_ZERO_BALANCE;
             case TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED -> TRANSFER_TO_FEE_COLLECTION_ACCOUNT_NOT_ALLOWED;
             case TOO_MANY_HOOK_INVOCATIONS -> TOO_MANY_HOOK_INVOCATIONS;
+            case INVALID_REGISTERED_NODE_ID -> INVALID_REGISTERED_NODE_ID;
+            case INVALID_REGISTERED_ENDPOINT -> INVALID_REGISTERED_ENDPOINT;
+            case REGISTERED_ENDPOINTS_EXCEEDED_LIMIT -> REGISTERED_ENDPOINTS_EXCEEDED_LIMIT;
+            case INVALID_REGISTERED_ENDPOINT_ADDRESS -> INVALID_REGISTERED_ENDPOINT_ADDRESS;
+            case INVALID_REGISTERED_ENDPOINT_TYPE -> INVALID_REGISTERED_ENDPOINT_TYPE;
+            case REGISTERED_NODE_STILL_ASSOCIATED -> REGISTERED_NODE_STILL_ASSOCIATED;
+            case MAX_REGISTERED_NODES_EXCEEDED -> MAX_REGISTERED_NODES_EXCEEDED;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(

@@ -548,6 +548,59 @@ class AccountCreateIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName("Can create account with high-volume throttles enabled")
+    void canCreateAccountWithHighVolume() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .setHighVolume(true)
+                    .setMaxTransactionFee(Hbar.from(10))
+                    .execute(testEnv.client);
+
+            var receipt = response.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(receipt.accountId);
+
+            var record = response.getRecord(testEnv.client);
+
+            assertThat(record.highVolumePricingMultiplier).isGreaterThanOrEqualTo(1000);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.isDeleted).isFalse();
+            assertThat(info.key.toString()).isEqualTo(key.getPublicKey().toString());
+            assertThat(info.balance).isEqualTo(new Hbar(1));
+        }
+    }
+
+    @Test
+    @DisplayName("Can create account with high-volume throttles and valid max transaction fee")
+    void canCreateAccountWithHighVolumeAndValidMaxFee() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(1))
+                    .setHighVolume(true)
+                    .setMaxTransactionFee(Hbar.from(5))
+                    .execute(testEnv.client);
+
+            var receipt = response.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(receipt.accountId);
+
+            assertThat(receipt.status).isEqualTo(Status.SUCCESS);
+            assertThat(accountId).isNotNull();
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+            assertThat(info.accountId).isEqualTo(accountId);
+        }
+    }
+
     private boolean isLongZeroAddress(byte[] address) {
         for (int i = 0; i < 12; i++) {
             if (address[i] != 0) {

@@ -18,9 +18,11 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.Status;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@Disabled("Temporarily disabled, EVM Hooks are not enabled in v0.73.0")
 class ContractCreateTransactionHooksIntegrationTest {
 
     // Shared bytecode used to create a simple contract for these tests

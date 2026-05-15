@@ -1,15 +1,63 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.hedera.hashgraph.sdk.*;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.TokenAirdropTransaction;
+import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
+import com.hedera.hashgraph.sdk.TokenBurnTransaction;
+import com.hedera.hashgraph.sdk.TokenCancelAirdropTransaction;
+import com.hedera.hashgraph.sdk.TokenClaimAirdropTransaction;
+import com.hedera.hashgraph.sdk.TokenCreateTransaction;
+import com.hedera.hashgraph.sdk.TokenDeleteTransaction;
+import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
+import com.hedera.hashgraph.sdk.TokenFeeScheduleUpdateTransaction;
+import com.hedera.hashgraph.sdk.TokenFreezeTransaction;
+import com.hedera.hashgraph.sdk.TokenGrantKycTransaction;
+import com.hedera.hashgraph.sdk.TokenInfo;
+import com.hedera.hashgraph.sdk.TokenInfoQuery;
+import com.hedera.hashgraph.sdk.TokenMintTransaction;
+import com.hedera.hashgraph.sdk.TokenNftInfo;
+import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
+import com.hedera.hashgraph.sdk.TokenPauseTransaction;
+import com.hedera.hashgraph.sdk.TokenRejectTransaction;
+import com.hedera.hashgraph.sdk.TokenRevokeKycTransaction;
+import com.hedera.hashgraph.sdk.TokenUnfreezeTransaction;
+import com.hedera.hashgraph.sdk.TokenUnpauseTransaction;
+import com.hedera.hashgraph.sdk.TokenUpdateTransaction;
+import com.hedera.hashgraph.sdk.TokenWipeTransaction;
+import com.hedera.hashgraph.sdk.TransactionReceipt;
+import com.hedera.hashgraph.sdk.TransactionResponse;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
-import com.hedera.hashgraph.tck.methods.sdk.param.token.*;
-import com.hedera.hashgraph.tck.methods.sdk.response.token.*;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.AssociateDisassociateTokenParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.BurnTokenParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.FreezeUnfreezeTokenParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.GrantRevokeTokenKycParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.MintTokenParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.NftInfoQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.PauseUnpauseTokenParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenAirdropCancelParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenAirdropParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenClaimAirdropParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenCreateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenDeleteParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenInfoQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenRejectAirdropParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenUpdateFeeScheduleParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.token.TokenWipeParams;
+import com.hedera.hashgraph.tck.methods.sdk.response.token.NftInfoResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.token.TokenBurnResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.token.TokenInfoResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.token.TokenMintResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.token.TokenResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
+import java.util.List;
 import java.util.Map;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * TokenService for token related methods
@@ -21,6 +69,23 @@ public class TokenService extends AbstractJSONRPC2Service {
 
     public TokenService(SdkService sdkService) {
         this.sdkService = sdkService;
+    }
+
+    @JSONRPC2Method("getTokenNftInfo")
+    public NftInfoResponse getNftInfo(final NftInfoQueryParams params) throws Exception {
+        TokenNftInfoQuery query = QueryBuilders.TokenBuilder.buildNftInfo(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        List<TokenNftInfo> txResponse = query.execute(client);
+        TokenNftInfo tokenNftInfo = txResponse.get(0);
+
+        return new NftInfoResponse(
+                tokenNftInfo.nftId.toString(),
+                tokenNftInfo.accountId.toString(),
+                String.valueOf(tokenNftInfo.creationTime.getEpochSecond()),
+                Hex.toHexString(tokenNftInfo.metadata),
+                tokenNftInfo.ledgerId.toString(),
+                tokenNftInfo.spenderId != null ? tokenNftInfo.spenderId.toString() : null);
     }
 
     @JSONRPC2Method("getTokenInfo")
