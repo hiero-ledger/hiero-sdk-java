@@ -25,7 +25,7 @@ public class FeeEstimateQuery {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Nullable
-    private FeeEstimateMode mode = null;
+    private FeeEstimateMode mode;
 
     @Nullable
     private com.hedera.hashgraph.sdk.proto.Transaction transaction = null;
