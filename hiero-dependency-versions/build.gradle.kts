@@ -4,7 +4,7 @@ group = "org.hiero"
 val bouncycastle = "1.84"
 val grpc = "1.81.0"
 val protobuf = "4.34.1"
-val slf4j = "2.0.17"
+val slf4j = "2.0.18"
 val mockito = "5.23.0"
 
 dependencies {
