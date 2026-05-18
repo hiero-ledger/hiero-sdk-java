@@ -543,6 +543,22 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     }
 
     /**
+     * Set the delegation address for this account.
+     * <p>
+     * The delegated contract address for the account.
+     * If this field is set, a call to the account's address within a smart contract will
+     * result in the code of the authorized contract being executed.
+     *
+     * @param delegationAddress the delegation address as an {@link EvmAddress} (may be null to clear)
+     * @return {@code this}
+     */
+    public AccountCreateTransaction setDelegationAddress(EvmAddress delegationAddress) {
+        requireNotFrozen();
+        this.delegationAddress = delegationAddress;
+        return this;
+    }
+
+    /**
      * Get the hook creation details for this account.
      *
      * @return a copy of the hook creation details list

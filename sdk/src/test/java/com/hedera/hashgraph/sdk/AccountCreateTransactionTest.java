@@ -176,6 +176,19 @@ public class AccountCreateTransactionTest {
     }
 
     @Test
+    void setDelegationAddressWithEvmAddress() {
+        var delegationAddr = "0x6666666666666666666666666666666666666666";
+        var evmAddress = EvmAddress.fromString(delegationAddr);
+        var expectedBytes = evmAddress.toBytes();
+
+        var tx = new AccountCreateTransaction();
+        tx.setDelegationAddress(evmAddress);
+
+        assertThat(tx.getDelegationAddress()).isEqualTo(evmAddress);
+        assertThat(tx.build().getDelegationAddress().toByteArray()).isEqualTo(expectedBytes);
+    }
+
+    @Test
     void getDelegationAddressReturnsNullWhenNotSet() {
         var tx = new AccountCreateTransaction();
         var retrievedAddr = tx.getDelegationAddress();
@@ -222,6 +235,18 @@ public class AccountCreateTransactionTest {
                 .freeze();
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> tx.setDelegationAddress("0x1111111111111111111111111111111111111111"))
+                .withMessageContaining("transaction is immutable");
+    }
+
+    @Test
+    void setDelegationAddressWithEvmAddressAfterFreeze() {
+        var evmAddress = EvmAddress.fromString("0x1111111111111111111111111111111111111111");
+        var tx = new AccountCreateTransaction()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .freeze();
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> tx.setDelegationAddress(evmAddress))
                 .withMessageContaining("transaction is immutable");
     }
 

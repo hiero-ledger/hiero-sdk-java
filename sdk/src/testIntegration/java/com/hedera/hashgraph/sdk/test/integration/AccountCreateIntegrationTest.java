@@ -685,4 +685,29 @@ class AccountCreateIntegrationTest {
             assertThat(info.delegationAddress.toBytes()).isEqualTo(delegationAddrBytes);
         }
     }
+
+    @Test
+    @DisplayName("Can create account with delegation address as EvmAddress")
+    void canCreateAccountWithDelegationAddressAsEvmAddress() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var key = PrivateKey.generateED25519();
+            var delegationAddr = "0x4444444444444444444444444444444444444444";
+            var evmAddress = EvmAddress.fromString(delegationAddr);
+            var expectedBytes = evmAddress.toBytes();
+
+            var response = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(key)
+                    .setInitialBalance(new Hbar(2))
+                    .setDelegationAddress(evmAddress)
+                    .execute(testEnv.client);
+
+            var accountId = Objects.requireNonNull(response.getReceipt(testEnv.client).accountId);
+
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
+
+            assertThat(info.accountId).isEqualTo(accountId);
+            assertThat(info.delegationAddress).isNotNull();
+            assertThat(info.delegationAddress.toBytes()).isEqualTo(expectedBytes);
+        }
+    }
 }
