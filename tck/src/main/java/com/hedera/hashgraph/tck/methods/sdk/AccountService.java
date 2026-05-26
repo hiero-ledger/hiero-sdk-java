@@ -379,6 +379,9 @@ public class AccountService extends AbstractJSONRPC2Service {
         return mapTransactionReceiptResponse(receipt);
     }
 
+    /**
+     * Map TransactionReceipt from SDK to TransactionReceiptResponse for JSON-RPC
+     */
     private TransactionReceiptResponse mapTransactionReceiptResponse(TransactionReceipt receipt) {
         List<TransactionReceiptResponse> duplicates = receipt.duplicates.stream()
                 .map(this::mapTransactionReceiptResponse)
