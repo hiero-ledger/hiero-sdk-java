@@ -66,11 +66,12 @@ public class TransactionReceiptResponse implements JSONAware {
         putIfNotNull(json, "fileId", fileId);
         putIfNotNull(json, "contractId", contractId);
         putIfNotNull(json, "topicId", topicId);
+        putIfNotNull(json, "tokenId", tokenId);
         putIfNotNull(json, "scheduleId", scheduleId);
         putIfNotNull(json, "exchangeRate", exchangeRate);
         putIfNotNull(json, "topicSequenceNumber", topicSequenceNumber);
         putIfNotNull(json, "topicRunningHash", topicRunningHash);
-        putIfNotNull(json, "totalsSupply", totalSupply);
+        putIfNotNull(json, "totalSupply", totalSupply);
         putIfNotNull(json, "scheduledTransactionId", scheduledTransactionId);
         putIfNotNull(json, "serials", serials);
         putIfNotNull(json, "duplicates", duplicates);

@@ -387,7 +387,7 @@ public class AccountService extends AbstractJSONRPC2Service {
                 .map(this::mapTransactionReceiptResponse)
                 .toList();
 
-        List<TransactionReceiptResponse> children = receipt.duplicates.stream()
+        List<TransactionReceiptResponse> children = receipt.children.stream()
                 .map(this::mapTransactionReceiptResponse)
                 .toList();
 

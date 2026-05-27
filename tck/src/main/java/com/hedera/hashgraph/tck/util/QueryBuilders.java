@@ -195,7 +195,7 @@ public class QueryBuilders {
     }
 
     public static TransactionReceiptQuery buildTransactionReceiptQuery(TransactionReceiptQueryParams params) {
-        TransactionReceiptQuery query = new TransactionReceiptQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
+        TransactionReceiptQuery query = new TransactionReceiptQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
         if (params.getTransactionId() != null) {
             query.setTransactionId(TransactionId.fromString(params.getTransactionId()));
