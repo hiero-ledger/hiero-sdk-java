@@ -127,7 +127,7 @@ More details about how to add/modify dependencies are found in the Hiero Gradle 
 ### Updating proto files
 
 ```sh
-./gradlew updateSnapshots
+./gradlew updateProto
 ```
 
 ### Updating address books
