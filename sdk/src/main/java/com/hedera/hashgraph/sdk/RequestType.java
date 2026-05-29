@@ -539,7 +539,12 @@ public enum RequestType {
     /**
      * Delete a registered node
      */
-    REGISTERED_NODE_DELETE(HederaFunctionality.RegisteredNodeDelete);
+    REGISTERED_NODE_DELETE(HederaFunctionality.RegisteredNodeDelete),
+
+    /**
+     * Vote on wrapped record migration hash state.
+     */
+    MIGRATION_ROOT_HASH_VOTE(HederaFunctionality.MigrationRootHashVote);
 
     final HederaFunctionality code;
 
@@ -647,6 +652,7 @@ public enum RequestType {
             case RegisteredNodeCreate -> REGISTERED_NODE_CREATE;
             case RegisteredNodeUpdate -> REGISTERED_NODE_UPDATE;
             case RegisteredNodeDelete -> REGISTERED_NODE_DELETE;
+            case MigrationRootHashVote -> MIGRATION_ROOT_HASH_VOTE;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -752,6 +758,7 @@ public enum RequestType {
             case REGISTERED_NODE_CREATE -> "REGISTERED_NODE_CREATE";
             case REGISTERED_NODE_UPDATE -> "REGISTERED_NODE_UPDATE";
             case REGISTERED_NODE_DELETE -> "REGISTERED_NODE_DELETE";
+            case MIGRATION_ROOT_HASH_VOTE -> "MIGRATION_ROOT_HASH_VOTE";
         };
     }
 }
