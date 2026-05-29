@@ -9,10 +9,10 @@ com.hedera.hashgraph.sdk.BlockNodeServiceEndpointTest.fromProtobufWithIp=[
 
 
 com.hedera.hashgraph.sdk.BlockNodeServiceEndpointTest.toProtobufWithDomain=[
-  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@855debe4\nblock_node {\n  endpoint_api: STATUS\n  endpoint_api_value: 1\n}\ndomain_name: \"test.block.com\"\nport: 443\nrequires_tls: true"
+  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@ddf4aa7c\nblock_node {\n  endpoint_api: STATUS\n  endpoint_api_value: 1\n}\ndomain_name: \"test.block.com\"\nport: 443\nrequires_tls: true"
 ]
 
 
 com.hedera.hashgraph.sdk.BlockNodeServiceEndpointTest.toProtobufWithIp=[
-  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@86fe846\nblock_node {\n  endpoint_api: STATUS\n  endpoint_api_value: 1\n}\nip_address: \"\\001\\002\\003\\004\"\nport: 443\nrequires_tls: true"
+  "# com.hedera.hashgraph.sdk.proto.RegisteredServiceEndpoint@4cbb706e\nblock_node {\n  endpoint_api: STATUS\n  endpoint_api_value: 1\n}\nip_address: \"\\001\\002\\003\\004\"\nport: 443\nrequires_tls: true"
 ]

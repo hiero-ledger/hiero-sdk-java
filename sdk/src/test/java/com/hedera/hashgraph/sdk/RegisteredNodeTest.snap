@@ -14,5 +14,5 @@ com.hedera.hashgraph.sdk.RegisteredNodeTest.toBytes=[
 
 
 com.hedera.hashgraph.sdk.RegisteredNodeTest.toProtobuf=[
-  "# com.hedera.hashgraph.sdk.proto.RegisteredNode@7c42c1c6\nadmin_key {\n  ed25519: \"\\340\\310\\354\\'X\\245\\207\\237\\372\\302&\\241<\\fQky\\236r\\343QA\\240\\335\\202\\217\\224\\323y\\210\\244\\267\"\n}\ndescription: \"Unit test registered node\"\nregistered_node_id: 1\nservice_endpoint {\n  block_node {\n    endpoint_api: STATUS\n    endpoint_api_value: 1\n  }\n  domain_name: \"test.block.com\"\n  port: 443\n  requires_tls: true\n}"
+  "# com.hedera.hashgraph.sdk.proto.RegisteredNode@d378373e\nadmin_key {\n  ed25519: \"\\340\\310\\354\\'X\\245\\207\\237\\372\\302&\\241<\\fQky\\236r\\343QA\\240\\335\\202\\217\\224\\323y\\210\\244\\267\"\n}\ndescription: \"Unit test registered node\"\nregistered_node_id: 1\nservice_endpoint {\n  block_node {\n    endpoint_api: STATUS\n    endpoint_api_value: 1\n  }\n  domain_name: \"test.block.com\"\n  port: 443\n  requires_tls: true\n}"
 ]
