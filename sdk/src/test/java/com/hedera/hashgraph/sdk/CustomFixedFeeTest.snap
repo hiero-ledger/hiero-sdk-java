@@ -9,5 +9,5 @@ com.hedera.hashgraph.sdk.CustomFixedFeeTest.toFixedFeeProtobuf=[
 
 
 com.hedera.hashgraph.sdk.CustomFixedFeeTest.toProtobuf=[
-  "# com.hedera.hashgraph.sdk.proto.CustomFee@91885f65\nfixed_fee {\n  amount: 4\n  denominating_token_id {\n    realm_num: 6\n    shard_num: 5\n    token_num: 7\n  }\n}"
+  "# com.hedera.hashgraph.sdk.proto.CustomFee@d69a9add\nfixed_fee {\n  amount: 4\n  denominating_token_id {\n    realm_num: 6\n    shard_num: 5\n    token_num: 7\n  }\n}"
 ]

@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+name: "PR Formatting"
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+  statuses: write
+
+concurrency:
+  group: pr-formatting-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  title-check:
+    name: Title Check
+    runs-on: hiero-client-sdk-linux-medium
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
+      - name: Check PR Title
+        uses: step-security/conventional-pr-title-action@b54c0688e6fd1d221f8a936e05fdd82f500640d6 # v3.2.7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
