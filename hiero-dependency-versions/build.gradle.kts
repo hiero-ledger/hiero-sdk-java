@@ -9,7 +9,7 @@ val mockito = "5.23.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
-    api(platform("io.netty:netty-bom:4.2.14.Final"))
+    api(platform("io.netty:netty-bom:4.2.15.Final"))
 }
 
 dependencies.constraints {
