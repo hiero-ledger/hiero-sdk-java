@@ -374,7 +374,9 @@ public abstract class Transaction<T extends Transaction<T>>
                 ? Objects.requireNonNull(txsMap.get(transactionId))
                 : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
 
-        if (linked.containsKey(account)) {
+        if (!transactionId.equals(DUMMY_TRANSACTION_ID)
+                && !account.equals(DUMMY_ACCOUNT_ID)
+                && linked.containsKey(account)) {
             throw new IllegalArgumentException("Duplicate transaction entry detected in TransactionList for"
                     + " transactionId=" + transactionId + " and nodeAccountId=" + account);
         }
