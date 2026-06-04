@@ -618,6 +618,56 @@ public class TransactionTest {
     }
 
     @Test
+    @DisplayName("fromBytes rejects duplicate (txId, nodeId) entries in TransactionList")
+    void fromBytesRejectsDuplicateKeyTransaction() {
+        // Both entries share the same TransactionId AND the same nodeAccountId.
+        // The first body presents a benign transfer; the second silently overwrites it with a drain.
+        var txId = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158542))
+                .build();
+
+        var benignTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-1))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(1)))
+                .build();
+
+        var maliciousTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-100_000_000_000L))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(100_000_000_000L)))
+                .build();
+
+        var list = TransactionList.newBuilder();
+        for (var transfer : List.of(benignTransfer, maliciousTransfer)) {
+            var body = TransactionBody.newBuilder()
+                    .setTransactionID(txId)
+                    .setNodeAccountID(AccountID.newBuilder().setAccountNum(5005))
+                    .setTransactionFee(100_000_000L)
+                    .setCryptoTransfer(transfer)
+                    .build();
+            var signed = SignedTransaction.newBuilder()
+                    .setBodyBytes(body.toByteString())
+                    .build();
+            list.addTransactionList(com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                    .setSignedTransactionBytes(signed.toByteString())
+                    .build());
+        }
+
+        byte[] payload = list.build().toByteArray();
+        assertThrows(IllegalArgumentException.class, () -> Transaction.fromBytes(payload));
+    }
+
+    @Test
     @DisplayName("GetSignableNodeBodyBytesList - FileAppend Multiple Chunks")
     void testGetSignableNodeBodyBytesListFileAppendMultipleChunks() throws InvalidProtocolBufferException {
         byte[] content = new byte[4096];
