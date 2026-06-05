@@ -14,7 +14,7 @@ public class LedgerId {
     /**
      * The mainnet ledger id
      */
-    public static final LedgerId MAINNET = new LedgerId(new byte[] {0});
+    public static final LedgerId MAINNET = new LedgerId(new byte[] {0});h
 
     /**
      * The testnet ledger id
@@ -95,7 +95,7 @@ public class LedgerId {
     }
 
     /**
-     * Are we on Mionnet?
+     * Are we on Mainnet?
      *
      * @return                          is it mainnet
      */
