@@ -10,7 +10,7 @@ public class ClientHelper {
 
     public static final String LOCAL_NETWORK_NAME = "localhost";
 
-    private static final String LOCAL_CONSENSUS_NODE_ENDPOINT = "127.0.0.1:50211";
+    private static final String LOCAL_CONSENSUS_NODE_ENDPOINT = "127.0.0.1:35211";
 
     // Local mirror REST port is 8084; 5600 is gRPC-only.
     private static final String LOCAL_MIRROR_NODE_GRPC_ENDPOINT = "127.0.0.1:5600";

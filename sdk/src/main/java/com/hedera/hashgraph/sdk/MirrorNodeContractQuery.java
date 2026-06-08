@@ -278,12 +278,12 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         String baseUrl = client.getMirrorRestBaseUrl();
 
         // For localhost contract calls, override to use port 8545 unless system property overrides
-        if (baseUrl.contains("localhost:5551") || baseUrl.contains("127.0.0.1:5551")) {
+        if (baseUrl.contains("localhost:38081") || baseUrl.contains("127.0.0.1:38081")) {
             String contractPort = System.getProperty("hedera.mirror.contract.port");
             if (contractPort != null && !contractPort.isEmpty()) {
-                baseUrl = baseUrl.replace(":5551", ":" + contractPort);
+                baseUrl = baseUrl.replace(":38081", ":" + contractPort);
             } else {
-                baseUrl = baseUrl.replace(":5551", ":8545");
+                baseUrl = baseUrl.replace(":38081", ":8545");
             }
         }
 

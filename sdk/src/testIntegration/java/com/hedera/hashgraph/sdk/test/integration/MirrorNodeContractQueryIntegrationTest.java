@@ -171,8 +171,8 @@ class MirrorNodeContractQueryIntegrationTest {
     @Test
     @DisplayName("Fails when sender is not set")
     void failsWhenSenderIsNotSet() throws Exception {
-        // Set system property to use port 5551 for contract calls in this test
-        System.setProperty("hedera.mirror.contract.port", "5551");
+        // Set system property to use port 38081 for contract calls in this test
+        System.setProperty("hedera.mirror.contract.port", "38081");
         try (var testEnv = new IntegrationTestEnv(1)) {
             var response = new FileCreateTransaction()
                     .setKeys(testEnv.operatorKey)
