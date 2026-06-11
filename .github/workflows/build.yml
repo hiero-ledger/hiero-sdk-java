@@ -54,7 +54,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
         with:
           cache-read-only: false
 
@@ -172,7 +172,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
 
       - name: Prepare Hiero Solo
         id: solo
@@ -246,7 +246,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
@@ -304,7 +304,7 @@ jobs:
         uses: step-security/setup-android@3f1fe1f5a3b3708402227c91d92c67e0f7f5a8bb # v4.0.1
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
 
       - name: Prepare Hiero Solo
         id: solo
@@ -358,7 +358,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
 
       - name: Build TCK
         run: ./gradlew assemble
