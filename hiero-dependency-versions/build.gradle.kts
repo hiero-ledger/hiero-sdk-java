@@ -31,7 +31,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.21.4") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.22.0") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.6.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
@@ -48,6 +48,9 @@ dependencies.constraints {
     // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
     // TO BE removed when spring-boot-dependencies gets updated
     api("org.apache.tomcat.embed:tomcat-embed-core:11.0.22")
+    api("org.springframework:spring-webmvc:7.0.8")
+    api("org.springframework:spring-context:7.0.8")
+    api("org.springframework:spring-web:7.0.8")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths
