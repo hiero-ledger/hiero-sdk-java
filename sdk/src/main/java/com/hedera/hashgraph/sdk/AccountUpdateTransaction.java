@@ -607,18 +607,6 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         }
         try {
             byte[] addressBytes = EntityIdHelper.decodeEvmAddress(delegationAddressHex);
-            // Check if it's zero address (clears delegation)
-            boolean isZero = true;
-            for (byte b : addressBytes) {
-                if (b != 0) {
-                    isZero = false;
-                    break;
-                }
-            }
-            if (isZero) {
-                this.delegationAddress = null;
-                return this;
-            }
             this.delegationAddress = EvmAddress.fromBytes(addressBytes);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid delegation address format: " + e.getMessage(), e);
@@ -653,17 +641,6 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
         if (delegationAddressBytes.length != 20) {
             throw new IllegalArgumentException(
                     "Delegation address must be exactly 20 bytes, got " + delegationAddressBytes.length + " bytes");
-        }
-        boolean isZero = true;
-        for (byte b : delegationAddressBytes) {
-            if (b != 0) {
-                isZero = false;
-                break;
-            }
-        }
-        if (isZero) {
-            this.delegationAddress = null;
-            return this;
         }
         byte[] addressBytes = new byte[20];
         System.arraycopy(delegationAddressBytes, 0, addressBytes, 0, 20);
@@ -821,9 +798,6 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
 
         if (delegationAddress != null) {
             builder.setDelegationAddress(ByteString.copyFrom(delegationAddress.toBytes()));
-        } else {
-            // Setting to empty ByteString clears the delegation (matching Go SDK behavior)
-            builder.setDelegationAddress(ByteString.EMPTY);
         }
 
         return builder;

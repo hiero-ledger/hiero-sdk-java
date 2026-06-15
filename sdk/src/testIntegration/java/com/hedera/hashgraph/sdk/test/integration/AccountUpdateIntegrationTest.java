@@ -98,38 +98,6 @@ class AccountUpdateIntegrationTest {
     }
 
     @Test
-    @DisplayName("Can clear delegation address by setting to null")
-    void canClearDelegationAddress() throws Exception {
-        try (var testEnv = new IntegrationTestEnv(1)) {
-            var key = PrivateKey.generateED25519();
-            var delegationAddr = "0x2222222222222222222222222222222222222222";
-
-            var createResponse = new AccountCreateTransaction()
-                    .setKey(key)
-                    .setDelegationAddress(delegationAddr)
-                    .execute(testEnv.client);
-
-            var accountId = Objects.requireNonNull(createResponse.getReceipt(testEnv.client).accountId);
-
-            // Verify delegation address is set
-            var info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
-            assertThat(info.delegationAddress).isNotNull();
-
-            new AccountUpdateTransaction()
-                    .setAccountId(accountId)
-                    .setDelegationAddress((String) null)
-                    .freezeWith(testEnv.client)
-                    .sign(key)
-                    .execute(testEnv.client)
-                    .getReceipt(testEnv.client);
-
-            // Verify delegation address is cleared
-            info = new AccountInfoQuery().setAccountId(accountId).execute(testEnv.client);
-            assertThat(info.delegationAddress).isNull();
-        }
-    }
-
-    @Test
     @DisplayName("Can clear delegation address by setting 20 zero-bytes")
     void canClearDelegationAddressWithZeroBytes() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
