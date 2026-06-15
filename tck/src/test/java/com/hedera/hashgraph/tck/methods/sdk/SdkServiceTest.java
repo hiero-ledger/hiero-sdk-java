@@ -25,9 +25,9 @@ class SdkServiceTest {
         SetupParams params = new SetupParams(
                 "0.0.2",
                 "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137",
-                Optional.of("127.0.0.1:50211"),
+                Optional.of("127.0.0.1:35211"),
                 Optional.of("0.0.3"),
-                Optional.of("http://127.0.0.1:5551"),
+                Optional.of("http://127.0.0.1:38081"),
                 sessionId);
 
         // When
@@ -79,7 +79,7 @@ class SdkServiceTest {
                 "operatorPrivateKey",
                 Optional.of("nodeIp"),
                 Optional.of("3asdf"),
-                Optional.of("127.0.0.1:50211"),
+                Optional.of("127.0.0.1:35211"),
                 "session-2");
 
         // then

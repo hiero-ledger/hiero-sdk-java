@@ -20,7 +20,7 @@ class NodeCreateTransactionIntegrationTest {
     void canCreateNewNetworkNode() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
+        network.put("localhost:35211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
 
         try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
 
@@ -74,7 +74,7 @@ class NodeCreateTransactionIntegrationTest {
     void canCreateNewNetworkNodeWithRegisteredNode() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
+        network.put("localhost:35211", LOCAL_CONSENSUS_NODE_ACCOUNT_ID);
 
         try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
 
