@@ -1367,7 +1367,7 @@ public enum Status {
     DELEGATING_SPENDER_CANNOT_GRANT_APPROVE_FOR_ALL(ResponseCodeEnum.DELEGATING_SPENDER_CANNOT_GRANT_APPROVE_FOR_ALL),
 
     /**
-     * The delegating Spender cannot grant allowance on a NFT serial for another spender as it doesnt not have approveForAll
+     * The delegating Spender cannot grant allowance on a NFT serial for another spender as it does not have approveForAll
      * granted on token-owner.
      */
     DELEGATING_SPENDER_DOES_NOT_HAVE_APPROVE_FOR_ALL(ResponseCodeEnum.DELEGATING_SPENDER_DOES_NOT_HAVE_APPROVE_FOR_ALL),
