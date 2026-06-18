@@ -9,7 +9,7 @@
 
 # Protection Rules for Github Configuration Files and Actions Workflows
 /.github/                                       @hiero-ledger/github-maintainers 
-/.github/workflows/                             @hiero-ledger/github-maintainers 
+/.github/workflows/                             @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers
 /.github/dependabot.yml                         @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers @hiero-ledger/hiero-sdk-java-committers
 
 # Legacy Maven project files
@@ -18,10 +18,10 @@
 # Gradle project files and inline plugins
 /gradle/                                        @hiero-ledger/github-maintainers 
 gradlew                                         @hiero-ledger/github-maintainers 
-gradlew.bat                                     @hiero-ledger/github-maintainers 
-**/build-logic/                                 @hiero-ledger/github-maintainers 
+gradlew.bat                                     @hiero-ledger/github-maintainers
+**/build-logic/                                 @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers
 **/gradle.*                                     @hiero-ledger/github-maintainers 
-**/*.gradle.*                                   @hiero-ledger/github-maintainers 
+**/*.gradle.*                                   @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers
 
 # Codacy Tool Configurations
 /config/                                        @hiero-ledger/github-maintainers @hiero-ledger/hiero-sdk-java-maintainers
