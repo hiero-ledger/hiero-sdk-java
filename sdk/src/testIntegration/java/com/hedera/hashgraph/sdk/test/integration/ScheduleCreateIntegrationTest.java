@@ -132,7 +132,7 @@ class ScheduleCreateIntegrationTest {
             keyList.add(key2.getPublicKey());
             keyList.add(key3.getPublicKey());
 
-            // Creat the account with the `KeyList`
+            // Create the account with the `KeyList`
             TransactionResponse response = new AccountCreateTransaction()
                     .setKeyWithoutAlias(keyList)
                     .setInitialBalance(new Hbar(10))
