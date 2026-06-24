@@ -10,6 +10,7 @@ import com.hedera.hashgraph.sdk.ContractDeleteTransaction;
 import com.hedera.hashgraph.sdk.ContractExecuteTransaction;
 import com.hedera.hashgraph.sdk.ContractFunctionParameters;
 import com.hedera.hashgraph.sdk.EthereumTransaction;
+import com.hedera.hashgraph.sdk.EthereumTransactionDataEip1559;
 import com.hedera.hashgraph.sdk.FileCreateTransaction;
 import com.hedera.hashgraph.sdk.FileDeleteTransaction;
 import com.hedera.hashgraph.sdk.Hbar;
@@ -116,6 +117,76 @@ public class EthereumTransactionIntegrationTest {
                             s));
 
             EthereumTransaction ethereumTransaction = new EthereumTransaction().setEthereumData(ethereumData);
+            var ethereumTransactionResponse = ethereumTransaction.execute(testEnv.client);
+            var ethereumTransactionRecord = ethereumTransactionResponse.getRecord(testEnv.client);
+
+            assertThat(ethereumTransactionRecord.contractFunctionResult.signerNonce)
+                    .isEqualTo(1);
+
+            new ContractDeleteTransaction()
+                    .setTransferAccountId(testEnv.operatorId)
+                    .setContractId(contractId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new FileDeleteTransaction()
+                    .setFileId(fileId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Ethereum transaction built and signed via EthereumTransactionDataEip1559 builder")
+    void ethereumTransactionFromSignedBody() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var privateKey = PrivateKey.generateECDSA();
+            var newAccountAliasId = privateKey.toAccountId(0, 0);
+
+            new TransferTransaction()
+                    .addHbarTransfer(testEnv.operatorId, new Hbar(1).negated())
+                    .addHbarTransfer(newAccountAliasId, new Hbar(1))
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var fileCreateTransactionResponse = new FileCreateTransaction()
+                    .setKeys(testEnv.operatorKey)
+                    .setContents(SMART_CONTRACT_BYTECODE)
+                    .execute(testEnv.client);
+
+            var fileId = Objects.requireNonNull(fileCreateTransactionResponse.getReceipt(testEnv.client).fileId);
+
+            var contractCreateTransactionResponse = new ContractCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setGas(400000)
+                    .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                    .setBytecodeFileId(fileId)
+                    .setContractMemo("[e2e::ContractCreateTransaction]")
+                    .execute(testEnv.client);
+
+            var contractId =
+                    Objects.requireNonNull(contractCreateTransactionResponse.getReceipt(testEnv.client).contractId);
+
+            byte[] to = Hex.decode(contractId.toEvmAddress());
+            byte[] callData = new ContractExecuteTransaction()
+                    .setFunction("setMessage", new ContractFunctionParameters().addString("new message"))
+                    .getFunctionParameters()
+                    .toByteArray();
+
+            // Build and sign the transaction body using the new builder API rather than hand-rolling RLP.
+            var body = new EthereumTransactionDataEip1559()
+                    .setChainIdBytes(Hex.decode("012a"))
+                    .setNonce(0)
+                    .setMaxPriorityGas(0)
+                    .setMaxGasBytes(Hex.decode("d1385c7bf0"))
+                    .setGasLimit(150000)
+                    .setTo(to)
+                    .setValue(BigInteger.ZERO)
+                    .setCallData(callData);
+            body.sign(privateKey);
+
+            EthereumTransaction ethereumTransaction = new EthereumTransaction().setEthereumDataFromBody(body);
             var ethereumTransactionResponse = ethereumTransaction.execute(testEnv.client);
             var ethereumTransactionRecord = ethereumTransactionResponse.getRecord(testEnv.client);
 

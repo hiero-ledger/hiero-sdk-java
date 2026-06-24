@@ -73,6 +73,23 @@ public class EthereumTransaction extends Transaction<EthereumTransaction> {
     }
 
     /**
+     * Sets the raw Ethereum transaction data from a signed transaction body. The body must already be signed (see
+     * {@link EthereumTransactionData#sign(PrivateKey)}); otherwise an exception is thrown.
+     *
+     * @param body a signed ethereum transaction body
+     * @return {@code this}
+     */
+    public EthereumTransaction setEthereumDataFromBody(EthereumTransactionData body) {
+        Objects.requireNonNull(body);
+        requireNotFrozen();
+        if (!EthereumTransactionData.ethereumBodyIsSigned(body)) {
+            throw new IllegalStateException(
+                    "ethereum transaction body is not signed; call sign before setEthereumDataFromBody");
+        }
+        return setEthereumData(body.toBytes());
+    }
+
+    /**
      * Gets the FileId of the call data
      *
      * @return the FileId of the call data

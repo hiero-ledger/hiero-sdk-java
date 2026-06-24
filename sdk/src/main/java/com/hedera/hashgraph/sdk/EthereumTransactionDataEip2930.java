@@ -7,21 +7,20 @@ import com.esaulpaugh.headlong.rlp.RLPItem;
 import com.esaulpaugh.headlong.util.Integers;
 import com.google.common.base.MoreObjects;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
  * The ethereum transaction data, in the format defined in <a
- * href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md">EIP-1559</a>
+ * href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2930.md">EIP-2930</a> (access list transactions).
  */
-public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
+public class EthereumTransactionDataEip2930 extends EthereumTransactionData {
 
     /**
      * The EIP-2718 transaction type prefix.
      */
-    static final int TYPE_BYTE = 0x02;
+    static final int TYPE_BYTE = 0x01;
 
     /**
      * ID of the chain
@@ -34,16 +33,9 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
     public byte[] nonce;
 
     /**
-     * An 'optional' additional fee in Ethereum that is paid directly to miners in order to incentivize them to include
-     * your transaction in a block. Not used in Hedera
+     * The price for 1 gas
      */
-    public byte[] maxPriorityGas;
-
-    /**
-     * The maximum amount, in tinybars, that the payer of the hedera transaction is willing to pay to complete the
-     * transaction
-     */
-    public byte[] maxGas;
+    public byte[] gasPrice;
 
     /**
      * The amount of gas available for the transaction
@@ -81,15 +73,14 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
     public byte[] s;
 
     /**
-     * Constructor for building an unsigned EIP-1559 transaction. All fields are initialized to empty byte arrays and
+     * Constructor for building an unsigned EIP-2930 transaction. All fields are initialized to empty byte arrays and
      * should be populated via the setters before signing.
      */
-    public EthereumTransactionDataEip1559() {
+    public EthereumTransactionDataEip2930() {
         super(new byte[] {});
         this.chainId = new byte[] {};
         this.nonce = new byte[] {};
-        this.maxPriorityGas = new byte[] {};
-        this.maxGas = new byte[] {};
+        this.gasPrice = new byte[] {};
         this.gasLimit = new byte[] {};
         this.to = new byte[] {};
         this.value = new byte[] {};
@@ -99,11 +90,10 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
         this.s = new byte[] {};
     }
 
-    EthereumTransactionDataEip1559(
+    EthereumTransactionDataEip2930(
             byte[] chainId,
             byte[] nonce,
-            byte[] maxPriorityGas,
-            byte[] maxGas,
+            byte[] gasPrice,
             byte[] gasLimit,
             byte[] to,
             byte[] value,
@@ -116,8 +106,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
 
         this.chainId = chainId;
         this.nonce = nonce;
-        this.maxPriorityGas = maxPriorityGas;
-        this.maxGas = maxGas;
+        this.gasPrice = gasPrice;
         this.gasLimit = gasLimit;
         this.to = to;
         this.value = value;
@@ -133,25 +122,24 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param bytes the byte array
      * @return the ethereum transaction data
      */
-    public static EthereumTransactionDataEip1559 fromBytes(byte[] bytes) {
+    public static EthereumTransactionDataEip2930 fromBytes(byte[] bytes) {
         var decoder = RLPDecoder.RLP_STRICT.sequenceIterator(bytes);
         var rlpItem = decoder.next();
 
-        // typed transaction?
         byte typeByte = rlpItem.asByte();
-        if (typeByte != 2) {
-            throw new IllegalArgumentException("rlp type byte " + typeByte + "is not supported");
+        if (typeByte != TYPE_BYTE) {
+            throw new IllegalArgumentException("rlp type byte " + typeByte + " is not supported");
         }
         rlpItem = decoder.next();
         if (!rlpItem.isList()) {
             throw new IllegalArgumentException("expected RLP element list");
         }
         List<RLPItem> rlpList = rlpItem.asRLPList().elements();
-        if (rlpList.size() != 12) {
-            throw new IllegalArgumentException("expected 12 RLP encoded elements, found " + rlpList.size());
+        if (rlpList.size() != 11) {
+            throw new IllegalArgumentException("expected 11 RLP encoded elements, found " + rlpList.size());
         }
 
-        return new EthereumTransactionDataEip1559(
+        return new EthereumTransactionDataEip2930(
                 rlpList.get(0).data(),
                 rlpList.get(1).data(),
                 rlpList.get(2).data(),
@@ -162,42 +150,32 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
                 rlpList.get(7).data(),
                 rlpList.get(8).data(),
                 rlpList.get(9).data(),
-                rlpList.get(10).data(),
-                rlpList.get(11).data());
+                rlpList.get(10).data());
     }
 
     /**
-     * RLP-encode the unsigned payload (9 fields through the access list).
+     * Store an access-list RLP element as bytes: empty for an empty list (keeping the common case {@code ""}),
+     * otherwise its full self-contained RLP encoding.
+     */
+    private static byte[] encodedAccessList(RLPItem accessListElement) {
+        if (accessListElement.isList()
+                && accessListElement.asRLPList().elements().isEmpty()) {
+            return new byte[] {};
+        }
+        return accessListElement.encoding();
+    }
+
+    /**
+     * RLP-encode the unsigned payload (8 fields through the access list).
      */
     byte[] toUnsignedRlp() {
-        return RLPEncoder.list(
-                chainId,
-                nonce,
-                maxPriorityGas,
-                maxGas,
-                gasLimit,
-                to,
-                value,
-                callData,
-                AccessListItem.accessListBytesToRlpObjects(accessList));
+        return RLPEncoder.list(chainId, nonce, gasPrice, gasLimit, to, value, callData, accessList);
     }
 
     public byte[] toBytes() {
         return RLPEncoder.sequence(
-                Integers.toBytes(0x02),
-                List.of(
-                        chainId,
-                        nonce,
-                        maxPriorityGas,
-                        maxGas,
-                        gasLimit,
-                        to,
-                        value,
-                        callData,
-                        new ArrayList<String>(),
-                        recoveryId,
-                        r,
-                        s));
+                Integers.toBytes(TYPE_BYTE),
+                List.of(chainId, nonce, gasPrice, gasLimit, to, value, callData, accessList, recoveryId, r, s));
     }
 
     @Override
@@ -220,7 +198,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param chainId the chain id as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setChainId(long chainId) {
+    public EthereumTransactionDataEip2930 setChainId(long chainId) {
         this.chainId = EthereumEncoding.uint64ToEthBytes(chainId);
         return this;
     }
@@ -236,7 +214,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param chainId the raw chain id bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setChainIdBytes(byte[] chainId) {
+    public EthereumTransactionDataEip2930 setChainIdBytes(byte[] chainId) {
         this.chainId = Arrays.copyOf(chainId, chainId.length);
         return this;
     }
@@ -252,7 +230,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param nonce the nonce as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setNonce(long nonce) {
+    public EthereumTransactionDataEip2930 setNonce(long nonce) {
         this.nonce = EthereumEncoding.uint64ToEthBytes(nonce);
         return this;
     }
@@ -268,72 +246,40 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param nonce the raw nonce bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setNonceBytes(byte[] nonce) {
+    public EthereumTransactionDataEip2930 setNonceBytes(byte[] nonce) {
         this.nonce = Arrays.copyOf(nonce, nonce.length);
         return this;
     }
 
     /**
-     * @return the max priority gas as a number
+     * @return the gas price as a number
      */
-    public long getMaxPriorityGas() {
-        return EthereumEncoding.ethBytesToLong(maxPriorityGas);
+    public long getGasPrice() {
+        return EthereumEncoding.ethBytesToLong(gasPrice);
     }
 
     /**
-     * @param maxPriorityGas the max priority gas as a number
+     * @param gasPrice the gas price as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setMaxPriorityGas(long maxPriorityGas) {
-        this.maxPriorityGas = EthereumEncoding.uint64ToEthBytes(maxPriorityGas);
+    public EthereumTransactionDataEip2930 setGasPrice(long gasPrice) {
+        this.gasPrice = EthereumEncoding.uint64ToEthBytes(gasPrice);
         return this;
     }
 
     /**
-     * @return the raw max priority gas bytes
+     * @return the raw gas price bytes
      */
-    public byte[] getMaxPriorityGasBytes() {
-        return Arrays.copyOf(maxPriorityGas, maxPriorityGas.length);
+    public byte[] getGasPriceBytes() {
+        return Arrays.copyOf(gasPrice, gasPrice.length);
     }
 
     /**
-     * @param maxPriorityGas the raw max priority gas bytes
+     * @param gasPrice the raw gas price bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setMaxPriorityGasBytes(byte[] maxPriorityGas) {
-        this.maxPriorityGas = Arrays.copyOf(maxPriorityGas, maxPriorityGas.length);
-        return this;
-    }
-
-    /**
-     * @return the max gas as a number
-     */
-    public long getMaxGas() {
-        return EthereumEncoding.ethBytesToLong(maxGas);
-    }
-
-    /**
-     * @param maxGas the max gas as a number
-     * @return {@code this}
-     */
-    public EthereumTransactionDataEip1559 setMaxGas(long maxGas) {
-        this.maxGas = EthereumEncoding.uint64ToEthBytes(maxGas);
-        return this;
-    }
-
-    /**
-     * @return the raw max gas bytes
-     */
-    public byte[] getMaxGasBytes() {
-        return Arrays.copyOf(maxGas, maxGas.length);
-    }
-
-    /**
-     * @param maxGas the raw max gas bytes
-     * @return {@code this}
-     */
-    public EthereumTransactionDataEip1559 setMaxGasBytes(byte[] maxGas) {
-        this.maxGas = Arrays.copyOf(maxGas, maxGas.length);
+    public EthereumTransactionDataEip2930 setGasPriceBytes(byte[] gasPrice) {
+        this.gasPrice = Arrays.copyOf(gasPrice, gasPrice.length);
         return this;
     }
 
@@ -348,7 +294,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param gasLimit the gas limit as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setGasLimit(long gasLimit) {
+    public EthereumTransactionDataEip2930 setGasLimit(long gasLimit) {
         this.gasLimit = EthereumEncoding.uint64ToEthBytes(gasLimit);
         return this;
     }
@@ -364,7 +310,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param gasLimit the raw gas limit bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setGasLimitBytes(byte[] gasLimit) {
+    public EthereumTransactionDataEip2930 setGasLimitBytes(byte[] gasLimit) {
         this.gasLimit = Arrays.copyOf(gasLimit, gasLimit.length);
         return this;
     }
@@ -380,7 +326,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param to the receiver address
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setTo(byte[] to) {
+    public EthereumTransactionDataEip2930 setTo(byte[] to) {
         this.to = Arrays.copyOf(to, to.length);
         return this;
     }
@@ -396,7 +342,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param value the transaction value as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setValue(BigInteger value) {
+    public EthereumTransactionDataEip2930 setValue(BigInteger value) {
         this.value = EthereumEncoding.bigIntToEthBytes(value);
         return this;
     }
@@ -412,7 +358,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param value the raw transaction value bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setValueBytes(byte[] value) {
+    public EthereumTransactionDataEip2930 setValueBytes(byte[] value) {
         this.value = Arrays.copyOf(value, value.length);
         return this;
     }
@@ -428,13 +374,13 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param callData the call data
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setCallData(byte[] callData) {
+    public EthereumTransactionDataEip2930 setCallData(byte[] callData) {
         this.callData = Arrays.copyOf(callData, callData.length);
         return this;
     }
 
     /**
-     * @return the access list items decoded from the {@code accessList} bytes
+     * @return the access list items
      */
     public List<AccessListItem> getAccessListItems() {
         return AccessListItem.decodeAccessList(accessList);
@@ -444,7 +390,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param accessListItems the access list items (encoded into the {@code accessList} bytes)
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setAccessListItems(List<AccessListItem> accessListItems) {
+    public EthereumTransactionDataEip2930 setAccessListItems(List<AccessListItem> accessListItems) {
         this.accessList = AccessListItem.encodeAccessList(accessListItems);
         return this;
     }
@@ -455,7 +401,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param accessListItem the item to add
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 addAccessListItem(AccessListItem accessListItem) {
+    public EthereumTransactionDataEip2930 addAccessListItem(AccessListItem accessListItem) {
         List<AccessListItem> items = AccessListItem.decodeAccessList(accessList);
         items.add(accessListItem);
         this.accessList = AccessListItem.encodeAccessList(items);
@@ -473,7 +419,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param recoveryId the recovery id as a number
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setRecoveryId(long recoveryId) {
+    public EthereumTransactionDataEip2930 setRecoveryId(long recoveryId) {
         this.recoveryId = EthereumEncoding.uint64ToEthBytes(recoveryId);
         return this;
     }
@@ -489,7 +435,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param recoveryId the raw recovery id bytes
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setRecoveryIdBytes(byte[] recoveryId) {
+    public EthereumTransactionDataEip2930 setRecoveryIdBytes(byte[] recoveryId) {
         this.recoveryId = Arrays.copyOf(recoveryId, recoveryId.length);
         return this;
     }
@@ -505,7 +451,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param r the R value of the signature
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setR(byte[] r) {
+    public EthereumTransactionDataEip2930 setR(byte[] r) {
         this.r = Arrays.copyOf(r, r.length);
         return this;
     }
@@ -521,7 +467,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * @param s the S value of the signature
      * @return {@code this}
      */
-    public EthereumTransactionDataEip1559 setS(byte[] s) {
+    public EthereumTransactionDataEip2930 setS(byte[] s) {
         this.s = Arrays.copyOf(s, s.length);
         return this;
     }
@@ -531,8 +477,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
         return MoreObjects.toStringHelper(this)
                 .add("chainId", Hex.toHexString(chainId))
                 .add("nonce", Hex.toHexString(nonce))
-                .add("maxPriorityGas", Hex.toHexString(maxPriorityGas))
-                .add("maxGas", Hex.toHexString(maxGas))
+                .add("gasPrice", Hex.toHexString(gasPrice))
                 .add("gasLimit", Hex.toHexString(gasLimit))
                 .add("to", Hex.toHexString(to))
                 .add("value", Hex.toHexString(value))
