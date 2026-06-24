@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
  *
  * See <a href="https://docs.hedera.com/guides/docs/sdks/file-storage/update-a-file">Hedera Documentation</a>
  */
-public final class FileUpdateTransaction extends Transaction<FileUpdateTransaction> {
+public final class FileUpdateTransaction extends ChunkedTransaction<FileUpdateTransaction> {
 
     @Nullable
     private FileId fileId = null;
@@ -56,8 +56,6 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
     private Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
-
-    private byte[] contents = {};
 
     @Nullable
     private String fileMemo = null;
@@ -184,69 +182,59 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
     }
 
     /**
-     * Extract the files contents as a byte string.
-     *
-     * @return                          the files contents as a byte string
-     */
-    public ByteString getContents() {
-        return ByteString.copyFrom(contents);
-    }
+	 * Extract the files contents as a byte string.
+	 *
+	 * @return the files contents as a byte string
+	 */
+	public ByteString getContents() {
+		return getData();
+	}
 
     /**
-     * If set, replace contents of the file identified by {@link #setFileId(FileId)}
-     * with the given bytes.
-     * <p>
-     * If the contents of the file are longer than the given byte array, then the file will
-     * be truncated.
-     * <p>
-     * Note that total size for a given transaction is limited to 6KiB (as of March 2020) by the
-     * network; if you exceed this you may receive a {@link Status#TRANSACTION_OVERSIZE}.
-     * <p>
-     * In this case, you will need to keep the initial file contents under ~6KiB and
-     * then use {@link FileAppendTransaction}, which automatically breaks the contents
-     * into chunks for you, to append contents of arbitrary size.
-     *
-     * @param bytes the bytes to replace the contents of the file with.
-     * @return {@code this}
-     * @see #setContents(String) for an overload which takes a String.
-     * @see FileAppendTransaction if you merely want to add data to a file's existing contents.
-     */
-    public FileUpdateTransaction setContents(byte[] bytes) {
-        requireNotFrozen();
-        Objects.requireNonNull(bytes);
-        contents = Arrays.copyOf(bytes, bytes.length);
-        return this;
-    }
+	 * <p>
+	 * If set, replace contents of the file identified by {@link #setFileId(FileId)}
+	 * with the given bytes.
+	 * 
+	 * <p>
+	 * If the contents of the file are longer than the given byte array, then the
+	 * file will be truncated.
+	 *
+	 * @param bytes the bytes to replace the contents of the file with.
+	 * @return {@code this}
+	 * @see #setContents(String) for an overload which takes a String.
+	 * @see FileAppendTransaction if you merely want to add data to a file's
+	 *      existing contents.
+	 */
+	public FileUpdateTransaction setContents(byte[] bytes) {
+		requireNotFrozen();
+		Objects.requireNonNull(bytes);
+		return setData(bytes);
+	}
 
     /**
-     * If set, encode the given {@link String} as UTF-8 and replace the contents of the file
-     * identified by {@link #setFileId(FileId)}.
-     * <p>
-     * If the contents of the file are longer than the UTF-8 encoding of the given string, then the
-     * file will be truncated.
-     * <p>
-     * The string can later be recovered from {@link FileContentsQuery#execute(Client)}
-     * via {@link String#String(byte[], java.nio.charset.Charset)} using
-     * {@link java.nio.charset.StandardCharsets#UTF_8}.
-     * <p>
-     * Note that total size for a given transaction is limited to 6KiB (as of March 2020) by the
-     * network; if you exceed this you may receive a  {@link Status#TRANSACTION_OVERSIZE}.
-     * <p>
-     * In this case, you will need to keep the initial file contents under ~6KiB and
-     * then use {@link FileAppendTransaction}, which automatically breaks the contents
-     * into chunks for you, to append contents of arbitrary size.
-     *
-     * @param text the string to replace the contents of the file with.
-     * @return {@code this}
-     * @see #setContents(byte[]) for replacing the contents with arbitrary data.
-     * @see FileAppendTransaction if you merely want to add data to a file's existing contents.
-     */
-    public FileUpdateTransaction setContents(String text) {
-        Objects.requireNonNull(text);
-        requireNotFrozen();
-        contents = text.getBytes(StandardCharsets.UTF_8);
-        return this;
-    }
+	 * If set, encode the given {@link String} as UTF-8 and replace the contents of
+	 * the file identified by {@link #setFileId(FileId)}.
+	 * <p>
+	 * If the contents of the file are longer than the UTF-8 encoding of the given
+	 * string, then the file will be truncated.
+	 * <p>
+	 * The string can later be recovered from
+	 * {@link FileContentsQuery#execute(Client)} via
+	 * {@link String#String(byte[], java.nio.charset.Charset)} using
+	 * {@link java.nio.charset.StandardCharsets#UTF_8}.
+	 *
+	 * @param text the string to replace the contents of the file with.
+	 * @return {@code this}
+	 * @see #setContents(byte[]) for replacing the contents with arbitrary data.
+	 * @see FileAppendTransaction if you merely want to add data to a file's
+	 *      existing contents.
+	 */
+	public FileUpdateTransaction setContents(String text) {
+		requireNotFrozen();
+		Objects.requireNonNull(text);
+		return setData(text);
+		
+	}
 
     /**
      * Extract the file's memo up to 100 bytes.
@@ -302,7 +290,17 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
         if (body.hasMemo()) {
             fileMemo = body.getMemo().getValue();
         }
-        contents = body.getContents().toByteArray();
+        
+        if (hasInnerSignedTransactions()) {
+           setDataFromInnerSignedTransactions();
+        } else {
+        	setData(body.getContents().toByteArray());
+        }
+    }
+    
+    @Override
+    protected ByteString extractContents(TransactionBody body) {
+        return body.getFileUpdate().getContents();
     }
 
     /**
@@ -324,12 +322,23 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
         if (expirationTimeDuration != null) {
             builder.setExpirationTime(InstantConverter.toProtobuf(expirationTimeDuration));
         }
-        builder.setContents(ByteString.copyFrom(contents));
+        builder.setContents(getData());
         if (fileMemo != null) {
             builder.setMemo(StringValue.of(fileMemo));
         }
 
         return builder;
+    }
+    
+    @Override
+    void onFreezeChunk(
+            TransactionBody.Builder body,
+            @Nullable TransactionID initialTransactionId,
+            int startIndex,
+            int endIndex,
+            int chunk,
+            int total) {
+        body.setFileUpdate(build().setContents(data.substring(startIndex, endIndex)));
     }
 
     @Override
