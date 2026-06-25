@@ -154,18 +154,6 @@ public class EthereumTransactionDataEip2930 extends EthereumTransactionData {
     }
 
     /**
-     * Store an access-list RLP element as bytes: empty for an empty list (keeping the common case {@code ""}),
-     * otherwise its full self-contained RLP encoding.
-     */
-    private static byte[] encodedAccessList(RLPItem accessListElement) {
-        if (accessListElement.isList()
-                && accessListElement.asRLPList().elements().isEmpty()) {
-            return new byte[] {};
-        }
-        return accessListElement.encoding();
-    }
-
-    /**
      * RLP-encode the unsigned payload (8 fields through the access list).
      */
     byte[] toUnsignedRlp() {

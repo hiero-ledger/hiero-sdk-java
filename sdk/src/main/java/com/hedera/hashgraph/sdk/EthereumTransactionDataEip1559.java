@@ -170,16 +170,7 @@ public class EthereumTransactionDataEip1559 extends EthereumTransactionData {
      * RLP-encode the unsigned payload (9 fields through the access list).
      */
     byte[] toUnsignedRlp() {
-        return RLPEncoder.list(
-                chainId,
-                nonce,
-                maxPriorityGas,
-                maxGas,
-                gasLimit,
-                to,
-                value,
-                callData,
-                AccessListItem.accessListBytesToRlpObjects(accessList));
+        return RLPEncoder.list(chainId, nonce, maxPriorityGas, maxGas, gasLimit, to, value, callData, accessList);
     }
 
     public byte[] toBytes() {

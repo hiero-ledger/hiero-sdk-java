@@ -176,40 +176,6 @@ public class AccessListItem {
         return accessListItemsFromRlp(RLPDecoder.RLP_STRICT.wrap(accessList));
     }
 
-    /**
-     * Convert the stored {@code accessList} bytes into the nested {@code [address, [storageKeys...]]} object form that
-     * Headlong's {@code RLPEncoder} accepts as a nested list element. This lets {@code toBytes()}/{@code toUnsignedRlp()}
-     * embed the access list using bytes only, without constructing {@link AccessListItem} objects.
-     *
-     * @param accessList the stored access list bytes
-     * @return the nested RLP object form (empty list when there are no items)
-     */
-    static List<Object> accessListBytesToRlpObjects(byte[] accessList) {
-        List<Object> result = new ArrayList<>();
-        if (accessList == null || accessList.length == 0) {
-            return result;
-        }
-        RLPItem listItem = RLPDecoder.RLP_STRICT.wrap(accessList);
-        if (!listItem.isList()) {
-            return result;
-        }
-        for (RLPItem entry : listItem.asRLPList().elements()) {
-            if (!entry.isList()) {
-                continue;
-            }
-            List<RLPItem> parts = entry.asRLPList().elements();
-            if (parts.size() != 2 || !parts.get(1).isList()) {
-                continue;
-            }
-            List<Object> keys = new ArrayList<>();
-            for (RLPItem key : parts.get(1).asRLPList().elements()) {
-                keys.add(key.data());
-            }
-            result.add(Arrays.asList(parts.get(0).data(), keys));
-        }
-        return result;
-    }
-
     @Override
     public String toString() {
         List<String> keys = new ArrayList<>(storageKeys.size());
