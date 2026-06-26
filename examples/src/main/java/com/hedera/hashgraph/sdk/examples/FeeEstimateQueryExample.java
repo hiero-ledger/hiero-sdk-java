@@ -61,7 +61,9 @@ class FeeEstimateQueryExample {
         TransferTransaction tx = createTransferTransaction(client, recipientId);
         FeeEstimateResponse stateEstimate = estimateWithStateMode(client, tx);
         FeeEstimateResponse intrinsicEstimate = estimateWithIntrinsicMode(client, tx);
+
         compareEstimates(stateEstimate, intrinsicEstimate);
+
         demonstrateTokenCreationEstimate(client);
 
         client.close();
@@ -100,10 +102,11 @@ class FeeEstimateQueryExample {
     private static FeeEstimateResponse estimateWithStateMode(Client client, TransferTransaction tx) throws Exception {
         System.out.println("\n=== Estimating Fees with STATE Mode ===");
 
-        FeeEstimateResponse stateEstimate = new FeeEstimateQuery()
+        FeeEstimateQuery query = new FeeEstimateQuery()
                 .setMode(FeeEstimateMode.STATE)
-                .setTransaction(tx)
-                .execute(client);
+                .setTransaction(tx);
+
+        FeeEstimateResponse stateEstimate = executeWithRetry(query, client);
 
         printNetworkFee(stateEstimate);
         printNodeFee(stateEstimate);
@@ -151,10 +154,11 @@ class FeeEstimateQueryExample {
             throws Exception {
         System.out.println("\n=== Estimating Fees with INTRINSIC Mode ===");
 
-        FeeEstimateResponse intrinsicEstimate = new FeeEstimateQuery()
+        FeeEstimateQuery query = new FeeEstimateQuery()
                 .setMode(FeeEstimateMode.INTRINSIC)
-                .setTransaction(tx)
-                .execute(client);
+                .setTransaction(tx);
+
+        FeeEstimateResponse intrinsicEstimate = executeWithRetry(query, client);
 
         System.out.println(
                 "Network Fee Subtotal: " + intrinsicEstimate.getNetwork().getSubtotal() + " tinycents");
@@ -187,12 +191,33 @@ class FeeEstimateQueryExample {
                 .freezeWith(client)
                 .signWithOperator(client);
 
-        FeeEstimateResponse tokenEstimate = new FeeEstimateQuery()
+        FeeEstimateQuery query = new FeeEstimateQuery()
                 .setMode(FeeEstimateMode.STATE)
-                .setTransaction(tokenTx)
-                .execute(client);
+                .setTransaction(tokenTx);
+
+        FeeEstimateResponse tokenEstimate = executeWithRetry(query, client);
 
         System.out.println("Token Creation Estimated Fee:  " + tokenEstimate.getTotal() + " tinycents");
         System.out.println("Token Creation Estimated Fee: " + Hbar.fromTinybars(tokenEstimate.getTotal() / 100));
+    }
+
+    private static FeeEstimateResponse executeWithRetry(FeeEstimateQuery query, Client client) throws Exception {
+        int maxAttempts = 5;
+        int waitMillis = 2000;
+        IllegalStateException lastException = null;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return query.execute(client);
+            } catch (IllegalStateException e) {
+                lastException = e;
+                System.err.println("Attempt " + attempt + " failed: " + e.getMessage());
+                if (attempt < maxAttempts) {
+                    System.out.println("Waiting " + (waitMillis / 1000) + " seconds before retry...");
+                    Thread.sleep(waitMillis);
+                }
+            }
+        }
+        throw new RuntimeException("Failed to execute FeeEstimateQuery after " + maxAttempts + " attempts", lastException);
     }
 }
