@@ -186,22 +186,16 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
             fileId = FileId.fromProtobuf(body.getFileID());
         }
 
-        if (!innerSignedTransactions.isEmpty()) {
-            try {
-                for (var i = 0;
-                        i < innerSignedTransactions.size();
-                        i += nodeAccountIds.isEmpty() ? 1 : nodeAccountIds.size()) {
-                    data = data.concat(TransactionBody.parseFrom(
-                                    innerSignedTransactions.get(i).getBodyBytes())
-                            .getFileAppend()
-                            .getContents());
-                }
-            } catch (InvalidProtocolBufferException exc) {
-                throw new IllegalArgumentException(exc.getMessage());
-            }
+        if (hasInnerSignedTransactions()) {
+           setDataFromInnerSignedTransactions();
         } else {
-            data = body.getContents();
+        	setData(body.getContents().toByteArray());
         }
+    }
+    
+    @Override
+    protected ByteString extractContents(TransactionBody body) {
+        return body.getFileAppend().getContents();
     }
 
     /**
@@ -214,7 +208,7 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
         if (fileId != null) {
             builder.setFileID(fileId.toProtobuf());
         }
-        builder.setContents(data);
+        builder.setContents(getData());
 
         return builder;
     }

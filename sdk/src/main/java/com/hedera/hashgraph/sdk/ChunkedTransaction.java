@@ -118,6 +118,51 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
         // noinspection unchecked
         return (T) this;
     }
+    
+    /**
+	 * Checks whether {@code innerSignedTransactions} is not empty.
+	 *
+	 * @return {@code true} if {@code innerSignedTransactions} is not empty; otherwise {@code false}
+	 */
+    boolean hasInnerSignedTransactions(){
+    	return (!innerSignedTransactions.isEmpty());
+    }
+    
+    /**
+	 * Assigns the data via {@code innerSignedTransactions}.
+	 *
+	 * @return {@code this}
+	 * @throws IllegalArgumentException if {@code innerSignedTransactions} is empty
+	 */
+    T setDataFromInnerSignedTransactions() {
+        if (!innerSignedTransactions.isEmpty()) {
+            try {
+                for (var i = 0; i < innerSignedTransactions.size(); i += nodeAccountIds.isEmpty() ? 1 : nodeAccountIds.size()) {
+                    ByteString content = extractContents(TransactionBody.parseFrom(innerSignedTransactions.get(i).getBodyBytes()));
+                    data = data.concat(content);
+                }
+                return (T) this;
+            } catch (InvalidProtocolBufferException exc) {
+                throw new IllegalArgumentException(exc.getMessage());
+            }
+        }
+        return (T) this;
+    }
+     
+	/**
+	 * Extracts the content bytes from a {@link TransactionBody}.
+	 * <p>
+	 * This is a template method used by
+	 * {@link #setDataFromInnerSignedTransactions()} to consolidate content from
+	 * multiple inner signed transactions. Because different transaction types
+	 * (e.g., FileCreate, FileUpdate, FileAppend) store their content in different
+	 * fields of the protobuf body, child classes must implement this method to
+	 * specify the correct field to extract.
+	 *
+	 * @param body The protobuf transaction body to extract data from.
+	 * @return The {@link ByteString} representing the content of the transaction.
+	 */
+     protected abstract ByteString extractContents(TransactionBody body);
 
     /**
      * Retrieve the maximum number of chunks.

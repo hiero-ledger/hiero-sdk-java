@@ -194,6 +194,11 @@ public final class TopicMessageSubmitTransaction extends ChunkedTransaction<Topi
         }
     }
 
+     @Override
+    protected ByteString extractContents(TransactionBody body) {
+        return body.getConsensusSubmitMessage().getMessage();
+    }
+    
     /**
      * Build the transaction body.
      *

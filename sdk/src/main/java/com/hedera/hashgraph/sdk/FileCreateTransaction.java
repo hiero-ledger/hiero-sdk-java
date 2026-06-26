@@ -7,12 +7,11 @@ import com.hedera.hashgraph.sdk.proto.FileCreateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.FileServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
+import com.hedera.hashgraph.sdk.proto.TransactionID;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -23,7 +22,7 @@ import javax.annotation.Nullable;
  * Create a new file.
  *
  * If successful, the new file SHALL contain the (possibly empty) content
- * provided in the `contents` field.<br/>
+ * provided in the `data` field in {@link ChunkedTransaction}.<br/>
  * When the current consensus time exceeds the `expirationTime` value, the
  * network SHALL expire the file, and MAY archive the state entry.
  *
@@ -60,7 +59,7 @@ import javax.annotation.Nullable;
  * After the file is created, the FileID for it SHALL be returned in the
  * transaction receipt, and SHALL be recorded in the transaction record.
  */
-public final class FileCreateTransaction extends Transaction<FileCreateTransaction> {
+public final class FileCreateTransaction extends ChunkedTransaction<FileCreateTransaction> {
 
     @Nullable
     private Instant expirationTime = null;
@@ -70,7 +69,6 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
     @Nullable
     private KeyList keys = null;
 
-    private byte[] contents = {};
     private String fileMemo = "";
 
     /**
@@ -175,61 +173,51 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
     }
 
     /**
-     * Create the byte string.
-     *
-     * @return                          byte string representation
-     */
-    public ByteString getContents() {
-        return ByteString.copyFrom(contents);
-    }
+	 * Extract the files contents as a byte string.
+	 *
+	 * @return the files contents as a byte string
+	 */
+	public ByteString getContents() {
+		return getData();
+	}
 
     /**
-     * <p>Set the given byte array as the file's contents.
-     *
-     * <p>This may be omitted to create an empty file.
-     *
-     * <p>Note that total size for a given transaction is limited to 6KiB (as of March 2020) by the
-     * network; if you exceed this you may receive a {@link PrecheckStatusException}
-     * with {@link com.hedera.hashgraph.sdk.Status#TRANSACTION_OVERSIZE}.
-     *
-     * <p>In this case, you can use {@link FileAppendTransaction}, which automatically breaks the contents
-     * into chunks for you, to append contents of arbitrary size.
-     *
-     * @param bytes the contents of the file.
-     * @return {@code this}
-     */
-    public FileCreateTransaction setContents(byte[] bytes) {
-        requireNotFrozen();
-        Objects.requireNonNull(bytes);
-        contents = Arrays.copyOf(bytes, bytes.length);
-        return this;
-    }
+	 * <p>
+	 * Set the given byte array as the file's contents.
+	 *
+	 * <p>
+	 * This may be omitted to create an empty file.
+	 *
+	 * @param bytes the contents of the file.
+	 * @return {@code this}
+	 */
+	public FileCreateTransaction setContents(byte[] bytes) {
+		requireNotFrozen();
+		Objects.requireNonNull(bytes);
+		return setData(bytes);
+	}
 
     /**
-     * <p>Encode the given {@link String} as UTF-8 and set it as the file's contents.
-     *
-     * <p>This may be omitted to create an empty file.
-     *
-     * <p>The string can later be recovered from {@link FileContentsQuery#execute(Client)}
-     * via {@link String#String(byte[], java.nio.charset.Charset)} using
-     * {@link java.nio.charset.StandardCharsets#UTF_8}.
-     *
-     * <p>Note that total size for a given transaction is limited to 6KiB (as of March 2020) by the
-     * network; if you exceed this you may receive a {@link PrecheckStatusException}
-     * with {@link com.hedera.hashgraph.sdk.Status#TRANSACTION_OVERSIZE}.
-     *
-     * <p>In this case, you can use {@link FileAppendTransaction}, which automatically breaks the contents
-     * into chunks for you, to append contents of arbitrary size.
-     *
-     * @param text the contents of the file.
-     * @return {@code this}
-     */
-    public FileCreateTransaction setContents(String text) {
-        requireNotFrozen();
-        Objects.requireNonNull(text);
-        contents = text.getBytes(StandardCharsets.UTF_8);
-        return this;
-    }
+	 * <p>
+	 * Encode the given {@link String} as UTF-8 and set it as the file's contents.
+	 *
+	 * <p>
+	 * This may be omitted to create an empty file.
+	 *
+	 * <p>
+	 * The string can later be recovered from
+	 * {@link FileContentsQuery#execute(Client)} via
+	 * {@link String#String(byte[], java.nio.charset.Charset)} using
+	 * {@link java.nio.charset.StandardCharsets#UTF_8}.
+	 *
+	 * @param text the contents of the file.
+	 * @return {@code this}
+	 */
+	public FileCreateTransaction setContents(String text) {
+		requireNotFrozen();
+		Objects.requireNonNull(text);
+		return setData(text);
+	}
 
     /**
      * Extract the file's memo field.
@@ -274,8 +262,18 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
         if (body.hasKeys()) {
             keys = KeyList.fromProtobuf(body.getKeys(), null);
         }
-        contents = body.getContents().toByteArray();
         fileMemo = body.getMemo();
+        
+        if (hasInnerSignedTransactions()) {
+           setDataFromInnerSignedTransactions();
+        } else {
+        	setData(body.getContents().toByteArray());
+        }
+    }
+    
+    @Override
+    protected ByteString extractContents(TransactionBody body) {
+        return body.getFileCreate().getContents();
     }
 
     /**
@@ -295,10 +293,21 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
         if (keys != null) {
             builder.setKeys(keys.toProtobuf());
         }
-        builder.setContents(ByteString.copyFrom(contents));
+        builder.setContents(getData());
         builder.setMemo(fileMemo);
 
         return builder;
+    }
+    
+    @Override
+    void onFreezeChunk(
+            TransactionBody.Builder body,
+            @Nullable TransactionID initialTransactionId,
+            int startIndex,
+            int endIndex,
+            int chunk,
+            int total) {
+        body.setFileCreate(build().setContents(data.substring(startIndex, endIndex)));
     }
 
     @Override
