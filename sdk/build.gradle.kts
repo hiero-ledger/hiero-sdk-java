@@ -41,6 +41,31 @@ testIntegrationModuleInfo {
     runtimeOnly("org.slf4j.simple")
 }
 
+// Remap protobuf java_package to SDK namespace to avoid FQCN conflicts
+// when used alongside hedera-protobuf-java-api
+val transformProtos by tasks.registering(Copy::class) {
+    from("src/main/proto")
+    into(layout.buildDirectory.dir("transformed-protos"))
+    filter { line ->
+        if (line.trim().startsWith("option java_package")) {
+            line.replace("com.hedera.hapi", "com.hedera.hashgraph.sdk.proto")
+                .replace("com.hederahashgraph.api.proto.java", "com.hedera.hashgraph.sdk.proto")
+                .replace("com.hederahashgraph.service.proto.java", "com.hedera.hashgraph.sdk.proto")
+                .replace("com.hedera.mirror.api.proto", "com.hedera.hashgraph.sdk.proto.mirror")
+        } else {
+            line
+        }
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            setSrcDirs(listOf(transformProtos))
+        }
+    }
+}
+
 protobuf {
     generateProtoTasks {
         all().configureEach {
