@@ -12,7 +12,7 @@ module com.hedera.hashgraph.sdk {
     requires org.bouncycastle.pkix;
     requires org.bouncycastle.provider;
     requires org.slf4j;
-    requires static transitive java.annotation;
+    requires static java.annotation;
 
     exports com.hedera.hashgraph.sdk;
     exports com.hedera.hashgraph.sdk.proto;
