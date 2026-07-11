@@ -68,7 +68,7 @@ public final class FileInfo {
     }
 
     /**
-     * Create a file info object from a ptotobuf.
+     * Create a file info object from a protobuf.
      *
      * @param fileInfo                  the protobuf
      * @return                          the new file info object
