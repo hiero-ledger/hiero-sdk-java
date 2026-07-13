@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonObject;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
 
 /**
@@ -20,9 +21,20 @@ public final class Transfer {
      */
     public final Hbar amount;
 
+    /**
+     * If true then the transfer is expected to be an approved allowance and the
+     * accountId is expected to be the owner. The default is false.
+     */
+    public final boolean isApproved;
+
     Transfer(AccountId accountId, Hbar amount) {
+        this(accountId, amount, false);
+    }
+
+    Transfer(AccountId accountId, Hbar amount, boolean isApproved) {
         this.accountId = accountId;
         this.amount = amount;
+        this.isApproved = isApproved;
     }
 
     /**
@@ -33,7 +45,9 @@ public final class Transfer {
      */
     static Transfer fromProtobuf(AccountAmount accountAmount) {
         return new Transfer(
-                AccountId.fromProtobuf(accountAmount.getAccountID()), Hbar.fromTinybars(accountAmount.getAmount()));
+                AccountId.fromProtobuf(accountAmount.getAccountID()),
+                Hbar.fromTinybars(accountAmount.getAmount()),
+                accountAmount.getIsApproval());
     }
 
     /**
@@ -45,7 +59,21 @@ public final class Transfer {
         return AccountAmount.newBuilder()
                 .setAccountID(accountId.toProtobuf())
                 .setAmount(amount.toTinybars())
+                .setIsApproval(isApproved)
                 .build();
+    }
+
+    /**
+     * Build a Gson representation of this transfer, mirroring the JS SDK's {@code Transfer.toJSON()}.
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("accountId", accountId.toString());
+        json.addProperty("amount", String.valueOf(amount.toTinybars()));
+        json.addProperty("isApproved", isApproved);
+        return json;
     }
 
     @Override

@@ -2,6 +2,10 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.ExchangeRateSet;
@@ -388,6 +392,71 @@ public final class TransactionReceipt {
                 .add("duplicates", duplicates)
                 .add("children", children)
                 .toString();
+    }
+
+    /**
+     * Build a JSON representation of this receipt
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("status", status.toString());
+        addNullableString(json, "accountId", accountId != null ? accountId.toString() : null);
+        addNullableString(json, "fileId", fileId != null ? fileId.toString() : null);
+        addNullableString(json, "contractId", contractId != null ? contractId.toString() : null);
+        addNullableString(json, "topicId", topicId != null ? topicId.toString() : null);
+        addNullableString(json, "tokenId", tokenId != null ? tokenId.toString() : null);
+        addNullableString(json, "scheduleId", scheduleId != null ? scheduleId.toString() : null);
+        json.add("exchangeRate", exchangeRate.toJsonObject());
+        json.add("nextExchangeRate", nextExchangeRate.toJsonObject());
+        addNullableString(
+                json, "topicSequenceNumber", topicSequenceNumber != null ? String.valueOf(topicSequenceNumber) : null);
+        addNullableString(
+                json,
+                "topicRunningHash",
+                topicRunningHash != null ? Hex.toHexString(topicRunningHash.toByteArray()) : null);
+        json.addProperty("totalSupply", String.valueOf(totalSupply));
+        addNullableString(
+                json,
+                "scheduledTransactionId",
+                scheduledTransactionId != null ? scheduledTransactionId.toString() : null);
+        var serialsArray = new JsonArray();
+        for (var serial : serials) {
+            serialsArray.add(String.valueOf(serial));
+        }
+        json.add("serials", serialsArray);
+        var duplicatesArray = new JsonArray();
+        for (var duplicate : duplicates) {
+            duplicatesArray.add(duplicate.toJsonObject());
+        }
+        json.add("duplicates", duplicatesArray);
+        var childrenArray = new JsonArray();
+        for (var child : children) {
+            childrenArray.add(child.toJsonObject());
+        }
+        json.add("children", childrenArray);
+        json.addProperty("registeredNodeId", String.valueOf(registeredNodeId));
+        json.addProperty("nodeId", String.valueOf(nodeId));
+        return json;
+    }
+
+    private static void addNullableString(JsonObject json, String key, @Nullable String value) {
+        if (value != null) {
+            json.addProperty(key, value);
+        } else {
+            json.add(key, JsonNull.INSTANCE);
+        }
+    }
+
+    /**
+     * Serialize this receipt to a JSON string, matching the JS SDK's
+     * {@code JSON.stringify(receipt.toJSON())} so all SDKs produce identical JSON.
+     *
+     * @return the JSON string
+     */
+    public String toJson() {
+        return new GsonBuilder().disableHtmlEscaping().create().toJson(toJsonObject());
     }
 
     /**
