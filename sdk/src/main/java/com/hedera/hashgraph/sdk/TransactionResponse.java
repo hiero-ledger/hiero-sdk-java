@@ -2,6 +2,8 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -414,5 +416,28 @@ public final class TransactionResponse {
                 .add("transactionHash", Hex.toHexString(transactionHash))
                 .add("transactionId", transactionId)
                 .toString();
+    }
+
+    /**
+     * Build a JSON representation of this response
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("nodeId", nodeId.toString());
+        json.addProperty("transactionHash", Hex.toHexString(transactionHash));
+        json.addProperty("transactionId", transactionId.toString());
+        return json;
+    }
+
+    /**
+     * Serialize this response to a JSON string, matching the JS SDK's
+     * {@code JSON.stringify(response.toJSON())} so all SDKs produce identical JSON.
+     *
+     * @return the JSON string
+     */
+    public String toJson() {
+        return new GsonBuilder().disableHtmlEscaping().create().toJson(toJsonObject());
     }
 }

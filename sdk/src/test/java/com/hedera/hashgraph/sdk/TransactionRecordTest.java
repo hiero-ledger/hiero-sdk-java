@@ -109,4 +109,16 @@ public class TransactionRecordTest {
         assertThat(copyRecord.toString()).isEqualTo(originalRecord.toString());
         SnapshotMatcher.expect(originalRecord.toString()).toMatchSnapshot();
     }
+
+    @Test
+    void shouldSerializeToJson() throws Exception {
+        var originalRecord = spawnRecordExample(ByteString.copyFrom("very random bytes", StandardCharsets.UTF_8), null);
+        SnapshotMatcher.expect(originalRecord.toJson()).toMatchSnapshot();
+    }
+
+    @Test
+    void shouldSerializeToJson2() throws Exception {
+        var originalRecord = spawnRecordExample(null, 4 /* chosen by fair dice roll.  Guaranteed to be random */);
+        SnapshotMatcher.expect(originalRecord.toJson()).toMatchSnapshot();
+    }
 }

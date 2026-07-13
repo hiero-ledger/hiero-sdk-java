@@ -57,4 +57,13 @@ public class TransactionReceiptTest {
         assertThat(copyTransactionReceipt.toString()).isEqualTo(originalTransactionReceipt.toString());
         SnapshotMatcher.expect(originalTransactionReceipt.toString()).toMatchSnapshot();
     }
+
+    @Test
+    void shouldSerializeToJson() throws Exception {
+        var originalTransactionReceipt = spawnReceiptExample();
+        byte[] transactionReceiptBytes = originalTransactionReceipt.toBytes();
+        var copyTransactionReceipt = TransactionReceipt.fromBytes(transactionReceiptBytes);
+        assertThat(copyTransactionReceipt.toJson()).isEqualTo(originalTransactionReceipt.toJson());
+        SnapshotMatcher.expect(originalTransactionReceipt.toJson()).toMatchSnapshot();
+    }
 }
