@@ -890,4 +890,93 @@ public class TransactionIntegrationTest {
             assertThat(deleteReceipt.status).isEqualTo(Status.SUCCESS);
         }
     }
+
+    /**
+     * Integration test for RemoveSignature functionality.
+     * Adds a signature, removes it, adds it back, and executes the transaction.
+     */
+    @Test
+    @DisplayName("RemoveSignature - can remove a signature, add it back, and execute")
+    void canRemoveSignatureFromTransaction() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var newKey = PrivateKey.generateED25519();
+
+            var createResponse = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(newKey.getPublicKey())
+                    .setNodeAccountIds(
+                            testEnv.client.getNetwork().values().stream().toList())
+                    .execute(testEnv.client);
+
+            var createReceipt = createResponse.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(createReceipt.accountId);
+            var nodeId = createResponse.nodeId;
+
+            var deleteTransaction = new AccountDeleteTransaction()
+                    .setNodeAccountIds(Arrays.asList(nodeId))
+                    .setAccountId(accountId)
+                    .setTransferAccountId(testEnv.client.getOperatorAccountId())
+                    .freezeWith(testEnv.client);
+
+            // Sign the transaction externally and add the signature.
+            var signature = newKey.signTransaction(deleteTransaction);
+            deleteTransaction.addSignature(newKey.getPublicKey(), signature);
+            assertThat(deleteTransaction.getSignatures().get(nodeId)).containsKey(newKey.getPublicKey());
+
+            // Remove the signature - the returned bytes should match what was added.
+            var removedSignatures = deleteTransaction.removeSignature(newKey.getPublicKey());
+            assertThat(removedSignatures).isNotEmpty();
+            assertThat(removedSignatures.get(0)).isEqualTo(signature);
+            assertThat(deleteTransaction.getSignatures()).isEmpty();
+
+            // Add the signature back and execute.
+            deleteTransaction.addSignature(newKey.getPublicKey(), signature);
+            var deleteReceipt = deleteTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+
+            assertThat(deleteReceipt.status).isEqualTo(Status.SUCCESS);
+        }
+    }
+
+    /**
+     * Integration test for RemoveAllSignatures functionality.
+     * Adds a signature, removes all signatures, re-signs, and executes the transaction.
+     */
+    @Test
+    @DisplayName("RemoveAllSignatures - can clear all signatures, re-sign, and execute")
+    void canRemoveAllSignaturesFromTransaction() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var newKey = PrivateKey.generateED25519();
+
+            var createResponse = new AccountCreateTransaction()
+                    .setKeyWithoutAlias(newKey.getPublicKey())
+                    .setNodeAccountIds(
+                            testEnv.client.getNetwork().values().stream().toList())
+                    .execute(testEnv.client);
+
+            var createReceipt = createResponse.getReceipt(testEnv.client);
+            var accountId = Objects.requireNonNull(createReceipt.accountId);
+            var nodeId = createResponse.nodeId;
+
+            var deleteTransaction = new AccountDeleteTransaction()
+                    .setNodeAccountIds(Arrays.asList(nodeId))
+                    .setAccountId(accountId)
+                    .setTransferAccountId(testEnv.client.getOperatorAccountId())
+                    .freezeWith(testEnv.client);
+
+            var signature = newKey.signTransaction(deleteTransaction);
+            deleteTransaction.addSignature(newKey.getPublicKey(), signature);
+
+            var removedSignatures = deleteTransaction.removeAllSignatures();
+            assertThat(removedSignatures).containsKey(newKey.getPublicKey());
+            assertThat(removedSignatures.get(newKey.getPublicKey()).get(0)).isEqualTo(signature);
+            assertThat(deleteTransaction.getSignatures()).isEmpty();
+
+            // Re-sign and execute.
+            deleteTransaction.sign(newKey);
+            var deleteReceipt = deleteTransaction.execute(testEnv.client).getReceipt(testEnv.client);
+
+            assertThat(deleteReceipt.status).isEqualTo(Status.SUCCESS);
+        }
+    }
 }
