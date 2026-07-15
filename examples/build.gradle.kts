@@ -16,6 +16,8 @@ dependencyAnalysis {
     }
 }
 
+dependencies { implementation(platform("org.hiero:hiero-dependency-versions")) }
+
 dependencies.constraints {
     implementation("com.google.guava:guava:33.4.8-android")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
