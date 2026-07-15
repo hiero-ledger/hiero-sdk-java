@@ -1190,9 +1190,7 @@ public abstract class Transaction<T extends Transaction<T>>
         transactionIds.setLocked(true);
         nodeAccountIds.setLocked(true);
 
-        for (int i = 0; i < outerTransactions.size(); i++) {
-            outerTransactions.set(i, null);
-        }
+        nullifyOuterTransactions();
         publicKeys.add(publicKey);
         signers.add(null);
         sigPairLists.get(0).addSigPair(publicKey.toSignaturePairProtobuf(signature));
@@ -1200,6 +1198,129 @@ public abstract class Transaction<T extends Transaction<T>>
 
         // noinspection unchecked
         return (T) this;
+    }
+
+    /**
+     * Remove all signatures associated with the given public key from the transaction.
+     *
+     * <p>The transaction must be frozen and the public key must have already signed the transaction (either via
+     * {@link #addSignature(PublicKey, byte[])}, {@link #sign(PrivateKey)} or one of the {@code signWith} variants),
+     * otherwise an exception is thrown.
+     *
+     * @param publicKey the public key whose signatures should be removed
+     * @return the removed signatures (one per inner transaction the key had signed)
+     * @throws IllegalStateException    if the transaction is not frozen
+     * @throws IllegalArgumentException if the public key has not signed this transaction
+     */
+    public List<byte[]> removeSignature(PublicKey publicKey) {
+        if (!isFrozen()) {
+            throw new IllegalStateException("Transaction must be frozen in order to remove signatures.");
+        }
+
+        if (!publicKeys.contains(publicKey)) {
+            throw new IllegalArgumentException("The public key has not signed this transaction");
+        }
+
+        // Materialize any pending signers so the returned signatures reflect real bytes.
+        buildAllTransactions();
+
+        var removedSignatures = new ArrayList<byte[]>();
+        for (int i = 0; i < sigPairLists.size(); i++) {
+            removedSignatures.addAll(removeSignaturesFromSigMap(i, publicKey));
+        }
+
+        // Keep the parallel arrays consistent by removing every matching entry by index. The multi-node
+        // addSignature overload can register the same public key more than once (one entry per node).
+        for (int index = publicKeys.indexOf(publicKey); index >= 0; index = publicKeys.indexOf(publicKey)) {
+            publicKeys.remove(index);
+            signers.remove(index);
+        }
+
+        nullifyOuterTransactions();
+
+        return removedSignatures;
+    }
+
+    /**
+     * Remove all signatures from the transaction.
+     *
+     * <p>The transaction must be frozen. The removed signatures are returned grouped by the public key that produced
+     * them.
+     *
+     * @return the removed signatures grouped by public key
+     * @throws IllegalStateException if the transaction is not frozen
+     */
+    public Map<PublicKey, List<byte[]>> removeAllSignatures() {
+        if (!isFrozen()) {
+            throw new IllegalStateException("Transaction must be frozen in order to remove signatures.");
+        }
+
+        if (publicKeys.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // Materialize any pending signers so the returned signatures reflect real bytes.
+        buildAllTransactions();
+
+        var removedSignatures = new HashMap<PublicKey, List<byte[]>>();
+        for (int i = 0; i < sigPairLists.size(); i++) {
+            var sigMapBuilder = sigPairLists.get(i);
+            for (var sigPair : sigMapBuilder.getSigPairList()) {
+                var publicKey = PublicKey.fromBytes(sigPair.getPubKeyPrefix().toByteArray());
+                removedSignatures
+                        .computeIfAbsent(publicKey, k -> new ArrayList<>())
+                        .add(publicKey.extractSignatureFromProtobuf(sigPair).toByteArray());
+            }
+            sigMapBuilder.clearSigPair();
+            if (i < innerSignedTransactions.size()) {
+                innerSignedTransactions.get(i).setSigMap(sigMapBuilder);
+            }
+        }
+
+        publicKeys.clear();
+        signers.clear();
+
+        nullifyOuterTransactions();
+
+        return removedSignatures;
+    }
+
+    /**
+     * Remove every signature pair produced by the given public key from the signature map at {@code index}, keeping the
+     * matching inner signed transaction in sync.
+     *
+     * @param index     the inner-transaction index
+     * @param publicKey the public key whose signatures should be removed
+     * @return the removed signatures for this index
+     */
+    private List<byte[]> removeSignaturesFromSigMap(int index, PublicKey publicKey) {
+        var removedSignatures = new ArrayList<byte[]>();
+        var sigMapBuilder = sigPairLists.get(index);
+
+        for (int j = sigMapBuilder.getSigPairCount() - 1; j >= 0; j--) {
+            var sigPair = sigMapBuilder.getSigPair(j);
+            if (Arrays.equals(sigPair.getPubKeyPrefix().toByteArray(), publicKey.toBytesRaw())) {
+                removedSignatures.add(
+                        publicKey.extractSignatureFromProtobuf(sigPair).toByteArray());
+                sigMapBuilder.removeSigPair(j);
+            }
+        }
+
+        if (index < innerSignedTransactions.size()) {
+            innerSignedTransactions.get(index).setSigMap(sigMapBuilder);
+        }
+
+        return removedSignatures;
+    }
+
+    /**
+     * Nullify all built outer transactions so they are rebuilt on the next build. Every time signatures are added or
+     * removed the previously built outer transactions become stale.
+     */
+    private void nullifyOuterTransactions() {
+        for (int i = 0; i < outerTransactions.size(); i++) {
+            outerTransactions.set(i, null);
+        }
     }
 
     protected Map<AccountId, Map<PublicKey, byte[]>> getSignaturesAtOffset(int offset) {
