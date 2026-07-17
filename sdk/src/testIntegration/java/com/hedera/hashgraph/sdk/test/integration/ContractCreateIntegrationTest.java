@@ -4,6 +4,8 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.hedera.hashgraph.sdk.AccountBalanceQuery;
+import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractDeleteTransaction;
 import com.hedera.hashgraph.sdk.ContractFunctionParameters;
@@ -13,6 +15,8 @@ import com.hedera.hashgraph.sdk.FileDeleteTransaction;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.TokenDeleteTransaction;
+import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -182,6 +186,114 @@ public class ContractCreateIntegrationTest {
                                 .getReceipt(testEnv.client);
                     })
                     .withMessageContaining(Status.INVALID_FILE_ID.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("Can create contract with unlimited max auto associations")
+    void canCreateContractWithUnlimitedAutoTokenAssociations() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var response = new FileCreateTransaction()
+                    .setKeys(testEnv.operatorKey)
+                    .setContents(SMART_CONTRACT_BYTECODE)
+                    .execute(testEnv.client);
+
+            var fileId = Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
+
+            response = new ContractCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setGas(300000)
+                    .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                    .setBytecodeFileId(fileId)
+                    .setContractMemo("[e2e::ContractCreateTransaction]")
+                    .setMaxAutomaticTokenAssociations(-1)
+                    .execute(testEnv.client);
+
+            var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
+
+            // Transfer a fungible token to the contract; this auto-associates only because the contract was
+            // created with unlimited (-1) automatic token associations. With 0 it would fail.
+            var tokenId = EntityHelper.createFungibleToken(testEnv, 3);
+
+            new TransferTransaction()
+                    .addTokenTransfer(tokenId, testEnv.operatorId, -10)
+                    .addTokenTransfer(tokenId, AccountId.fromString(contractId.toString()), 10)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var contractBalance =
+                    new AccountBalanceQuery().setContractId(contractId).execute(testEnv.client);
+            assertThat(contractBalance.tokens.get(tokenId)).isEqualTo(10);
+
+            new TransferTransaction()
+                    .addTokenTransfer(tokenId, testEnv.operatorId, 10)
+                    .addTokenTransfer(tokenId, AccountId.fromString(contractId.toString()), -10)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new ContractDeleteTransaction()
+                    .setTransferAccountId(testEnv.operatorId)
+                    .setContractId(contractId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new TokenDeleteTransaction()
+                    .setTokenId(tokenId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new FileDeleteTransaction()
+                    .setFileId(fileId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Cannot create contract with invalid max auto associations")
+    void cannotCreateContractWithInvalidMaxAutoAssociations() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var response = new FileCreateTransaction()
+                    .setKeys(testEnv.operatorKey)
+                    .setContents(SMART_CONTRACT_BYTECODE)
+                    .execute(testEnv.client);
+
+            var fileId = Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
+
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        new ContractCreateTransaction()
+                                .setAdminKey(testEnv.operatorKey)
+                                .setGas(300000)
+                                .setConstructorParameters(
+                                        new ContractFunctionParameters().addString("Hello from Hedera."))
+                                .setBytecodeFileId(fileId)
+                                .setMaxAutomaticTokenAssociations(-2)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining("INVALID_MAX_AUTO_ASSOCIATIONS");
+
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> {
+                        new ContractCreateTransaction()
+                                .setAdminKey(testEnv.operatorKey)
+                                .setGas(300000)
+                                .setConstructorParameters(
+                                        new ContractFunctionParameters().addString("Hello from Hedera."))
+                                .setBytecodeFileId(fileId)
+                                .setMaxAutomaticTokenAssociations(-1000)
+                                .execute(testEnv.client)
+                                .getReceipt(testEnv.client);
+                    })
+                    .withMessageContaining("INVALID_MAX_AUTO_ASSOCIATIONS");
+
+            new FileDeleteTransaction()
+                    .setFileId(fileId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
         }
     }
 }
