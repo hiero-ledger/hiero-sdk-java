@@ -46,7 +46,7 @@ Join our [community discussions](https://discord.lfdecentralizedtrust.org/) on d
 
 ## About Users and Maintainers
 
-Users and Maintainers guidelies are located in **[Hiero-Ledger's roles and groups guidelines](https://github.com/hiero-ledger/governance/blob/main/roles-and-groups.md#maintainers).**
+Users and Maintainers guidelies are located in **[Hiero-Ledger's roles and groups guidelines](https://github.com/hiero-ledger/governance/blob/main/roles/roles-and-groups.md).**
 
 ## Code of Conduct
 
