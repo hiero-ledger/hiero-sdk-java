@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+name: "Approve Issues"
+
+on:
+  issues:
+    types:
+      - labeled
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  issues: write
+
+concurrency:
+  group: approve-issues-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    if: github.event.label.name == 'approved'
+    name: Approve Issue
+    runs-on: hiero-client-sdk-linux-medium
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - name: Remove pending-review label
+        uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: pending-review
+
+      - name: Unlock issue
+        run: |
+          gh api \
+            -X DELETE \
+            repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/lock
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Approval comment
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Approved by @hiero-ledger/hiero-sdk-java-committers and @hiero-ledger/hiero-sdk-java-maintainers.
