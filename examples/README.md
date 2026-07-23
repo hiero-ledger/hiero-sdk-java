@@ -110,7 +110,7 @@ Important pre-requisite to see logs: set simple logger log level to same level a
 for example via VM options: `-Dorg.slf4j.simpleLogger.log.org.hiero=trace`.
 
 For hook-related examples (like `AddHooksToAccountExample`), you also need to set the `HOOK_CONTRACT_ID` variable:
-- In our examples we use a bytecote from a specific smart contract which can be found in `/contracts/HieroHookContract.sol`.
+- In our examples we use a bytecode from a specific smart contract which can be found in `/contracts/HieroHookContract.sol`.
 - Note: Hook functionality may not be available on all networks. The example will demonstrate the configuration even if hooks are not supported.
 
 Therefore, the format of the configuration file should be as follows:
