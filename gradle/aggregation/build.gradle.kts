@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
+val grpcVersion: String by project
+
 dependencies {
     published(project(":sdk"))
     published(project(":sdk-full"))
 
     implementation(project(":tck"))
-    implementation("io.grpc:grpc-protobuf")
+    implementation("io.grpc:grpc-protobuf:$grpcVersion")
 }
 
 // Separate publishing from the coverage aggregation as 'sdk' and 'sdk-full'

@@ -7,9 +7,14 @@ plugins {
 
 description = "Hiero SDK for Java"
 
+val protobufVersion: String by project
+
 // Define dependency constraints for gRPC implementations so that clients automatically get the
 // correct version
 dependencies {
+    // Explicit declaration so Snyk resolves the version (javaModuleDependencies synthesizes
+    // this from module-info.java at resolution time without a static version string)
+    api("com.google.protobuf:protobuf-java:$protobufVersion")
     publishDependencyConstraint("io.grpc:grpc-netty")
     publishDependencyConstraint("io.grpc:grpc-netty-shaded")
     publishDependencyConstraint("io.grpc:grpc-okhttp")
