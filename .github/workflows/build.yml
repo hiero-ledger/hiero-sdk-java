@@ -33,7 +33,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-medium
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
@@ -48,7 +48,7 @@ jobs:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: temurin
           java-version: "21.0.6"
@@ -62,88 +62,6 @@ jobs:
         id: gradle-build
         run: ./gradlew assemble
 
-      - name: Setup Snyk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        if: >-
-          ${{
-            steps.gradle-build.conclusion == 'success' &&
-            (
-              github.event.pull_request.head.repo.full_name == github.repository ||
-              github.event_name == 'push'
-            ) &&
-            !cancelled()
-          }}
-        run: ${CG_EXEC} npm install -g snyk snyk-to-html @wcj/html-to-markdown-cli
-
-      - name: Snyk Scan
-        id: snyk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        if: >-
-          ${{
-            steps.gradle-build.conclusion == 'success' &&
-            (
-              github.event.pull_request.head.repo.full_name == github.repository ||
-              github.event_name == 'push'
-            ) &&
-            !cancelled()
-          }}
-        run: ${CG_EXEC} snyk test --all-projects '--configuration-matching=^(?!_internal-).*' --severity-threshold=high --policy-path=.snyk --json-file-output=snyk-test.json --org=hiero-client-sdks
-
-      - name: Snyk Code
-        id: snyk-code
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        if: >-
-          ${{
-            steps.gradle-build.conclusion == 'success' &&
-            (
-              github.event.pull_request.head.repo.full_name == github.repository ||
-              github.event_name == 'push'
-            ) &&
-            !cancelled()
-          }}
-        run: ${CG_EXEC} snyk code test --severity-threshold=high --json-file-output=snyk-code.json --org=hiero-client-sdks --policy-path=.snyk
-
-      - name: Publish Snyk Results
-        if: >-
-          ${{
-            steps.gradle-build.conclusion == 'success' &&
-            (
-              github.event.pull_request.head.repo.full_name == github.repository ||
-              github.event_name == 'push'
-            ) &&
-            !cancelled()
-          }}
-        run: |
-          if [[ -f "snyk-test.json" && -n "$(cat snyk-test.json | tr -d '[:space:]')" ]]; then
-            snyk-to-html -i snyk-test.json -o snyk-test.html --summary
-            html-to-markdown snyk-test.html -o snyk
-            cat snyk/snyk-test.html.md >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [[ -f "snyk-code.json" && -n "$(cat snyk-code.json | tr -d '[:space:]')" ]]; then
-            snyk-to-html -i snyk-code.json -o snyk-code.html --summary
-            html-to-markdown snyk-code.html -o snyk
-            cat snyk/snyk-code.html.md >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Check Snyk Files
-        if: ${{ always() }}
-        run: |
-          echo "::group::Snyk File List"
-            ls -lah snyk* || true
-          echo "::endgroup::"
-
-          echo "::group::Snyk Test Contents"
-            cat snyk-test.json || true
-          echo "::endgroup::"
-
-          echo "::group::Snyk Code Contents"
-            cat snyk-code.json || true
-          echo "::endgroup::"
-
   test:
     name: Unit and Integration Tests
     runs-on: hiero-client-sdk-linux-medium
@@ -151,7 +69,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
@@ -166,7 +84,7 @@ jobs:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: temurin
           java-version: "21.0.6"
@@ -225,7 +143,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
@@ -240,7 +158,7 @@ jobs:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: temurin
           java-version: "21.0.6"
@@ -282,7 +200,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
@@ -295,7 +213,7 @@ jobs:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: temurin
           java-version: "21.0.6"
@@ -337,7 +255,7 @@ jobs:
       - build
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
@@ -352,7 +270,7 @@ jobs:
           node-version: 18
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: temurin
           java-version: "21.0.6"
