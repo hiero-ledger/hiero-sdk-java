@@ -139,4 +139,82 @@ public class ContractCreateFlowIntegrationTest {
                     .getReceipt(testEnv.client);
         }
     }
+
+    @Test
+    @DisplayName("Create contract with flow with unlimited max auto associations")
+    void createContractWithFlowWithUnlimitedAutoTokenAssociations() throws Throwable {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            var response = new ContractCreateFlow()
+                    .setBytecode(SMART_CONTRACT_BYTECODE)
+                    .setAdminKey(testEnv.operatorKey)
+                    .setGas(300000)
+                    .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                    .setContractMemo("[e2e::ContractCreateFlow]")
+                    .setMaxAutomaticTokenAssociations(-1)
+                    .execute(testEnv.client);
+
+            var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
+
+            // Transfer a fungible token to the contract; this auto-associates only because the contract was
+            // created with unlimited (-1) automatic token associations.
+            var tokenId = EntityHelper.createFungibleToken(testEnv, 3);
+
+            new TransferTransaction()
+                    .addTokenTransfer(tokenId, testEnv.operatorId, -10)
+                    .addTokenTransfer(tokenId, AccountId.fromString(contractId.toString()), 10)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            var contractBalance =
+                    new AccountBalanceQuery().setContractId(contractId).execute(testEnv.client);
+            assertThat(contractBalance.tokens.get(tokenId)).isEqualTo(10);
+
+            new TransferTransaction()
+                    .addTokenTransfer(tokenId, testEnv.operatorId, 10)
+                    .addTokenTransfer(tokenId, AccountId.fromString(contractId.toString()), -10)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new ContractDeleteTransaction()
+                    .setTransferAccountId(testEnv.operatorId)
+                    .setContractId(contractId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new TokenDeleteTransaction()
+                    .setTokenId(tokenId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Cannot create contract with flow with invalid max auto associations")
+    void cannotCreateContractWithFlowWithInvalidMaxAutoAssociations() throws Throwable {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+
+            assertThatThrownBy(() -> new ContractCreateFlow()
+                            .setBytecode(SMART_CONTRACT_BYTECODE)
+                            .setAdminKey(testEnv.operatorKey)
+                            .setGas(300000)
+                            .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                            .setContractMemo("[e2e::ContractCreateFlow]")
+                            .setMaxAutomaticTokenAssociations(-2)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .hasMessageContaining("INVALID_MAX_AUTO_ASSOCIATIONS");
+
+            assertThatThrownBy(() -> new ContractCreateFlow()
+                            .setBytecode(SMART_CONTRACT_BYTECODE)
+                            .setAdminKey(testEnv.operatorKey)
+                            .setGas(300000)
+                            .setConstructorParameters(new ContractFunctionParameters().addString("Hello from Hedera."))
+                            .setContractMemo("[e2e::ContractCreateFlow]")
+                            .setMaxAutomaticTokenAssociations(-1000)
+                            .execute(testEnv.client)
+                            .getReceipt(testEnv.client))
+                    .hasMessageContaining("INVALID_MAX_AUTO_ASSOCIATIONS");
+        }
+    }
 }
