@@ -2,6 +2,10 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
@@ -11,7 +15,7 @@ import com.hedera.hashgraph.sdk.proto.TransferList;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -278,8 +282,10 @@ public final class TransactionRecord {
             transfers.add(Transfer.fromProtobuf(accountAmount));
         }
 
-        var tokenTransfers = new HashMap<TokenId, Map<AccountId, Long>>();
-        var tokenNftTransfers = new HashMap<TokenId, List<TokenNftTransfer>>();
+        // LinkedHashMap preserves protobuf insertion order so JSON serialization is deterministic
+        // and matches the insertion-ordered Map used by the JS SDK.
+        var tokenTransfers = new LinkedHashMap<TokenId, Map<AccountId, Long>>();
+        var tokenNftTransfers = new LinkedHashMap<TokenId, List<TokenNftTransfer>>();
         var allTokenTransfers = new ArrayList<TokenTransfer>();
 
         for (var transferList : transactionRecord.getTokenTransferListsList()) {
@@ -288,7 +294,7 @@ public final class TransactionRecord {
             for (var transfer : tokenTransfersList) {
                 var current = tokenTransfers.containsKey(transfer.tokenId)
                         ? tokenTransfers.get(transfer.tokenId)
-                        : new HashMap<AccountId, Long>();
+                        : new LinkedHashMap<AccountId, Long>();
                 current.put(transfer.accountId, transfer.amount);
                 tokenTransfers.put(transfer.tokenId, current);
             }
@@ -522,6 +528,126 @@ public final class TransactionRecord {
                 .add("pendingAirdropRecords", pendingAirdropRecords.toString())
                 .add("highVolumePricingMultiplier", highVolumePricingMultiplier)
                 .toString();
+    }
+
+    /**
+     * Build a JSON representation of this record
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.add("receipt", receipt.toJsonObject());
+        json.addProperty("transactionHash", Hex.toHexString(transactionHash.toByteArray()));
+        json.addProperty("consensusTimestamp", InstantConverter.toJsonString(consensusTimestamp));
+        json.addProperty("transactionId", transactionId.toString());
+        json.addProperty("transactionMemo", transactionMemo);
+        json.addProperty("transactionFee", String.valueOf(transactionFee.toTinybars()));
+
+        var transfersArray = new JsonArray();
+        for (var transfer : transfers) {
+            transfersArray.add(transfer.toJsonObject());
+        }
+        json.add("transfers", transfersArray);
+
+        var tokenTransfersJson = new JsonObject();
+        for (var tokenEntry : tokenTransfers.entrySet()) {
+            var accountAmounts = new JsonObject();
+            for (var accountEntry : tokenEntry.getValue().entrySet()) {
+                accountAmounts.addProperty(accountEntry.getKey().toString(), String.valueOf(accountEntry.getValue()));
+            }
+            tokenTransfersJson.add(tokenEntry.getKey().toString(), accountAmounts);
+        }
+        json.add("tokenTransfers", tokenTransfersJson);
+
+        var tokenTransfersListArray = new JsonArray();
+        for (var tokenTransfer : tokenTransferList) {
+            tokenTransfersListArray.add(tokenTransfer.toJsonObject());
+        }
+        json.add("tokenTransfersList", tokenTransfersListArray);
+
+        addNullableString(json, "scheduleRef", scheduleRef != null ? scheduleRef.toString() : null);
+
+        var assessedCustomFeesArray = new JsonArray();
+        for (var fee : assessedCustomFees) {
+            assessedCustomFeesArray.add(fee.toJsonObject());
+        }
+        json.add("assessedCustomFees", assessedCustomFeesArray);
+
+        var nftTransfersJson = new JsonObject();
+        for (var nftEntry : tokenNftTransfers.entrySet()) {
+            var transfersForToken = new JsonArray();
+            for (var nftTransfer : nftEntry.getValue()) {
+                var nftJson = new JsonObject();
+                nftJson.addProperty("sender", nftTransfer.sender.toString());
+                nftJson.addProperty("recipient", nftTransfer.receiver.toString());
+                nftJson.addProperty("serial", nftTransfer.serial);
+                nftJson.addProperty("isApproved", nftTransfer.isApproved);
+                transfersForToken.add(nftJson);
+            }
+            nftTransfersJson.add(nftEntry.getKey().toString(), transfersForToken);
+        }
+        json.add("nftTransfers", nftTransfersJson);
+
+        var automaticTokenAssociationsArray = new JsonArray();
+        for (var association : automaticTokenAssociations) {
+            automaticTokenAssociationsArray.add(association.toJsonObject());
+        }
+        json.add("automaticTokenAssociations", automaticTokenAssociationsArray);
+
+        addNullableString(
+                json,
+                "parentConsensusTimestamp",
+                parentConsensusTimestamp != null ? InstantConverter.toJsonString(parentConsensusTimestamp) : null);
+        addNullableString(json, "aliasKey", aliasKey != null ? aliasKey.toString() : null);
+
+        var duplicatesArray = new JsonArray();
+        for (var duplicate : duplicates) {
+            duplicatesArray.add(duplicate.toJsonObject());
+        }
+        json.add("duplicates", duplicatesArray);
+
+        var childrenArray = new JsonArray();
+        for (var child : children) {
+            childrenArray.add(child.toJsonObject());
+        }
+        json.add("children", childrenArray);
+
+        json.addProperty("ethereumHash", Hex.toHexString(ethereumHash.toByteArray()));
+
+        var paidStakingRewardsArray = new JsonArray();
+        for (var reward : paidStakingRewards) {
+            paidStakingRewardsArray.add(reward.toJsonObject());
+        }
+        json.add("paidStakingRewards", paidStakingRewardsArray);
+
+        addNullableString(json, "prngBytes", prngBytes != null ? Hex.toHexString(prngBytes.toByteArray()) : null);
+        if (prngNumber != null) {
+            json.addProperty("prngNumber", prngNumber);
+        } else {
+            json.add("prngNumber", JsonNull.INSTANCE);
+        }
+        addNullableString(json, "evmAddress", !evmAddress.isEmpty() ? Hex.toHexString(evmAddress.toByteArray()) : null);
+        json.addProperty("highVolumePricingMultiplier", String.valueOf(highVolumePricingMultiplier));
+        return json;
+    }
+
+    private static void addNullableString(JsonObject json, String key, @Nullable String value) {
+        if (value != null) {
+            json.addProperty(key, value);
+        } else {
+            json.add(key, JsonNull.INSTANCE);
+        }
+    }
+
+    /**
+     * Serialize this record to a JSON string, matching the JS SDK's
+     * {@code JSON.stringify(record.toJSON())} so all SDKs produce identical JSON.
+     *
+     * @return the JSON string
+     */
+    public String toJson() {
+        return new GsonBuilder().disableHtmlEscaping().create().toJson(toJsonObject());
     }
 
     /**

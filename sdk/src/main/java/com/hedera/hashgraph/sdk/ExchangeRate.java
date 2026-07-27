@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonObject;
 import java.time.Instant;
 
 /**
@@ -44,6 +45,20 @@ public final class ExchangeRate {
     static ExchangeRate fromProtobuf(com.hedera.hashgraph.sdk.proto.ExchangeRate pb) {
         return new ExchangeRate(
                 pb.getHbarEquiv(), pb.getCentEquiv(), InstantConverter.fromProtobuf(pb.getExpirationTime()));
+    }
+
+    /**
+     * Build a JSON representation of this exchange rate
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("hbars", hbars);
+        json.addProperty("cents", cents);
+        json.addProperty("expirationTime", InstantConverter.toJsonString(expirationTime));
+        json.addProperty("exchangeRateInCents", exchangeRateInCents);
+        return json;
     }
 
     @Override
