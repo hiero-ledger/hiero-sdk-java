@@ -216,7 +216,6 @@ public final class TopicMessageQuery {
      * @param onNext the consumer
      * @return the subscription handle
      */
-    // TODO: Refactor into a base class when we add more mirror query types
     public SubscriptionHandle subscribe(Client client, Consumer<TopicMessage> onNext) {
         SubscriptionHandle subscriptionHandle = new SubscriptionHandle();
         HashMap<TransactionID, ArrayList<ConsensusTopicResponse>> pendingMessages = new HashMap<>();
@@ -240,7 +239,6 @@ public final class TopicMessageQuery {
             AtomicReference<ConsensusTopicResponse> lastMessage,
             HashMap<TransactionID, ArrayList<ConsensusTopicResponse>> pendingMessages)
             throws InterruptedException {
-        // TODO: check status of channel before using it?
         ClientCall<ConsensusTopicQuery, ConsensusTopicResponse> call = client.mirrorNetwork
                 .getNextMirrorNode()
                 .getChannel()
