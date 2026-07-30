@@ -21,11 +21,11 @@ import org.bouncycastle.util.encoders.Hex;
 
 /**
  * How to deploy a smart contract with an Ethereum transaction (EIP-2930).
- * <p>
+ *
  * An Ethereum transaction with an empty {@code to} field is a contract creation: the call data is the
  * contract's creation bytecode. The transaction is built and signed with an ECDSA (secp256k1) key, so
  * the contract is deployed by the EVM account that owns that key - not by the Hedera operator.
- * <p>
+ *
  */
 class CreateContractWithEthereumTransactionExample {
 
