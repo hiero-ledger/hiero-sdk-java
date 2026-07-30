@@ -176,6 +176,38 @@ public class AccessListItem {
         return accessListItemsFromRlp(RLPDecoder.RLP_STRICT.wrap(accessList));
     }
 
+    /**
+     * Build the nested RLP object form of the stored {@code accessList} bytes, ready to be spliced into the object list
+     * passed to {@code RLPEncoder.list}/{@code RLPEncoder.sequence}. The access list has to be handed to the encoder as
+     * a list of objects rather than as the raw bytes: a {@code byte[]} would be encoded as an RLP string.
+     *
+     * @param accessList the stored access list bytes
+     * @return the nested RLP objects, empty when there is no access list
+     */
+    static List<Object> accessListRlpObject(byte[] accessList) {
+        return accessListItemsToRlpObject(decodeAccessList(accessList));
+    }
+
+    /**
+     * Read the access list element of a decoded transaction back into the stored byte representation, that is either
+     * empty or the self-contained RLP list bytes produced by {@link #encodeAccessList(List)}.
+     *
+     * @param item the RLP item at the access list position
+     * @return the access list bytes to store
+     */
+    static byte[] accessListBytesFromRlp(RLPItem item) {
+        if (item == null) {
+            return new byte[] {};
+        }
+        if (!item.isList()) {
+            return item.data();
+        }
+        if (item.asRLPList().elements().isEmpty()) {
+            return new byte[] {};
+        }
+        return item.encoding();
+    }
+
     @Override
     public String toString() {
         List<String> keys = new ArrayList<>(storageKeys.size());
