@@ -3,7 +3,10 @@ package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.esaulpaugh.headlong.rlp.RLPDecoder;
+import com.esaulpaugh.headlong.rlp.RLPItem;
 import java.math.BigInteger;
+import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 
@@ -300,5 +303,43 @@ public class EthereumTransactionDataSigningTest {
 
         var ethTx = new EthereumTransaction().setEthereumDataFromBody(tx);
         assertThat(Hex.toHexString(ethTx.getEthereumData())).isEqualTo(Hex.toHexString(tx.toBytes()));
+    }
+
+    @Test
+    public void eip2930EmptyAccessListEncodesAsRlpList() {
+        var key = PrivateKey.generateECDSA();
+        var tx = eip2930(null);
+
+        byte[] signed = tx.sign(key);
+
+        // An empty access list is "c0" (an empty RLP list), not "80" (an empty RLP string).
+        assertThat(accessListElement(signed).isList()).isTrue();
+        assertThat(accessListElement(signed).asRLPList().elements()).isEmpty();
+    }
+
+    private static EthereumTransactionDataEip2930 eip2930(@Nullable AccessListItem item) {
+        var tx = new EthereumTransactionDataEip2930()
+                .setChainId(298)
+                .setNonce(2)
+                .setGasPrice(47)
+                .setGasLimit(98304)
+                .setTo(TO)
+                .setValue(new BigInteger("1000000000000000000"))
+                .setCallData(CALL_DATA);
+        return item == null ? tx : tx.addAccessListItem(item);
+    }
+
+    private static RLPItem accessListElement(byte[] signedTx) {
+        var decoder = RLPDecoder.RLP_STRICT.sequenceIterator(signedTx);
+        int typeByte = decoder.next().asByte();
+        return decoder.next().asRLPList().elements().get(accessListIndexFor(typeByte));
+    }
+
+    private static int accessListIndexFor(int typeByte) {
+        return switch (typeByte) {
+            case EthereumTransactionDataEip2930.TYPE_BYTE -> 7;
+            case EthereumTransactionDataEip1559.TYPE_BYTE -> 8;
+            default -> throw new IllegalArgumentException("no access list in transaction type " + typeByte);
+        };
     }
 }
