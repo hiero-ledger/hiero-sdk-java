@@ -57,6 +57,7 @@ public final class Client implements AutoCloseable {
     // so that this doesn't happen in unit tests.
     static final Duration NETWORK_UPDATE_INITIAL_DELAY = Duration.ofSeconds(10);
     private static final Hbar DEFAULT_MAX_QUERY_PAYMENT = new Hbar(1);
+    private static final AccountId PING_PROBE_ACCOUNT_ID = new AccountId(0, 0, 2);
     private static final String MAINNET = "mainnet";
     private static final String TESTNET = "testnet";
     private static final String PREVIEWNET = "previewnet";
@@ -664,10 +665,10 @@ public final class Client implements AutoCloseable {
      * @throws PrecheckStatusException when the precheck fails
      */
     public Void ping(AccountId nodeAccountId, Duration timeout) throws PrecheckStatusException, TimeoutException {
-        new AccountBalanceQuery()
-                .setAccountId(nodeAccountId)
+        new AccountInfoQuery()
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
-                .execute(this, timeout);
+                .getCost(this, timeout);
 
         return null;
     }
@@ -691,11 +692,11 @@ public final class Client implements AutoCloseable {
      */
     public CompletableFuture<Void> pingAsync(AccountId nodeAccountId, Duration timeout) {
         var result = new CompletableFuture<Void>();
-        new AccountBalanceQuery()
-                .setAccountId(nodeAccountId)
+        new AccountInfoQuery()
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
-                .executeAsync(this, timeout)
-                .whenComplete((balance, error) -> {
+                .getCostAsync(this, timeout)
+                .whenComplete((cost, error) -> {
                     if (error == null) {
                         result.complete(null);
                     } else {
