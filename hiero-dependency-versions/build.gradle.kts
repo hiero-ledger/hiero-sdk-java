@@ -2,7 +2,7 @@
 group = "org.hiero"
 
 val bouncycastle = "1.84"
-val grpc = "1.83.0"
+val grpc = "1.83.1"
 val protobuf = "4.35.1"
 val slf4j = "2.0.18"
 val mockito = "5.23.0"
@@ -51,7 +51,7 @@ dependencies.constraints {
     api("org.springframework:spring-webmvc:7.0.8")
     api("org.springframework:spring-context:7.0.8")
     api("org.springframework:spring-web:7.0.8")
-    api("ch.qos.logback:logback-core:1.6.0")
+    api("ch.qos.logback:logback-core:1.6.1")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

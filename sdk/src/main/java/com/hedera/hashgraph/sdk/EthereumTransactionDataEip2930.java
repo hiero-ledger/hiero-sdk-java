@@ -147,7 +147,7 @@ public class EthereumTransactionDataEip2930 extends EthereumTransactionData {
                 rlpList.get(4).data(),
                 rlpList.get(5).data(),
                 rlpList.get(6).data(),
-                rlpList.get(7).data(),
+                AccessListItem.accessListBytesFromRlp(rlpList.get(7)),
                 rlpList.get(8).data(),
                 rlpList.get(9).data(),
                 rlpList.get(10).data());
@@ -157,13 +157,32 @@ public class EthereumTransactionDataEip2930 extends EthereumTransactionData {
      * RLP-encode the unsigned payload (8 fields through the access list).
      */
     byte[] toUnsignedRlp() {
-        return RLPEncoder.list(chainId, nonce, gasPrice, gasLimit, to, value, callData, accessList);
+        return RLPEncoder.list(
+                chainId,
+                nonce,
+                gasPrice,
+                gasLimit,
+                to,
+                value,
+                callData,
+                AccessListItem.accessListRlpObject(accessList));
     }
 
     public byte[] toBytes() {
         return RLPEncoder.sequence(
                 Integers.toBytes(TYPE_BYTE),
-                List.of(chainId, nonce, gasPrice, gasLimit, to, value, callData, accessList, recoveryId, r, s));
+                List.of(
+                        chainId,
+                        nonce,
+                        gasPrice,
+                        gasLimit,
+                        to,
+                        value,
+                        callData,
+                        AccessListItem.accessListRlpObject(accessList),
+                        recoveryId,
+                        r,
+                        s));
     }
 
     @Override

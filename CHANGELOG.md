@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.75.0
+
+## Added
+
+- feat: functions for remove/remove all signatures (#2838)
+- feat: toJson method on receipt, record and response (#2836)
+
 ## 2.74.0
 
 ### Changed
