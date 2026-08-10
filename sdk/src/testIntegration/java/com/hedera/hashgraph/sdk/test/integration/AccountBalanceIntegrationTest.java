@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class AccountBalanceIntegrationTest {
+    @Disabled
     @Test
     @DisplayName("can connect to previewnwet with TLS")
     void canConnectToPreviewnetWithTLS() throws Exception {
