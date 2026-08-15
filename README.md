@@ -8,7 +8,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/10697/badge)](https://bestpractices.coreinfrastructure.org/projects/10697)
 [![License](https://img.shields.io/badge/license-apache2-blue.svg)](LICENSE)
 
-> The Java SDK for interacting a Hiero based network:: the official distributed
+> The Java SDK for interacting with a Hiero-based network: the official distributed
 > consensus platform built using the hashgraph consensus algorithm for fast,
 > fair and secure transactions. Hiero enables and empowers developers to
 > build an entirely new class of decentralized applications.
