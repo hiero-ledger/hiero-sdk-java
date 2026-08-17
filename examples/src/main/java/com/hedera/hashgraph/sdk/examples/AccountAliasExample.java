@@ -148,7 +148,8 @@ class AccountAliasExample {
          * Users may continue to refer to the account by its aliasKey AccountId, but they may also
          * now refer to it by its normal AccountId
          */
-        Hbar newAccountBalance = MirrorNodeHelper.awaitHbarBalance(client, aliasAccountId, balance -> balance.compareTo(Hbar.from(0)) > 0);
+        Hbar newAccountBalance = MirrorNodeHelper.awaitHbarBalance(
+                client, aliasAccountId, balance -> balance.compareTo(Hbar.from(0)) > 0);
 
         System.out.println("Balances of the new account: " + newAccountBalance);
 
