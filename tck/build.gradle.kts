@@ -23,6 +23,7 @@ mainModuleInfo {
     requires("spring.web")
     requires("spring.webmvc")
     requiresStatic("lombok")
+    requiresStatic("java.annotation")
     annotationProcessor("lombok")
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("spring.boot.starter.web")
