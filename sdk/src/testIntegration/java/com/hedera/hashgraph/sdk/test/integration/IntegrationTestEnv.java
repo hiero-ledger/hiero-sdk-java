@@ -229,9 +229,9 @@ public class IntegrationTestEnv implements AutoCloseable {
         while (System.nanoTime() < deadline) {
             try {
                 balance = new MirrorNodeTokenBalanceQuery()
-                    .setAccountId(accountId)
-                    .setTokenId(tokenId)
-                    .execute(client);
+                        .setAccountId(accountId)
+                        .setTokenId(tokenId)
+                        .execute(client);
 
                 if (condition.test(balance)) {
                     return balance;
