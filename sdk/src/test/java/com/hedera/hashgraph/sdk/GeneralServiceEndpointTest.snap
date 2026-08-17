@@ -1,0 +1,8 @@
+com.hedera.hashgraph.sdk.GeneralServiceEndpointTest.fromProtobufWithDomain=[
+  "GeneralServiceEndpoint{ipAddress=null, domainName=general.service.com, port=8080, requiresTls=false, description=A general purpose endpoint.}"
+]
+
+
+com.hedera.hashgraph.sdk.GeneralServiceEndpointTest.fromProtobufWithIp=[
+  "GeneralServiceEndpoint{ipAddress=[1, 2, 3, 4], domainName=null, port=8080, requiresTls=false, description=A general purpose endpoint.}"
+]

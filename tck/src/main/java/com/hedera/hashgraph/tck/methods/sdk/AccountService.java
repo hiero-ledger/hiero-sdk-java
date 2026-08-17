@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
+import com.hedera.hashgraph.tck.methods.sdk.param.TransactionReceiptQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountAllowanceParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
@@ -21,6 +22,7 @@ import com.hedera.hashgraph.tck.methods.sdk.response.AccountAllowanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountBalanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.GetAccountInfoResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.TransactionReceiptResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
@@ -67,7 +69,10 @@ public class AccountService extends AbstractJSONRPC2Service {
             stringAccountId = transactionReceipt.accountId.toString();
         }
 
-        return new AccountResponse(stringAccountId, transactionReceipt.status);
+        return new AccountResponse(
+                stringAccountId,
+                transactionReceipt.status,
+                accountCreateTransaction.getTransactionId().toString());
     }
 
     @JSONRPC2Method("updateAccount")
@@ -82,7 +87,10 @@ public class AccountService extends AbstractJSONRPC2Service {
         TransactionReceipt transactionReceipt =
                 accountUpdateTransaction.execute(client).getReceipt(client);
 
-        return new AccountResponse(null, transactionReceipt.status);
+        return new AccountResponse(
+                null,
+                transactionReceipt.status,
+                accountUpdateTransaction.getTransactionId().toString());
     }
 
     @JSONRPC2Method("deleteAccount")
@@ -97,7 +105,10 @@ public class AccountService extends AbstractJSONRPC2Service {
         TransactionReceipt transactionReceipt =
                 accountDeleteTransaction.execute(client).getReceipt(client);
 
-        return new AccountResponse(null, transactionReceipt.status);
+        return new AccountResponse(
+                null,
+                transactionReceipt.status,
+                accountDeleteTransaction.getTransactionId().toString());
     }
 
     @JSONRPC2Method("approveAllowance")
@@ -355,5 +366,52 @@ public class AccountService extends AbstractJSONRPC2Service {
                 info.stakedToMe != null ? String.valueOf(info.stakedToMe.toTinybars()) : null,
                 info.stakedAccountId != null ? info.stakedAccountId.toString() : null,
                 info.stakedNodeId != null ? String.valueOf(info.stakedNodeId) : null);
+    }
+
+    @JSONRPC2Method("getTransactionReceipt")
+    public TransactionReceiptResponse getTransactionReceipt(final TransactionReceiptQueryParams params)
+            throws Exception {
+        TransactionReceiptQuery receiptQuery = QueryBuilders.buildTransactionReceiptQuery(params);
+        Client client = sdkService.getClient(params.getSessionId());
+
+        TransactionReceipt receipt = receiptQuery.execute(client).validateStatus(params.getValidateStatus());
+
+        return mapTransactionReceiptResponse(receipt);
+    }
+
+    /**
+     * Map TransactionReceipt from SDK to TransactionReceiptResponse for JSON-RPC
+     */
+    private TransactionReceiptResponse mapTransactionReceiptResponse(TransactionReceipt receipt) {
+        List<TransactionReceiptResponse> duplicates = receipt.duplicates.stream()
+                .map(this::mapTransactionReceiptResponse)
+                .toList();
+
+        List<TransactionReceiptResponse> children = receipt.children.stream()
+                .map(this::mapTransactionReceiptResponse)
+                .toList();
+
+        TransactionReceiptResponse.ExchangeRate exchangeRate = new TransactionReceiptResponse.ExchangeRate(
+                (long) receipt.exchangeRate.hbars,
+                (long) receipt.exchangeRate.cents,
+                receipt.exchangeRate.expirationTime.toString());
+
+        return new TransactionReceiptResponse(
+                receipt.status.toString(),
+                receipt.accountId != null ? receipt.accountId.toString() : null,
+                receipt.fileId != null ? receipt.fileId.toString() : null,
+                receipt.contractId != null ? receipt.contractId.toString() : null,
+                receipt.topicId != null ? receipt.topicId.toString() : null,
+                receipt.tokenId != null ? receipt.tokenId.toString() : null,
+                receipt.scheduleId != null ? receipt.scheduleId.toString() : null,
+                exchangeRate,
+                receipt.topicSequenceNumber != null ? receipt.topicSequenceNumber.toString() : null,
+                receipt.topicRunningHash != null ? receipt.topicRunningHash.toString() : null,
+                receipt.totalSupply != null ? receipt.totalSupply.toString() : null,
+                receipt.scheduledTransactionId != null ? receipt.scheduledTransactionId.toString() : null,
+                receipt.serials,
+                duplicates,
+                children,
+                String.valueOf(receipt.nodeId));
     }
 }

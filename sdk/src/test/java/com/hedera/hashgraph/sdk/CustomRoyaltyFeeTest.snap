@@ -4,5 +4,5 @@ com.hedera.hashgraph.sdk.CustomRoyaltyFeeTest.fromProtobuf=[
 
 
 com.hedera.hashgraph.sdk.CustomRoyaltyFeeTest.toProtobuf=[
-  "# com.hedera.hashgraph.sdk.proto.CustomFee@1abe2492\nroyalty_fee {\n  exchange_value_fraction {\n    denominator: 5\n    numerator: 4\n  }\n  fallback_fee {\n    amount: 6\n  }\n}"
+  "# com.hedera.hashgraph.sdk.proto.CustomFee@532d3622\nroyalty_fee {\n  exchange_value_fraction {\n    denominator: 5\n    numerator: 4\n  }\n  fallback_fee {\n    amount: 6\n  }\n}"
 ]

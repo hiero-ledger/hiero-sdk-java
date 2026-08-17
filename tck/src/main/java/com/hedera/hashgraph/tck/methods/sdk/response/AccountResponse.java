@@ -8,4 +8,5 @@ import lombok.Data;
 public class AccountResponse {
     private final String accountId;
     private final Status status;
+    private final String transactionId;
 }

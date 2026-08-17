@@ -51,9 +51,9 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
         }
 
         if (isLocalHost(host)) {
-            // If the user configured the standard gRPC port (5600), map it to the standard REST port (5551).
+            // If the user configured the standard gRPC port (5600), map it to the standard REST port (38081).
             // Otherwise, honor the explicitly configured port (e.g., 8084 for Fee Estimates).
-            int effectivePort = (port == 5600) ? 5551 : port;
+            int effectivePort = (port == 5600) ? 38081 : port;
             return "http://" + host + ":" + effectivePort + "/api/v1";
         }
         String scheme = chooseScheme(port);

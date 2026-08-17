@@ -53,7 +53,7 @@ The format of the configuration file should be as follows:
 ```json
 {
     "network": {
-        "0.0.3": "127.0.0.1:50211"
+        "0.0.3": "127.0.0.1:35211"
     },
     "mirrorNetwork": [
         "127.0.0.1:5600"
@@ -127,8 +127,10 @@ More details about how to add/modify dependencies are found in the Hiero Gradle 
 ### Updating proto files
 
 ```sh
-./gradlew updateSnapshots
+./gradlew updateProto
 ```
+
+> Note: The `checkout_ref` variable in `update_protobufs.py` should be updated with the version containing the required protobufs before running the command.
 
 ### Updating address books
 

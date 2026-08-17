@@ -155,4 +155,21 @@ class TokenClaimAirdropTransactionTest {
 
         Assertions.assertTrue(scheduled.hasTokenClaimAirdrop());
     }
+
+    @Test
+    void testFromScheduledTransaction() {
+        var pending = new PendingAirdropId(new AccountId(0, 0, 457), new AccountId(0, 0, 456), new TokenId(0, 0, 123));
+
+        var transactionBody = SchedulableTransactionBody.newBuilder()
+                .setTokenClaimAirdrop(TokenClaimAirdropTransactionBody.newBuilder()
+                        .addPendingAirdrops(pending.toProtobuf())
+                        .build())
+                .build();
+
+        var tx = Transaction.fromScheduledTransaction(transactionBody);
+
+        assertThat(tx).isInstanceOf(TokenClaimAirdropTransaction.class);
+        assertThat(((TokenClaimAirdropTransaction) tx).getPendingAirdropIds()).isNotEmpty();
+        assertThat(((TokenClaimAirdropTransaction) tx).getPendingAirdropIds()).hasSize(1);
+    }
 }

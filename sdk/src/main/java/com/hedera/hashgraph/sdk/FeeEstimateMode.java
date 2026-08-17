@@ -8,7 +8,7 @@ package com.hedera.hashgraph.sdk;
  */
 public enum FeeEstimateMode {
     /**
-     * Default mode: uses latest known state.
+     * Uses latest known state.
      * <p>
      * This mode calculates fees based on the current state of the network,
      * taking into account all state-dependent factors such as current
@@ -17,7 +17,7 @@ public enum FeeEstimateMode {
     STATE(0),
 
     /**
-     * Intrinsic mode: ignores state-dependent factors.
+     * Default mode: ignores state-dependent factors.
      * <p>
      * This mode calculates fees based only on the intrinsic properties of
      * the transaction itself, ignoring dynamic network conditions. This
