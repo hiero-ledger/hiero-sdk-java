@@ -7,7 +7,6 @@ import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -205,8 +204,10 @@ class CustomFeesExample {
          * Step 6:
          * Check Alice's Hbar balance.
          */
+        // Alice has only signed transactions so far; every one of them was frozen with the operator's client,
+        // so the operator paid and Alice still holds exactly her initial balance.
         Hbar aliceAccountBalanceHbars_BeforeCollectingFees =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).hbars;
+                MirrorNodeHelper.awaitHbarBalance(client, aliceAccountId, initialAccountBalance);
 
         if (aliceAccountBalanceHbars_BeforeCollectingFees.equals(initialAccountBalance)) {
             System.out.println("Alice's Hbar balance before: " + aliceAccountBalanceHbars_BeforeCollectingFees);
@@ -235,7 +236,7 @@ class CustomFeesExample {
          * It should increase, because of the fee taken from the transfer in the previous step.
          */
         Hbar aliceAccountBalanceHbars_AfterCollectingFees =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).hbars;
+                MirrorNodeHelper.awaitHbarBalance(client, aliceAccountId, Hbar.from(2));
 
         if (aliceAccountBalanceHbars_AfterCollectingFees.equals(Hbar.from(2))) {
             System.out.println("Alice's Hbar balance after Bob transferred 20 tokens to Charlie: "
@@ -287,11 +288,11 @@ class CustomFeesExample {
          * Step 10:
          * Check Alice's token balance.
          */
-        Map<TokenId, Long> aliceAccountBalanceTokens_BeforeCollectingFees =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).tokens;
-        if (aliceAccountBalanceTokens_BeforeCollectingFees.get(fungibleTokenId) == 0) {
+        long aliceAccountBalanceTokens_BeforeCollectingFees =
+                MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, fungibleTokenId).balance;
+        if (aliceAccountBalanceTokens_BeforeCollectingFees == 0) {
             System.out.println("Alice's token balance before Bob transfers 20 tokens to Charlie: "
-                    + aliceAccountBalanceTokens_BeforeCollectingFees.get(fungibleTokenId));
+                    + aliceAccountBalanceTokens_BeforeCollectingFees);
         } else {
             throw new Exception("Alice's account initial token balance is not zero! (Fail)");
         }
@@ -315,12 +316,12 @@ class CustomFeesExample {
          * Check Alice's token balance. It should increase, because of the fee taken from the
          * transfer in the previous step.
          */
-        Map<TokenId, Long> aliceAccountBalanceTokens_AfterCollectingFees =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).tokens;
+        long aliceAccountBalanceTokens_AfterCollectingFees =
+                MirrorNodeHelper.awaitTokenBalance(client, aliceAccountId, fungibleTokenId, 2);
 
-        if (aliceAccountBalanceTokens_AfterCollectingFees.get(fungibleTokenId) == 2) {
+        if (aliceAccountBalanceTokens_AfterCollectingFees == 2) {
             System.out.println("Alice's token balance after Bob transfers 20 tokens to Charlie: "
-                    + aliceAccountBalanceTokens_AfterCollectingFees.get(fungibleTokenId));
+                    + aliceAccountBalanceTokens_AfterCollectingFees);
         } else {
             throw new Exception("Custom fractional fee was not set correctly! (Fail)");
         }
@@ -355,36 +356,34 @@ class CustomFeesExample {
                 .getReceipt(client);
 
         // Wipe token on created accounts.
-        Map<TokenId, Long> charlieTokensBeforeWipe =
-                new AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).tokens;
+        long charlieTokensBeforeWipe =
+                MirrorNodeHelper.tokenBalanceAfterSync(client, charlieAccountId, fungibleTokenId).balance;
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
-                .setAmount(charlieTokensBeforeWipe.get(fungibleTokenId))
+                .setAmount(charlieTokensBeforeWipe)
                 .setAccountId(charlieAccountId)
                 .freezeWith(client)
                 .sign(OPERATOR_KEY)
                 .execute(client)
                 .getReceipt(client);
 
-        Map<TokenId, Long> bobsTokens =
-                new AccountBalanceQuery().setAccountId(bobAccountId).execute(client).tokens;
+        long bobsTokens = MirrorNodeHelper.tokenBalance(client, bobAccountId, fungibleTokenId).balance;
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
-                .setAmount(bobsTokens.get(fungibleTokenId))
+                .setAmount(bobsTokens)
                 .setAccountId(bobAccountId)
                 .freezeWith(client)
                 .sign(OPERATOR_KEY)
                 .execute(client)
                 .getReceipt(client);
 
-        Map<TokenId, Long> aliceTokensBeforeWipe =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).tokens;
+        long aliceTokensBeforeWipe = MirrorNodeHelper.tokenBalance(client, aliceAccountId, fungibleTokenId).balance;
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
-                .setAmount(aliceTokensBeforeWipe.get(fungibleTokenId))
+                .setAmount(aliceTokensBeforeWipe)
                 .setAccountId(aliceAccountId)
                 .freezeWith(client)
                 .sign(OPERATOR_KEY)

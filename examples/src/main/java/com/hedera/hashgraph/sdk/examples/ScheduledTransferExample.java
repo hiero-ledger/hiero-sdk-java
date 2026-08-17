@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalance;
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -129,8 +127,7 @@ class ScheduledTransferExample {
          * Step 3:
          * Check Bob's initial balance.
          */
-        AccountBalance bobsInitialBalance =
-                new AccountBalanceQuery().setAccountId(bobAccountId).execute(client);
+        Hbar bobsInitialBalance = MirrorNodeHelper.awaitHbarBalance(client, bobAccountId, Hbar.from(1));
         System.out.println("Bob's initial account balance: " + bobsInitialBalance);
 
         /*
@@ -173,8 +170,7 @@ class ScheduledTransferExample {
          * Check Bob's balance -- it should be unchanged, because the transfer has been scheduled,
          * but it hasn't been executed yet as it requires Bob's signature.
          */
-        AccountBalance bobsBalanceAfterSchedule =
-                new AccountBalanceQuery().setAccountId(bobAccountId).execute(client);
+        Hbar bobsBalanceAfterSchedule = MirrorNodeHelper.hbarBalanceAfterSync(client, bobAccountId);
         System.out.println(
                 "Bob's balance after scheduling the transfer (should be unchanged): " + bobsBalanceAfterSchedule);
 
@@ -219,8 +215,8 @@ class ScheduledTransferExample {
          * Step 9:
          * Check Bob's account balance after signing the scheduled transaction.
          */
-        AccountBalance balanceAfterSigning =
-                new AccountBalanceQuery().setAccountId(bobAccountId).execute(client);
+        Hbar balanceAfterSigning = MirrorNodeHelper.awaitHbarBalance(
+                client, bobAccountId, balance -> balance.compareTo(bobsInitialBalance) > 0);
         System.out.println("Bob's balance after signing the scheduled transaction: " + balanceAfterSigning);
 
         /*

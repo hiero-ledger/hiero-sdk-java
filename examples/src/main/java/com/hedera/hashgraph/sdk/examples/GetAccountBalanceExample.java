@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
 import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -49,7 +49,8 @@ class GetAccountBalanceExample {
          * Step 0:
          * Create and configure the SDK Client.
          *
-         * Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
+         * Because MirrorNodeAccountBalanceQuery is a free query, we can make it without setting an operator
+         * on the client.
          */
         Client client = ClientHelper.forName(HEDERA_NETWORK);
         // Attach logger to the SDK Client.
@@ -57,10 +58,13 @@ class GetAccountBalanceExample {
 
         /*
          * Step 1:
-         * Execute AccountBalanceQuery and output operator's account balance.
+         * Execute MirrorNodeAccountBalanceQuery and output operator's account balance.
+         *
+         * Note: the mirror node is eventually consistent, so a balance read immediately after a
+         * transaction may lag the network by a few seconds.
          */
         Hbar operatorsBalance =
-                new AccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
+                new MirrorNodeAccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
 
         System.out.println("Operator's Hbar account balance: " + operatorsBalance);
 

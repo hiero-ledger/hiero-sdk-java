@@ -6,7 +6,6 @@ import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -308,14 +307,11 @@ class AccountCreateWithHtsExample {
          * Step 13:
          * Show the normal account ID of account which owns the NFT.
          */
-        AccountBalance bobAccountBalances =
-                new AccountBalanceQuery().setAccountId(bobAliasAccountId).execute(client);
-
         /*
          * Step 14:
          * Validate token balance of newly created account.
          */
-        int bobFtBalance = bobAccountBalances.tokens.get(fungibleTokenId).intValue();
+        long bobFtBalance = MirrorNodeHelper.awaitTokenBalance(client, bobAliasAccountId, fungibleTokenId, 10);
         if (bobFtBalance == 10) {
             System.out.println("New account was created using HTS TransferTransaction! (Success)");
         } else {
@@ -339,12 +335,11 @@ class AccountCreateWithHtsExample {
 
         AccountId bobAccountId = AccountId.fromString(bobAccountInfo);
 
-        Map<TokenId, Long> bobsTokens =
-                new AccountBalanceQuery().setAccountId(bobAccountId).execute(client).tokens;
+        long bobsTokenBalance = MirrorNodeHelper.tokenBalance(client, bobAccountId, fungibleTokenId).balance;
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
-                .setAmount(bobsTokens.get(fungibleTokenId))
+                .setAmount(bobsTokenBalance)
                 .setAccountId(bobAccountId)
                 .freezeWith(client)
                 .sign(wipePrivateKey)

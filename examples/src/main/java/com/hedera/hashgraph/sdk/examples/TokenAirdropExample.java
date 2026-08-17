@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
@@ -183,13 +182,12 @@ public class TokenAirdropExample {
          * Step 5:
          * Query to verify alice and bob received the airdrops and carol did not
          */
-        var aliceBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var bobBalance = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        var carolBalance = new AccountBalanceQuery().setAccountId(carol).execute(client);
-
-        System.out.println("Alice ft balance after airdrop: " + aliceBalance.tokens.get(tokenID));
-        System.out.println("Bob ft balance after airdrop: " + bobBalance.tokens.get(tokenID));
-        System.out.println("Carol ft balance after airdrop: " + carolBalance.tokens.get(tokenID));
+        System.out.println("Alice ft balance after airdrop: "
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, alice, tokenID).balance);
+        System.out.println(
+                "Bob ft balance after airdrop: " + MirrorNodeHelper.tokenBalance(client, bob, tokenID).balance);
+        System.out.println("Carol ft balance after airdrop (pending, so not associated): "
+                + MirrorNodeHelper.tokenBalance(client, carol, tokenID).isAssociated());
 
         /*
          * Step 6:
@@ -203,8 +201,8 @@ public class TokenAirdropExample {
                 .execute(client)
                 .getReceipt(client);
 
-        carolBalance = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        System.out.println("Carol ft balance after claim: " + carolBalance.tokens.get(tokenID));
+        System.out.println("Carol ft balance after claim: "
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, carol, tokenID).balance);
 
         /*
          * Step 7:
@@ -232,13 +230,12 @@ public class TokenAirdropExample {
          * Step 9:
          * Query to verify alice received the airdrop and bob and carol did not
          */
-        aliceBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        bobBalance = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        carolBalance = new AccountBalanceQuery().setAccountId(carol).execute(client);
-
-        System.out.println("Alice nft balance after airdrop: " + aliceBalance.tokens.get(nftID));
-        System.out.println("Bob nft balance after airdrop: " + bobBalance.tokens.get(nftID));
-        System.out.println("Carol nft balance after airdrop: " + carolBalance.tokens.get(nftID));
+        System.out.println("Alice nft balance after airdrop: "
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, alice, nftID).balance);
+        System.out.println("Bob nft balance after airdrop (pending, so not associated): "
+                + MirrorNodeHelper.tokenBalance(client, bob, nftID).isAssociated());
+        System.out.println("Carol nft balance after airdrop (pending, so not associated): "
+                + MirrorNodeHelper.tokenBalance(client, carol, nftID).isAssociated());
 
         /*
          * Step 10:
@@ -252,8 +249,8 @@ public class TokenAirdropExample {
                 .execute(client)
                 .getReceipt(client);
 
-        bobBalance = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        System.out.println("Bob nft balance after claim: " + bobBalance.tokens.get(nftID));
+        System.out.println(
+                "Bob nft balance after claim: " + MirrorNodeHelper.tokenBalanceAfterSync(client, bob, nftID).balance);
 
         /*
          * Step 11:
@@ -267,8 +264,8 @@ public class TokenAirdropExample {
                 .execute(client)
                 .getReceipt(client);
 
-        carolBalance = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        System.out.println("Carol nft balance after cancel: " + carolBalance.tokens.get(nftID));
+        System.out.println("Carol nft balance after cancel (still not associated): "
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, carol, nftID).isAssociated());
 
         /*
          * Step 12:
@@ -287,16 +284,15 @@ public class TokenAirdropExample {
          * Step 13:
          * Query to verify bob no longer has the NFT
          */
-        bobBalance = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        System.out.println("Bob nft balance after reject: " + bobBalance.tokens.get(nftID));
+        System.out.println(
+                "Bob nft balance after reject: " + MirrorNodeHelper.tokenBalanceAfterSync(client, bob, nftID).balance);
 
         /*
          * Step 13:
          * Query to verify the NFT was returned to the Treasury
          */
-        var treasuryBalance =
-                new AccountBalanceQuery().setAccountId(treasuryAccount).execute(client);
-        System.out.println("Treasury nft balance after reject: " + treasuryBalance.tokens.get(nftID));
+        System.out.println("Treasury nft balance after reject: "
+                + MirrorNodeHelper.tokenBalance(client, treasuryAccount, nftID).balance);
 
         /*
          * Step 14:
@@ -315,16 +311,15 @@ public class TokenAirdropExample {
          * Step 14:
          * Query to verify carol no longer has the fungible tokens
          */
-        carolBalance = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        System.out.println("Carol ft balance after reject: " + carolBalance.tokens.get(tokenID));
+        System.out.println("Carol ft balance after reject: "
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, carol, tokenID).balance);
 
         /*
          * Step 15:
          * Query to verify Treasury received the rejected fungible tokens
          */
-        treasuryBalance =
-                new AccountBalanceQuery().setAccountId(treasuryAccount).execute(client);
-        System.out.println("Treasury ft balance after reject: " + treasuryBalance.tokens.get(tokenID));
+        System.out.println("Treasury ft balance after reject: "
+                + MirrorNodeHelper.tokenBalance(client, treasuryAccount, tokenID).balance);
 
         /*
          * Clean up:

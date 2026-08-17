@@ -140,8 +140,9 @@ class ValidateChecksumExample {
                 // Throws BadEntityIdException if checksum is incorrect.
                 accountId.validateChecksum(client);
 
-                AccountBalance accountBalance =
-                        new AccountBalanceQuery().setAccountId(accountId).execute(client);
+                MirrorNodeAccountBalance accountBalance = new MirrorNodeAccountBalanceQuery()
+                        .setAccountId(accountId)
+                        .execute(client);
 
                 System.out.println("Account Balance: " + accountBalance);
 
@@ -186,8 +187,9 @@ class ValidateChecksumExample {
                     continue;
                 }
 
-                AccountBalance accountBalance =
-                        new AccountBalanceQuery().setAccountId(accountId).execute(client);
+                MirrorNodeAccountBalance accountBalance = new MirrorNodeAccountBalanceQuery()
+                        .setAccountId(accountId)
+                        .execute(client);
 
                 System.out.println("Account Balance: " + accountBalance);
 

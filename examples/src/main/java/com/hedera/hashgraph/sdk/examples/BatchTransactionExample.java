@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.BatchTransaction;
@@ -139,12 +138,10 @@ class BatchTransactionExample {
          * Step 3:
          * Get the balances in order to compare after the batch execution
          */
-        var aliceBalanceBefore = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var bobBalanceBefore = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        var carolBalanceBefore = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        var operatorBalanceBefore = new AccountBalanceQuery()
-                .setAccountId(client.getOperatorAccountId())
-                .execute(client);
+        var aliceBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(2));
+        var bobBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, bob, new Hbar(2));
+        var carolBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, carol, new Hbar(2));
+        var operatorBalanceBefore = MirrorNodeHelper.hbarBalance(client, client.getOperatorAccountId());
 
         /*
          * Step 4:
@@ -168,20 +165,20 @@ class BatchTransactionExample {
          * Verify the new balances
          */
         System.out.println("Verifying the balances after batch execution...");
-        var aliceBalanceAfter = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var bobBalanceAfter = new AccountBalanceQuery().setAccountId(bob).execute(client);
-        var carolBalanceAfter = new AccountBalanceQuery().setAccountId(carol).execute(client);
-        var operatorBalanceAfter = new AccountBalanceQuery()
-                .setAccountId(client.getOperatorAccountId())
-                .execute(client);
 
-        System.out.println(
-                "Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
-        System.out.println("Bob's initial balance: " + bobBalanceBefore.hbars + ", after: " + bobBalanceAfter.hbars);
-        System.out.println(
-                "Carol's initial balance: " + carolBalanceBefore.hbars + ", after: " + carolBalanceAfter.hbars);
-        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: "
-                + operatorBalanceAfter.hbars);
+        var aliceBalanceAfter =
+                MirrorNodeHelper.awaitHbarBalance(client, alice, balance -> balance.compareTo(aliceBalanceBefore) < 0);
+        var bobBalanceAfter =
+                MirrorNodeHelper.awaitHbarBalance(client, bob, balance -> balance.compareTo(bobBalanceBefore) < 0);
+        var carolBalanceAfter =
+                MirrorNodeHelper.awaitHbarBalance(client, carol, balance -> balance.compareTo(carolBalanceBefore) < 0);
+        var operatorBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                client, client.getOperatorAccountId(), balance -> balance.compareTo(operatorBalanceBefore) > 0);
+
+        System.out.println("Alice's initial balance: " + aliceBalanceBefore + ", after: " + aliceBalanceAfter);
+        System.out.println("Bob's initial balance: " + bobBalanceBefore + ", after: " + bobBalanceAfter);
+        System.out.println("Carol's initial balance: " + carolBalanceBefore + ", after: " + carolBalanceAfter);
+        System.out.println("Operator's initial balance: " + operatorBalanceBefore + ", after: " + operatorBalanceAfter);
     }
 
     private static void executeBatchWithBatchify(Client client) throws Exception {
@@ -227,10 +224,8 @@ class BatchTransactionExample {
          * Step 5:
          * Get the balances in order to compare after the batch execution
          */
-        var aliceBalanceBefore = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var operatorBalanceBefore = new AccountBalanceQuery()
-                .setAccountId(client.getOperatorAccountId())
-                .execute(client);
+        var aliceBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(2));
+        var operatorBalanceBefore = MirrorNodeHelper.hbarBalance(client, client.getOperatorAccountId());
 
         /*
          * Step 6:
@@ -250,14 +245,13 @@ class BatchTransactionExample {
          * Verify the new balances
          */
         System.out.println("Verifying the balances after batch execution...");
-        var aliceBalanceAfter = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        var operatorBalanceAfter = new AccountBalanceQuery()
-                .setAccountId(client.getOperatorAccountId())
-                .execute(client);
 
-        System.out.println(
-                "Alice's initial balance: " + aliceBalanceBefore.hbars + ", after: " + aliceBalanceAfter.hbars);
-        System.out.println("Operator's initial balance: " + operatorBalanceBefore.hbars + ", after: "
-                + operatorBalanceAfter.hbars);
+        var aliceBalanceAfter =
+                MirrorNodeHelper.awaitHbarBalance(client, alice, balance -> balance.compareTo(aliceBalanceBefore) < 0);
+        var operatorBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                client, client.getOperatorAccountId(), balance -> balance.compareTo(operatorBalanceBefore) > 0);
+
+        System.out.println("Alice's initial balance: " + aliceBalanceBefore + ", after: " + aliceBalanceAfter);
+        System.out.println("Operator's initial balance: " + operatorBalanceBefore + ", after: " + operatorBalanceAfter);
     }
 }

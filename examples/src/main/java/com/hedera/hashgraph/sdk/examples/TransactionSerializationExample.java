@@ -63,11 +63,9 @@ class TransactionSerializationExample {
          * Check Hbar balance of sender and recipient.
          */
         AccountId recipientId = AccountId.fromString("0.0.3");
-        Hbar senderBalanceBefore =
-                new AccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
+        Hbar senderBalanceBefore = MirrorNodeHelper.hbarBalance(client, OPERATOR_ID);
 
-        Hbar recipientBalanceBefore =
-                new AccountBalanceQuery().setAccountId(recipientId).execute(client).hbars;
+        Hbar recipientBalanceBefore = MirrorNodeHelper.hbarBalance(client, recipientId);
 
         System.out.println("Sender (" + OPERATOR_ID + ") balance before transfer: " + senderBalanceBefore);
         System.out.println("Recipient (" + recipientId + ") balance before transfer: " + recipientBalanceBefore);
@@ -117,11 +115,14 @@ class TransactionSerializationExample {
          * Step 6:
          * Check Hbar balance of the sender and recipient after transfer transaction was executed.
          */
-        Hbar senderBalanceAfter =
-                new AccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
+        // The operator sent 1 Hbar and paid the fee, so it strictly decreases. The recipient is node account
+        // 0.0.3, which also collects node fees from every other transaction in this window -- so it gains more
+        // than the 1 Hbar transferred by an unpredictable amount, and only a strict increase can be asserted.
+        Hbar senderBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                client, OPERATOR_ID, balance -> balance.compareTo(senderBalanceBefore) < 0);
 
-        Hbar receiptBalanceAfter =
-                new AccountBalanceQuery().setAccountId(recipientId).execute(client).hbars;
+        Hbar receiptBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                client, recipientId, balance -> balance.compareTo(recipientBalanceBefore) > 0);
 
         System.out.println("Sender (" + OPERATOR_ID + ") balance after transfer: " + senderBalanceAfter);
         System.out.println("Recipient (" + recipientId + ") balance after transfer: " + receiptBalanceAfter);

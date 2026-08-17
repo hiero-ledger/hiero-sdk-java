@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalance;
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountInfo;
@@ -150,8 +148,7 @@ class AccountAliasExample {
          * Users may continue to refer to the account by its aliasKey AccountId, but they may also
          * now refer to it by its normal AccountId
          */
-        AccountBalance newAccountBalance =
-                new AccountBalanceQuery().setAccountId(aliasAccountId).execute(client);
+        Hbar newAccountBalance = MirrorNodeHelper.awaitHbarBalance(client, aliasAccountId, balance -> balance.compareTo(Hbar.from(0)) > 0);
 
         System.out.println("Balances of the new account: " + newAccountBalance);
 

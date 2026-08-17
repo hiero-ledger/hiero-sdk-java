@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -107,11 +106,9 @@ class MultiAppTransferExample {
                 .accountId;
         Objects.requireNonNull(userAccountId);
 
-        Hbar senderBalanceBefore =
-                new AccountBalanceQuery().setAccountId(userAccountId).execute(client).hbars;
+        Hbar senderBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, userAccountId, Hbar.from(2));
 
-        Hbar exchangeBalanceBefore =
-                new AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).hbars;
+        Hbar exchangeBalanceBefore = MirrorNodeHelper.hbarBalance(client, exchangeAccountId);
 
         System.out.println("User account (" + userAccountId + ") balance: " + senderBalanceBefore);
         System.out.println("Exchange account (" + exchangeAccountId + ") balance: " + exchangeBalanceBefore);
@@ -156,11 +153,9 @@ class MultiAppTransferExample {
          * Step 4:
          * Query user and exchange account balance to validate the transfer was successfully complete.
          */
-        Hbar senderBalanceAfter =
-                new AccountBalanceQuery().setAccountId(userAccountId).execute(client).hbars;
+        Hbar senderBalanceAfter = MirrorNodeHelper.awaitHbarBalance(client, userAccountId, Hbar.from(1));
 
-        Hbar exchangeBalanceAfter =
-                new AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).hbars;
+        Hbar exchangeBalanceAfter = MirrorNodeHelper.awaitHbarBalance(client, exchangeAccountId, Hbar.from(1));
 
         System.out.println("User account (" + userAccountId + ") balance: " + senderBalanceAfter);
         System.out.println("Exchange account (" + exchangeAccountId + ") balance: " + exchangeBalanceAfter);
