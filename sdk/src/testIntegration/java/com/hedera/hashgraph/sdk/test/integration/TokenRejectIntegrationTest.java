@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.AccountAllowanceApproveTransaction;
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.PrivateKey;
@@ -57,18 +56,12 @@ public class TokenRejectIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance of the receiver is 0
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalance.tokens.get(tokenId1)).isEqualTo(0);
-            assertThat(receiverAccountBalance.tokens.get(tokenId2)).isEqualTo(0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId1, 0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId2, 0);
 
             // verify the tokens are transferred back to the treasury
-            var treasuryAccountBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-
-            assertThat(treasuryAccountBalance.tokens.get(tokenId1)).isEqualTo(1_000_000);
-            assertThat(treasuryAccountBalance.tokens.get(tokenId2)).isEqualTo(1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, tokenId1, 1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, tokenId2, 1_000_000);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
@@ -124,11 +117,8 @@ public class TokenRejectIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance is decremented by 1
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalance.tokens.get(tokenId1)).isEqualTo(1);
-            assertThat(receiverAccountBalance.tokens.get(tokenId2)).isEqualTo(1);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId1, 1);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId2, 1);
 
             // verify the token is transferred back to the treasury
             var tokenId1NftInfo = new TokenNftInfoQuery()
@@ -209,20 +199,14 @@ public class TokenRejectIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance of the receiver is 0
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalance.tokens.get(ftTokenId1)).isEqualTo(0);
-            assertThat(receiverAccountBalance.tokens.get(ftTokenId2)).isEqualTo(0);
-            assertThat(receiverAccountBalance.tokens.get(nftTokenId1)).isEqualTo(1);
-            assertThat(receiverAccountBalance.tokens.get(nftTokenId2)).isEqualTo(1);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, ftTokenId1, 0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, ftTokenId2, 0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, nftTokenId1, 1);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, nftTokenId2, 1);
 
             // verify the tokens are transferred back to the treasury
-            var treasuryAccountBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-
-            assertThat(treasuryAccountBalance.tokens.get(ftTokenId1)).isEqualTo(1_000_000);
-            assertThat(treasuryAccountBalance.tokens.get(ftTokenId2)).isEqualTo(1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, ftTokenId1, 1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, ftTokenId2, 1_000_000);
 
             var tokenId1NftInfo = new TokenNftInfoQuery()
                     .setNftId(nftTokenId1.nft(nftSerials.get(1)))
@@ -315,16 +299,10 @@ public class TokenRejectIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance of the receiver is 0
-            var receiverAccountBalanceFt =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalanceFt.tokens.get(ftTokenId)).isEqualTo(0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, ftTokenId, 0);
 
             // verify the tokens are transferred back to the treasury
-            var treasuryAccountBalance =
-                    new AccountBalanceQuery().setAccountId(treasuryAccountId).execute(testEnv.client);
-
-            assertThat(treasuryAccountBalance.tokens.get(ftTokenId)).isEqualTo(1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, treasuryAccountId, ftTokenId, 1_000_000);
 
             // same test for nft
 
@@ -373,10 +351,7 @@ public class TokenRejectIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance is decremented by 1
-            var receiverAccountBalanceNft =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalanceNft.tokens.get(nftTokenId)).isEqualTo(1);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, nftTokenId, 1);
 
             // verify the token is transferred back to the treasury
             var nftTokenIdInfo = new TokenNftInfoQuery()

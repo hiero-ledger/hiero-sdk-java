@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
 import com.hedera.hashgraph.sdk.TokenDeleteTransaction;
@@ -53,10 +52,7 @@ public class TokenRejectFlowIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the tokens are transferred back to the treasury
-            var treasuryAccountBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-
-            assertThat(treasuryAccountBalance.tokens.get(ftTokenId)).isEqualTo(1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, ftTokenId, 1_000_000);
 
             // verify the allowance - should be 0, because TokenRejectFlow dissociates
             assertThatExceptionOfType(Exception.class)
@@ -111,10 +107,7 @@ public class TokenRejectFlowIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the tokens are transferred back to the treasury
-            var treasuryAccountBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-
-            assertThat(treasuryAccountBalance.tokens.get(ftTokenId)).isEqualTo(1_000_000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, ftTokenId, 1_000_000);
 
             // verify the tokens are not associated with the receiver
             assertThatExceptionOfType(Exception.class)

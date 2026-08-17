@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hedera.hashgraph.sdk.AccountAllowanceApproveTransaction;
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountInfoQuery;
 import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
@@ -242,17 +241,11 @@ public class TokenAutomaticAssociationIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance of the receivers is 1000
-            var accountId1Balance =
-                    new AccountBalanceQuery().setAccountId(accountId1).execute(testEnv.client);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId1, tokenId1, 1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId1, tokenId2, 1000);
 
-            assertThat(accountId1Balance.tokens.get(tokenId1)).isEqualTo(1000);
-            assertThat(accountId1Balance.tokens.get(tokenId2)).isEqualTo(1000);
-
-            var accountId2Balance =
-                    new AccountBalanceQuery().setAccountId(accountId2).execute(testEnv.client);
-
-            assertThat(accountId2Balance.tokens.get(tokenId1)).isEqualTo(1000);
-            assertThat(accountId2Balance.tokens.get(tokenId2)).isEqualTo(1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId2, tokenId1, 1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId2, tokenId2, 1000);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
@@ -288,11 +281,8 @@ public class TokenAutomaticAssociationIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(receiverAccountBalance.tokens.get(tokenId1)).isEqualTo(1000);
-            assertThat(receiverAccountBalance.tokens.get(tokenId2)).isEqualTo(1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId1, 1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId2, 1000);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
@@ -338,11 +328,8 @@ public class TokenAutomaticAssociationIntegrationTest {
                     .execute(testEnv.client)
                     .getRecord(testEnv.client);
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
-
-            assertThat(accountBalance.tokens.get(tokenId1)).isEqualTo(1000);
-            assertThat(accountBalance.tokens.get(tokenId2)).isEqualTo(1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId1, 1000);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId2, 1000);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
@@ -411,17 +398,11 @@ public class TokenAutomaticAssociationIntegrationTest {
                     .getReceipt(testEnv.client);
 
             // verify the balance of the receivers is 2
-            var accountId1Balance =
-                    new AccountBalanceQuery().setAccountId(accountId1).execute(testEnv.client);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId1, tokenId1, 2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId1, tokenId2, 2);
 
-            assertThat(accountId1Balance.tokens.get(tokenId1)).isEqualTo(2);
-            assertThat(accountId1Balance.tokens.get(tokenId2)).isEqualTo(2);
-
-            var accountId2Balance =
-                    new AccountBalanceQuery().setAccountId(accountId2).execute(testEnv.client);
-
-            assertThat(accountId2Balance.tokens.get(tokenId1)).isEqualTo(2);
-            assertThat(accountId2Balance.tokens.get(tokenId2)).isEqualTo(2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId2, tokenId1, 2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId2, tokenId2, 2);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
@@ -481,11 +462,8 @@ public class TokenAutomaticAssociationIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
-
-            assertThat(accountBalance.tokens.get(tokenId1)).isEqualTo(2);
-            assertThat(accountBalance.tokens.get(tokenId2)).isEqualTo(2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId1, 2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId2, 2);
 
             new TokenDeleteTransaction()
                     .setTokenId(tokenId1)
