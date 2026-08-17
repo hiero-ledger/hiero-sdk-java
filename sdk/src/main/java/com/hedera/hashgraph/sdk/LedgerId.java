@@ -95,7 +95,7 @@ public class LedgerId {
     }
 
     /**
-     * Are we on Mionnet?
+     * Are we on Mainnet?
      *
      * @return                          is it mainnet
      */

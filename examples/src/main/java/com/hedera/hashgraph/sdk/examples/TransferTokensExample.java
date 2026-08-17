@@ -9,7 +9,20 @@ import java.util.Collections;
 import java.util.Objects;
 
 /**
- * How to transfer tokens between accounts.
+ * FULL TOKEN TRANSFER
+ *
+ * This example demonstrates the complete lifecycle of a Hedera token transfer:
+ *
+ * Step 1: Create and configure the SDK Client
+ * Step 2: Generate ED25519 key pairs
+ * Step 3: Create accounts (Alice and Bob)
+ * Step 4: Create a fungible token
+ * Step 5: Associate the token with accounts
+ * Step 6: Grant KYC permissions
+ * Step 7: Transfer tokens from treasury to Alice
+ * Step 8: Transfer tokens between Alice and Bob
+ *
+ * This helps developers understand the full token workflow using the SDK.
  */
 class TransferTokensExample {
 

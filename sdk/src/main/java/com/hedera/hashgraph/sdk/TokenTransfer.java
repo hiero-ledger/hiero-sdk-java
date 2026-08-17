@@ -4,6 +4,8 @@ package com.hedera.hashgraph.sdk;
 import static com.hedera.hashgraph.sdk.TransferTransaction.toFungibleHook;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.hedera.hashgraph.sdk.proto.AccountAmount;
 import com.hedera.hashgraph.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
@@ -118,6 +120,25 @@ public class TokenTransfer {
         }
 
         return builder.build();
+    }
+
+    /**
+     * Build a JSON representation of this token transfer
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("tokenId", tokenId.toString());
+        json.addProperty("accountId", accountId.toString());
+        if (expectedDecimals != null) {
+            json.addProperty("expectedDecimals", expectedDecimals);
+        } else {
+            json.add("expectedDecimals", JsonNull.INSTANCE);
+        }
+        json.addProperty("amount", String.valueOf(amount));
+        json.addProperty("isApproved", isApproved);
+        return json;
     }
 
     @Override

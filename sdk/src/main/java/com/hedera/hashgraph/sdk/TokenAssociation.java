@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
@@ -74,6 +75,18 @@ public class TokenAssociation {
                 .setTokenId(tokenId.toProtobuf())
                 .setAccountId(accountId.toProtobuf())
                 .build();
+    }
+
+    /**
+     * Build a JSON representation of this token association
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        json.addProperty("accountId", accountId.toString());
+        json.addProperty("tokenId", tokenId.toString());
+        return json;
     }
 
     @Override

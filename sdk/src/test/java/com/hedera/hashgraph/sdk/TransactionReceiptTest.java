@@ -44,6 +44,7 @@ public class TransactionReceiptTest {
                 TransactionId.withValidStart(AccountId.fromString("3.3.3"), time),
                 List.of(1L, 2L, 3L),
                 1,
+                1,
                 new ArrayList<>(),
                 new ArrayList<>());
     }
@@ -55,5 +56,14 @@ public class TransactionReceiptTest {
         var copyTransactionReceipt = TransactionReceipt.fromBytes(transactionReceiptBytes);
         assertThat(copyTransactionReceipt.toString()).isEqualTo(originalTransactionReceipt.toString());
         SnapshotMatcher.expect(originalTransactionReceipt.toString()).toMatchSnapshot();
+    }
+
+    @Test
+    void shouldSerializeToJson() throws Exception {
+        var originalTransactionReceipt = spawnReceiptExample();
+        byte[] transactionReceiptBytes = originalTransactionReceipt.toBytes();
+        var copyTransactionReceipt = TransactionReceipt.fromBytes(transactionReceiptBytes);
+        assertThat(copyTransactionReceipt.toJson()).isEqualTo(originalTransactionReceipt.toJson());
+        SnapshotMatcher.expect(originalTransactionReceipt.toJson()).toMatchSnapshot();
     }
 }

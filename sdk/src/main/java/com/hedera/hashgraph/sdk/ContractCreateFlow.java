@@ -376,7 +376,7 @@ public class ContractCreateFlow {
     /**
      * Sets the parameters to pass to the constructor.
      *
-     * @param constructorParameters The contructor parameters
+     * @param constructorParameters The constructor parameters
      * @return {@code this}
      */
     public ContractCreateFlow setConstructorParameters(ContractFunctionParameters constructorParameters) {

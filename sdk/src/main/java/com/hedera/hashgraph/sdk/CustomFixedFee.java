@@ -36,6 +36,22 @@ public class CustomFixedFee extends CustomFeeBase<CustomFixedFee> {
         return returnFee;
     }
 
+    /**
+     * Create a custom fixed fee from a fixed custom fee protobuf.
+     * <p>
+     * This fee definition is specific to an Hedera Consensus Service (HCS) topic and SHOULD NOT be used in any other context.
+     *
+     * @param fixedFee                  the fixed custom fee protobuf
+     * @return                          the new custom fixed fee object
+     */
+    static CustomFixedFee fromProtobuf(FixedCustomFee fixedFee) {
+        var returnFee = fromProtobuf(fixedFee.getFixedFee());
+        if (fixedFee.hasFeeCollectorAccountId()) {
+            returnFee.setFeeCollectorAccountId(AccountId.fromProtobuf(fixedFee.getFeeCollectorAccountId()));
+        }
+        return returnFee;
+    }
+
     FixedCustomFee toTopicFeeProtobuf() {
         var builder = FixedCustomFee.newBuilder();
         var fixedFeeBuilder = FixedFee.newBuilder();

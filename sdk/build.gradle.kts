@@ -58,7 +58,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.testIntegration {
-    maxParallelForks = (Runtime.getRuntime().availableProcessors()).coerceAtLeast(1)
+    maxParallelForks = 1
     failFast = true
 }
 

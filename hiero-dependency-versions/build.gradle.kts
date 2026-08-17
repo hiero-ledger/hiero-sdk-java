@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 group = "org.hiero"
 
-val bouncycastle = "1.83"
-val grpc = "1.79.0"
-val protobuf = "4.33.5"
-val slf4j = "2.0.17"
-val mockito = "5.21.0"
+val bouncycastle = "1.84"
+val grpc = "1.83.1"
+val protobuf = "4.35.1"
+val slf4j = "2.0.18"
+val mockito = "5.23.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
-    api(platform("io.netty:netty-bom:4.2.10.Final"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
+    api(platform("io.netty:netty-bom:4.2.17.Final"))
 }
 
 dependencies.constraints {
     api("com.esaulpaugh:headlong:13.3.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
-    api("com.google.code.gson:gson:2.13.2") { because("com.google.gson") }
+    api("com.google.code.gson:gson:2.14.0") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
     api("io.grpc:grpc-api:$grpc") { because("io.grpc") }
@@ -31,12 +31,12 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.21.1") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.5.0-android") { because("com.google.common") }
+    api("com.fasterxml.jackson.core:jackson-core:2.22.1") { because("com.fasterxml.jackson.core") }
+    api("com.google.guava:guava:33.6.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
-    api("org.junit.jupiter:junit-jupiter-api:6.0.3") { because("org.junit.jupiter.api") }
+    api("org.junit.jupiter:junit-jupiter-api:6.1.2") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
     api("org.mockito:mockito-junit-jupiter:$mockito") { because("org.mockito.junit.jupiter") }
 
@@ -44,6 +44,14 @@ dependencies.constraints {
     api("io.grpc:protoc-gen-grpc-java:$grpc")
 
     api("com.thetransactioncompany:jsonrpc2-server:2.0")
+
+    // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
+    // TO BE removed when spring-boot-dependencies gets updated
+    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.24")
+    api("org.springframework:spring-webmvc:7.0.8")
+    api("org.springframework:spring-context:7.0.8")
+    api("org.springframework:spring-web:7.0.8")
+    api("ch.qos.logback:logback-core:1.6.1")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

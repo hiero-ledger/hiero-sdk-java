@@ -25,7 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -50,6 +57,7 @@ public final class Client implements AutoCloseable {
     // so that this doesn't happen in unit tests.
     static final Duration NETWORK_UPDATE_INITIAL_DELAY = Duration.ofSeconds(10);
     private static final Hbar DEFAULT_MAX_QUERY_PAYMENT = new Hbar(1);
+    private static final AccountId PING_PROBE_ACCOUNT_ID = new AccountId(0, 0, 2);
     private static final String MAINNET = "mainnet";
     private static final String TESTNET = "testnet";
     private static final String PREVIEWNET = "previewnet";
@@ -446,7 +454,7 @@ public final class Client implements AutoCloseable {
     /**
      * Build the REST base URL for the next healthy mirror node.
      * Returns a string like `https://host[:port]/api/v1`.
-     * If the selected mirror node is a local host (localhost/127.0.0.1) returns `http://localhost:{5551|8545}/api/v1`.
+     * If the selected mirror node is a local host (localhost/127.0.0.1) returns `http://localhost:{38081|8545}/api/v1`.
      */
     public String getMirrorRestBaseUrl() {
         try {
@@ -657,10 +665,10 @@ public final class Client implements AutoCloseable {
      * @throws PrecheckStatusException when the precheck fails
      */
     public Void ping(AccountId nodeAccountId, Duration timeout) throws PrecheckStatusException, TimeoutException {
-        new AccountBalanceQuery()
-                .setAccountId(nodeAccountId)
+        new AccountInfoQuery()
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
-                .execute(this, timeout);
+                .getCost(this, timeout);
 
         return null;
     }
@@ -684,11 +692,11 @@ public final class Client implements AutoCloseable {
      */
     public CompletableFuture<Void> pingAsync(AccountId nodeAccountId, Duration timeout) {
         var result = new CompletableFuture<Void>();
-        new AccountBalanceQuery()
-                .setAccountId(nodeAccountId)
+        new AccountInfoQuery()
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
-                .executeAsync(this, timeout)
-                .whenComplete((balance, error) -> {
+                .getCostAsync(this, timeout)
+                .whenComplete((cost, error) -> {
                     if (error == null) {
                         result.complete(null);
                     } else {

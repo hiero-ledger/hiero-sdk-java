@@ -59,17 +59,16 @@ message HookCreationDetails {
    * The hook implementation.
    */
   oneof hook {
-  /**
-   * A general-purpose hook programmed in EVM bytecode that may access state
-   * or interact with external contracts.
-   */
+    /**
+     * A general-purpose hook programmed in EVM bytecode that may access state
+     * or interact with external contracts.
+     */
     EvmHook evm_hook = 3;
   }
 
   /**
    * If set, a key that that can be used to remove or replace the hook; or (if
-   * applicable, as with an EVM hook) perform transactions that customize
-   * the hook.
+   * applicable, as with an EVM hook) do transactions that customize the hook.
    */
   proto.Key admin_key = 4;
 }
@@ -108,8 +107,6 @@ message EvmHookSpec {
  * Specifies a key/value pair in the storage of an EVM hook, either by the explicit storage
  * slot contents; or by a combination of a Solidity mapping's slot key and the key into
  * that mapping.
- * <p>
- * Either the hook owner's key, or its admin key, must sign the transaction.
  */
 message EvmHookStorageUpdate {
   oneof update {
@@ -152,7 +149,7 @@ message EvmHookMappingEntries {
 /**
  * An entry in a Solidity mapping. Very helpful for protocols that apply
  * `HookStore` to manage the entries of a hook contract's mapping instead
- * of its raw storage slots.
+ * its raw storage slots.
  * <p>
  * This is especially attractive when the mapping value itself fits in a single
  * word; for more complicated value storage layouts it becomes necessary to

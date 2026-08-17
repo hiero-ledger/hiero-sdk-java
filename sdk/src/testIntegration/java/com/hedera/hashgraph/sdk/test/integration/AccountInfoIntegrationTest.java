@@ -120,6 +120,8 @@ class AccountInfoIntegrationTest {
                     .setInitialBalance(Hbar.fromTinybars(1000))
                     .freezeWith(testEnv.client);
 
+            signedTx.execute(testEnv.client);
+
             assertThat(AccountInfoFlow.verifyTransactionSignature(testEnv.client, testEnv.operatorId, signedTx))
                     .isTrue();
             assertThat(AccountInfoFlow.verifyTransactionSignature(testEnv.client, testEnv.operatorId, unsignedTx))

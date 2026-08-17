@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import com.google.protobuf.*;
+import com.google.protobuf.BoolValue;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.BytesValue;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.StringValue;
 import com.hedera.hashgraph.sdk.proto.AddressBookServiceGrpc;
+import com.hedera.hashgraph.sdk.proto.AssociatedRegisteredNodeList;
 import com.hedera.hashgraph.sdk.proto.NodeUpdateTransactionBody;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
@@ -62,6 +67,9 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
     @Nullable
     private Endpoint grpcWebProxyEndpoint = null;
+
+    @Nullable
+    private List<Long> associatedRegisteredNodes = null;
 
     /**
      * Constructor.
@@ -452,6 +460,61 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
     }
 
     /**
+     * Get a list of registered nodes operated by the same entity as this node.
+     * @return {@code List<Long>} the list of associated registered node.
+     */
+    public List<Long> getAssociatedRegisteredNodes() {
+        return associatedRegisteredNodes;
+    }
+
+    /**
+     * Set a list of registered nodes operated by the same entity as this node.<br/>
+     * This value may contain a list of "registered nodes" (as described in
+     * HIP-1137) that are operated by the same entity that operates this
+     * consensus node.
+     * <p>
+     * This field is OPTIONAL and MAY be empty.<br/>
+     * This field MUST NOT contain more than twenty(20) entries.<br/>
+     * Every entry in this list MUST be a valid `registered_node_id` for a
+     * current registered node.
+     *
+     * @param associatedRegisteredNodes list of associated registered node.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction setAssociatedRegisteredNodes(List<Long> associatedRegisteredNodes) {
+        requireNotFrozen();
+        Objects.requireNonNull(associatedRegisteredNodes);
+
+        this.associatedRegisteredNodes = new ArrayList<>(associatedRegisteredNodes);
+        return this;
+    }
+
+    /**
+     * Add a registered nodes operated by the same entity as this node.
+     * @param associatedRegisteredNode the associated registered node.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction addAssociatedRegisteredNode(long associatedRegisteredNode) {
+        requireNotFrozen();
+        if (associatedRegisteredNodes == null) {
+            associatedRegisteredNodes = new ArrayList<>();
+        }
+
+        associatedRegisteredNodes.add(associatedRegisteredNode);
+        return this;
+    }
+
+    /**
+     * Clear all registered nodes associated with this node.
+     * @return {@code this}
+     */
+    public NodeUpdateTransaction clearAssociatedRegisteredNodes() {
+        requireNotFrozen();
+        associatedRegisteredNodes = new ArrayList<>();
+        return this;
+    }
+
+    /**
      * Build the transaction body.
      *
      * @return {@link com.hedera.hashgraph.sdk.proto.NodeUpdateTransactionBody}
@@ -477,6 +540,12 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
         for (Endpoint serviceEndpoint : serviceEndpoints) {
             builder.addServiceEndpoint(serviceEndpoint.toProtobuf());
+        }
+
+        if (associatedRegisteredNodes != null) {
+            builder.setAssociatedRegisteredNodeList(AssociatedRegisteredNodeList.newBuilder()
+                    .addAllAssociatedRegisteredNode(associatedRegisteredNodes)
+                    .build());
         }
 
         if (gossipCaCertificate != null) {
@@ -544,6 +613,13 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
         if (body.hasGrpcProxyEndpoint()) {
             grpcWebProxyEndpoint = Endpoint.fromProtobuf(body.getGrpcProxyEndpoint());
+        }
+
+        if (body.hasAssociatedRegisteredNodeList()) {
+            associatedRegisteredNodes = new ArrayList<>();
+            for (long id : body.getAssociatedRegisteredNodeList().getAssociatedRegisteredNodeList()) {
+                associatedRegisteredNodes.add(id);
+            }
         }
     }
 
