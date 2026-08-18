@@ -227,18 +227,16 @@ public class IntegrationTestEnv implements AutoCloseable {
         MirrorNodeTokenBalance balance = null;
 
         while (System.nanoTime() < deadline) {
-            try {
-                balance = new MirrorNodeTokenBalanceQuery()
-                        .setAccountId(accountId)
-                        .setTokenId(tokenId)
-                        .execute(client);
+            balance = new MirrorNodeTokenBalanceQuery()
+                    .setAccountId(accountId)
+                    .setTokenId(tokenId)
+                    .execute(client);
 
-                if (condition.test(balance)) {
-                    return balance;
-                }
-            } catch (Exception illegalArgumentException) {
-                Thread.sleep(1000);
+            if (condition.test(balance)) {
+                return balance;
             }
+
+            Thread.sleep(1000);
         }
 
         throw new AssertionError("Mirror node did not report a token balance matching the expected condition for "
