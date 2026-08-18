@@ -146,8 +146,8 @@ public final class MirrorNodeHelper {
                 if (condition.test(balance)) {
                     return balance;
                 }
-            } catch (Exception illegalArgumentException) {
-                Thread.sleep(1000);
+            } catch (Exception exception) {
+                Thread.sleep(POLL_INTERVAL.toMillis());
             }
         }
 

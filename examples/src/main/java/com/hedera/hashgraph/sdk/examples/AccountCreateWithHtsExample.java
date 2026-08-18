@@ -335,7 +335,7 @@ class AccountCreateWithHtsExample {
 
         AccountId bobAccountId = AccountId.fromString(bobAccountInfo);
 
-        long bobsTokenBalance = MirrorNodeHelper.tokenBalance(client, bobAccountId, fungibleTokenId).balance;
+        long bobsTokenBalance = MirrorNodeHelper.awaitTokenBalance(client, bobAccountId, fungibleTokenId, 10);
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)

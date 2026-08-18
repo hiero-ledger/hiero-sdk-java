@@ -141,7 +141,7 @@ class BatchTransactionExample {
         var aliceBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(2));
         var bobBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, bob, new Hbar(2));
         var carolBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, carol, new Hbar(2));
-        var operatorBalanceBefore = MirrorNodeHelper.hbarBalance(client, client.getOperatorAccountId());
+        var operatorBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, client.getOperatorAccountId());
 
         /*
          * Step 4:
@@ -225,7 +225,7 @@ class BatchTransactionExample {
          * Get the balances in order to compare after the batch execution
          */
         var aliceBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(2));
-        var operatorBalanceBefore = MirrorNodeHelper.hbarBalance(client, client.getOperatorAccountId());
+        var operatorBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, client.getOperatorAccountId());
 
         /*
          * Step 6:

@@ -185,9 +185,9 @@ public class TokenAirdropExample {
         System.out.println("Alice ft balance after airdrop: "
                 + MirrorNodeHelper.tokenBalanceAfterSync(client, alice, tokenID).balance);
         System.out.println(
-                "Bob ft balance after airdrop: " + MirrorNodeHelper.tokenBalance(client, bob, tokenID).balance);
+                "Bob ft balance after airdrop: " + MirrorNodeHelper.awaitTokenBalance(client, bob, tokenID, 10));
         System.out.println("Carol ft balance after airdrop (pending, so not associated): "
-                + MirrorNodeHelper.tokenBalance(client, carol, tokenID).isAssociated());
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, carol, tokenID).isAssociated());
 
         /*
          * Step 6:
@@ -233,9 +233,9 @@ public class TokenAirdropExample {
         System.out.println("Alice nft balance after airdrop: "
                 + MirrorNodeHelper.tokenBalanceAfterSync(client, alice, nftID).balance);
         System.out.println("Bob nft balance after airdrop (pending, so not associated): "
-                + MirrorNodeHelper.tokenBalance(client, bob, nftID).isAssociated());
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, bob, nftID).isAssociated());
         System.out.println("Carol nft balance after airdrop (pending, so not associated): "
-                + MirrorNodeHelper.tokenBalance(client, carol, nftID).isAssociated());
+                + MirrorNodeHelper.tokenBalanceAfterSync(client, carol, nftID).isAssociated());
 
         /*
          * Step 10:
@@ -292,7 +292,7 @@ public class TokenAirdropExample {
          * Query to verify the NFT was returned to the Treasury
          */
         System.out.println("Treasury nft balance after reject: "
-                + MirrorNodeHelper.tokenBalance(client, treasuryAccount, nftID).balance);
+                + MirrorNodeHelper.awaitTokenBalance(client, treasuryAccount, nftID, 2));
 
         /*
          * Step 14:
@@ -319,7 +319,7 @@ public class TokenAirdropExample {
          * Query to verify Treasury received the rejected fungible tokens
          */
         System.out.println("Treasury ft balance after reject: "
-                + MirrorNodeHelper.tokenBalance(client, treasuryAccount, tokenID).balance);
+                + MirrorNodeHelper.awaitTokenBalance(client, treasuryAccount, tokenID, 80));
 
         /*
          * Clean up:

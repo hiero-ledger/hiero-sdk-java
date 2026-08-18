@@ -108,7 +108,7 @@ class MultiAppTransferExample {
 
         Hbar senderBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, userAccountId, Hbar.from(2));
 
-        Hbar exchangeBalanceBefore = MirrorNodeHelper.hbarBalance(client, exchangeAccountId);
+        Hbar exchangeBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, exchangeAccountId, Hbar.ZERO);
 
         System.out.println("User account (" + userAccountId + ") balance: " + senderBalanceBefore);
         System.out.println("Exchange account (" + exchangeAccountId + ") balance: " + exchangeBalanceBefore);

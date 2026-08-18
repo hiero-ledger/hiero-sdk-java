@@ -169,7 +169,7 @@ public class CreateTopicWithRevenueExample {
             var aliceTokenBalanceAfter =
                     MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, tokenId).balance;
 
-            var feeCollectorTokenBalanceAfter = MirrorNodeHelper.tokenBalance(client, OPERATOR_ID, tokenId).balance;
+            var feeCollectorTokenBalanceAfter = MirrorNodeHelper.awaitTokenBalance(client, OPERATOR_ID, tokenId, 100);
 
             System.out.println("Alice's token balance: " + aliceTokenBalanceAfter);
             System.out.println("Fee collector's token balance: " + feeCollectorTokenBalanceAfter);

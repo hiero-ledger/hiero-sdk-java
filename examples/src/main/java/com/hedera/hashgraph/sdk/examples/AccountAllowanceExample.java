@@ -134,8 +134,8 @@ class AccountAllowanceExample {
                 .getReceipt(client);
 
         System.out.println("Alice's balance: " + MirrorNodeHelper.hbarBalanceAfterSync(client, aliceId));
-        System.out.println("Bob's balance: " + MirrorNodeHelper.hbarBalance(client, bobId));
-        System.out.println("Charlie's balance: " + MirrorNodeHelper.hbarBalance(client, charlieId));
+        System.out.println("Bob's balance: " + MirrorNodeHelper.awaitHbarBalance(client, bobId, Hbar.from(5)));
+        System.out.println("Charlie's balance: " + MirrorNodeHelper.awaitHbarBalance(client, charlieId, Hbar.from(5)));
 
         /*
          * Step 4:

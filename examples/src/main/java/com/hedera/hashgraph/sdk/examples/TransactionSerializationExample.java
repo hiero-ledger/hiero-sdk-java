@@ -63,9 +63,9 @@ class TransactionSerializationExample {
          * Check Hbar balance of sender and recipient.
          */
         AccountId recipientId = AccountId.fromString("0.0.3");
-        Hbar senderBalanceBefore = MirrorNodeHelper.hbarBalance(client, OPERATOR_ID);
+        Hbar senderBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, OPERATOR_ID);
 
-        Hbar recipientBalanceBefore = MirrorNodeHelper.hbarBalance(client, recipientId);
+        Hbar recipientBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, recipientId);
 
         System.out.println("Sender (" + OPERATOR_ID + ") balance before transfer: " + senderBalanceBefore);
         System.out.println("Recipient (" + recipientId + ") balance before transfer: " + recipientBalanceBefore);

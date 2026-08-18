@@ -203,10 +203,10 @@ class ExemptCustomFeesExample {
         long aliceAccountBalanceAfter =
                 MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, fungibleTokenId).balance;
 
-        long bobAccountBalanceAfter = MirrorNodeHelper.tokenBalance(client, bobAccountId, fungibleTokenId).balance;
+        long bobAccountBalanceAfter = MirrorNodeHelper.awaitTokenBalance(client, bobAccountId, fungibleTokenId, 0);
 
         long charlieAccountBalanceAfter =
-                MirrorNodeHelper.tokenBalance(client, charlieAccountId, fungibleTokenId).balance;
+                MirrorNodeHelper.tokenBalanceAfterSync(client, charlieAccountId, fungibleTokenId).balance;
 
         System.out.println("Alice's balance after transferring the fungible token: " + aliceAccountBalanceAfter);
         System.out.println("Bob's account balance after transferring the fungible token: " + bobAccountBalanceAfter);
@@ -217,7 +217,7 @@ class ExemptCustomFeesExample {
          * Clean up:
          * Delete created accounts and token.
          */
-        long alicesTokenBalance = MirrorNodeHelper.tokenBalance(client, aliceAccountId, fungibleTokenId).balance;
+        long alicesTokenBalance = MirrorNodeHelper.awaitTokenBalance(client, aliceAccountId, fungibleTokenId, 10_000);
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)

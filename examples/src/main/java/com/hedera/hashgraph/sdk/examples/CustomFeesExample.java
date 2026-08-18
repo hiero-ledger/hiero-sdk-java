@@ -368,7 +368,7 @@ class CustomFeesExample {
                 .execute(client)
                 .getReceipt(client);
 
-        long bobsTokens = MirrorNodeHelper.tokenBalance(client, bobAccountId, fungibleTokenId).balance;
+        long bobsTokens = MirrorNodeHelper.awaitTokenBalance(client, bobAccountId, fungibleTokenId, 60);
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
@@ -379,7 +379,8 @@ class CustomFeesExample {
                 .execute(client)
                 .getReceipt(client);
 
-        long aliceTokensBeforeWipe = MirrorNodeHelper.tokenBalance(client, aliceAccountId, fungibleTokenId).balance;
+        long aliceTokensBeforeWipe =
+                MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, fungibleTokenId).balance;
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)

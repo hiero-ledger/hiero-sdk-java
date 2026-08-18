@@ -64,9 +64,9 @@ class TransferCryptoExample {
          * Step 1:
          * Check Hbar balance of sender and recipient.
          */
-        Hbar senderBalanceBefore = MirrorNodeHelper.hbarBalance(client, OPERATOR_ID);
+        Hbar senderBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, OPERATOR_ID);
 
-        Hbar recipientBalanceBefore = MirrorNodeHelper.hbarBalance(client, recipientId);
+        Hbar recipientBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, recipientId);
 
         System.out.println("Sender (" + OPERATOR_ID + ") balance before transfer: " + senderBalanceBefore);
         System.out.println("Recipient (" + recipientId + ") balance before transfer: " + recipientBalanceBefore);
