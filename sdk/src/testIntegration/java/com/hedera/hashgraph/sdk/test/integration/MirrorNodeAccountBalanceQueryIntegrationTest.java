@@ -3,7 +3,6 @@ package com.hedera.hashgraph.sdk.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -12,13 +11,12 @@ import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
  * Integration coverage for {@link MirrorNodeAccountBalanceQuery}, the mirror node REST replacement
- * for the removed {@code AccountBalanceQuery}.
+ * for the consensus-node {@code AccountBalanceQuery}.
  *
  * <p>The mirror node is eventually consistent, so every assertion on a balance that a transaction in
  * the same test produced goes through {@link IntegrationTestEnv#awaitMirrorBalance}.
@@ -60,8 +58,8 @@ class MirrorNodeAccountBalanceQueryIntegrationTest {
     }
 
     @Test
-    @DisplayName("A public key alias is not a supported form for the HBAR balance query")
-    void aliasAddressedAccountIsRejected() throws Exception {
+    @DisplayName("Can fetch the HBAR balance for an account addressed by its public key alias")
+    void canFetchBalanceByAlias() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             var key = PrivateKey.generateED25519();
             var aliasAccountId = key.getPublicKey().toAccountId(0, 0);
@@ -74,18 +72,10 @@ class MirrorNodeAccountBalanceQueryIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            // The /balances endpoint takes the account as the `account.id` *query* parameter, which
-            // accepts shard.realm.num and EVM addresses but rejects a public key alias with HTTP 400.
-            // (MirrorNodeTokenBalanceQuery does support aliases because it puts the account in the
-            // path, where the mirror node accepts idOrAliasOrEvmAddress.) Resolve the alias to a
-            // number first — e.g. AccountId.populateAccountNum — if you need this lookup.
-            assertThatThrownBy(() -> new MirrorNodeAccountBalanceQuery()
-                            .setAccountId(aliasAccountId)
-                            .setMaxAttempts(1)
-                            .execute(testEnv.client))
-                    .isInstanceOf(ExecutionException.class)
-                    .hasRootCauseInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("400");
+            var balance = IntegrationTestEnv.awaitMirrorBalance(
+                    testEnv.client, aliasAccountId, b -> b.equals(initialBalance));
+
+            assertThat(balance).isEqualTo(initialBalance);
         }
     }
 

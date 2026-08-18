@@ -4,6 +4,7 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.io.BaseEncoding;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -87,19 +88,21 @@ class MirrorNodeAccountBalanceQueryMockTest {
     }
 
     @Test
-    @DisplayName("A public key alias is rendered as shard.realm.alias, though the endpoint rejects that form")
-    void rendersAlias() throws Exception {
-        var aliasAccountId = PrivateKey.generateED25519().getPublicKey().toAccountId(0, 0);
-        query.setAccountId(aliasAccountId);
+    @DisplayName("A public key alias is sent as the bare base32 alias the mirror node expects")
+    void sendsAlias() throws Exception {
+        var aliasKey = PrivateKey.generateED25519().getPublicKey();
+        query.setAccountId(aliasKey.toAccountId(0, 0));
 
         stub.enqueue(new StubResponse(200, newBalanceResponse("0.0.12345", 42L)));
 
         var balance = query.execute(client);
 
         assertThat(balance.hbars).isEqualTo(Hbar.fromTinybars(42L));
-        // URL rendering only. A real mirror node answers HTTP 400 for an alias in the account.id query
-        // parameter — see MirrorNodeAccountBalanceQueryIntegrationTest.aliasAddressedAccountIsRejected.
-        assertThat(stub.getLastQueryParams()).isEqualTo("account.id=" + aliasAccountId);
+        var expectedAlias = BaseEncoding.base32()
+                .omitPadding()
+                .encode(aliasKey.toProtobufKey().toByteArray());
+        assertThat(stub.getLastQueryParams()).isEqualTo("account.id=" + expectedAlias);
+        assertThat(expectedAlias).doesNotContain(".").doesNotContain("=");
     }
 
     @Test
@@ -143,6 +146,34 @@ class MirrorNodeAccountBalanceQueryMockTest {
                 .hasMessageContaining("400");
 
         assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Given a 200 response with a malformed body, the failure names the parse, not an HTTP error")
+    void reportsMalformedBody() {
+        query.setAccountId(AccountId.fromString("0.0.12345")).setMaxAttempts(3);
+
+        stub.enqueue(new StubResponse(200, "not json"));
+
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("malformed JSON");
+
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Given autoValidateChecksums, a bad checksum fails before making a network call")
+    void validatesChecksumWhenEnabled() {
+        client.setLedgerId(LedgerId.TESTNET);
+        client.setAutoValidateChecksums(true);
+
+        query.setAccountId(AccountId.fromString("0.0.12345-aaaaa"));
+
+        assertThatThrownBy(() -> query.execute(client)).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(stub.requestCount()).isZero();
     }
 
     @Test

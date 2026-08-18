@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.common.io.BaseEncoding;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -23,18 +24,13 @@ import org.slf4j.LoggerFactory;
  * Get the HBAR balance of an account from the mirror node REST API
  * ({@code GET /api/v1/balances?account.id=...}).
  *
- * <p>This is the replacement for the deprecated {@link AccountBalanceQuery}, which relies on the
- * consensus node {@code CryptoService/cryptoGetBalance} endpoint that the network is retiring.
+ * <p>This is the replacement for {@link AccountBalanceQuery}, which relies on the consensus node
+ * {@code CryptoService/cryptoGetBalance} endpoint that the network is retiring.
  *
- * <p>The account may be identified by {@code shard.realm.num} or by an EVM address. Contract IDs are
- * also accepted; pass them through {@link #setAccountId(AccountId)}, as the balances endpoint supports
- * them directly and no separate setter is needed.
- *
- * <p><b>Public key aliases are not supported.</b> This endpoint takes the account as the
- * {@code account.id} query parameter, which the mirror node rejects with HTTP 400 for an alias. Resolve
- * the alias to a number first — see {@link AccountId#populateAccountNum(Client)} — or use
- * {@link MirrorNodeTokenBalanceQuery}, which puts the account in the URL path where aliases are
- * accepted.
+ * <p>The account may be identified by {@code shard.realm.num}, by an EVM address, or by a public key
+ * alias — the mirror node resolves all three. Contract IDs are also accepted; pass them through
+ * {@link #setAccountId(AccountId)}, as the balances endpoint supports them directly and no separate
+ * setter is needed.
  *
  * <p>Only the HBAR balance is returned. For token balances use {@link MirrorNodeTokenBalanceQuery},
  * which reads one token at a time.
@@ -73,8 +69,8 @@ public final class MirrorNodeAccountBalanceQuery {
      * The ID of the account for which the balance is being requested.
      *
      * <p>Accepts {@code shard.realm.num}, an EVM address, or a public key alias. Contract IDs are
-     * also accepted — convert with
-     * {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
+     * also accepted — the balances endpoint resolves them, so no separate setter is needed; convert
+     * with {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
      *
      * @param accountId the account id to set
      * @return {@code this}
@@ -199,6 +195,16 @@ public final class MirrorNodeAccountBalanceQuery {
     }
 
     private JsonObject fetch(String url, Duration timeout) {
+        String body = fetchBody(url, timeout);
+
+        try {
+            return JsonParser.parseString(body).getAsJsonObject();
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
+        }
+    }
+
+    private String fetchBody(String url, Duration timeout) {
         int attempt = 0;
         Exception lastException = null;
 
@@ -209,7 +215,7 @@ public final class MirrorNodeAccountBalanceQuery {
                         HTTP_CLIENT.send(buildHttpRequest(url, timeout), HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 200) {
-                    return JsonParser.parseString(response.body()).getAsJsonObject();
+                    return response.body();
                 }
 
                 if (!shouldRetry(response.statusCode()) || attempt >= maxAttempts) {
@@ -237,6 +243,14 @@ public final class MirrorNodeAccountBalanceQuery {
             throw new IllegalStateException("accountId must be set before executing MirrorNodeAccountBalanceQuery");
         }
 
+        if (client.isAutoValidateChecksumsEnabled()) {
+            try {
+                accountId.validateChecksum(client);
+            } catch (BadEntityIdException e) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
+        }
+
         return client.getMirrorRestBaseUrl() + "/balances?account.id="
                 + URLEncoder.encode(toAccountIdParam(accountId), StandardCharsets.UTF_8);
     }
@@ -244,13 +258,21 @@ public final class MirrorNodeAccountBalanceQuery {
     /**
      * Render the account id in the form the mirror node's {@code account.id} parameter expects.
      *
-     * <p>EVM addresses are sent in their {@code 0x}-prefixed hex form. Plain IDs and public key
-     * aliases are already rendered as {@code shard.realm.num} and {@code shard.realm.alias} by
-     * {@link AccountId#toString()}, both of which the mirror node resolves natively.
+     * <p>EVM addresses are sent in their {@code 0x}-prefixed hex form, and plain IDs as
+     * {@code shard.realm.num}. A public key alias is sent as the unpadded base32 encoding of the
+     * protobuf {@code Key} bytes with no {@code shard.realm.} prefix — the only alias form the mirror
+     * node accepts. {@link AccountId#toString()} renders an alias as {@code shard.realm.<DER hex>}
+     * instead, which the endpoint rejects with HTTP 400, so it cannot be used here.
      */
     private static String toAccountIdParam(AccountId accountId) {
         if (accountId.evmAddress != null) {
             return "0x" + accountId.evmAddress;
+        }
+
+        if (accountId.aliasKey != null) {
+            return BaseEncoding.base32()
+                    .omitPadding()
+                    .encode(accountId.aliasKey.toProtobufKey().toByteArray());
         }
 
         return accountId.toString();

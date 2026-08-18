@@ -4,6 +4,7 @@ package com.hedera.hashgraph.sdk;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.io.BaseEncoding;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -125,17 +126,20 @@ class MirrorNodeTokenBalanceQueryMockTest {
     }
 
     @Test
-    @DisplayName("Given a public key alias, it is sent in the path as shard.realm.alias")
+    @DisplayName("Given a public key alias, it is sent in the path as the bare base32 alias")
     void sendsAliasInPath() throws Exception {
-        var aliasAccountId = PrivateKey.generateED25519().getPublicKey().toAccountId(0, 0);
-        query.setAccountId(aliasAccountId).setTokenId(TOKEN_ID);
+        var aliasKey = PrivateKey.generateED25519().getPublicKey();
+        query.setAccountId(aliasKey.toAccountId(0, 0)).setTokenId(TOKEN_ID);
 
         stub.enqueue(new StubResponse(200, newRelationshipResponse(TOKEN_ID.toString(), 7, "1")));
 
         var balance = query.execute(client);
 
         assertThat(balance.balance).isEqualTo(7);
-        assertThat(stub.getLastPath()).isEqualTo("/api/v1/accounts/" + aliasAccountId + "/tokens");
+        var expectedAlias = BaseEncoding.base32()
+                .omitPadding()
+                .encode(aliasKey.toProtobufKey().toByteArray());
+        assertThat(stub.getLastPath()).isEqualTo("/api/v1/accounts/" + expectedAlias + "/tokens");
     }
 
     @Test

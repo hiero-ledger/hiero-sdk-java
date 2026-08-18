@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import com.google.common.io.BaseEncoding;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * ({@code GET /api/v1/accounts/{id}/tokens?token.id=...}).
  *
  * <p>This is the token-balance counterpart to {@link MirrorNodeAccountBalanceQuery}, which returns HBAR.
- * Together they replace the deprecated {@link AccountBalanceQuery}.
+ * Together they replace {@link AccountBalanceQuery}.
  *
  * <p>Both {@link #setAccountId(AccountId)} and {@link #setTokenId(TokenId)} are required, so the query
  * is always bounded to a single relationship and never paginates. Reading several tokens for one
@@ -36,14 +37,10 @@ import org.slf4j.LoggerFactory;
  * {@code NON_FUNGIBLE_UNIQUE} tokens. If the entity holds no relationship to the token, the balance is
  * zero and {@link MirrorNodeTokenBalance#isAssociated()} is false.
  *
- * <p>The account may be identified by {@code shard.realm.num} or by an EVM address. Contract IDs are
- * also accepted — pass them through {@link #setAccountId(AccountId)}, converting with
+ * <p>The account may be identified by {@code shard.realm.num}, by an EVM address, or by a public key
+ * alias — the mirror node resolves all three. Contract IDs are also accepted — pass them through
+ * {@link #setAccountId(AccountId)}, converting with
  * {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
- *
- * <p><b>Public key aliases are not supported.</b> An alias-bearing {@link AccountId} renders as
- * {@code shard.realm.<DER hex>}, whereas the mirror node expects the base32 alias form, so such a
- * lookup fails with HTTP 400. Use the account id from the creating transaction's receipt, or the
- * account's EVM address.
  *
  * <p>An entity the mirror node does not know — because it does not exist, or because the mirror node
  * has not ingested it yet — reports {@code isAssociated() == false} with a zero balance rather than
@@ -247,6 +244,20 @@ public final class MirrorNodeTokenBalanceQuery {
      */
     @Nullable
     private JsonObject fetch(String url, Duration timeout) {
+        String body = fetchBody(url, timeout);
+        if (body == null) {
+            return null;
+        }
+
+        try {
+            return JsonParser.parseString(body).getAsJsonObject();
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
+        }
+    }
+
+    @Nullable
+    private String fetchBody(String url, Duration timeout) {
         int attempt = 0;
         Exception lastException = null;
 
@@ -257,14 +268,9 @@ public final class MirrorNodeTokenBalanceQuery {
                         HTTP_CLIENT.send(buildHttpRequest(url, timeout), HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 200) {
-                    return JsonParser.parseString(response.body()).getAsJsonObject();
+                    return response.body();
                 }
 
-                // This endpoint answers 404 for an entity the mirror node has not ingested. Right
-                // after an entity is created that is the normal state of affairs rather than an
-                // error, so report it as "no relationship" — the same answer an existing account
-                // with no relationship to the token gives via an empty array. Deliberately not
-                // retried: 404 is an answer, not a transient failure.
                 if (response.statusCode() == 404) {
                     return null;
                 }
@@ -298,6 +304,15 @@ public final class MirrorNodeTokenBalanceQuery {
             throw new IllegalStateException("tokenId must be set before executing MirrorNodeTokenBalanceQuery");
         }
 
+        if (client.isAutoValidateChecksumsEnabled()) {
+            try {
+                accountId.validateChecksum(client);
+                tokenId.validateChecksum(client);
+            } catch (BadEntityIdException e) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
+        }
+
         // limit=1 because token.id pins the result to at most one relationship; there is nothing to page.
         return client.getMirrorRestBaseUrl() + "/accounts/"
                 + URLEncoder.encode(toAccountPathParam(accountId), StandardCharsets.UTF_8) + "/tokens?token.id="
@@ -308,13 +323,21 @@ public final class MirrorNodeTokenBalanceQuery {
      * Render the account id in the form the mirror node's {@code idOrAliasOrEvmAddress} path segment
      * expects.
      *
-     * <p>EVM addresses are sent in their {@code 0x}-prefixed hex form. Plain IDs and public key aliases
-     * are already rendered as {@code shard.realm.num} and {@code shard.realm.alias} by
-     * {@link AccountId#toString()}, both of which the mirror node resolves natively.
+     * <p>EVM addresses are sent in their {@code 0x}-prefixed hex form, and plain IDs as
+     * {@code shard.realm.num}. A public key alias is sent as the unpadded base32 encoding of the
+     * protobuf {@code Key} bytes — the only alias form the mirror node accepts.
+     * {@link AccountId#toString()} renders an alias as {@code shard.realm.<DER hex>} instead, which the
+     * endpoint rejects with HTTP 400, so it cannot be used here.
      */
     private static String toAccountPathParam(AccountId accountId) {
         if (accountId.evmAddress != null) {
             return "0x" + accountId.evmAddress;
+        }
+
+        if (accountId.aliasKey != null) {
+            return BaseEncoding.base32()
+                    .omitPadding()
+                    .encode(accountId.aliasKey.toProtobufKey().toByteArray());
         }
 
         return accountId.toString();
