@@ -140,13 +140,13 @@ public final class MirrorNodeHelper {
         MirrorNodeTokenBalance balance = null;
 
         while (System.nanoTime() < deadline) {
-                balance = tokenBalance(client, accountId, tokenId);
+            balance = tokenBalance(client, accountId, tokenId);
 
-                if (condition.test(balance)) {
-                    return balance;
-                }
+            if (condition.test(balance)) {
+                return balance;
+            }
 
-                Thread.sleep(POLL_INTERVAL.toMillis());
+            Thread.sleep(POLL_INTERVAL.toMillis());
         }
 
         throw new IllegalStateException("The mirror node did not report the expected balance for account " + accountId
