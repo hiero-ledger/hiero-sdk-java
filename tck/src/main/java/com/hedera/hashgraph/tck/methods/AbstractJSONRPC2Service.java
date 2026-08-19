@@ -37,6 +37,7 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
     private final Map<String, Method> methodMap;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+        // TODO: Should remove the below visiblity once dtos are change to use record.
         .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
         .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 

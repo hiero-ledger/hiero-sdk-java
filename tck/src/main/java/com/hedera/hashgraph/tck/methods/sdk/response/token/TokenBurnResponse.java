@@ -11,8 +11,4 @@ public class TokenBurnResponse extends TokenResponse {
         super(tokenId, status);
         this.newTotalSupply = newTotalSupply;
     }
-
-    public String getNewTotalSupply() {
-        return newTotalSupply;
-    }
 }
