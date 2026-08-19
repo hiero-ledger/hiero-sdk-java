@@ -22,6 +22,7 @@ mainModuleInfo {
     requires("spring.context")
     requires("spring.web")
     requires("spring.webmvc")
+    requires("com.fasterxml.jackson.databind")
     requiresStatic("lombok")
     requiresStatic("java.annotation")
     annotationProcessor("lombok")
