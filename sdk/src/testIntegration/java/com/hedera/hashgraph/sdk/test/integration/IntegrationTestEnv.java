@@ -9,8 +9,10 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.PublicKey;
+import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -144,7 +146,9 @@ public class IntegrationTestEnv implements AutoCloseable {
      */
     public static Hbar mirrorBalanceAfterSync(Client client, AccountId accountId) throws Exception {
         Thread.sleep(MIRROR_NODE_SYNC_DELAY.toMillis());
-        return new MirrorNodeAccountBalanceQuery().setAccountId(accountId).execute(client).hbars;
+        // Accept the first reading — the poll only absorbs the account not having been ingested yet, so
+        // this still returns a single post-delay value rather than waiting for one to change.
+        return awaitMirrorBalance(client, accountId, balance -> true);
     }
 
     /**
@@ -154,6 +158,10 @@ public class IntegrationTestEnv implements AutoCloseable {
      * balance queried immediately after a transaction may still be the pre-transaction value. Tests
      * that assert on a balance change must wait for the mirror node to catch up rather than reading
      * once.
+     *
+     * <p>The lag applies to the account's existence too: until the mirror node has ingested a freshly
+     * created account the query fails with {@link Status#INVALID_ACCOUNT_ID}. That is treated as another
+     * reason to keep polling; any other precheck status is a real failure and propagates.
      *
      * @param client the client to query with
      * @param accountId the account whose balance is being polled
@@ -167,18 +175,30 @@ public class IntegrationTestEnv implements AutoCloseable {
         Hbar balance = null;
 
         while (System.nanoTime() < deadline) {
-            balance =
-                    new MirrorNodeAccountBalanceQuery().setAccountId(accountId).execute(client).hbars;
+            try {
+                balance = new MirrorNodeAccountBalanceQuery()
+                        .setAccountId(accountId)
+                        .execute(client)
+                        .hbars;
 
-            if (condition.test(balance)) {
-                return balance;
+                if (condition.test(balance)) {
+                    return balance;
+                }
+            } catch (PrecheckStatusException e) {
+                if (e.status != Status.INVALID_ACCOUNT_ID) {
+                    throw e;
+                }
+                // The mirror node has not ingested the account yet — keep polling.
             }
 
             Thread.sleep(1000);
         }
 
         throw new AssertionError("Mirror node did not report a balance matching the expected condition for " + accountId
-                + " within 30s; last observed balance was " + balance);
+                + " within 30s; "
+                + (balance == null
+                        ? "the mirror node never reported the account at all"
+                        : "last observed balance was " + balance));
     }
 
     // Note: this is a temporary workaround.

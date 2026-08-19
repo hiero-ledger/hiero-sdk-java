@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.io.BaseEncoding;
@@ -14,6 +15,7 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class MirrorNodeAccountBalanceQueryMockTest {
+
+    private static final String EMPTY_BALANCES_RESPONSE =
+            "{\"timestamp\":\"1.0\",\"balances\":[],\"links\":{\"next\":null}}";
 
     private Client client;
     private MirrorNodeAccountBalanceQuery query;
@@ -62,15 +67,77 @@ class MirrorNodeAccountBalanceQueryMockTest {
     }
 
     @Test
-    @DisplayName("Given a non-existent account, the mirror node returns an empty array and the balance is zero")
-    void emptyBalancesArrayYieldsZero() throws Exception {
+    @DisplayName("Given a non-existent account, the empty balances array fails with INVALID_ACCOUNT_ID")
+    void emptyBalancesArrayThrowsInvalidAccountId() {
         query.setAccountId(AccountId.fromString("0.0.999999999"));
 
-        stub.enqueue(new StubResponse(200, "{\"timestamp\":\"1.0\",\"balances\":[],\"links\":{\"next\":null}}"));
+        stub.enqueue(new StubResponse(200, EMPTY_BALANCES_RESPONSE));
+
+        assertThatExceptionOfType(PrecheckStatusException.class)
+                .isThrownBy(() -> query.execute(client))
+                .satisfies(e -> {
+                    assertThat(e.status).isEqualTo(Status.INVALID_ACCOUNT_ID);
+                    assertThat(e.transactionId).isNull();
+                })
+                .withMessageContaining("INVALID_ACCOUNT_ID");
+
+        // A 200 is a final answer: the empty array must not be retried as if it were transient.
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("An account that exists with no hbars still reports zero rather than failing")
+    void zeroBalanceAccountIsNotTreatedAsMissing() throws Exception {
+        query.setAccountId(AccountId.fromString("0.0.12345"));
+
+        stub.enqueue(new StubResponse(200, newBalanceResponse("0.0.12345", 0L)));
 
         var balance = query.execute(client);
 
         assertThat(balance.hbars).isEqualTo(Hbar.ZERO);
+    }
+
+    @Test
+    @DisplayName("On the async path, a non-existent account completes the future exceptionally")
+    void asyncNotFoundCompletesFutureExceptionally() {
+        query.setAccountId(AccountId.fromString("0.0.999999999"));
+
+        stub.enqueue(new StubResponse(200, EMPTY_BALANCES_RESPONSE));
+
+        var future = query.executeAsync(client);
+
+        assertThatThrownBy(future::join)
+                .isInstanceOf(CompletionException.class)
+                .hasCauseInstanceOf(PrecheckStatusException.class);
+        assertThatThrownBy(future::get)
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(PrecheckStatusException.class);
+    }
+
+    @Test
+    @DisplayName("A 200 body with no balances array is reported as malformed, not as a missing account")
+    void missingBalancesKeyIsReportedAsMalformed() {
+        query.setAccountId(AccountId.fromString("0.0.12345"));
+
+        stub.enqueue(new StubResponse(200, "{\"timestamp\":\"1.0\"}"));
+
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("balances");
+    }
+
+    @Test
+    @DisplayName("A balances entry with no balance field is reported as malformed, not as zero")
+    void balancesEntryWithoutBalanceFieldIsReportedAsMalformed() {
+        query.setAccountId(AccountId.fromString("0.0.12345"));
+
+        stub.enqueue(new StubResponse(200, "{\"balances\":[{\"account\":\"0.0.12345\"}]}"));
+
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("`balance` field");
     }
 
     @Test
