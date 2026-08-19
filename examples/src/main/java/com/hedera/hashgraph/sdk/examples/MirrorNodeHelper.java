@@ -7,6 +7,8 @@ import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
 import com.hedera.hashgraph.sdk.MirrorNodeTokenBalance;
 import com.hedera.hashgraph.sdk.MirrorNodeTokenBalanceQuery;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
+import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TokenId;
 import java.time.Duration;
 import java.util.function.Predicate;
@@ -67,17 +69,25 @@ public final class MirrorNodeHelper {
         Hbar balance = null;
 
         while (System.nanoTime() < deadline) {
-            balance = hbarBalance(client, accountId);
+            try {
+                balance = hbarBalance(client, accountId);
 
-            if (condition.test(balance)) {
-                return balance;
+                if (condition.test(balance)) {
+                    return balance;
+                }
+            } catch (PrecheckStatusException e) {
+                if (e.status != Status.INVALID_ACCOUNT_ID) {
+                    throw e;
+                }
+                // The mirror node has not ingested the account yet — keep polling.
             }
 
             Thread.sleep(POLL_INTERVAL.toMillis());
         }
 
         throw new IllegalStateException("The mirror node did not report the expected HBAR balance for account "
-                + accountId + " within " + POLL_TIMEOUT.toSeconds() + "s; last observed " + balance);
+                + accountId + " within " + POLL_TIMEOUT.toSeconds() + "s; "
+                + (balance == null ? "the account was never reported at all" : "last observed " + balance));
     }
 
     /**
@@ -104,7 +114,8 @@ public final class MirrorNodeHelper {
      */
     public static Hbar hbarBalanceAfterSync(Client client, AccountId accountId) throws Exception {
         Thread.sleep(SYNC_DELAY.toMillis());
-        return hbarBalance(client, accountId);
+        // Accept the first reading; the poll only absorbs the account not having been ingested yet.
+        return awaitHbarBalance(client, accountId, balance -> true);
     }
 
     /**

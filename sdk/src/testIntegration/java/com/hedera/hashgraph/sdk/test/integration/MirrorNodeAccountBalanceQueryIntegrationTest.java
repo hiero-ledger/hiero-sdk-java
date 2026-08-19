@@ -8,7 +8,9 @@ import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransferTransaction;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
@@ -104,15 +106,16 @@ class MirrorNodeAccountBalanceQueryIntegrationTest {
     }
 
     @Test
-    @DisplayName("Returns a zero balance for a non-existent account rather than failing")
-    void returnsZeroForNonExistentAccount() throws Exception {
+    @DisplayName("Fails with INVALID_ACCOUNT_ID for a non-existent account")
+    void throwsInvalidAccountIdForNonExistentAccount() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
-            // The balances endpoint answers with an empty array, not a 404.
-            var balance = new MirrorNodeAccountBalanceQuery()
-                    .setAccountId(new AccountId(0, 0, 999_999_999L))
-                    .execute(testEnv.client);
-
-            assertThat(balance.hbars).isEqualTo(Hbar.ZERO);
+            // The balances endpoint answers with an empty array, not a 404; the SDK maps that empty
+            // result to the same precheck error the consensus-node AccountBalanceQuery reported.
+            assertThatExceptionOfType(PrecheckStatusException.class)
+                    .isThrownBy(() -> new MirrorNodeAccountBalanceQuery()
+                            .setAccountId(new AccountId(0, 0, 999_999_999L))
+                            .execute(testEnv.client))
+                    .satisfies(e -> assertThat(e.status).isEqualTo(Status.INVALID_ACCOUNT_ID));
         }
     }
 
@@ -127,19 +130,20 @@ class MirrorNodeAccountBalanceQueryIntegrationTest {
     }
 
     @Test
-    @DisplayName("An id in a shard the mirror node does not serve reports zero rather than failing")
-    void returnsZeroForUnservedShard() throws Exception {
+    @DisplayName("An id in a shard the mirror node does not serve fails with INVALID_ACCOUNT_ID")
+    void throwsInvalidAccountIdForUnservedShard() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
             // 1.0.3 is a well-formed entity id, so the mirror node accepts it and answers with an
-            // empty balances array. Only a genuinely malformed string yields HTTP 400, which
-            // AccountId.fromString rejects before a request is ever built — that path is covered by
-            // MirrorNodeAccountBalanceQueryMockTest.doesNotRetryOn400 instead.
-            var balance = new MirrorNodeAccountBalanceQuery()
-                    .setAccountId(AccountId.fromString("1.0.3"))
-                    .setMaxAttempts(1)
-                    .execute(testEnv.client);
-
-            assertThat(balance.hbars).isEqualTo(Hbar.ZERO);
+            // empty balances array, which the SDK reports as INVALID_ACCOUNT_ID. Only a genuinely
+            // malformed string yields HTTP 400, which AccountId.fromString rejects before a request is
+            // ever built — that path is covered by MirrorNodeAccountBalanceQueryMockTest.doesNotRetryOn400
+            // instead.
+            assertThatExceptionOfType(PrecheckStatusException.class)
+                    .isThrownBy(() -> new MirrorNodeAccountBalanceQuery()
+                            .setAccountId(AccountId.fromString("1.0.3"))
+                            .setMaxAttempts(1)
+                            .execute(testEnv.client))
+                    .satisfies(e -> assertThat(e.status).isEqualTo(Status.INVALID_ACCOUNT_ID));
         }
     }
 }

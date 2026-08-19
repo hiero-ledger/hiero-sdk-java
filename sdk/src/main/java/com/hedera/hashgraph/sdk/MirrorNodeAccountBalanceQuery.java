@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -35,8 +36,17 @@ import org.slf4j.LoggerFactory;
  * <p>Only the HBAR balance is returned. For token balances use {@link MirrorNodeTokenBalanceQuery},
  * which reads one token at a time.
  *
+ * <p>An account the mirror node does not know fails with a {@link PrecheckStatusException} carrying
+ * {@link Status#INVALID_ACCOUNT_ID}, the same error {@link AccountBalanceQuery} reported. Note that the
+ * balances endpoint answers with an empty result rather than a 404, so this is the SDK's mapping of that
+ * empty result — not a status the mirror node itself returned.
+ *
  * <p><b>Eventual consistency:</b> the mirror node reflects network state with a small lag, typically
- * a few seconds. Applications that need an immediate post-transaction balance must allow for it.
+ * a few seconds. Applications that need an immediate post-transaction balance must allow for it. The lag
+ * applies to the account's existence as well as to its balance: a <i>freshly created</i> account can
+ * transiently fail with {@link Status#INVALID_ACCOUNT_ID} until the mirror node has ingested it, so code
+ * that queries an account right after creating it should retry rather than treat the first failure as
+ * final.
  *
  * <p>This query is free.
  */
@@ -141,10 +151,13 @@ public final class MirrorNodeAccountBalanceQuery {
      *
      * @param client the client with which this will be executed
      * @return the retrieved {@link MirrorNodeAccountBalance}
+     * @throws PrecheckStatusException with {@link Status#INVALID_ACCOUNT_ID} if the mirror node knows no
+     *         such account
      * @throws ExecutionException if the query fails
      * @throws InterruptedException if the thread is interrupted
      */
-    public MirrorNodeAccountBalance execute(Client client) throws ExecutionException, InterruptedException {
+    public MirrorNodeAccountBalance execute(Client client)
+            throws PrecheckStatusException, ExecutionException, InterruptedException {
         Objects.requireNonNull(client, "client must not be null");
         return execute(client, client.getRequestTimeout());
     }
@@ -155,18 +168,37 @@ public final class MirrorNodeAccountBalanceQuery {
      * @param client the client with which this will be executed
      * @param timeout the maximum duration for each individual HTTP request
      * @return the retrieved {@link MirrorNodeAccountBalance}
+     * @throws PrecheckStatusException with {@link Status#INVALID_ACCOUNT_ID} if the mirror node knows no
+     *         such account
      * @throws ExecutionException if the query fails
      * @throws InterruptedException if the thread is interrupted
      */
     public MirrorNodeAccountBalance execute(Client client, Duration timeout)
-            throws ExecutionException, InterruptedException {
+            throws PrecheckStatusException, ExecutionException, InterruptedException {
         Objects.requireNonNull(client, "client must not be null");
         Objects.requireNonNull(timeout, "timeout must not be null");
-        return executeAsync(client, timeout).get();
+
+        // The future is built outside the try so that the validation errors executeAsync raises
+        // synchronously are not mistaken for an execution failure below.
+        var future = executeAsync(client, timeout);
+
+        try {
+            return future.get();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof PrecheckStatusException precheckStatusException) {
+                throw precheckStatusException;
+            }
+            throw e;
+        }
     }
 
     /**
      * Executes the query asynchronously with the user supplied client.
+     *
+     * <p>If the mirror node knows no such account the future completes exceptionally with a
+     * {@link PrecheckStatusException} carrying {@link Status#INVALID_ACCOUNT_ID} — surfaced as the cause
+     * of a {@code CompletionException} from {@code join()}, or of an {@code ExecutionException} from
+     * {@code get()}.
      *
      * @param client the client with which this will be executed
      * @return a future representing the retrieved {@link MirrorNodeAccountBalance}
@@ -178,6 +210,11 @@ public final class MirrorNodeAccountBalanceQuery {
 
     /**
      * Executes the query asynchronously with the user supplied client and timeout.
+     *
+     * <p>If the mirror node knows no such account the future completes exceptionally with a
+     * {@link PrecheckStatusException} carrying {@link Status#INVALID_ACCOUNT_ID} — surfaced as the cause
+     * of a {@code CompletionException} from {@code join()}, or of an {@code ExecutionException} from
+     * {@code get()}.
      *
      * @param client the client with which this will be executed
      * @param timeout the maximum duration for each individual HTTP request
@@ -191,7 +228,18 @@ public final class MirrorNodeAccountBalanceQuery {
         String url = buildUrl(client);
 
         return CompletableFuture.supplyAsync(
-                () -> MirrorNodeAccountBalance.fromJson(fetch(url, timeout)), client.executor);
+                () -> {
+                    var balance = MirrorNodeAccountBalance.fromJson(fetch(url, timeout));
+
+                    if (balance == null) {
+                        // The mirror node answers HTTP 200 with an empty `balances` array for an account
+                        // it does not know. Report it the way the consensus node did.
+                        throw new CompletionException(new PrecheckStatusException(Status.INVALID_ACCOUNT_ID, null));
+                    }
+
+                    return balance;
+                },
+                client.executor);
     }
 
     private JsonObject fetch(String url, Duration timeout) {
