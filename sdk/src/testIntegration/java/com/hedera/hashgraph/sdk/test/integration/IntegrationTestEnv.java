@@ -8,9 +8,13 @@ import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.MirrorNodeAccountBalanceQuery;
+import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.PublicKey;
+import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransferTransaction;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Assumptions;
 
 public class IntegrationTestEnv implements AutoCloseable {
@@ -120,6 +125,80 @@ public class IntegrationTestEnv implements AutoCloseable {
 
     public IntegrationTestEnv useThrowawayAccount() throws Exception {
         return useThrowawayAccount(new Hbar(100));
+    }
+
+    /**
+     * How long to let the mirror node catch up before reading a balance that is expected <i>not</i>
+     * to have changed. Such assertions cannot poll for a change, so they must wait instead.
+     */
+    public static final Duration MIRROR_NODE_SYNC_DELAY = Duration.ofSeconds(5);
+
+    /**
+     * Read the HBAR balance from the mirror node after giving it {@link #MIRROR_NODE_SYNC_DELAY} to
+     * catch up.
+     *
+     * <p>Use this for assertions that a balance did <i>not</i> change — {@link #awaitMirrorBalance}
+     * would be satisfied by a stale pre-transaction read and prove nothing.
+     *
+     * @param client the client to query with
+     * @param accountId the account whose balance is being read
+     * @return the HBAR balance the mirror node reports after the delay
+     */
+    public static Hbar mirrorBalanceAfterSync(Client client, AccountId accountId) throws Exception {
+        Thread.sleep(MIRROR_NODE_SYNC_DELAY.toMillis());
+        // Accept the first reading — the poll only absorbs the account not having been ingested yet, so
+        // this still returns a single post-delay value rather than waiting for one to change.
+        return awaitMirrorBalance(client, accountId, balance -> true);
+    }
+
+    /**
+     * Poll the mirror node until the reported HBAR balance satisfies {@code condition}, then return it.
+     *
+     * <p>{@link MirrorNodeAccountBalanceQuery} reads eventually-consistent mirror node state, so a
+     * balance queried immediately after a transaction may still be the pre-transaction value. Tests
+     * that assert on a balance change must wait for the mirror node to catch up rather than reading
+     * once.
+     *
+     * <p>The lag applies to the account's existence too: until the mirror node has ingested a freshly
+     * created account the query fails with {@link Status#INVALID_ACCOUNT_ID}. That is treated as another
+     * reason to keep polling; any other precheck status is a real failure and propagates.
+     *
+     * @param client the client to query with
+     * @param accountId the account whose balance is being polled
+     * @param condition the condition the balance must satisfy
+     * @return the first balance satisfying {@code condition}
+     * @throws AssertionError if the condition is not met before the timeout
+     */
+    public static Hbar awaitMirrorBalance(Client client, AccountId accountId, Predicate<Hbar> condition)
+            throws Exception {
+        var deadline = System.nanoTime() + Duration.ofSeconds(30).toNanos();
+        Hbar balance = null;
+
+        while (System.nanoTime() < deadline) {
+            try {
+                balance = new MirrorNodeAccountBalanceQuery()
+                        .setAccountId(accountId)
+                        .execute(client)
+                        .hbars;
+
+                if (condition.test(balance)) {
+                    return balance;
+                }
+            } catch (PrecheckStatusException e) {
+                if (e.status != Status.INVALID_ACCOUNT_ID) {
+                    throw e;
+                }
+                // The mirror node has not ingested the account yet — keep polling.
+            }
+
+            Thread.sleep(1000);
+        }
+
+        throw new AssertionError("Mirror node did not report a balance matching the expected condition for " + accountId
+                + " within 30s; "
+                + (balance == null
+                        ? "the mirror node never reported the account at all"
+                        : "last observed balance was " + balance));
     }
 
     // Note: this is a temporary workaround.
