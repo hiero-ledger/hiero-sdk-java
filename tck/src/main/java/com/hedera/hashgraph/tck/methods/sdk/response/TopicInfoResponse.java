@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import lombok.Data;
-import net.minidev.json.JSONAware;
-import net.minidev.json.JSONObject;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,6 +51,7 @@ public class TopicInfoResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FixedFeeResponse {
         private final String amount;
+
         @Nullable
         private final String denominatingTokenId;
     }

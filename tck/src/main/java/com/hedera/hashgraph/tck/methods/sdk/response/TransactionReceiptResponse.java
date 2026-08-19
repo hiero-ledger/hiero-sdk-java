@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 import lombok.Data;
-import net.minidev.json.JSONAware;
-import net.minidev.json.JSONObject;
 import org.jspecify.annotations.Nullable;
 
 @Data
@@ -53,7 +50,6 @@ public class TransactionReceiptResponse {
 
     @Nullable
     private final String nodeId;
-
 
     @Data
     public static class ExchangeRate {

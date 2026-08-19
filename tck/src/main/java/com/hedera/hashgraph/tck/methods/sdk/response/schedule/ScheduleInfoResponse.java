@@ -6,8 +6,6 @@ import jakarta.annotation.Nullable;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.minidev.json.JSONAware;
-import net.minidev.json.JSONObject;
 
 @Data
 @AllArgsConstructor
