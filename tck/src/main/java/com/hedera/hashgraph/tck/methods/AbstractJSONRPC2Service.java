@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
@@ -35,8 +37,10 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
     // although the tck driver would not call these methods in such way
     private final Map<String, Method> methodMap;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    // TODO: Should remove the below visiblity once dtos are change to use record.
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            // TODO: Should remove the below visiblity once dtos are change to use record.
+            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
     protected AbstractJSONRPC2Service() {
         methodMap = new HashMap<>();
