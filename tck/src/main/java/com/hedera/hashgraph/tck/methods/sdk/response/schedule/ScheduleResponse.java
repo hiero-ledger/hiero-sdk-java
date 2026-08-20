@@ -9,10 +9,4 @@ public class ScheduleResponse {
     private final String scheduleId;
     private final String transactionId;
     private final Status status;
-
-    public ScheduleResponse(String scheduleId, String transactionId, Status status) {
-        this.scheduleId = scheduleId;
-        this.transactionId = transactionId;
-        this.status = status;
-    }
 }
