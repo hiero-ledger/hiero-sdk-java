@@ -24,10 +24,10 @@ public class ClientIntegrationTest {
         nodes.add(new AccountId(0, 0, 1000));
         nodes.add(new AccountId(0, 0, 1001));
         assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> new AccountBalanceQuery()
+                .isThrownBy(() -> new AccountInfoQuery()
                         .setNodeAccountIds(nodes)
                         .setAccountId(new AccountId(0, 0, 7))
-                        .execute(client))
+                        .getCost(client))
                 .withMessageContaining("All node account IDs did not map to valid nodes in the client's network");
         client.close();
     }
@@ -39,10 +39,10 @@ public class ClientIntegrationTest {
 
         var nodes = new ArrayList<>(client.getNetwork().values().stream().toList());
         nodes.add(new AccountId(0, 0, 1000));
-        new AccountBalanceQuery()
+        new AccountInfoQuery()
                 .setNodeAccountIds(nodes)
                 .setAccountId(new AccountId(0, 0, 7))
-                .execute(client);
+                .getCost(client);
 
         client.close();
     }
@@ -64,9 +64,9 @@ public class ClientIntegrationTest {
             assertThat(testEnv.operatorId).isNotNull();
 
             // Execute two simple queries so we create a channel for each network node.
-            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 3)).execute(testEnv.client);
+            new AccountInfoQuery().setAccountId(new AccountId(0, 0, 3)).getCost(testEnv.client);
 
-            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 3)).execute(testEnv.client);
+            new AccountInfoQuery().setAccountId(new AccountId(0, 0, 3)).getCost(testEnv.client);
 
             network = new HashMap<>();
             network.put("1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
@@ -140,7 +140,7 @@ public class ClientIntegrationTest {
 
             var node = nodes.get(0);
 
-            new AccountBalanceQuery().setAccountId(node).execute(testEnv.client);
+            new AccountInfoQuery().setAccountId(node).getCost(testEnv.client);
         }
     }
 
@@ -178,7 +178,7 @@ public class ClientIntegrationTest {
 
             var node = nodes.get(0);
 
-            new AccountBalanceQuery().setAccountId(node).execute(testEnv.client);
+            new AccountInfoQuery().setAccountId(node).getCost(testEnv.client);
 
             assertThat(testEnv.client.getNetwork().values().size()).isEqualTo(1);
         }
@@ -213,7 +213,7 @@ public class ClientIntegrationTest {
 
             var node = nodes.get(0);
 
-            new AccountBalanceQuery().setAccountId(node).execute(testEnv.client);
+            new AccountInfoQuery().setAccountId(node).getCost(testEnv.client);
         }
     }
 

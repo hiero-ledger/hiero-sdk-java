@@ -10,7 +10,8 @@ import javax.annotation.Nullable;
 /**
  * The HBAR balance of an account as reported by the mirror node REST API.
  *
- * <p>Returned by {@link MirrorNodeAccountBalanceQuery}. Token balances are not included.
+ * <p>Returned by {@link MirrorNodeAccountBalanceQuery}. Token balances are not included — see
+ * {@link MirrorNodeTokenBalanceQuery} and {@link MirrorNodeTokenBalance} for those.
  */
 public final class MirrorNodeAccountBalance {
     /**

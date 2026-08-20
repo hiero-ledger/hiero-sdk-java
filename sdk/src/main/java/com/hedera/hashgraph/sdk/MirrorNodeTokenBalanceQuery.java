@@ -15,47 +15,54 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Get the HBAR balance of an account from the mirror node REST API
- * ({@code GET /api/v1/balances?account.id=...}).
+ * Get the balance an account holds in a single token from the mirror node REST API
+ * ({@code GET /api/v1/accounts/{id}/tokens?token.id=...}).
  *
- * <p>This is the replacement for {@link AccountBalanceQuery}, which relies on the consensus node
- * {@code CryptoService/cryptoGetBalance} endpoint that the network is retiring.
+ * <p>This is the token-balance counterpart to {@link MirrorNodeAccountBalanceQuery}, which returns HBAR.
+ * Together they replace {@link AccountBalanceQuery}.
+ *
+ * <p>Both {@link #setAccountId(AccountId)} and {@link #setTokenId(TokenId)} are required, so the query
+ * is always bounded to a single relationship and never paginates. Reading several tokens for one
+ * account means issuing several queries — this is deliberate: enumerating a whole token portfolio
+ * would require unbounded pagination against an account with an arbitrarily large number of tokens.
+ *
+ * <p>The returned {@link MirrorNodeTokenBalance#balance} is the amount in the token's smallest
+ * denomination for {@code FUNGIBLE_COMMON} tokens, and the number of NFTs held for
+ * {@code NON_FUNGIBLE_UNIQUE} tokens. If the entity holds no relationship to the token, the balance is
+ * zero and {@link MirrorNodeTokenBalance#isAssociated()} is false.
  *
  * <p>The account may be identified by {@code shard.realm.num}, by an EVM address, or by a public key
- * alias — the mirror node resolves all three. Contract IDs are also accepted; pass them through
- * {@link #setAccountId(AccountId)}, as the balances endpoint supports them directly and no separate
- * setter is needed.
+ * alias — the mirror node resolves all three. Contract IDs are also accepted — pass them through
+ * {@link #setAccountId(AccountId)}, converting with
+ * {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
  *
- * <p>Only the HBAR balance is returned. For token balances use {@link MirrorNodeTokenBalanceQuery},
- * which reads one token at a time.
- *
- * <p>An account the mirror node does not know fails with a {@link PrecheckStatusException} carrying
- * {@link Status#INVALID_ACCOUNT_ID}, the same error {@link AccountBalanceQuery} reported. Note that the
- * balances endpoint answers with an empty result rather than a 404, so this is the SDK's mapping of that
- * empty result — not a status the mirror node itself returned.
+ * <p>An entity the mirror node does not know — because it does not exist, or because the mirror node
+ * has not ingested it yet — reports {@code isAssociated() == false} with a zero balance rather than
+ * raising an error, matching how {@link MirrorNodeAccountBalanceQuery} reports zero for an unknown
+ * account. A wrong account id therefore reads as "no relationship" rather than failing.
  *
  * <p><b>Eventual consistency:</b> the mirror node reflects network state with a small lag, typically
- * a few seconds. Applications that need an immediate post-transaction balance must allow for it. The lag
- * applies to the account's existence as well as to its balance: a <i>freshly created</i> account can
- * transiently fail with {@link Status#INVALID_ACCOUNT_ID} until the mirror node has ingested it, so code
- * that queries an account right after creating it should retry rather than treat the first failure as
- * final.
+ * a few seconds. An entity queried immediately after it is created will report as not associated until
+ * the mirror node catches up, so applications that need a definitive answer must allow for the lag
+ * rather than treating the first response as final.
  *
  * <p>This query is free.
  */
-public final class MirrorNodeAccountBalanceQuery {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MirrorNodeAccountBalanceQuery.class);
+public final class MirrorNodeTokenBalanceQuery {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MirrorNodeTokenBalanceQuery.class);
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Nullable
     private AccountId accountId = null;
+
+    @Nullable
+    private TokenId tokenId = null;
 
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
@@ -63,7 +70,7 @@ public final class MirrorNodeAccountBalanceQuery {
     /**
      * Constructor.
      */
-    public MirrorNodeAccountBalanceQuery() {}
+    public MirrorNodeTokenBalanceQuery() {}
 
     /**
      * Return the account's id.
@@ -76,18 +83,39 @@ public final class MirrorNodeAccountBalanceQuery {
     }
 
     /**
-     * The ID of the account for which the balance is being requested.
+     * The ID of the account whose token balance is being requested. Required.
      *
-     * <p>Accepts {@code shard.realm.num}, an EVM address, or a public key alias. Contract IDs are
-     * also accepted — the balances endpoint resolves them, so no separate setter is needed; convert
-     * with {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
+     * <p>Accepts {@code shard.realm.num}, an EVM address, or a public key alias. Contract IDs are also
+     * accepted — convert with {@code new AccountId(contractId.shard, contractId.realm, contractId.num)}.
      *
      * @param accountId the account id to set
      * @return {@code this}
      */
-    public MirrorNodeAccountBalanceQuery setAccountId(AccountId accountId) {
+    public MirrorNodeTokenBalanceQuery setAccountId(AccountId accountId) {
         Objects.requireNonNull(accountId);
         this.accountId = accountId;
+        return this;
+    }
+
+    /**
+     * Return the token's id.
+     *
+     * @return {@code tokenId}
+     */
+    @Nullable
+    public TokenId getTokenId() {
+        return tokenId;
+    }
+
+    /**
+     * The ID of the token whose balance is being requested. Required.
+     *
+     * @param tokenId the token id to set
+     * @return {@code this}
+     */
+    public MirrorNodeTokenBalanceQuery setTokenId(TokenId tokenId) {
+        Objects.requireNonNull(tokenId);
+        this.tokenId = tokenId;
         return this;
     }
 
@@ -106,7 +134,7 @@ public final class MirrorNodeAccountBalanceQuery {
      * @param maxAttempts the maximum number of attempts
      * @return {@code this}
      */
-    public MirrorNodeAccountBalanceQuery setMaxAttempts(int maxAttempts) {
+    public MirrorNodeTokenBalanceQuery setMaxAttempts(int maxAttempts) {
         if (maxAttempts <= 0) {
             throw new IllegalArgumentException("maxAttempts must be greater than zero");
         }
@@ -129,7 +157,7 @@ public final class MirrorNodeAccountBalanceQuery {
      * @param maxBackoff the maximum backoff duration
      * @return {@code this}
      */
-    public MirrorNodeAccountBalanceQuery setMaxBackoff(Duration maxBackoff) {
+    public MirrorNodeTokenBalanceQuery setMaxBackoff(Duration maxBackoff) {
         Objects.requireNonNull(maxBackoff);
         if (maxBackoff.toMillis() < 500L) {
             throw new IllegalArgumentException("maxBackoff must be at least 500 ms");
@@ -150,14 +178,11 @@ public final class MirrorNodeAccountBalanceQuery {
      * Executes the query with the user supplied client.
      *
      * @param client the client with which this will be executed
-     * @return the retrieved {@link MirrorNodeAccountBalance}
-     * @throws PrecheckStatusException with {@link Status#INVALID_ACCOUNT_ID} if the mirror node knows no
-     *         such account
+     * @return the retrieved {@link MirrorNodeTokenBalance}
      * @throws ExecutionException if the query fails
      * @throws InterruptedException if the thread is interrupted
      */
-    public MirrorNodeAccountBalance execute(Client client)
-            throws PrecheckStatusException, ExecutionException, InterruptedException {
+    public MirrorNodeTokenBalance execute(Client client) throws ExecutionException, InterruptedException {
         Objects.requireNonNull(client, "client must not be null");
         return execute(client, client.getRequestTimeout());
     }
@@ -167,43 +192,24 @@ public final class MirrorNodeAccountBalanceQuery {
      *
      * @param client the client with which this will be executed
      * @param timeout the maximum duration for each individual HTTP request
-     * @return the retrieved {@link MirrorNodeAccountBalance}
-     * @throws PrecheckStatusException with {@link Status#INVALID_ACCOUNT_ID} if the mirror node knows no
-     *         such account
+     * @return the retrieved {@link MirrorNodeTokenBalance}
      * @throws ExecutionException if the query fails
      * @throws InterruptedException if the thread is interrupted
      */
-    public MirrorNodeAccountBalance execute(Client client, Duration timeout)
-            throws PrecheckStatusException, ExecutionException, InterruptedException {
+    public MirrorNodeTokenBalance execute(Client client, Duration timeout)
+            throws ExecutionException, InterruptedException {
         Objects.requireNonNull(client, "client must not be null");
         Objects.requireNonNull(timeout, "timeout must not be null");
-
-        // The future is built outside the try so that the validation errors executeAsync raises
-        // synchronously are not mistaken for an execution failure below.
-        var future = executeAsync(client, timeout);
-
-        try {
-            return future.get();
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof PrecheckStatusException precheckStatusException) {
-                throw precheckStatusException;
-            }
-            throw e;
-        }
+        return executeAsync(client, timeout).get();
     }
 
     /**
      * Executes the query asynchronously with the user supplied client.
      *
-     * <p>If the mirror node knows no such account the future completes exceptionally with a
-     * {@link PrecheckStatusException} carrying {@link Status#INVALID_ACCOUNT_ID} — surfaced as the cause
-     * of a {@code CompletionException} from {@code join()}, or of an {@code ExecutionException} from
-     * {@code get()}.
-     *
      * @param client the client with which this will be executed
-     * @return a future representing the retrieved {@link MirrorNodeAccountBalance}
+     * @return a future representing the retrieved {@link MirrorNodeTokenBalance}
      */
-    public CompletableFuture<MirrorNodeAccountBalance> executeAsync(Client client) {
+    public CompletableFuture<MirrorNodeTokenBalance> executeAsync(Client client) {
         Objects.requireNonNull(client, "client must not be null");
         return executeAsync(client, client.getRequestTimeout());
     }
@@ -211,39 +217,37 @@ public final class MirrorNodeAccountBalanceQuery {
     /**
      * Executes the query asynchronously with the user supplied client and timeout.
      *
-     * <p>If the mirror node knows no such account the future completes exceptionally with a
-     * {@link PrecheckStatusException} carrying {@link Status#INVALID_ACCOUNT_ID} — surfaced as the cause
-     * of a {@code CompletionException} from {@code join()}, or of an {@code ExecutionException} from
-     * {@code get()}.
-     *
      * @param client the client with which this will be executed
      * @param timeout the maximum duration for each individual HTTP request
-     * @return a future representing the retrieved {@link MirrorNodeAccountBalance}
+     * @return a future representing the retrieved {@link MirrorNodeTokenBalance}
      */
-    public CompletableFuture<MirrorNodeAccountBalance> executeAsync(Client client, Duration timeout) {
+    public CompletableFuture<MirrorNodeTokenBalance> executeAsync(Client client, Duration timeout) {
         Objects.requireNonNull(client, "client must not be null");
         Objects.requireNonNull(timeout, "timeout must not be null");
 
         // Validate before scheduling any work so a misconfigured query never reaches the network.
         String url = buildUrl(client);
+        TokenId requestedTokenId = Objects.requireNonNull(tokenId);
 
         return CompletableFuture.supplyAsync(
                 () -> {
-                    var balance = MirrorNodeAccountBalance.fromJson(fetch(url, timeout));
-
-                    if (balance == null) {
-                        // The mirror node answers HTTP 200 with an empty `balances` array for an account
-                        // it does not know. Report it the way the consensus node did.
-                        throw new CompletionException(new PrecheckStatusException(Status.INVALID_ACCOUNT_ID, null));
-                    }
-
-                    return balance;
+                    var json = fetch(url, timeout);
+                    return json == null
+                            ? MirrorNodeTokenBalance.notAssociated(requestedTokenId)
+                            : MirrorNodeTokenBalance.fromJson(json, requestedTokenId);
                 },
                 client.executor);
     }
 
+    /**
+     * Fetch the relationship JSON, or {@code null} if the mirror node does not know the entity.
+     */
+    @Nullable
     private JsonObject fetch(String url, Duration timeout) {
         String body = fetchBody(url, timeout);
+        if (body == null) {
+            return null;
+        }
 
         try {
             return JsonParser.parseString(body).getAsJsonObject();
@@ -252,6 +256,7 @@ public final class MirrorNodeAccountBalanceQuery {
         }
     }
 
+    @Nullable
     private String fetchBody(String url, Duration timeout) {
         int attempt = 0;
         Exception lastException = null;
@@ -266,6 +271,10 @@ public final class MirrorNodeAccountBalanceQuery {
                     return response.body();
                 }
 
+                if (response.statusCode() == 404) {
+                    return null;
+                }
+
                 if (!shouldRetry(response.statusCode()) || attempt >= maxAttempts) {
                     throw new IllegalStateException("Mirror Node error: HTTP " + response.statusCode());
                 }
@@ -277,42 +286,50 @@ public final class MirrorNodeAccountBalanceQuery {
             } catch (Exception e) {
                 lastException = e;
                 if (attempt >= maxAttempts || !shouldRetry(e)) {
-                    throw new RuntimeException("Failed to fetch account balance after " + attempt + " attempts", e);
+                    throw new RuntimeException("Failed to fetch token balance after " + attempt + " attempts", e);
                 }
                 warnAndDelay(attempt, lastException);
             }
         }
 
-        throw new RuntimeException("Failed to fetch account balance after " + maxAttempts + " attempts", lastException);
+        throw new RuntimeException("Failed to fetch token balance after " + maxAttempts + " attempts", lastException);
     }
 
     private String buildUrl(Client client) {
         if (accountId == null) {
-            throw new IllegalStateException("accountId must be set before executing MirrorNodeAccountBalanceQuery");
+            throw new IllegalStateException("accountId must be set before executing MirrorNodeTokenBalanceQuery");
+        }
+
+        if (tokenId == null) {
+            throw new IllegalStateException("tokenId must be set before executing MirrorNodeTokenBalanceQuery");
         }
 
         if (client.isAutoValidateChecksumsEnabled()) {
             try {
                 accountId.validateChecksum(client);
+                tokenId.validateChecksum(client);
             } catch (BadEntityIdException e) {
                 throw new IllegalArgumentException(e.getMessage());
             }
         }
 
-        return client.getMirrorRestBaseUrl() + "/balances?account.id="
-                + URLEncoder.encode(toAccountIdParam(accountId), StandardCharsets.UTF_8);
+        // limit=1 because token.id pins the result to at most one relationship; there is nothing to page.
+        return client.getMirrorRestBaseUrl() + "/accounts/"
+                + URLEncoder.encode(toAccountPathParam(accountId), StandardCharsets.UTF_8) + "/tokens?token.id="
+                + URLEncoder.encode(tokenId.toString(), StandardCharsets.UTF_8) + "&limit=1";
     }
 
     /**
-     * Render the account id in the form the mirror node's {@code account.id} parameter expects.
+     * Render the account id in the form the mirror node's {@code idOrAliasOrEvmAddress} path segment
+     * expects.
      *
      * <p>EVM addresses are sent in their {@code 0x}-prefixed hex form, and plain IDs as
      * {@code shard.realm.num}. A public key alias is sent as the unpadded base32 encoding of the
-     * protobuf {@code Key} bytes with no {@code shard.realm.} prefix — the only alias form the mirror
-     * node accepts. {@link AccountId#toString()} renders an alias as {@code shard.realm.<DER hex>}
-     * instead, which the endpoint rejects with HTTP 400, so it cannot be used here.
+     * protobuf {@code Key} bytes — the only alias form the mirror node accepts.
+     * {@link AccountId#toString()} renders an alias as {@code shard.realm.<DER hex>} instead, which the
+     * endpoint rejects with HTTP 400, so it cannot be used here.
      */
-    private static String toAccountIdParam(AccountId accountId) {
+    private static String toAccountPathParam(AccountId accountId) {
         if (accountId.evmAddress != null) {
             return "0x" + accountId.evmAddress;
         }
@@ -337,7 +354,7 @@ public final class MirrorNodeAccountBalanceQuery {
     private void warnAndDelay(int attempt, Throwable error) {
         var delay = Math.min(500 * (long) Math.pow(2, attempt), maxBackoff.toMillis());
         LOGGER.warn(
-                "Error fetching account balance during attempt #{}. Waiting {} ms before next attempt: {}",
+                "Error fetching token balance during attempt #{}. Waiting {} ms before next attempt: {}",
                 attempt,
                 delay,
                 error.getMessage());
@@ -351,6 +368,6 @@ public final class MirrorNodeAccountBalanceQuery {
 
     @Override
     public String toString() {
-        return "MirrorNodeAccountBalanceQuery{accountId=" + accountId + "}";
+        return "MirrorNodeTokenBalanceQuery{accountId=" + accountId + ", tokenId=" + tokenId + "}";
     }
 }

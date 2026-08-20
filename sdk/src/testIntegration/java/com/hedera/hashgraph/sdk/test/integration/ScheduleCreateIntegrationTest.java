@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -249,10 +248,7 @@ class ScheduleCreateIntegrationTest {
 
             Objects.requireNonNull(scheduleId);
 
-            var balanceQuery1 =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
-
-            assertThat(balanceQuery1.tokens.get(tokenId)).isEqualTo(0);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId, 0);
 
             new ScheduleSignTransaction()
                     .setScheduleId(scheduleId)
@@ -261,10 +257,7 @@ class ScheduleCreateIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var balanceQuery2 =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
-
-            assertThat(balanceQuery2.tokens.get(tokenId)).isEqualTo(10);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, accountId, tokenId, 10);
         }
     }
 
@@ -771,17 +764,17 @@ class ScheduleCreateIntegrationTest {
             // Verify the transaction is still not executed
             assertThat(info.executedAt).isNull();
 
-            var accountBalanceBefore =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
+            var balanceBefore = IntegrationTestEnv.mirrorBalanceAfterSync(testEnv.client, accountId);
 
             Thread.sleep(10_000);
 
-            var accountBalanceAfter =
-                    new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client);
+            // Poll rather than read once: the mirror node lags the network, so the drop caused by
+            // the long-term schedule executing may not be visible immediately.
+            var balanceAfter = IntegrationTestEnv.awaitMirrorBalance(
+                    testEnv.client, accountId, b -> b.compareTo(balanceBefore) < 0);
 
             // Verify the transaction executed after 10 seconds
-            assertThat(accountBalanceBefore.hbars.compareTo(accountBalanceAfter.hbars))
-                    .isEqualTo(1);
+            assertThat(balanceBefore.compareTo(balanceAfter)).isEqualTo(1);
         }
     }
 }
