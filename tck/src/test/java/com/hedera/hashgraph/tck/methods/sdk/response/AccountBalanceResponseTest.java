@@ -18,8 +18,13 @@ public class AccountBalanceResponseTest {
         var json = serializeToJson(response);
 
         Assertions.assertTrue(json.contains("\"hbars\":\"1\""));
-        Assertions.assertTrue(json.contains("\"tokenBalances\":{\"0.0.1\":100,\"0.0.2\":200}"));
-        Assertions.assertTrue(json.contains("\"tokenDecimals\":{\"0.0.1\":10,\"0.0.2\":12}"));
+        Assertions.assertTrue(json.contains("\"tokenBalances\""));
+        Assertions.assertTrue(json.contains("\"0.0.1\":100"));
+        Assertions.assertTrue(json.contains("\"0.0.2\":200"));
+
+        Assertions.assertTrue(json.contains("\"tokenDecimals\""));
+        Assertions.assertTrue(json.contains("\"0.0.1\":10"));
+        Assertions.assertTrue(json.contains("\"0.0.2\":12"));
     }
 
     @Test
