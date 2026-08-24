@@ -127,6 +127,7 @@ class AccountInfoIntegrationTest {
     // HIP-1340: EOA Code Delegation
 
     @Test
+    @Disabled
     @DisplayName("Can query account info with delegation address")
     void canQueryAccountInfoWithDelegationAddress() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

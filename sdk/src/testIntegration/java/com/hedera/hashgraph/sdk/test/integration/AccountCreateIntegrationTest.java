@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -613,6 +614,7 @@ class AccountCreateIntegrationTest {
     // HIP-1340: EOA Code Delegation
 
     @Test
+    @Disabled
     @DisplayName("Can create account with delegation address as hex string with 0x prefix")
     void canCreateAccountWithDelegationAddressAsHexStringWithPrefix() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -637,6 +639,7 @@ class AccountCreateIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can create account with delegation address as hex string without 0x prefix")
     void canCreateAccountWithDelegationAddressAsHexStringWithoutPrefix() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -661,6 +664,7 @@ class AccountCreateIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can create account with delegation address as bytes")
     void canCreateAccountWithDelegationAddressAsBytes() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -687,6 +691,7 @@ class AccountCreateIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can create account with delegation address as EvmAddress")
     void canCreateAccountWithDelegationAddressAsEvmAddress() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

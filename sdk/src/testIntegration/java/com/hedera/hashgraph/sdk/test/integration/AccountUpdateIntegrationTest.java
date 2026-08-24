@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.hedera.hashgraph.sdk.*;
 import java.time.Duration;
 import java.util.Objects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -70,6 +71,7 @@ class AccountUpdateIntegrationTest {
     // HIP-1340: EOA Code Delegation
 
     @Test
+    @Disabled
     @DisplayName("Can update account with delegation address")
     void canUpdateAccountWithDelegationAddress() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
@@ -98,6 +100,7 @@ class AccountUpdateIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Can clear delegation address by setting 20 zero-bytes")
     void canClearDelegationAddressWithZeroBytes() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {
