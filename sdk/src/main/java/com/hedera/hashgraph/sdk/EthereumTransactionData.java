@@ -7,8 +7,7 @@ import java.util.Arrays;
 /**
  * This class represents the data of an Ethereum transaction.
  * <p>
- * It may be of subclass {@link EthereumTransactionDataLegacy}, {@link EthereumTransactionDataEip2930} or
- * {@link EthereumTransactionDataEip1559}.
+ * It may be of subclass {@link EthereumTransactionDataLegacy} or of subclass {@link EthereumTransactionDataEip1559}
  */
 public abstract class EthereumTransactionData {
     /**
@@ -25,15 +24,15 @@ public abstract class EthereumTransactionData {
         var rlpItem = decoder.next();
         if (rlpItem.isList()) {
             return EthereumTransactionDataLegacy.fromBytes(bytes);
-        }
-        byte typeByte = rlpItem.asByte();
-        switch (typeByte) {
-            case 0x01:
-                return EthereumTransactionDataEip2930.fromBytes(bytes);
-            case 0x02:
-                return EthereumTransactionDataEip1559.fromBytes(bytes);
-            default:
-                throw new IllegalArgumentException("rlp type byte " + typeByte + " is not supported");
+        } else {
+            var typeByte = rlpItem.asByte();
+
+            return switch (typeByte) {
+                case 0x01 -> EthereumTransactionDataEip2930.fromBytes(bytes);
+                case 0x02 -> EthereumTransactionDataEip1559.fromBytes(bytes);
+                case 0x04 -> EthereumTransactionDataEip7702.fromBytes(bytes);
+                default -> throw new IllegalArgumentException("rlp type byte " + typeByte + "is not supported");
+            };
         }
     }
 
