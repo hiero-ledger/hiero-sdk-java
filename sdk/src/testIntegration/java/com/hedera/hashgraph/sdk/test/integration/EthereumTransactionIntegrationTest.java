@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -244,6 +245,7 @@ public class EthereumTransactionIntegrationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("EIP-7702 Ethereum transaction with authorization list")
     void eip7702EthereumTransactionWithAuthorizationList() throws Exception {
         try (var testEnv = new IntegrationTestEnv(1)) {

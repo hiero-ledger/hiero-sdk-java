@@ -28,8 +28,7 @@ public abstract class EthereumTransactionData {
             var typeByte = rlpItem.asByte();
 
             return switch (typeByte) {
-                case 0x01:
-                    return EthereumTransactionDataEip2930.fromBytes(bytes);
+                case 0x01 -> EthereumTransactionDataEip2930.fromBytes(bytes);
                 case 0x02 -> EthereumTransactionDataEip1559.fromBytes(bytes);
                 case 0x04 -> EthereumTransactionDataEip7702.fromBytes(bytes);
                 default -> throw new IllegalArgumentException("rlp type byte " + typeByte + "is not supported");

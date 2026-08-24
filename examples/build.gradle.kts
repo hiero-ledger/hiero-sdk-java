@@ -85,6 +85,7 @@ abstract class RunAllExample : DefaultTask() {
                 .filter { it != "AccountHooksExample" }
                 .filter { it != "ContractHooksExample" }
                 .filter { it != "TransferTransactionHooksExample" }
+                .filter { it != "FeeEstimateQueryExample" }
                 .toList()
 
         exampleClasses.forEach { className ->

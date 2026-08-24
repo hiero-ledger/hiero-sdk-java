@@ -6,6 +6,7 @@ import com.esaulpaugh.headlong.rlp.RLPEncoder;
 import com.esaulpaugh.headlong.rlp.RLPItem;
 import com.esaulpaugh.headlong.util.Integers;
 import com.google.common.base.MoreObjects;
+import com.hedera.hashgraph.sdk.EthereumTransactionData.SignatureData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -226,6 +227,23 @@ public class EthereumTransactionDataEip7702 extends EthereumTransactionData {
      * A helper record to hold signature data for EIP-7702 transactions.
      */
     record SignatureData(byte[] recoveryId, byte[] r, byte[] s) {}
+
+    @Override
+    public byte[] sign(PrivateKey privateKey) {
+        EthereumTransactionData.SignatureData signature = signTypedTransaction(toUnsignedRlp(), 0x04, privateKey);
+        this.r = signature.r;
+        this.s = signature.s;
+        this.recoveryId = EthereumEncoding.uint64ToEthBytes(signature.recoveryId);
+        return toBytes();
+    }
+
+    /**
+     * RLP-encode the unsigned payload (9 fields through the access list).
+     */
+    byte[] toUnsignedRlp() {
+        return RLPEncoder.list(
+                chainId, nonce, maxPriorityGas, maxGas, gasLimit, to, value, callData, accessList, authorizationList);
+    }
 
     /**
      * A tuple describing an authorization entry for EIP-7702 transactions.
