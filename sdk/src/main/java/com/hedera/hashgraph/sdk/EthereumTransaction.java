@@ -59,7 +59,7 @@ public class EthereumTransaction extends Transaction<EthereumTransaction> {
     }
 
     /**
-     * Sets the raw Ethereum transaction (RLP encoded type 0, 1, and 2). Complete
+     * Sets the raw Ethereum transaction (RLP encoded type 0, 1, 2 and 4). Complete
      * unless the callDataFileId is set.
      *
      * @param ethereumData raw ethereum transaction bytes

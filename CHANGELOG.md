@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.78.0-beta.1
+
+### Added
+
+- feat: Support Pectra EVM Type 4 Transaction Encoding (EIP-7702) (#2774)
+- feat: HIP-1340 (#2569)
+
 ## 2.77.0
 
 ## Added
