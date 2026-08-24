@@ -38,6 +38,10 @@ public class Mocker implements AutoCloseable {
     private final List<Server> servers = new ArrayList<>();
 
     Mocker(List<List<Object>> responses) {
+        this(responses, true);
+    }
+
+    Mocker(List<List<Object>> responses, boolean withOperator) {
         this.responses = responses;
 
         var network = new HashMap<String, AccountId>(responses.size());
@@ -100,8 +104,7 @@ public class Mocker implements AutoCloseable {
             }
         }
 
-        this.client = Client.forNetwork(network)
-                .setOperator(new AccountId(0, 0, 1800), PRIVATE_KEY)
+        var client = Client.forNetwork(network)
                 .setMinBackoff(Duration.ofMillis(0))
                 .setMaxBackoff(Duration.ofMillis(0))
                 .setNodeMinBackoff(Duration.ofMillis(0))
@@ -109,6 +112,12 @@ public class Mocker implements AutoCloseable {
                 .setMinNodeReadmitTime(Duration.ofMillis(0))
                 .setMaxNodeReadmitTime(Duration.ofMillis(0))
                 .setLogger(new Logger(LogLevel.SILENT));
+
+        if (withOperator) {
+            client.setOperator(new AccountId(0, 0, 1800), PRIVATE_KEY);
+        }
+
+        this.client = client;
     }
 
     protected void configureServerBuilder(InProcessServerBuilder builder) {
@@ -117,6 +126,14 @@ public class Mocker implements AutoCloseable {
 
     public static Mocker withResponses(List<List<Object>> responses) {
         return new Mocker(responses);
+    }
+
+    /**
+     * Same as {@link #withResponses(List)} but leaves the client without an operator, for exercising
+     * requests that must work on an operator-less client (e.g. the {@code ping} liveness probe).
+     */
+    public static Mocker withResponsesAndNoOperator(List<List<Object>> responses) {
+        return new Mocker(responses, false);
     }
 
     public void close() throws TimeoutException, InterruptedException {

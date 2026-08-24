@@ -258,12 +258,12 @@ public class RegisteredNodeAddressBookQuery {
         String baseUrl = client.getMirrorRestBaseUrl();
 
         // For localhost registered node calls, override to use port 8084 unless system property overrides
-        if (baseUrl.contains("localhost:5551") || baseUrl.contains("127.0.0.1:5551")) {
+        if (baseUrl.contains("localhost:38081") || baseUrl.contains("127.0.0.1:38081")) {
             String registeredNodePort = System.getProperty("hedera.mirror.registerednode.port");
             if (registeredNodePort != null && !registeredNodePort.isEmpty()) {
-                baseUrl = baseUrl.replace(":5551", ":" + registeredNodePort);
+                baseUrl = baseUrl.replace(":38081", ":" + registeredNodePort);
             } else {
-                baseUrl = baseUrl.replace(":5551", ":8084");
+                baseUrl = baseUrl.replace(":38081", ":8084");
             }
         }
 

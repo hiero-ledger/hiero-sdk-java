@@ -53,7 +53,7 @@ The format of the configuration file should be as follows:
 ```json
 {
     "network": {
-        "0.0.3": "127.0.0.1:50211"
+        "0.0.3": "127.0.0.1:35211"
     },
     "mirrorNetwork": [
         "127.0.0.1:5600"

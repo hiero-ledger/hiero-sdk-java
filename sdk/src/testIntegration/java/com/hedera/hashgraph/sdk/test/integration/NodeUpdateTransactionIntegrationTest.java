@@ -33,7 +33,7 @@ class NodeUpdateTransactionIntegrationTest {
     void canExecuteNodeUpdateTransaction() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
 
         try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
 
@@ -62,7 +62,7 @@ class NodeUpdateTransactionIntegrationTest {
     void canDeleteGrpcWebProxyEndpoint() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
 
         try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
 
@@ -88,8 +88,8 @@ class NodeUpdateTransactionIntegrationTest {
     void shouldSucceedWhenUpdatingNodeAccountIdWithProperSignatures() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client = Client.forNetwork(network)
                 .setMirrorNetwork(List.of("localhost:5600"))
@@ -137,8 +137,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionCanChangeToSameAccount() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client =
                 Client.forNetwork(network).setTransportSecurity(false).setMirrorNetwork(List.of("localhost:5600"))) {
@@ -169,8 +169,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionCanChangeNodeAccountUpdateAddressbookAndRetry() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client =
                 Client.forNetwork(network).setTransportSecurity(false).setMirrorNetwork(List.of("localhost:5600"))) {
@@ -233,8 +233,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionFailsWithInvalidSignatureWhenMissingNodeAdminSignature() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client = Client.forNetwork(network)
                 .setMirrorNetwork(List.of("localhost:5600"))
@@ -279,8 +279,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionFailsWithInvalidSignatureWhenMissingAccountIdSignature() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client = Client.forNetwork(network)
                 .setMirrorNetwork(List.of("localhost:5600"))
@@ -328,8 +328,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionFailsWithInvalidAccountIdForNonExistentAccount() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client = Client.forNetwork(network)
                 .setMirrorNetwork(List.of("localhost:5600"))
@@ -368,8 +368,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionFailsWithAccountDeletedForDeletedAccount() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client = Client.forNetwork(network)
                 .setMirrorNetwork(List.of("localhost:5600"))
@@ -423,8 +423,8 @@ class NodeUpdateTransactionIntegrationTest {
     void testSubsequentTransactionWithNewNodeAccountIdSucceeds() throws Exception {
         // Set the network
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client =
                 Client.forNetwork(network).setTransportSecurity(false).setMirrorNetwork(List.of("localhost:5600"))) {
@@ -477,8 +477,8 @@ class NodeUpdateTransactionIntegrationTest {
             "Given an SDK receives INVALID_NODE_ACCOUNT for a node, when updating its network configuration, then the SDK updates its network with the latest node account IDs for subsequent transactions")
     void testSdkUpdatesNetworkConfigurationOnInvalidNodeAccount() throws Exception {
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
-        network.put("localhost:51211", new AccountId(0, 0, 4));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
+        network.put("localhost:36211", new AccountId(0, 0, 4));
 
         try (var client =
                 Client.forNetwork(network).setTransportSecurity(false).setMirrorNetwork(List.of("localhost:5600"))) {
@@ -519,7 +519,7 @@ class NodeUpdateTransactionIntegrationTest {
     void testNodeUpdateTransactionCanAssociateWithRegisteredNodeId() throws Exception {
         // Set up the local network with 2 nodes
         var network = new HashMap<String, AccountId>();
-        network.put("localhost:50211", new AccountId(0, 0, 3));
+        network.put("localhost:35211", new AccountId(0, 0, 3));
 
         try (var client = Client.forNetwork(network).setMirrorNetwork(List.of("localhost:5600"))) {
             // Set the operator to be account 0.0.2

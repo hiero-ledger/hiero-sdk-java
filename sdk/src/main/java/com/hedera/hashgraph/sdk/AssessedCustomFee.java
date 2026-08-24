@@ -2,6 +2,9 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +77,32 @@ public class AssessedCustomFee {
     public static AssessedCustomFee fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
         return fromProtobuf(com.hedera.hashgraph.sdk.proto.AssessedCustomFee.parseFrom(bytes).toBuilder()
                 .build());
+    }
+
+    /**
+     * Build a JSON representation of this assessed custom fee
+     *
+     * @return the JSON object
+     */
+    JsonObject toJsonObject() {
+        var json = new JsonObject();
+        if (feeCollectorAccountId != null) {
+            json.addProperty("feeCollectorAccountId", feeCollectorAccountId.toString());
+        } else {
+            json.add("feeCollectorAccountId", JsonNull.INSTANCE);
+        }
+        if (tokenId != null) {
+            json.addProperty("tokenId", tokenId.toString());
+        } else {
+            json.add("tokenId", JsonNull.INSTANCE);
+        }
+        json.addProperty("amount", String.valueOf(amount));
+        var payers = new JsonArray();
+        for (var payerId : payerAccountIdList) {
+            payers.add(payerId.toString());
+        }
+        json.add("payerAccountIds", payers);
+        return json;
     }
 
     @Override

@@ -123,9 +123,15 @@ public abstract class PrivateKey extends Key {
     /**
      * Retrieve a private key from a string.
      *
+     * @deprecated use {@link #fromStringDER(String)} on a HEX-encoded string with a DER prefix, or
+     * {@link #fromStringECDSA(String)} / {@link #fromStringED25519(String)} on a raw HEX-encoded
+     * string, instead. This method cannot distinguish a raw ECDSA key from a raw ED25519 key and
+     * defaults to ED25519.
+     *
      * @param privateKey                string representing a private key
      * @return                          the private key
      */
+    @Deprecated
     public static PrivateKey fromString(String privateKey) {
         return fromBytes(Hex.decode(privateKey.startsWith("0x") ? privateKey.substring(2) : privateKey));
     }

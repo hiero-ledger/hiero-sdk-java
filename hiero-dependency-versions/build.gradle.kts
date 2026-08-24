@@ -2,14 +2,14 @@
 group = "org.hiero"
 
 val bouncycastle = "1.84"
-val grpc = "1.81.0"
-val protobuf = "4.35.0"
+val grpc = "1.83.1"
+val protobuf = "4.35.1"
 val slf4j = "2.0.18"
 val mockito = "5.23.0"
 
 dependencies {
-    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
-    api(platform("io.netty:netty-bom:4.2.14.Final"))
+    api(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
+    api(platform("io.netty:netty-bom:4.2.17.Final"))
 }
 
 dependencies.constraints {
@@ -31,12 +31,12 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.21.3") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.22.1") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.6.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
-    api("org.junit.jupiter:junit-jupiter-api:6.1.0") { because("org.junit.jupiter.api") }
+    api("org.junit.jupiter:junit-jupiter-api:6.1.3") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
     api("org.mockito:mockito-junit-jupiter:$mockito") { because("org.mockito.junit.jupiter") }
 
@@ -47,7 +47,11 @@ dependencies.constraints {
 
     // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
     // TO BE removed when spring-boot-dependencies gets updated
-    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.22")
+    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.24")
+    api("org.springframework:spring-webmvc:7.0.8")
+    api("org.springframework:spring-context:7.0.8")
+    api("org.springframework:spring-web:7.0.8")
+    api("ch.qos.logback:logback-core:1.6.3")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

@@ -487,6 +487,139 @@ public class TransactionTest {
     }
 
     @Test
+    @DisplayName("RemoveSignature - Single Node")
+    void testRemoveSignatureSingleNode() {
+        var publicKey = mockPrivateKey.getPublicKey();
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID)
+                .setChunkSize(2048)
+                .freezeWith(client);
+
+        transaction.addSignature(publicKey, mockSignature);
+        assertThat(transaction.getSignatures().get(nodeAccountID1)).containsKey(publicKey);
+
+        List<byte[]> removed = transaction.removeSignature(publicKey);
+
+        assertThat(removed).hasSize(1);
+        assertThat(removed.get(0)).isEqualTo(mockSignature);
+        // The only signer was removed, so no signatures remain.
+        assertThat(transaction.getSignatures()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("RemoveSignature - Multiple Nodes")
+    void testRemoveSignatureMultipleNodes() {
+        var publicKey = mockPrivateKey.getPublicKey();
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(nodeAccountIDs)
+                .setTransactionId(testTransactionID)
+                .setChunkSize(2048)
+                .freezeWith(client);
+
+        transaction = transaction.addSignature(publicKey, mockSignature, testTransactionID, nodeAccountID1);
+        transaction = transaction.addSignature(publicKey, mockSignature, testTransactionID, nodeAccountID2);
+        assertThat(transaction.getSignatures()).hasSize(2);
+
+        List<byte[]> removed = transaction.removeSignature(publicKey);
+
+        assertThat(removed).hasSize(2);
+        for (byte[] signature : removed) {
+            assertThat(signature).isEqualTo(mockSignature);
+        }
+        // The only signer was removed, so no signatures remain.
+        assertThat(transaction.getSignatures()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("RemoveSignature - Throws When Not Frozen")
+    void testRemoveSignatureThrowsWhenNotFrozen() {
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID);
+
+        assertThrows(IllegalStateException.class, () -> transaction.removeSignature(mockPrivateKey.getPublicKey()));
+    }
+
+    @Test
+    @DisplayName("RemoveSignature - Throws When Key Has Not Signed")
+    void testRemoveSignatureThrowsWhenKeyNotSigned() {
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID)
+                .setChunkSize(2048)
+                .freezeWith(client);
+
+        var neverSignedKey = PrivateKey.generateED25519().getPublicKey();
+
+        assertThrows(IllegalArgumentException.class, () -> transaction.removeSignature(neverSignedKey));
+    }
+
+    @Test
+    @DisplayName("RemoveAllSignatures - Removes All And Returns Them Grouped By Key")
+    void testRemoveAllSignatures() {
+        var firstKey = mockPrivateKey.getPublicKey();
+        var secondPrivateKey = PrivateKey.generateED25519();
+        var secondKey = secondPrivateKey.getPublicKey();
+        byte[] secondSignature = new byte[] {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID)
+                .setChunkSize(2048)
+                .freezeWith(client);
+
+        transaction.addSignature(firstKey, mockSignature);
+        transaction.addSignature(secondKey, secondSignature);
+        assertThat(transaction.getSignatures().get(nodeAccountID1)).hasSize(2);
+
+        Map<PublicKey, List<byte[]>> removed = transaction.removeAllSignatures();
+
+        assertThat(removed).containsKeys(firstKey, secondKey);
+        assertThat(removed.get(firstKey)).hasSize(1);
+        assertThat(removed.get(firstKey).get(0)).isEqualTo(mockSignature);
+        assertThat(removed.get(secondKey)).hasSize(1);
+        assertThat(removed.get(secondKey).get(0)).isEqualTo(secondSignature);
+        assertThat(transaction.getSignatures()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("RemoveAllSignatures - Throws When Not Frozen")
+    void testRemoveAllSignaturesThrowsWhenNotFrozen() {
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID);
+
+        assertThrows(IllegalStateException.class, transaction::removeAllSignatures);
+    }
+
+    @Test
+    @DisplayName("RemoveAllSignatures - Returns Empty Map When No Signatures")
+    void testRemoveAllSignaturesReturnsEmptyMapWhenNoSignatures() {
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents("test content".getBytes())
+                .setNodeAccountIds(Arrays.asList(nodeAccountID1))
+                .setTransactionId(testTransactionID)
+                .setChunkSize(2048)
+                .freezeWith(client);
+
+        assertThat(transaction.removeAllSignatures()).isEmpty();
+    }
+
+    @Test
     @DisplayName("GetSignableNodeBodyBytesList - Unfrozen Transaction")
     void testGetSignableNodeBodyBytesListUnfrozen() {
         var tx = new TransferTransaction();
@@ -611,6 +744,56 @@ public class TransactionTest {
                         .setSignedTransactionBytes(signed.toByteString())
                         .build());
             }
+        }
+
+        byte[] payload = list.build().toByteArray();
+        assertThrows(IllegalArgumentException.class, () -> Transaction.fromBytes(payload));
+    }
+
+    @Test
+    @DisplayName("fromBytes rejects duplicate (txId, nodeId) entries in TransactionList")
+    void fromBytesRejectsDuplicateKeyTransaction() {
+        // Both entries share the same TransactionId AND the same nodeAccountId.
+        // The first body presents a benign transfer; the second silently overwrites it with a drain.
+        var txId = TransactionID.newBuilder()
+                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                .setTransactionValidStart(Timestamp.newBuilder().setSeconds(1554158542))
+                .build();
+
+        var benignTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-1))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(1)))
+                .build();
+
+        var maliciousTransfer = CryptoTransferTransactionBody.newBuilder()
+                .setTransfers(TransferList.newBuilder()
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5006))
+                                .setAmount(-100_000_000_000L))
+                        .addAccountAmounts(AccountAmount.newBuilder()
+                                .setAccountID(AccountID.newBuilder().setAccountNum(5007))
+                                .setAmount(100_000_000_000L)))
+                .build();
+
+        var list = TransactionList.newBuilder();
+        for (var transfer : List.of(benignTransfer, maliciousTransfer)) {
+            var body = TransactionBody.newBuilder()
+                    .setTransactionID(txId)
+                    .setNodeAccountID(AccountID.newBuilder().setAccountNum(5005))
+                    .setTransactionFee(100_000_000L)
+                    .setCryptoTransfer(transfer)
+                    .build();
+            var signed = SignedTransaction.newBuilder()
+                    .setBodyBytes(body.toByteString())
+                    .build();
+            list.addTransactionList(com.hedera.hashgraph.sdk.proto.Transaction.newBuilder()
+                    .setSignedTransactionBytes(signed.toByteString())
+                    .build());
         }
 
         byte[] payload = list.build().toByteArray();
