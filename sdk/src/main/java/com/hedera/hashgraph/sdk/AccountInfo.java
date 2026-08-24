@@ -155,6 +155,12 @@ public final class AccountInfo {
     public final StakingInfo stakingInfo;
 
     /**
+     * Delegation address if a EIP-7702 code delegation is set for the account.
+     */
+    @Nullable
+    public final EvmAddress delegationAddress;
+
+    /**
      * Constructor.
      *
      * @param accountId                     the account id
@@ -176,6 +182,7 @@ public final class AccountInfo {
      * @param maxAutomaticTokenAssociations max number of token associations
      * @param aliasKey                      public alias key
      * @param ledgerId                      the ledger id
+     * @param delegationAddress             delegation address if EIP-7702 code delegation is set
      */
     private AccountInfo(
             AccountId accountId,
@@ -198,7 +205,8 @@ public final class AccountInfo {
             @Nullable PublicKey aliasKey,
             LedgerId ledgerId,
             long ethereumNonce,
-            @Nullable StakingInfo stakingInfo) {
+            @Nullable StakingInfo stakingInfo,
+            @Nullable EvmAddress delegationAddress) {
         this.accountId = accountId;
         this.contractAccountId = contractAccountId;
         this.isDeleted = isDeleted;
@@ -223,6 +231,7 @@ public final class AccountInfo {
         this.tokenAllowances = Collections.emptyList();
         this.tokenNftAllowances = Collections.emptyList();
         this.stakingInfo = stakingInfo;
+        this.delegationAddress = delegationAddress;
     }
 
     /**
@@ -251,6 +260,13 @@ public final class AccountInfo {
 
         @Nullable var aliasKey = PublicKey.fromAliasBytes(accountInfo.getAlias());
 
+        @Nullable EvmAddress delegationAddress = null;
+        if (accountInfo.getDelegationAddress() != null
+                && !accountInfo.getDelegationAddress().isEmpty()) {
+            delegationAddress =
+                    EvmAddress.fromBytes(accountInfo.getDelegationAddress().toByteArray());
+        }
+
         return new AccountInfo(
                 accountId,
                 accountInfo.getContractAccountID(),
@@ -272,7 +288,8 @@ public final class AccountInfo {
                 aliasKey,
                 LedgerId.fromByteString(accountInfo.getLedgerId()),
                 accountInfo.getEthereumNonce(),
-                accountInfo.hasStakingInfo() ? StakingInfo.fromProtobuf(accountInfo.getStakingInfo()) : null);
+                accountInfo.hasStakingInfo() ? StakingInfo.fromProtobuf(accountInfo.getStakingInfo()) : null,
+                delegationAddress);
     }
 
     /**
@@ -331,6 +348,11 @@ public final class AccountInfo {
             accountInfoBuilder.setStakingInfo(stakingInfo.toProtobuf());
         }
 
+        if (delegationAddress != null) {
+            accountInfoBuilder.setDelegationAddress(
+                    com.google.protobuf.ByteString.copyFrom(delegationAddress.toBytes()));
+        }
+
         return accountInfoBuilder.build();
     }
 
@@ -358,6 +380,7 @@ public final class AccountInfo {
                 .add("ledgerId", ledgerId)
                 .add("ethereumNonce", ethereumNonce)
                 .add("stakingInfo", stakingInfo)
+                .add("delegationAddress", delegationAddress)
                 .toString();
     }
 
