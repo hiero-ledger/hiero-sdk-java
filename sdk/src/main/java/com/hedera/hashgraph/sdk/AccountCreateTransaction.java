@@ -403,7 +403,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     /**
      * The bytes to be used as the account's alias.
      * <p>
-     * The bytes must be formatted as the calcluated last 20 bytes of the
+     * The bytes must be formatted as the calculated last 20 bytes of the
      * keccak-256 of the ECDSA primitive key.
      * <p>
      * All other types of keys, including but not limited to ED25519, ThresholdKey, KeyList, ContractID, and
@@ -419,7 +419,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     /**
      * The bytes to be used as the account's alias.
      * <p>
-     * The bytes must be formatted as the calcluated last 20 bytes of the
+     * The bytes must be formatted as the calculated last 20 bytes of the
      * keccak-256 of the ECDSA primitive key.
      * <p>
      * All other types of keys, including but not limited to ED25519, ThresholdKey, KeyList, ContractID, and

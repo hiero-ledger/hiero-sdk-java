@@ -26,11 +26,11 @@ jobs:
     runs-on: hiero-client-sdk-linux-medium
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: audit
 
       - name: Check PR Title
-        uses: step-security/conventional-pr-title-action@bb2263ec311ca158e9ffa6bd9b997fb425402034 # v3.2.6
+        uses: step-security/conventional-pr-title-action@b54c0688e6fd1d221f8a936e05fdd82f500640d6 # v3.2.7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

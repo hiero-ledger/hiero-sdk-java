@@ -18,6 +18,9 @@ import com.hedera.hashgraph.sdk.TokenInfoQuery;
 import com.hedera.hashgraph.sdk.TokenNftInfoQuery;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.hedera.hashgraph.sdk.TopicInfoQuery;
+import com.hedera.hashgraph.sdk.TransactionId;
+import com.hedera.hashgraph.sdk.TransactionReceiptQuery;
+import com.hedera.hashgraph.tck.methods.sdk.param.TransactionReceiptQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
@@ -188,6 +191,18 @@ public class QueryBuilders {
             query.setSenderAccountId(AccountId.fromString(params.getSenderAccountId()));
         }
 
+        return query;
+    }
+
+    public static TransactionReceiptQuery buildTransactionReceiptQuery(TransactionReceiptQueryParams params) {
+        TransactionReceiptQuery query = new TransactionReceiptQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
+
+        if (params.getTransactionId() != null) {
+            query.setTransactionId(TransactionId.fromString(params.getTransactionId()));
+        }
+
+        query.setIncludeChildren(params.getIncludeChildren());
+        query.setIncludeDuplicates(params.getIncludeDuplicates());
         return query;
     }
 }

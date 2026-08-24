@@ -1,3 +1,8 @@
 com.hedera.hashgraph.sdk.TransactionReceiptTest.shouldSerialize=[
   "TransactionReceipt{transactionId=null, status=SCHEDULE_ALREADY_DELETED, exchangeRate=ExchangeRate{hbars=3, cents=4, expirationTime=2019-04-01T22:42:22Z, exchangeRateInCents=1.3333333333333333}, nextExchangeRate=ExchangeRate{hbars=3, cents=4, expirationTime=2019-04-01T22:42:22Z, exchangeRateInCents=1.3333333333333333}, accountId=1.2.3, fileId=4.5.6, contractId=3.2.1, topicId=9.8.7, tokenId=6.5.4, topicSequenceNumber=3, topicRunningHash=[54, 56, 54, 102, 55, 55, 50, 48, 54, 101, 54, 102, 55, 55, 50, 48, 54, 50, 55, 50, 54, 102, 55, 55, 54, 101, 50, 48, 54, 51, 54, 102, 55, 55], totalSupply=30, scheduleId=1.1.1, scheduledTransactionId=3.3.3@1554158542.000000000, serials=[1, 2, 3], nodeId=1, registeredNodeId=1, duplicates=[], children=[]}"
 ]
+
+
+com.hedera.hashgraph.sdk.TransactionReceiptTest.shouldSerializeToJson=[
+  "{\"status\":\"SCHEDULE_ALREADY_DELETED\",\"accountId\":\"1.2.3\",\"fileId\":\"4.5.6\",\"contractId\":\"3.2.1\",\"topicId\":\"9.8.7\",\"tokenId\":\"6.5.4\",\"scheduleId\":\"1.1.1\",\"exchangeRate\":{\"hbars\":3,\"cents\":4,\"expirationTime\":\"2019-04-01T22:42:22.000Z\",\"exchangeRateInCents\":1.3333333333333333},\"nextExchangeRate\":{\"hbars\":3,\"cents\":4,\"expirationTime\":\"2019-04-01T22:42:22.000Z\",\"exchangeRateInCents\":1.3333333333333333},\"topicSequenceNumber\":\"3\",\"topicRunningHash\":\"686f77206e6f772062726f776e20636f77\",\"totalSupply\":\"30\",\"scheduledTransactionId\":\"3.3.3@1554158542.000000000\",\"serials\":[\"1\",\"2\",\"3\"],\"duplicates\":[],\"children\":[],\"registeredNodeId\":\"1\",\"nodeId\":\"1\"}"
+]
