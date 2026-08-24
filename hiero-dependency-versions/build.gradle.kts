@@ -48,9 +48,9 @@ dependencies.constraints {
     // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
     // TO BE removed when spring-boot-dependencies gets updated
     api("org.apache.tomcat.embed:tomcat-embed-core:11.0.24")
-    api("org.springframework:spring-webmvc:7.0.8")
-    api("org.springframework:spring-context:7.0.8")
-    api("org.springframework:spring-web:7.0.8")
+    api("org.springframework:spring-webmvc:7.0.9")
+    api("org.springframework:spring-context:7.0.9")
+    api("org.springframework:spring-web:7.0.9")
     api("ch.qos.logback:logback-core:1.6.3")
 
     tasks.checkVersionConsistency {
