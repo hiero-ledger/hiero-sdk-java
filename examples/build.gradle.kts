@@ -19,8 +19,8 @@ dependencyAnalysis {
 dependencies.constraints {
     implementation("com.google.guava:guava:33.4.8-android")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
-    implementation("com.hedera.hashgraph:sdk:2.77.0")
-    implementation("com.hedera.hashgraph:sdk-full:2.77.0")
+    implementation("com.hedera.hashgraph:sdk:2.78.0-beta.1")
+    implementation("com.hedera.hashgraph:sdk-full:2.78.0-beta.1")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 }
 
@@ -85,6 +85,11 @@ abstract class RunAllExample : DefaultTask() {
                 .filter { it != "AccountHooksExample" }
                 .filter { it != "ContractHooksExample" }
                 .filter { it != "TransferTransactionHooksExample" }
+                .filter { it != "FeeEstimateQueryExample" }
+                // remove after official release
+                .filter { it != "CreateAccountWithCodeDelegationExample" }
+                .filter { it != "UpdateAccountToClearCodeDelegationExample" }
+                .filter { it != "UpdateAccountToSetCodeDelegationExample" }
                 .toList()
 
         exampleClasses.forEach { className ->
