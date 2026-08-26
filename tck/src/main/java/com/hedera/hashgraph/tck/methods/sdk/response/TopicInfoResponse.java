@@ -4,55 +4,27 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import java.util.List;
-import lombok.Data;
 
-@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TopicInfoResponse {
-    private final String topicId;
-    private final String topicMemo;
-    private final String sequenceNumber;
-    private final String runningHash;
+public record TopicInfoResponse(
+        String topicId,
+        String topicMemo,
+        String sequenceNumber,
+        String runningHash,
+        @Nullable String adminKey,
+        @Nullable String submitKey,
+        @Nullable String autoRenewAccountId,
+        String autoRenewPeriod,
+        String expirationTime,
+        @Nullable String feeScheduleKey,
+        @Nullable List<String> feeExemptKeys,
+        @Nullable List<CustomFeeResponse> customFees,
+        String ledgerId) {
 
-    @Nullable
-    private final String adminKey;
-
-    @Nullable
-    private final String submitKey;
-
-    @Nullable
-    private final String autoRenewAccountId;
-
-    private final String autoRenewPeriod;
-    private final String expirationTime;
-
-    @Nullable
-    private final String feeScheduleKey;
-
-    @Nullable
-    private final List<String> feeExemptKeys;
-
-    @Nullable
-    private final List<CustomFeeResponse> customFees;
-
-    private final String ledgerId;
-
-    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CustomFeeResponse {
-        @Nullable
-        private final String feeCollectorAccountId;
+    public record CustomFeeResponse(
+            @Nullable String feeCollectorAccountId, Boolean allCollectorsAreExempt, FixedFeeResponse fixedFee) {}
 
-        private final Boolean allCollectorsAreExempt;
-        private final FixedFeeResponse fixedFee;
-    }
-
-    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class FixedFeeResponse {
-        private final String amount;
-
-        @Nullable
-        private final String denominatingTokenId;
-    }
+    public record FixedFeeResponse(String amount, @Nullable String denominatingTokenId) {}
 }

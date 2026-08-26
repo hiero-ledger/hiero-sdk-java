@@ -14,6 +14,8 @@ import com.hedera.hashgraph.tck.methods.sdk.param.GenerateKeyParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.GenerateKeyResponse;
 import com.hedera.hashgraph.tck.util.KeyUtils;
 import com.hedera.hashgraph.tck.util.KeyUtils.KeyType;
+import java.util.ArrayList;
+import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
 
 @JSONRPC2Service
@@ -57,13 +59,12 @@ public class KeyService extends AbstractJSONRPC2Service {
                     "invalid request: threshold is required for generating a ThresholdKey type.");
         }
 
-        GenerateKeyResponse response = new GenerateKeyResponse();
-        response.setKey(processKeyRecursively(params, response, false));
-        return response;
+        List<String> privateKeys = new ArrayList<>();
+        String key = processKeyRecursively(params, privateKeys, false);
+        return new GenerateKeyResponse(key, privateKeys);
     }
 
-    private String processKeyRecursively(
-            final GenerateKeyParams params, final GenerateKeyResponse response, boolean isList)
+    private String processKeyRecursively(final GenerateKeyParams params, final List<String> privateKeys, boolean isList)
             throws InvalidJSONRPC2RequestException, InvalidProtocolBufferException {
         String privateKeyString;
         PrivateKey privateKey;
@@ -73,7 +74,7 @@ public class KeyService extends AbstractJSONRPC2Service {
                         ? PrivateKey.generateED25519().toStringDER()
                         : PrivateKey.generateECDSA().toStringDER();
                 if (isList) {
-                    response.getPrivateKeys().add(privateKeyString);
+                    privateKeys.add(privateKeyString);
                 }
 
                 return privateKeyString;
@@ -88,7 +89,7 @@ public class KeyService extends AbstractJSONRPC2Service {
                         ? PrivateKey.generateED25519()
                         : PrivateKey.generateECDSA();
                 if (isList) {
-                    response.getPrivateKeys().add(privateKey.toStringDER());
+                    privateKeys.add(privateKey.toStringDER());
                 }
 
                 return privateKey.getPublicKey().toStringDER();
@@ -97,7 +98,7 @@ public class KeyService extends AbstractJSONRPC2Service {
                 KeyList keyList = new KeyList();
                 params.getKeys().get().forEach(keyParams -> {
                     try {
-                        keyList.add(KeyUtils.getKeyFromString(processKeyRecursively(keyParams, response, true)));
+                        keyList.add(KeyUtils.getKeyFromString(processKeyRecursively(keyParams, privateKeys, true)));
                     } catch (Exception e) {
                         throw new IllegalArgumentException(e);
                     }

@@ -2,10 +2,5 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
-public class TopicResponse {
-    private String topicId;
-    private Status status;
-}
+public record TopicResponse(String topicId, Status status) {}

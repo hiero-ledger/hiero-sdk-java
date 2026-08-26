@@ -2,11 +2,5 @@
 package com.hedera.hashgraph.tck.methods.sdk.response.schedule;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.Data;
 
-@Data
-public class ScheduleResponse {
-    private final String scheduleId;
-    private final String transactionId;
-    private final Status status;
-}
+public record ScheduleResponse(String scheduleId, String transactionId, Status status) {}

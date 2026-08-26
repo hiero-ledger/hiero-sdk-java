@@ -1,17 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
-import lombok.Data;
-
-@Data
-public class SetupResponse {
-    private String message = "";
-    private String status = "";
-
+public record SetupResponse(String message, String status) {
     public SetupResponse(String message) {
-        if (message != null && !message.isEmpty()) {
-            this.message = message;
-        }
-        this.status = "SUCCESS";
+        this(message == null || message.isEmpty() ? "" : message, "SUCCESS");
     }
 }

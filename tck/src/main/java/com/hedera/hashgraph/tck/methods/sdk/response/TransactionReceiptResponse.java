@@ -3,59 +3,27 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
-import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TransactionReceiptResponse {
-    private final String status;
+public record TransactionReceiptResponse(
+        String status,
+        @Nullable String accountId,
+        @Nullable String fileId,
+        @Nullable String contractId,
+        @Nullable String topicId,
+        @Nullable String tokenId,
+        @Nullable String scheduleId,
+        @Nullable ExchangeRate exchangeRate,
+        @Nullable String topicSequenceNumber,
+        @Nullable String topicRunningHash,
+        @Nullable String totalSupply,
+        @Nullable String scheduledTransactionId,
+        List<Long> serials,
+        List<TransactionReceiptResponse> duplicates,
+        List<TransactionReceiptResponse> children,
+        @Nullable String nodeId) {
 
-    @Nullable
-    private final String accountId;
-
-    @Nullable
-    private final String fileId;
-
-    @Nullable
-    private final String contractId;
-
-    @Nullable
-    private final String topicId;
-
-    @Nullable
-    private final String tokenId;
-
-    @Nullable
-    private final String scheduleId;
-
-    @Nullable
-    private final ExchangeRate exchangeRate;
-
-    @Nullable
-    private final String topicSequenceNumber;
-
-    @Nullable
-    private final String topicRunningHash;
-
-    @Nullable
-    private final String totalSupply;
-
-    @Nullable
-    private final String scheduledTransactionId;
-
-    private final List<Long> serials;
-    private final List<TransactionReceiptResponse> duplicates;
-    private final List<TransactionReceiptResponse> children;
-
-    @Nullable
-    private final String nodeId;
-
-    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ExchangeRate {
-        private final Long hbars;
-        private final Long cents;
-        private final String expirationTime;
-    }
+    public record ExchangeRate(Long hbars, Long cents, String expirationTime) {}
 }

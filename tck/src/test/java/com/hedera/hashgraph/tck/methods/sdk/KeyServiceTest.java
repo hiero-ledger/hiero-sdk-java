@@ -89,8 +89,8 @@ class KeyServiceTest {
 
         GenerateKeyResponse response = keyService.generateKey(params);
 
-        assertNotNull(response.getKey());
-        assertTrue(response.getKey().contains("302e020100300506032b657004220420"));
+        assertNotNull(response.key());
+        assertTrue(response.key().contains("302e020100300506032b657004220420"));
     }
 
     @Test
@@ -100,8 +100,8 @@ class KeyServiceTest {
 
         GenerateKeyResponse response = keyService.generateKey(params);
 
-        assertNotNull(response.getKey());
-        assertTrue(response.getKey().contains("302a300506032b6570032100"));
+        assertNotNull(response.key());
+        assertTrue(response.key().contains("302a300506032b6570032100"));
     }
 
     @Test
@@ -115,8 +115,8 @@ class KeyServiceTest {
 
         GenerateKeyResponse response = keyService.generateKey(params);
 
-        assertNotNull(response.getKey());
-        assertFalse(response.getPrivateKeys().isEmpty());
+        assertNotNull(response.key());
+        assertFalse(response.privateKeys().isEmpty());
     }
 
     @Test
@@ -130,8 +130,8 @@ class KeyServiceTest {
 
         GenerateKeyResponse response = keyService.generateKey(params);
 
-        assertNotNull(response.getKey());
-        assertFalse(response.getPrivateKeys().isEmpty());
+        assertNotNull(response.key());
+        assertFalse(response.privateKeys().isEmpty());
     }
 
     @Test
@@ -145,6 +145,6 @@ class KeyServiceTest {
 
         GenerateKeyResponse response = keyService.generateKey(params);
 
-        assertNotNull(response.getKey());
+        assertNotNull(response.key());
     }
 }
