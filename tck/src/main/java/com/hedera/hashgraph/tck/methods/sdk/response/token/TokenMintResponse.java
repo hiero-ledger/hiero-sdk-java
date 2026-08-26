@@ -13,12 +13,4 @@ public class TokenMintResponse extends TokenResponse {
         this.newTotalSupply = newTotalSupply;
         this.serialNumbers = serialNumbers;
     }
-
-    public String getNewTotalSupply() {
-        return newTotalSupply;
-    }
-
-    public List<String> getSerialNumbers() {
-        return serialNumbers;
-    }
 }

@@ -25,16 +25,6 @@ public class GetAccountInfoResponse {
     private String receiveRecordThreshold;
     private boolean isReceiverSignatureRequired;
     private String expirationTime;
-
-    // Explicit getters to ensure proper JSON serialization
-    public boolean getIsDeleted() {
-        return isDeleted;
-    }
-
-    public boolean getIsReceiverSignatureRequired() {
-        return isReceiverSignatureRequired;
-    }
-
     private String autoRenewPeriod;
     private List<LiveHashResponse> liveHashes;
     private Map<String, TokenRelationshipInfo> tokenRelationships;

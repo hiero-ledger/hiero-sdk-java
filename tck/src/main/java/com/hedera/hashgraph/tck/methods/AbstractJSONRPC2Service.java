@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
 import com.hedera.hashgraph.sdk.ReceiptStatusException;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
@@ -32,6 +36,11 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
     // this is shared state to all requests so there could be race conditions
     // although the tck driver would not call these methods in such way
     private final Map<String, Method> methodMap;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            // TODO: Should remove the below visiblity once dtos are change to use record.
+            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
     protected AbstractJSONRPC2Service() {
         methodMap = new HashMap<>();
@@ -69,7 +78,7 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
             Method method = methodMap.get(req.getMethod());
             if (method != null) {
                 Object[] args = getArguments(method, req.getNamedParams());
-                Object result = method.invoke(this, args);
+                Map<String, Object> result = convertValue(method.invoke(this, args));
                 return new JSONRPC2Response(result, req.getID());
             } else {
                 return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, req.getID());
@@ -128,5 +137,15 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
             }
         }
         return args;
+    }
+
+    /**
+     * Converts a method result to a map for JSON-RPC serialization.
+     *
+     * @param result the method result to convert
+     * @return the converted result as a map
+     */
+    static Map<String, Object> convertValue(final Object result) {
+        return OBJECT_MAPPER.convertValue(result, new TypeReference<Map<String, Object>>() {});
     }
 }
