@@ -52,6 +52,7 @@ public class TransactionReceiptResponse {
     private final String nodeId;
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ExchangeRate {
         private final Long hbars;
         private final Long cents;
