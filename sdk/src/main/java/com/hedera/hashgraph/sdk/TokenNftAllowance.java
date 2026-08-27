@@ -82,7 +82,7 @@ public class TokenNftAllowance {
     /**
      * Create a copy of a nft token allowance object.
      *
-     * @param allowance                 the nft token allowance to copj
+     * @param allowance                 the nft token allowance to copy
      * @return                          a new copy
      */
     static TokenNftAllowance copyFrom(TokenNftAllowance allowance) {
