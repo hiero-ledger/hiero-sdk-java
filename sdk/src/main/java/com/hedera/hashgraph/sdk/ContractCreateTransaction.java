@@ -411,7 +411,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
     /**
      * Sets the parameters to pass to the constructor.
      *
-     * @param constructorParameters The contructor parameters
+     * @param constructorParameters The constructor parameters
      * @return {@code this}
      */
     public ContractCreateTransaction setConstructorParameters(ContractFunctionParameters constructorParameters) {
