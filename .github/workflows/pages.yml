@@ -12,9 +12,6 @@ defaults:
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
-  pages: write
 
 env:
   LC_ALL: C.UTF-8
@@ -23,6 +20,10 @@ jobs:
   publish:
     name: Publish
     runs-on: hiero-client-sdk-linux-medium
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
