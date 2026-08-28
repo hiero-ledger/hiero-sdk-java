@@ -109,7 +109,7 @@ public class CustomFractionalFee extends CustomFeeBase<CustomFractionalFee> {
     }
 
     /**
-     * Extract the fee amount.
+     * Extract the maximum fee amount.
      *
      * @return the fee amount
      */
