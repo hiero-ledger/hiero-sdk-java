@@ -238,10 +238,10 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
     }
 
     /**
-     * Extract the auto renew period.
-     *
-     * @return                          the auto renew period
-     */
+    * Get the maximum automatic token associations.
+    *
+    * @return the max automatic token associations
+    */
     @Nullable
     public Integer getMaxAutomaticTokenAssociations() {
         return maxAutomaticTokenAssociations;
