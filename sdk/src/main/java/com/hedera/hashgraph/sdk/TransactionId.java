@@ -529,7 +529,7 @@ public final class TransactionId implements Comparable<TransactionId> {
         var thisStartIsNull = (validStart == null);
         var otherStartIsNull = (o.validStart == null);
         if (thisStartIsNull != otherStartIsNull) {
-            return thisAccountIdIsNull ? -1 : 1;
+            return thisStartIsNull ? -1 : 1;
         }
         if (!thisStartIsNull) {
             return validStart.compareTo(o.validStart);
