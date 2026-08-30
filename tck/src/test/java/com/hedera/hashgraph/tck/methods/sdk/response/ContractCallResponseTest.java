@@ -3,9 +3,7 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import static com.hedera.hashgraph.tck.methods.ResponseSerializationTestHelper.serializeToJson;
 
-import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
-import com.hedera.hashgraph.sdk.Hbar;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,8 +18,8 @@ public class ContractCallResponseTest {
                 1L,
                 List.of(),
                 10L,
-                Hbar.from(1),
-                AccountId.fromString("0.0.2"),
+                "1th",
+                "0.0.2",
                 1L,
                 "resultData");
         var json = serializeToJson(response);
@@ -33,10 +31,8 @@ public class ContractCallResponseTest {
         Assertions.assertTrue(json.contains("\"gasUsed\":1"));
         Assertions.assertTrue(json.contains("\"logs\":[]"));
         Assertions.assertTrue(json.contains("\"gas\":10"));
-        Assertions.assertTrue(json.contains("\"hbarAmount\":{\"valueInTinybar\":100000000}"));
-        Assertions.assertTrue(
-                json.contains(
-                        "\"senderAccountId\":{\"shard\":0,\"realm\":0,\"num\":2,\"aliasKey\":null,\"evmAddress\":null,\"checksum\":null}"));
+        Assertions.assertTrue(json.contains("\"hbarAmount\":\"1th\""));
+        Assertions.assertTrue(json.contains("\"senderAccountId\":\"0.0.2\""));
         Assertions.assertTrue(json.contains("\"signerNonce\":1"));
         Assertions.assertTrue(json.contains("\"rawResult\":\"resultData\""));
     }
