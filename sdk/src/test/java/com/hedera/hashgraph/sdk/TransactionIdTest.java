@@ -186,4 +186,22 @@ class TransactionIdTest {
                 txnId1.equals(txnId2) && txnId1.hashCode() != txnId2.hashCode(),
                 "equals/hashCode contract violation: equal objects must have same hashCode");
     }
+
+    @Test
+    void compareToIsAntisymmetricWhenOnlyOneValidStartIsNull() {
+        var accountId = AccountId.fromString("0.0.23847");
+        var withValidStart = new TransactionId(accountId, Instant.ofEpochSecond(1588539964));
+        var withoutValidStart = new TransactionId(accountId, null);
+
+        // A null validStart must sort before a non-null one no matter which side it is on.
+        assertThat(withoutValidStart.compareTo(withValidStart)).isEqualTo(-1);
+        assertThat(withValidStart.compareTo(withoutValidStart)).isEqualTo(1);
+
+        // Same requirement when neither transaction id carries an account id.
+        var noAccountWithStart = new TransactionId(null, Instant.ofEpochSecond(1588539964));
+        var noAccountWithoutStart = new TransactionId(null, null);
+
+        assertThat(noAccountWithoutStart.compareTo(noAccountWithStart)).isEqualTo(-1);
+        assertThat(noAccountWithStart.compareTo(noAccountWithoutStart)).isEqualTo(1);
+    }
 }
