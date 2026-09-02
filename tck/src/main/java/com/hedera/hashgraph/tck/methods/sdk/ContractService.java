@@ -73,8 +73,8 @@ public class ContractService extends AbstractJSONRPC2Service {
                 result.gasUsed,
                 result.logs,
                 result.gas,
-                result.hbarAmount,
-                result.senderAccountId,
+                result.hbarAmount.toString(),
+                result.senderAccountId != null ? result.senderAccountId.toString() : null,
                 result.signerNonce,
                 Hex.toHexString(result.asBytes()));
     }

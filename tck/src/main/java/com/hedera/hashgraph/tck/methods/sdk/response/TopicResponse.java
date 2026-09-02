@@ -2,10 +2,11 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
-public class TopicResponse {
-    private String topicId;
-    private Status status;
-}
+/**
+ * Represent response for topic related transaction.
+ *
+ * @param topicId the ID of the topic
+ * @param status the status of the submitted transaction
+ */
+public record TopicResponse(String topicId, Status status) {}

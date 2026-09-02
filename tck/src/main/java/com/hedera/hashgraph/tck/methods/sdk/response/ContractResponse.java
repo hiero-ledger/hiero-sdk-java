@@ -2,46 +2,65 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ContractResponse {
-    private String contractId;
-    private Status status;
+/**
+ * Represent the contract response.
+ *
+ * @param contractId the ID of the contract
+ * @param status the status of the submitted transaction
+ */
+public record ContractResponse(String contractId, Status status) {
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ContractInfoQueryResponse {
-        private String contractId;
-        private String accountId;
-        private String contractAccountId;
-        private String adminKey;
-        private String expirationTime;
-        private String autoRenewPeriod;
-        private String autoRenewAccountId;
-        private String storage;
-        private String contractMemo;
-        private String balance;
-        private Boolean isDeleted;
-        private String maxAutomaticTokenAssociations;
-        private String ledgerId;
-        private StakingInfoResponse stakingInfo;
+    /**
+     * Represent the contractInfo query response.
+     *
+     * @param contractId the ID of the contract
+     * @param accountId the account ID associated with the contract
+     * @param contractAccountId the contract account ID
+     * @param adminKey the admin key controlling the contract
+     * @param expirationTime the expiration time of the contract
+     * @param autoRenewPeriod the auto_renew period in seconds
+     * @param autoRenewAccountId the account ID for auto_renewal
+     * @param storage the storage used by the contract
+     * @param contractMemo the memo associated with the contract
+     * @param balance the contract balance in tinybars
+     * @param isDeleted state whether the contract is deleted
+     * @param maxAutomaticTokenAssociations the maximum number of automatic token associations
+     * @param ledgerId the ledger ID
+     * @param stakingInfo the staking information
+     */
+    public record ContractInfoQueryResponse(
+            String contractId,
+            String accountId,
+            String contractAccountId,
+            String adminKey,
+            String expirationTime,
+            String autoRenewPeriod,
+            String autoRenewAccountId,
+            String storage,
+            String contractMemo,
+            String balance,
+            Boolean isDeleted,
+            String maxAutomaticTokenAssociations,
+            String ledgerId,
+            StakingInfoResponse stakingInfo) {
 
-        @Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class StakingInfoResponse {
-            private Boolean declineStakingReward;
-            private String stakePeriodStart;
-            private String pendingReward;
-            private String stakedToMe;
-            private String stakedAccountId;
-            private String stakedNodeId;
-        }
+        /**
+         * Represent the stakingInfo.
+         *
+         * @param declineStakingReward state whether staking rewards are declined
+         * @param stakePeriodStart the stake period start timestamp
+         * @param pendingReward the pending reward in tinybars
+         * @param stakedToMe the amount staked to this contract in tinybars
+         * @param stakedAccountId the account ID staked to
+         * @param stakedNodeId the node ID staked to
+         */
+        public record StakingInfoResponse(
+                Boolean declineStakingReward,
+                String stakePeriodStart,
+                String pendingReward,
+                String stakedToMe,
+                String stakedAccountId,
+                String stakedNodeId) {}
     }
 }

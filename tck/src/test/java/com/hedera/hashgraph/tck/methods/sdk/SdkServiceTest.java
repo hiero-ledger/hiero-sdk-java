@@ -34,11 +34,11 @@ class SdkServiceTest {
         SetupResponse response = sdkService.setup(params);
 
         // Then
-        assertEquals("Successfully setup custom client.", response.getMessage());
+        assertEquals("Successfully setup custom client.", response.message());
 
         response = sdkService.reset(new BaseParams(sessionId));
 
-        assertEquals("", response.getMessage());
+        assertEquals("", response.message());
         assertThrows(NullPointerException.class, () -> sdkService.getClient(sessionId));
     }
 
@@ -63,7 +63,7 @@ class SdkServiceTest {
 
         SetupResponse response = sdkService.setOperator(setOperatorParams);
 
-        assertEquals("SUCCESS", response.getStatus());
+        assertEquals("SUCCESS", response.status());
         var client = sdkService.getClient(sessionId);
         assertEquals(newOperatorAccountId, client.getOperatorAccountId());
         assertEquals(newOperatorKey.getPublicKey(), client.getOperatorPublicKey());

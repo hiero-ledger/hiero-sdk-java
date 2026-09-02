@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import static com.hedera.hashgraph.tck.methods.ResponseSerializationTestHelper.serializeToJson;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,7 @@ import org.junit.jupiter.api.Test;
 public class GenerateKeyResponseTest {
     @Test
     void shouldSerializeGenerateKeyResponseWithAllFields() {
-        var response = new GenerateKeyResponse();
-        // TODO: All args constructor missing, update this to use constructor once converted to record
-        response.setKey("testKey");
-        response.setPrivateKeys(List.of("key1", "key2"));
+        var response = new GenerateKeyResponse("testKey", List.of("key1", "key2"));
         var json = serializeToJson(response);
 
         Assertions.assertTrue(json.contains("\"key\":\"testKey\""));
@@ -22,7 +20,7 @@ public class GenerateKeyResponseTest {
 
     @Test
     void shouldSerializeGenerateKeyResponseNullFields() {
-        var response = new GenerateKeyResponse();
+        var response = new GenerateKeyResponse(null, new ArrayList<>());
         var json = serializeToJson(response);
 
         Assertions.assertTrue(json.contains("\"key\":null"));

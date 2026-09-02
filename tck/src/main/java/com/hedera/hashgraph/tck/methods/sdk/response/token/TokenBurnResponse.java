@@ -3,12 +3,11 @@ package com.hedera.hashgraph.tck.methods.sdk.response.token;
 
 import com.hedera.hashgraph.sdk.Status;
 
-public class TokenBurnResponse extends TokenResponse {
-
-    private final String newTotalSupply;
-
-    public TokenBurnResponse(String tokenId, Status status, String newTotalSupply) {
-        super(tokenId, status);
-        this.newTotalSupply = newTotalSupply;
-    }
-}
+/**
+ * Represent a tokenBurn transaction response.
+ *
+ * @param tokenId the ID of the token to burn
+ * @param status the status of the submitted transaction
+ * @param newTotalSupply the new total amount of tokens
+ */
+public record TokenBurnResponse(String tokenId, Status status, String newTotalSupply) {}

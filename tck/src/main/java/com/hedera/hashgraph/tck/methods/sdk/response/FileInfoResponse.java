@@ -2,17 +2,23 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
-@AllArgsConstructor
-public class FileInfoResponse {
-    private final String fileId;
-    private final String size;
-    private final String expirationTime;
-    private final Boolean isDeleted;
-    private final String memo;
-    private final String ledgerId;
-    private final List<String> keys;
-}
+/**
+ * Represent the fileInfo response.
+ *
+ * @param fileId the file ID
+ * @param size the current file size in bytes
+ * @param expirationTime the time at which this file is set to expire
+ * @param isDeleted if true, then this file has been deleted
+ * @param memo the memo associated with the file
+ * @param ledgerId the ID of the ledger from which the response was returned
+ * @param keys the keys required to modify the file
+ */
+public record FileInfoResponse(
+        String fileId,
+        String size,
+        String expirationTime,
+        Boolean isDeleted,
+        String memo,
+        String ledgerId,
+        List<String> keys) {}

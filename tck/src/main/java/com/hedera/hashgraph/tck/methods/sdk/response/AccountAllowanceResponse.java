@@ -2,9 +2,10 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.Data;
 
-@Data
-public class AccountAllowanceResponse {
-    private final Status status;
-}
+/**
+ * Represents the accountAllowance response.
+ *
+ * @param status the status of the submitted transaction
+ */
+public record AccountAllowanceResponse(Status status) {}

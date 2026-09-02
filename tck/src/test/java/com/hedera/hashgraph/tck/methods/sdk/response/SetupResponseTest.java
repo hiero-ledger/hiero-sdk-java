@@ -20,8 +20,8 @@ class SetupResponseTest {
 
         // Then
         assertNotNull(setupResponse);
-        assertEquals(message, setupResponse.getMessage());
-        assertEquals("SUCCESS", setupResponse.getStatus());
+        assertEquals(message, setupResponse.message());
+        assertEquals("SUCCESS", setupResponse.status());
     }
 
     @Test
@@ -34,8 +34,8 @@ class SetupResponseTest {
 
         // Then
         assertNotNull(setupResponse);
-        assertEquals("", setupResponse.getMessage()); // message should default to empty string
-        assertEquals("SUCCESS", setupResponse.getStatus());
+        assertEquals("", setupResponse.message()); // message should default to empty string
+        assertEquals("SUCCESS", setupResponse.status());
     }
 
     @Test
@@ -48,8 +48,8 @@ class SetupResponseTest {
 
         // Then
         assertNotNull(setupResponse);
-        assertEquals("", setupResponse.getMessage());
-        assertEquals("SUCCESS", setupResponse.getStatus());
+        assertEquals("", setupResponse.message());
+        assertEquals("SUCCESS", setupResponse.status());
     }
 
     @Test

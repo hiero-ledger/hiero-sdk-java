@@ -2,11 +2,12 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.Data;
 
-@Data
-public class AccountResponse {
-    private final String accountId;
-    private final Status status;
-    private final String transactionId;
-}
+/**
+ * Represent response for account related transactions.
+ *
+ * @param accountId the ID of the account
+ * @param status the status of the submitted transaction
+ * @param transactionId the ID of the transaction
+ */
+public record AccountResponse(String accountId, Status status, String transactionId) {}

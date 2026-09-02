@@ -2,10 +2,11 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.Status;
-import lombok.Data;
 
-@Data
-public class FileResponse {
-    private final String fileId;
-    private final Status status;
-}
+/**
+ * Represent the response for file related transactions.
+ *
+ * @param fileId the ID of the file
+ * @param status the status of the submitted transaction
+ */
+public record FileResponse(String fileId, Status status) {}
