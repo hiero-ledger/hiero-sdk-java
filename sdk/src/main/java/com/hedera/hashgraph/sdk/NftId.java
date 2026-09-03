@@ -48,7 +48,7 @@ public class NftId implements Comparable<NftId> {
     }
 
     /**
-     * Create a new ntf id from a protobuf.
+     * Create a new nft id from a protobuf.
      *
      * @param nftId                     the protobuf representation
      * @return                          the new nft id
