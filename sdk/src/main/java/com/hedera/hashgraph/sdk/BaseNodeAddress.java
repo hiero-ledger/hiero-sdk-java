@@ -52,7 +52,7 @@ class BaseNodeAddress {
     }
 
     /**
-     * Create a managed node address fom a string.
+     * Create a managed node address from a string.
      *
      * @param string                    the string representation
      * @return                          the new managed node address
