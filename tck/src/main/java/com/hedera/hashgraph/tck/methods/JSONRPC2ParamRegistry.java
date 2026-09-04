@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.methods;
 
 import static java.util.Map.entry;
 
+import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2ParamsException;
 import com.hedera.hashgraph.tck.methods.sdk.param.BaseParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.CustomFee;
 import com.hedera.hashgraph.tck.methods.sdk.param.GenerateKeyParams;
@@ -155,10 +156,12 @@ public final class JSONRPC2ParamRegistry {
      * @param params the JSON-RPC request parameters to parse
      * @return the parsed JSON-RPC parameter
      */
-    public static JSONRPC2Param parse(Class<?> parameterType, Map<String, Object> params) {
+    public static JSONRPC2Param parse(Class<?> parameterType, Map<String, Object> params)
+            throws InvalidJSONRPC2ParamsException {
         Function<Map<String, Object>, ? extends JSONRPC2Param> parser = REGISTRY.get(parameterType);
         if (parser == null) {
-            throw new IllegalArgumentException("No parser registered for parameter type: " + parameterType.getName());
+            throw new InvalidJSONRPC2ParamsException(
+                    "No parser registered for parameter type: " + parameterType.getName());
         }
 
         return parser.apply(params);

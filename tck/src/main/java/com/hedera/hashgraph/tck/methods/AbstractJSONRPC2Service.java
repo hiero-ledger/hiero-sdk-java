@@ -122,7 +122,7 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
         for (int i = 0; i < paramTypes.length; i++) {
             try {
                 args[i] = JSONRPC2ParamRegistry.parse(paramTypes[i], jrpcParams);
-            } catch (Exception e) {
+            } catch (InvalidJSONRPC2ParamsException e) {
                 throw new InvalidJSONRPC2ParamsException("Invalid parameters for method %s with args: %s"
                         .formatted(method.getName(), Arrays.toString(args)));
             }
