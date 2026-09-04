@@ -73,7 +73,7 @@ public final class JSONRPC2ParamRegistry {
         R apply(T t) throws Exception;
     }
 
-    public static <T, R> Function<T, R> unchecked(@NonNull CheckedFunction<T, R> function) {
+    public static <T, R extends JSONRPC2Param> Function<T, R> unchecked(@NonNull CheckedFunction<T, R> function) {
         Objects.requireNonNull(function, "function must not be null");
 
         return args -> {
@@ -85,8 +85,8 @@ public final class JSONRPC2ParamRegistry {
         };
     }
 
-    public static Map<Class<?>, Function<Map<String, Object>, ?>> create() {
-        return Map.ofEntries(
+    public static Map<Class<?>, Function<Map<String, Object>, ? extends JSONRPC2Param>> create() {
+        return Map.<Class<?>, Function<Map<String, Object>, ?>>ofEntries(
                 entry(BaseParams.class, unchecked(BaseParams::parse)),
                 entry(SetupParams.class, unchecked(SetupParams::parse)),
                 entry(GenerateKeyParams.class, unchecked(GenerateKeyParams::parse)),
