@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * AccountUpdateParams for account update method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AccountUpdateParams extends JSONRPC2Param {
+public class AccountUpdateParams implements JSONRPC2Param {
     private Optional<String> key;
     private Optional<Boolean> receiverSignatureRequired;
     private Optional<String> autoRenewPeriod;
@@ -31,8 +29,7 @@ public class AccountUpdateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public AccountUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static AccountUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedKey = Optional.ofNullable((String) jrpcParams.get("key"));
         var parsedReceiverSignatureRequired =
                 Optional.ofNullable((Boolean) jrpcParams.get("receiverSignatureRequired"));

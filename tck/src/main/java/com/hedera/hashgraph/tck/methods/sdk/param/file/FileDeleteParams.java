@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * FileDeleteParams for file delete method
@@ -16,14 +15,12 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FileDeleteParams extends JSONRPC2Param {
+public class FileDeleteParams implements JSONRPC2Param {
     private Optional<String> fileId;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public FileDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FileDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = Optional.ofNullable((String) jrpcParams.get("fileId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 

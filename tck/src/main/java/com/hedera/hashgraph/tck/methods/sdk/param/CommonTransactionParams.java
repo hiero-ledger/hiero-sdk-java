@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 
 /**
@@ -18,7 +17,6 @@ import net.minidev.json.JSONArray;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class CommonTransactionParams {
     private Optional<String> transactionId;
     private Optional<Long> maxTransactionFee;

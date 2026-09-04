@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * AccountDeleteParams for account delete method
@@ -16,15 +15,13 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AccountDeleteParams extends JSONRPC2Param {
+public class AccountDeleteParams implements JSONRPC2Param {
     private Optional<String> deleteAccountId;
     private Optional<String> transferAccountId;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public AccountDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static AccountDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedDeleteAccountId = Optional.ofNullable((String) jrpcParams.get("deleteAccountId"));
         var parsedTransferAccountId = Optional.ofNullable((String) jrpcParams.get("transferAccountId"));
 

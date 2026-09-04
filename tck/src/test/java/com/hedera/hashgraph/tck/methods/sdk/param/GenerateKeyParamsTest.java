@@ -25,7 +25,7 @@ class GenerateKeyParamsTest {
         jsonArray.add(new JSONObject(nestedParamsMap));
         jrpcParams.put("keys", jsonArray);
 
-        GenerateKeyParams params = new GenerateKeyParams().parse(jrpcParams);
+        GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
         assertEquals(KeyType.ED25519_PUBLIC_KEY, params.getType());
         assertEquals(Optional.of("someFromKey"), params.getFromKey());
@@ -42,7 +42,7 @@ class GenerateKeyParamsTest {
         Map<String, Object> jrpcParams = new HashMap<>();
         jrpcParams.put("type", "ed25519PublicKey");
 
-        GenerateKeyParams params = new GenerateKeyParams().parse(jrpcParams);
+        GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
         assertEquals(KeyType.ED25519_PUBLIC_KEY, params.getType());
         assertEquals(Optional.empty(), params.getFromKey());
@@ -56,7 +56,7 @@ class GenerateKeyParamsTest {
         jrpcParams.put("type", 123); // Invalid type
 
         assertThrows(ClassCastException.class, () -> {
-            new GenerateKeyParams().parse(jrpcParams);
+            GenerateKeyParams.parse(jrpcParams);
         });
     }
 
@@ -65,7 +65,7 @@ class GenerateKeyParamsTest {
         Map<String, Object> jrpcParams = new HashMap<>();
         jrpcParams.put("type", "keyList");
 
-        GenerateKeyParams params = new GenerateKeyParams().parse(jrpcParams);
+        GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
         assertEquals(Optional.empty(), params.getFromKey());
         assertEquals(Optional.empty(), params.getThreshold());
@@ -86,7 +86,7 @@ class GenerateKeyParamsTest {
         jsonArray.add(new JSONObject(nestedParamsMap2));
         jrpcParams.put("keys", jsonArray);
 
-        GenerateKeyParams params = new GenerateKeyParams().parse(jrpcParams);
+        GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
         assertEquals(KeyType.LIST_KEY, params.getType());
         assertTrue(params.getKeys().isPresent());

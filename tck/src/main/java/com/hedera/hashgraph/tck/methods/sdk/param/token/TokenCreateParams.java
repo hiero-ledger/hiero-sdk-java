@@ -10,15 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * TokenCreateParams for token create method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TokenCreateParams extends JSONRPC2Param {
+public class TokenCreateParams implements JSONRPC2Param {
     private Optional<String> name;
     private Optional<String> symbol;
     private Optional<Long> decimals;
@@ -45,8 +43,7 @@ public class TokenCreateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TokenCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedName = Optional.ofNullable((String) jrpcParams.get("name"));
         var parsedSymbol = Optional.ofNullable((String) jrpcParams.get("symbol"));
         var parsedDecimals = Optional.ofNullable((Long) jrpcParams.get("decimals"));

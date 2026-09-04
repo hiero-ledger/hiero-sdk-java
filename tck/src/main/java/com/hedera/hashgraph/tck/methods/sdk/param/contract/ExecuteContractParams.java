@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * ExecuteContractParams for contract execute method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ExecuteContractParams extends JSONRPC2Param {
+public class ExecuteContractParams implements JSONRPC2Param {
     private String contractId;
     private Optional<String> gas;
     private Optional<String> amount;
@@ -25,8 +23,7 @@ public class ExecuteContractParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public ExecuteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static ExecuteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = (String) jrpcParams.get("contractId");
         var parsedGas = Optional.ofNullable((String) jrpcParams.get("gas"));
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));

@@ -5,14 +5,12 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * Contains the parameters of a token transfer.
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class TokenTransferParams {
     private Optional<String> accountId;
     private Optional<String> tokenId;
