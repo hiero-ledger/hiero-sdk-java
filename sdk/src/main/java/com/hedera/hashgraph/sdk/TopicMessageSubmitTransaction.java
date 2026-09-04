@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 /**
  * Submit a message for consensus.
  * <p>
- * Valid and authorized messages on valid topics will be ordered by the consensus service, gossipped to the
+ * Valid and authorized messages on valid topics will be ordered by the consensus service, gossiped to the
  * mirror net, and published (in order) to all subscribers (from the mirror net) on this topic.
  * <p>
  * The submitKey (if any) must sign this transaction.
