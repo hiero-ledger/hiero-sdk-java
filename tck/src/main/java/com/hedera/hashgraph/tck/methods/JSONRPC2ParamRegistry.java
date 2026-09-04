@@ -65,84 +65,133 @@ import java.util.Objects;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Registry of JSON-RPC parameter parsers.
+ * <p>
+ * Each registered parameter type is associated with a parser that converts the
+ * JSON-RPC request parameters into an instance of that type. Parameter classes are
+ * responsible for defining their own {@code parse} method, while this registry
+ * provides the mapping between parameter types and their parsers.
+ *
+ */
 public final class JSONRPC2ParamRegistry {
+    private static final Map<Class<?>, Function<Map<String, Object>, ? extends JSONRPC2Param>> REGISTRY =
+            initRegistry();
+
     private JSONRPC2ParamRegistry() {}
 
-    @FunctionalInterface
-    public interface CheckedFunction<T, R> {
-        R apply(T t) throws Exception;
+    /**
+     * Initializes the JSON-RPC parameter parser registry.
+     *
+     * @return the initialized parser registry
+     */
+    private static Map<Class<?>, Function<Map<String, Object>, ? extends JSONRPC2Param>> initRegistry() {
+        return Map.<Class<?>, Function<Map<String, Object>, ? extends JSONRPC2Param>>ofEntries(
+                entry(BaseParams.class, toUncheckedFunction(BaseParams::parse)),
+                entry(SetupParams.class, toUncheckedFunction(SetupParams::parse)),
+                entry(GenerateKeyParams.class, toUncheckedFunction(GenerateKeyParams::parse)),
+                entry(TransactionReceiptQueryParams.class, toUncheckedFunction(TransactionReceiptQueryParams::parse)),
+                entry(CustomFee.class, toUncheckedFunction(CustomFee::parse)),
+                entry(AccountAllowanceParams.class, toUncheckedFunction(AccountAllowanceParams::parse)),
+                entry(AccountBalanceQueryParams.class, toUncheckedFunction(AccountBalanceQueryParams::parse)),
+                entry(AccountCreateParams.class, toUncheckedFunction(AccountCreateParams::parse)),
+                entry(AccountDeleteParams.class, toUncheckedFunction(AccountDeleteParams::parse)),
+                entry(AccountUpdateParams.class, toUncheckedFunction(AccountUpdateParams::parse)),
+                entry(GetAccountInfoParams.class, toUncheckedFunction(GetAccountInfoParams::parse)),
+                entry(ContractByteCodeQueryParams.class, toUncheckedFunction(ContractByteCodeQueryParams::parse)),
+                entry(ContractCallQueryParams.class, toUncheckedFunction(ContractCallQueryParams::parse)),
+                entry(CreateContractParams.class, toUncheckedFunction(CreateContractParams::parse)),
+                entry(DeleteContractParams.class, toUncheckedFunction(DeleteContractParams::parse)),
+                entry(ExecuteContractParams.class, toUncheckedFunction(ExecuteContractParams::parse)),
+                entry(InfoQueryContractParams.class, toUncheckedFunction(InfoQueryContractParams::parse)),
+                entry(UpdateContractParams.class, toUncheckedFunction(UpdateContractParams::parse)),
+                entry(EthereumTransactionParams.class, toUncheckedFunction(EthereumTransactionParams::parse)),
+                entry(FileAppendParams.class, toUncheckedFunction(FileAppendParams::parse)),
+                entry(FileContentsParams.class, toUncheckedFunction(FileContentsParams::parse)),
+                entry(FileCreateParams.class, toUncheckedFunction(FileCreateParams::parse)),
+                entry(FileDeleteParams.class, toUncheckedFunction(FileDeleteParams::parse)),
+                entry(FileInfoQueryParams.class, toUncheckedFunction(FileInfoQueryParams::parse)),
+                entry(FileUpdateParams.class, toUncheckedFunction(FileUpdateParams::parse)),
+                entry(AddressBookQueryParams.class, toUncheckedFunction(AddressBookQueryParams::parse)),
+                entry(NodeCreateParams.class, toUncheckedFunction(NodeCreateParams::parse)),
+                entry(NodeDeleteParams.class, toUncheckedFunction(NodeDeleteParams::parse)),
+                entry(NodeUpdateParams.class, toUncheckedFunction(NodeUpdateParams::parse)),
+                entry(ScheduleCreateParams.class, toUncheckedFunction(ScheduleCreateParams::parse)),
+                entry(ScheduleDeleteParams.class, toUncheckedFunction(ScheduleDeleteParams::parse)),
+                entry(ScheduleInfoParams.class, toUncheckedFunction(ScheduleInfoParams::parse)),
+                entry(ScheduleSignParams.class, toUncheckedFunction(ScheduleSignParams::parse)),
+                entry(
+                        AssociateDisassociateTokenParams.class,
+                        toUncheckedFunction(AssociateDisassociateTokenParams::parse)),
+                entry(BurnTokenParams.class, toUncheckedFunction(BurnTokenParams::parse)),
+                entry(FreezeUnfreezeTokenParams.class, toUncheckedFunction(FreezeUnfreezeTokenParams::parse)),
+                entry(GrantRevokeTokenKycParams.class, toUncheckedFunction(GrantRevokeTokenKycParams::parse)),
+                entry(MintTokenParams.class, toUncheckedFunction(MintTokenParams::parse)),
+                entry(NftInfoQueryParams.class, toUncheckedFunction(NftInfoQueryParams::parse)),
+                entry(PauseUnpauseTokenParams.class, toUncheckedFunction(PauseUnpauseTokenParams::parse)),
+                entry(TokenAirdropCancelParams.class, toUncheckedFunction(TokenAirdropCancelParams::parse)),
+                entry(TokenAirdropParams.class, toUncheckedFunction(TokenAirdropParams::parse)),
+                entry(TokenClaimAirdropParams.class, toUncheckedFunction(TokenClaimAirdropParams::parse)),
+                entry(TokenCreateParams.class, toUncheckedFunction(TokenCreateParams::parse)),
+                entry(TokenDeleteParams.class, toUncheckedFunction(TokenDeleteParams::parse)),
+                entry(TokenInfoQueryParams.class, toUncheckedFunction(TokenInfoQueryParams::parse)),
+                entry(TokenRejectAirdropParams.class, toUncheckedFunction(TokenRejectAirdropParams::parse)),
+                entry(TokenUpdateFeeScheduleParams.class, toUncheckedFunction(TokenUpdateFeeScheduleParams::parse)),
+                entry(TokenUpdateParams.class, toUncheckedFunction(TokenUpdateParams::parse)),
+                entry(TokenWipeParams.class, toUncheckedFunction(TokenWipeParams::parse)),
+                entry(CreateTopicParams.class, toUncheckedFunction(CreateTopicParams::parse)),
+                entry(CustomFeeLimit.class, toUncheckedFunction(CustomFeeLimit::parse)),
+                entry(DeleteTopicParams.class, toUncheckedFunction(DeleteTopicParams::parse)),
+                entry(SubmitTopicMessageParams.class, toUncheckedFunction(SubmitTopicMessageParams::parse)),
+                entry(TopicInfoQueryParams.class, toUncheckedFunction(TopicInfoQueryParams::parse)),
+                entry(UpdateTopicParams.class, toUncheckedFunction(UpdateTopicParams::parse)),
+                entry(TransferCryptoParams.class, toUncheckedFunction(TransferCryptoParams::parse)));
     }
 
-    public static <T, R extends JSONRPC2Param> Function<T, R> unchecked(@NonNull CheckedFunction<T, R> function) {
+    /**
+     * Parses JSON-RPC parameters using the parser registered for the given parameter type.
+     *
+     * @param parameterType the parameter type whose registered parser should be used
+     * @param params the JSON-RPC request parameters to parse
+     * @return the parsed JSON-RPC parameter
+     */
+    public static JSONRPC2Param parse(Class<?> parameterType, Map<String, Object> params) {
+        Function<Map<String, Object>, ? extends JSONRPC2Param> parser = REGISTRY.get(parameterType);
+        if (parser == null) {
+            throw new IllegalArgumentException("No parser registered for parameter type: " + parameterType.getName());
+        }
+
+        return parser.apply(params);
+    }
+
+    /**
+     * Helper functional interface for functions that throw a checked exception.
+     *
+     * @param <InputType> the input type
+     * @param <ReturnType> the return type
+     */
+    @FunctionalInterface
+    private interface CheckedFunction<InputType, ReturnType> {
+        ReturnType apply(InputType input) throws Exception;
+    }
+
+    /**
+     * Converts a {@link CheckedFunction} into a standard {@link Function}.
+     *
+     * @param function the checked function to convert
+     * @return a function that delegates to the supplied checked function
+     * @throws IllegalArgumentException if the checked function fail to parse the params
+     */
+    private static <InputType, ReturnType extends JSONRPC2Param> Function<InputType, ReturnType> toUncheckedFunction(
+            @NonNull CheckedFunction<InputType, ReturnType> function) {
         Objects.requireNonNull(function, "function must not be null");
 
         return args -> {
             try {
                 return function.apply(args);
             } catch (Exception e) {
-                throw new RuntimeException("Failed to parse JSON-RPC parameters");
+                throw new IllegalArgumentException("Failed to parse JSON-RPC parameters");
             }
         };
-    }
-
-    public static Map<Class<?>, Function<Map<String, Object>, ? extends JSONRPC2Param>> create() {
-        return Map.<Class<?>, Function<Map<String, Object>, ?>>ofEntries(
-                entry(BaseParams.class, unchecked(BaseParams::parse)),
-                entry(SetupParams.class, unchecked(SetupParams::parse)),
-                entry(GenerateKeyParams.class, unchecked(GenerateKeyParams::parse)),
-                entry(TransactionReceiptQueryParams.class, unchecked(TransactionReceiptQueryParams::parse)),
-                entry(CustomFee.class, unchecked(CustomFee::parse)),
-                entry(AccountAllowanceParams.class, unchecked(AccountAllowanceParams::parse)),
-                entry(AccountBalanceQueryParams.class, unchecked(AccountBalanceQueryParams::parse)),
-                entry(AccountCreateParams.class, unchecked(AccountCreateParams::parse)),
-                entry(AccountDeleteParams.class, unchecked(AccountDeleteParams::parse)),
-                entry(AccountUpdateParams.class, unchecked(AccountUpdateParams::parse)),
-                entry(GetAccountInfoParams.class, unchecked(GetAccountInfoParams::parse)),
-                entry(ContractByteCodeQueryParams.class, unchecked(ContractByteCodeQueryParams::parse)),
-                entry(ContractCallQueryParams.class, unchecked(ContractCallQueryParams::parse)),
-                entry(CreateContractParams.class, unchecked(CreateContractParams::parse)),
-                entry(DeleteContractParams.class, unchecked(DeleteContractParams::parse)),
-                entry(ExecuteContractParams.class, unchecked(ExecuteContractParams::parse)),
-                entry(InfoQueryContractParams.class, unchecked(InfoQueryContractParams::parse)),
-                entry(UpdateContractParams.class, unchecked(UpdateContractParams::parse)),
-                entry(EthereumTransactionParams.class, unchecked(EthereumTransactionParams::parse)),
-                entry(FileAppendParams.class, unchecked(FileAppendParams::parse)),
-                entry(FileContentsParams.class, unchecked(FileContentsParams::parse)),
-                entry(FileCreateParams.class, unchecked(FileCreateParams::parse)),
-                entry(FileDeleteParams.class, unchecked(FileDeleteParams::parse)),
-                entry(FileInfoQueryParams.class, unchecked(FileInfoQueryParams::parse)),
-                entry(FileUpdateParams.class, unchecked(FileUpdateParams::parse)),
-                entry(AddressBookQueryParams.class, unchecked(AddressBookQueryParams::parse)),
-                entry(NodeCreateParams.class, unchecked(NodeCreateParams::parse)),
-                entry(NodeDeleteParams.class, unchecked(NodeDeleteParams::parse)),
-                entry(NodeUpdateParams.class, unchecked(NodeUpdateParams::parse)),
-                entry(ScheduleCreateParams.class, unchecked(ScheduleCreateParams::parse)),
-                entry(ScheduleDeleteParams.class, unchecked(ScheduleDeleteParams::parse)),
-                entry(ScheduleInfoParams.class, unchecked(ScheduleInfoParams::parse)),
-                entry(ScheduleSignParams.class, unchecked(ScheduleSignParams::parse)),
-                entry(AssociateDisassociateTokenParams.class, unchecked(AssociateDisassociateTokenParams::parse)),
-                entry(BurnTokenParams.class, unchecked(BurnTokenParams::parse)),
-                entry(FreezeUnfreezeTokenParams.class, unchecked(FreezeUnfreezeTokenParams::parse)),
-                entry(GrantRevokeTokenKycParams.class, unchecked(GrantRevokeTokenKycParams::parse)),
-                entry(MintTokenParams.class, unchecked(MintTokenParams::parse)),
-                entry(NftInfoQueryParams.class, unchecked(NftInfoQueryParams::parse)),
-                entry(PauseUnpauseTokenParams.class, unchecked(PauseUnpauseTokenParams::parse)),
-                entry(TokenAirdropCancelParams.class, unchecked(TokenAirdropCancelParams::parse)),
-                entry(TokenAirdropParams.class, unchecked(TokenAirdropParams::parse)),
-                entry(TokenClaimAirdropParams.class, unchecked(TokenClaimAirdropParams::parse)),
-                entry(TokenCreateParams.class, unchecked(TokenCreateParams::parse)),
-                entry(TokenDeleteParams.class, unchecked(TokenDeleteParams::parse)),
-                entry(TokenInfoQueryParams.class, unchecked(TokenInfoQueryParams::parse)),
-                entry(TokenRejectAirdropParams.class, unchecked(TokenRejectAirdropParams::parse)),
-                entry(TokenUpdateFeeScheduleParams.class, unchecked(TokenUpdateFeeScheduleParams::parse)),
-                entry(TokenUpdateParams.class, unchecked(TokenUpdateParams::parse)),
-                entry(TokenWipeParams.class, unchecked(TokenWipeParams::parse)),
-                entry(CreateTopicParams.class, unchecked(CreateTopicParams::parse)),
-                entry(CustomFeeLimit.class, unchecked(CustomFeeLimit::parse)),
-                entry(DeleteTopicParams.class, unchecked(DeleteTopicParams::parse)),
-                entry(SubmitTopicMessageParams.class, unchecked(SubmitTopicMessageParams::parse)),
-                entry(TopicInfoQueryParams.class, unchecked(TopicInfoQueryParams::parse)),
-                entry(UpdateTopicParams.class, unchecked(UpdateTopicParams::parse)),
-                entry(TransferCryptoParams.class, unchecked(TransferCryptoParams::parse)));
     }
 }

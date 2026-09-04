@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import net.minidev.json.JSONObject;
 
 /**
@@ -35,7 +34,6 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
     // this is shared state to all requests so there could be race conditions
     // although the tck driver would not call these methods in such way
     private final Map<String, Method> methodMap;
-    private static final Map<Class<?>, Function<Map<String, Object>,? extends JSONRPC2Param>> paramRegistry = JSONRPC2ParamRegistry.create();
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -123,8 +121,7 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
         Object[] args = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
             try {
-                var paramInstance = paramRegistry.get(paramTypes[i]);
-                args[i] = paramInstance.apply(jrpcParams);
+                args[i] = JSONRPC2ParamRegistry.parse(paramTypes[i], jrpcParams);
             } catch (Exception e) {
                 throw new InvalidJSONRPC2ParamsException("Invalid parameters for method %s with args: %s"
                         .formatted(method.getName(), Arrays.toString(args)));
