@@ -10,6 +10,8 @@ package com.hedera.hashgraph.tck.methods;
  * <p>
  * IMPORTANT:
  * all inheriting classes should include the following method signature:
- * <pre>public static JSONRPC2Param parse(Map<String, Object> params){}</pre>
+ * <pre>{@code
+ * public static JSONRPC2Param parse(Map<String, Object> params)
+ * }</pre>
  */
 public interface JSONRPC2Param {}
