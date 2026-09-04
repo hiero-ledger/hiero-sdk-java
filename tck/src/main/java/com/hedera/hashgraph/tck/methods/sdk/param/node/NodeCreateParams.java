@@ -9,15 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class NodeCreateParams extends JSONRPC2Param {
+public class NodeCreateParams implements JSONRPC2Param {
     private Optional<String> accountId;
     private Optional<String> description;
     private Optional<List<ServiceEndpointParams>> gossipEndpoints;
@@ -30,8 +28,7 @@ public class NodeCreateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public NodeCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static NodeCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));
         var parsedDescription = Optional.ofNullable((String) jrpcParams.get("description"));
 

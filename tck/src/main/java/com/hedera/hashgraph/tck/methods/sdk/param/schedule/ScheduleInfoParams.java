@@ -7,20 +7,17 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ScheduleInfoParams extends JSONRPC2Param {
+public class ScheduleInfoParams implements JSONRPC2Param {
     private String scheduleId;
     private String queryPayment;
     private String maxQueryPayment;
     private Boolean getCost;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedScheduleId = (String) jrpcParams.get("scheduleId");

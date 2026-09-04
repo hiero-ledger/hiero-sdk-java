@@ -31,7 +31,7 @@ public class JSONRPCParamParser {
     }
 
     public static Optional<List<CustomFee>> parseCustomFees(Map<String, Object> jrpcParams) throws Exception {
-        return parseJsonArray(jrpcParams, "customFees", jsonObj -> new CustomFee().parse(jsonObj));
+        return parseJsonArray(jrpcParams, "customFees", jsonObj -> CustomFee.parse(jsonObj));
     }
 
     private static <T> Optional<T> parseJsonObject(

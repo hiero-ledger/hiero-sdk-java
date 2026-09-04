@@ -5,14 +5,12 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * Contains the parameters of a Hbar transfer.
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class HbarTransferParams {
     private Optional<String> accountId;
     private Optional<String> evmAddress;

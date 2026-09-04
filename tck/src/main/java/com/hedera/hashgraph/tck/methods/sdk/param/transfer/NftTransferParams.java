@@ -5,14 +5,12 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * Contains the parameters of an NFT transfer.
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class NftTransferParams {
     private Optional<String> senderAccountId;
     private Optional<String> receiverAccountId;

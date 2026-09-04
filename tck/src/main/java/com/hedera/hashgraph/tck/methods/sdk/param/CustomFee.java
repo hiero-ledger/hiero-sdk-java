@@ -15,8 +15,7 @@ import net.minidev.json.JSONObject;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class CustomFee extends JSONRPC2Param {
+public class CustomFee implements JSONRPC2Param {
 
     private String feeCollectorAccountId;
     private Boolean feeCollectorsExempt;
@@ -24,8 +23,7 @@ public class CustomFee extends JSONRPC2Param {
     private Optional<FractionalFee> fractionalFee;
     private Optional<RoyaltyFee> royaltyFee;
 
-    @Override
-    public CustomFee parse(Map<String, Object> jrpcParams) throws Exception {
+    public static CustomFee parse(Map<String, Object> jrpcParams) throws Exception {
         var feeCollectorAccountIdParsed = (String) jrpcParams.get("feeCollectorAccountId");
         var feeCollectorsExemptParsed = (Boolean) jrpcParams.get("feeCollectorsExempt");
 

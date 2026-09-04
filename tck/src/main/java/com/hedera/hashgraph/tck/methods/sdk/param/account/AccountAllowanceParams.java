@@ -9,18 +9,15 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AccountAllowanceParams extends JSONRPC2Param {
+public class AccountAllowanceParams implements JSONRPC2Param {
     private Optional<List<AllowanceParams>> allowances;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static AccountAllowanceParams parse(Map<String, Object> jrpcParams) throws Exception {
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
         var parsedAllowances = JSONRPCParamParser.parseAllowances(jrpcParams);

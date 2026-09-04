@@ -7,19 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ContractByteCodeQueryParams extends JSONRPC2Param {
+public class ContractByteCodeQueryParams implements JSONRPC2Param {
     private Optional<String> contractId;
     private Optional<String> queryPayment;
     private Optional<String> maxQueryPayment;
     private String sessionId;
 
-    @Override
-    public ContractByteCodeQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static ContractByteCodeQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
         var parsedQueryPayment = Optional.ofNullable((String) jrpcParams.get("queryPayment"));
         var parsedMaxQueryPayment = Optional.ofNullable((String) jrpcParams.get("maxQueryPayment"));

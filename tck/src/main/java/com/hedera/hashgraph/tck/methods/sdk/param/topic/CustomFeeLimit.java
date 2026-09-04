@@ -8,20 +8,17 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * CustomFeeLimit for topic message submit method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class CustomFeeLimit extends JSONRPC2Param {
+public class CustomFeeLimit implements JSONRPC2Param {
     private Optional<String> payerId;
     private Optional<List<CustomFee.FixedFee>> fixedFees;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static CustomFeeLimit parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedPayerId = Optional.ofNullable((String) jrpcParams.get("payerId"));
 
         @SuppressWarnings("unchecked")
