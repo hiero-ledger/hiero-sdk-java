@@ -193,7 +193,7 @@ public final class JSONRPC2ParamRegistry {
             try {
                 return function.apply(args);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to parse JSON-RPC parameters");
+                throw new IllegalArgumentException("Failed to parse JSON-RPC parameters", e);
             }
         };
     }
