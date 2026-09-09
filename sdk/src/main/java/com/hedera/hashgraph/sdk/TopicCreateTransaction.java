@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Create a topic to accept and group consensus messages.
@@ -53,19 +53,15 @@ import javax.annotation.Nullable;
  */
 public final class TopicCreateTransaction extends Transaction<TopicCreateTransaction> {
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
     private String topicMemo = "";
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Key submitKey = null;
+    private @Nullable Key submitKey = null;
 
     private Key feeScheduleKey = null;
 
@@ -131,8 +127,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      *
      * @return                          the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -164,8 +159,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      *
      * @return                          the submit key
      */
-    @Nullable
-    public Key getSubmitKey() {
+    public @Nullable Key getSubmitKey() {
         return submitKey;
     }
 
@@ -192,8 +186,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -223,8 +216,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      *
      * @return                          the auto renew account id
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 

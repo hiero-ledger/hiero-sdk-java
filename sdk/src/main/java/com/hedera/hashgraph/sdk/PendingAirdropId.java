@@ -2,8 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A unique, composite, identifier for a pending airdrop.
@@ -16,11 +15,9 @@ public class PendingAirdropId {
     private AccountId sender;
     private AccountId receiver;
 
-    @Nullable
-    private TokenId tokenId;
+    private @Nullable TokenId tokenId;
 
-    @Nullable
-    private NftId nftId;
+    private @Nullable NftId nftId;
 
     public PendingAirdropId() {}
 
@@ -42,7 +39,7 @@ public class PendingAirdropId {
         return sender;
     }
 
-    public PendingAirdropId setSender(@Nonnull AccountId sender) {
+    public PendingAirdropId setSender(AccountId sender) {
         this.sender = sender;
         return this;
     }
@@ -51,7 +48,7 @@ public class PendingAirdropId {
         return receiver;
     }
 
-    public PendingAirdropId setReceiver(@Nonnull AccountId receiver) {
+    public PendingAirdropId setReceiver(AccountId receiver) {
         this.receiver = receiver;
         return this;
     }

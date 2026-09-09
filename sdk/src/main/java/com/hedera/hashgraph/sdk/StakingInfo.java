@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.time.Instant;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Staking metadata for an account or a contract returned in CryptoGetInfo or ContractGetInfo queries
@@ -32,14 +32,12 @@ public class StakingInfo {
     /**
      * The account to which this account or contract is staking.
      */
-    @Nullable
-    public final AccountId stakedAccountId;
+    public final @Nullable AccountId stakedAccountId;
 
     /**
      * The ID of the node this account or contract is staked to.
      */
-    @Nullable
-    public final Long stakedNodeId;
+    public final @Nullable Long stakedNodeId;
 
     /**
      * Constructor

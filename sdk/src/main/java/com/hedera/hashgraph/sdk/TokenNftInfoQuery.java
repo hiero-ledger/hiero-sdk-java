@@ -12,8 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A query that returns information about a non-fungible token (NFT).
@@ -26,16 +25,13 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
     /**
      * The ID of the non-fungible token in x.y.z format.
      */
-    @Nullable
-    private NftId nftId = null;
+    private @Nullable NftId nftId = null;
 
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
     /**
      * The account ID of the current owner of the NFT
      */
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private long start = 0;
     private long end = 0;
@@ -74,8 +70,7 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
      *
      * @return                          the nft id
      */
-    @Nullable
-    public NftId getNftId() {
+    public @Nullable NftId getNftId() {
         return nftId;
     }
 
@@ -98,9 +93,8 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
      *
      * @return the tokenId
      */
-    @Nullable
     @Deprecated
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -123,9 +117,8 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
      *
      * @return the accountId
      */
-    @Nullable
     @Deprecated
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -143,11 +136,11 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
      * Sets the start of the index range for which information is requested.
      *
      * @deprecated with no replacement
-     * @param start The start index (inclusive) of the range of NFTs to query for. Value must be in the range [0; ownedNFTs-1]
+     * @param start The start index (inclusive) of the range of NFTs to query for. Must be non-negative and in the range [0; ownedNFTs-1]
      * @return {@code this}
      */
     @Deprecated
-    public TokenNftInfoQuery setStart(@Nonnegative long start) {
+    public TokenNftInfoQuery setStart(long start) {
         this.start = start;
         return this;
     }
@@ -166,11 +159,11 @@ public class TokenNftInfoQuery extends com.hedera.hashgraph.sdk.Query<List<Token
      * Sets the end of the index range for which information is requested.
      *
      * @deprecated with no replacement
-     * @param end The end index (exclusive) of the range of NFTs to query for. Value must be in the range (start; ownedNFTs]
+     * @param end The end index (exclusive) of the range of NFTs to query for. Must be non-negative and in the range (start; ownedNFTs]
      * @return {@code this}
      */
     @Deprecated
-    public TokenNftInfoQuery setEnd(@Nonnegative long end) {
+    public TokenNftInfoQuery setEnd(long end) {
         this.end = end;
         return this;
     }

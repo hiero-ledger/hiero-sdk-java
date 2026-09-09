@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The fees for a specific transaction or query based on the fee data.
@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
 public class TransactionFeeSchedule implements Cloneable {
     private RequestType requestType;
 
-    @Nullable
-    private FeeData feeData;
+    private @Nullable FeeData feeData;
 
     private List<FeeData> fees;
 
@@ -89,8 +88,7 @@ public class TransactionFeeSchedule implements Cloneable {
      * @return the feeData
      */
     @Deprecated
-    @Nullable
-    public FeeData getFeeData() {
+    public @Nullable FeeData getFeeData() {
         return feeData;
     }
 

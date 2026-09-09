@@ -6,7 +6,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.time.Instant;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  *
@@ -42,8 +42,7 @@ public class TokenNftInfo {
     /**
      * If an allowance is granted for the NFT, its corresponding spender account
      */
-    @Nullable
-    public final AccountId spenderId;
+    public final @Nullable AccountId spenderId;
 
     /**
      * Constructor.

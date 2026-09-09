@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated This query is no longer supported.
@@ -18,8 +18,7 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public final class LiveHashQuery extends Query<LiveHash, LiveHashQuery> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private byte[] hash = {};
 
@@ -33,8 +32,7 @@ public final class LiveHashQuery extends Query<LiveHash, LiveHashQuery> {
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

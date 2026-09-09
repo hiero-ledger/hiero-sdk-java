@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class.
@@ -67,8 +67,7 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
      */
     protected long badGrpcStatusCount;
 
-    @Nullable
-    protected ManagedChannel channel = null;
+    protected @Nullable ManagedChannel channel = null;
 
     /**
      * Constructor.
@@ -107,7 +106,7 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
      *
      * @return                          the authority address
      */
-    protected String getAuthority() {
+    protected @Nullable String getAuthority() {
         return "127.0.0.1";
     }
 

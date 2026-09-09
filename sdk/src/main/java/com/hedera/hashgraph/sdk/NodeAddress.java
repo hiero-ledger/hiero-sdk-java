@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The metadata for a Node – including IP Address, and the crypto account associated with the Node.
@@ -94,8 +94,7 @@ public class NodeAddress implements Cloneable {
      *
      * @return                          the public key
      */
-    @Nullable
-    public String getPublicKey() {
+    public @Nullable String getPublicKey() {
         return publicKey;
     }
 
@@ -115,8 +114,7 @@ public class NodeAddress implements Cloneable {
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -156,8 +154,7 @@ public class NodeAddress implements Cloneable {
      *
      * @return                          the certificate hash
      */
-    @Nullable
-    public ByteString getCertHash() {
+    public @Nullable ByteString getCertHash() {
         return certHash;
     }
 
@@ -167,8 +164,7 @@ public class NodeAddress implements Cloneable {
      * @param certHash                  the certificate hash
      * @return {@code this}
      */
-    @Nullable
-    public NodeAddress setCertHash(ByteString certHash) {
+    public @Nullable NodeAddress setCertHash(ByteString certHash) {
         this.certHash = certHash;
         return this;
     }
@@ -206,8 +202,7 @@ public class NodeAddress implements Cloneable {
      *
      * @return                          the description
      */
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 

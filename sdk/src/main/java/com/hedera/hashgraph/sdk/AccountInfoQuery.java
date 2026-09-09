@@ -9,7 +9,7 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get all the information about an account, including the balance.
@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
  */
 public final class AccountInfoQuery extends Query<AccountInfo, AccountInfoQuery> {
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     /**
      * Constructor.
@@ -30,8 +29,7 @@ public final class AccountInfoQuery extends Query<AccountInfo, AccountInfoQuery>
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

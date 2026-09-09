@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The response containing the estimated transaction fees.
@@ -19,8 +19,7 @@ public final class FeeEstimateResponse {
      * The network fee component which covers the cost of gossip, consensus,
      * signature verifications, fee payment, and storage.
      */
-    @Nullable
-    private final NetworkFee network;
+    private final @Nullable NetworkFee network;
 
     /**
      * The node fee component which is to be paid to the node that submitted the
@@ -28,15 +27,13 @@ public final class FeeEstimateResponse {
      * work it performed to pre-check the transaction before submitting it, and
      * incentivizes the node to accept new transactions from users.
      */
-    @Nullable
-    private final FeeEstimate node;
+    private final @Nullable FeeEstimate node;
 
     /**
      * The service fee component which covers execution costs, state saved in the
      * Merkle tree, and additional costs to the blockchain storage.
      */
-    @Nullable
-    private final FeeEstimate service;
+    private final @Nullable FeeEstimate service;
 
     /**
      * The high-volume throttle multiplier returned by the mirror node.
@@ -113,8 +110,7 @@ public final class FeeEstimateResponse {
      * @param root the JSON object
      * @return the parsed NetworkFee or null
      */
-    @Nullable
-    private static NetworkFee parseNetworkFeeFromJson(JsonObject root) {
+    private static @Nullable NetworkFee parseNetworkFeeFromJson(JsonObject root) {
         if (root.has("network") && root.get("network").isJsonObject()) {
             return NetworkFee.fromJson(root.getAsJsonObject("network"));
         }
@@ -128,8 +124,7 @@ public final class FeeEstimateResponse {
      * @param fieldName the field name to parse ("node" or "service")
      * @return the parsed FeeEstimate or null
      */
-    @Nullable
-    private static FeeEstimate parseFeeEstimateFromJson(JsonObject root, String fieldName) {
+    private static @Nullable FeeEstimate parseFeeEstimateFromJson(JsonObject root, String fieldName) {
         if (root.has(fieldName) && root.get(fieldName).isJsonObject()) {
             return FeeEstimate.fromJson(root.getAsJsonObject(fieldName));
         }
@@ -163,8 +158,7 @@ public final class FeeEstimateResponse {
      *
      * @return the network fee component, or null if not set
      */
-    @Nullable
-    public NetworkFee getNetwork() {
+    public @Nullable NetworkFee getNetwork() {
         return network;
     }
 
@@ -173,8 +167,7 @@ public final class FeeEstimateResponse {
      *
      * @return the node fee estimate, or null if not set
      */
-    @Nullable
-    public FeeEstimate getNode() {
+    public @Nullable FeeEstimate getNode() {
         return node;
     }
 
@@ -192,8 +185,7 @@ public final class FeeEstimateResponse {
      *
      * @return the service fee estimate, or null if not set
      */
-    @Nullable
-    public FeeEstimate getService() {
+    public @Nullable FeeEstimate getService() {
         return service;
     }
 

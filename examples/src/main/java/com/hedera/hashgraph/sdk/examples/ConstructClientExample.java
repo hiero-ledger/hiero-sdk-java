@@ -8,7 +8,7 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * How to construct and configure a client in different ways.
@@ -41,8 +41,7 @@ class ConstructClientExample {
     /**
      * Path to .json config file. See resources/client-config.json
      */
-    @Nullable
-    private static final String CONFIG_FILE = Dotenv.load().get("CONFIG_FILE");
+    private static final @Nullable String CONFIG_FILE = Dotenv.load().get("CONFIG_FILE");
 
     private static final String HEDERA_NETWORK = "testnet";
 

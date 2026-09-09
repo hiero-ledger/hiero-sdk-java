@@ -10,7 +10,7 @@ import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get the receipt of a transaction, given its transaction ID.
@@ -22,8 +22,7 @@ import javax.annotation.Nullable;
  */
 public final class TransactionReceiptQuery extends Query<TransactionReceipt, TransactionReceiptQuery> {
 
-    @Nullable
-    private TransactionId transactionId = null;
+    private @Nullable TransactionId transactionId = null;
 
     private boolean includeChildren = false;
     private boolean includeDuplicates = false;
@@ -39,8 +38,7 @@ public final class TransactionReceiptQuery extends Query<TransactionReceipt, Tra
      * @return                          the transaction id
      */
     @Override
-    @Nullable
-    public TransactionId getTransactionIdInternal() {
+    public @Nullable TransactionId getTransactionIdInternal() {
         return transactionId;
     }
 

@@ -9,7 +9,7 @@ import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get information about a smart contract instance.
@@ -18,8 +18,7 @@ import javax.annotation.Nullable;
  * and the time when it will expire.
  */
 public final class ContractInfoQuery extends Query<ContractInfo, ContractInfoQuery> {
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     /**
      * Constructor.
@@ -31,8 +30,7 @@ public final class ContractInfoQuery extends Query<ContractInfo, ContractInfoQue
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

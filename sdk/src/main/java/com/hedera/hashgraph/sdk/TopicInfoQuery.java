@@ -8,7 +8,7 @@ import com.hedera.hashgraph.sdk.proto.Response;
 import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Retrieve the latest state of a topic.
@@ -29,8 +29,7 @@ public final class TopicInfoQuery extends Query<TopicInfo, TopicInfoQuery> {
      *
      * @return                          the topic id
      */
-    @Nullable
-    public TopicId getTopicId() {
+    public @Nullable TopicId getTopicId() {
         return topicId;
     }
 

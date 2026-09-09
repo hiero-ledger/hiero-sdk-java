@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 
 /**
  * Class representing single registered node in the network state.
@@ -20,9 +19,8 @@ import javax.annotation.Nonnegative;
  */
 public final class RegisteredNode {
     /**
-     * A registered node identifier.
+     * A registered node identifier. Always non-negative.
      */
-    @Nonnegative
     public final long registeredNodeId;
 
     /**

@@ -13,8 +13,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Start a new smart contract instance. After the instance is created, the ContractID for it is in the receipt.
@@ -63,56 +63,43 @@ public class ContractCreateFlow {
 
     private String bytecode = "";
 
-    @Nullable
-    private Integer maxChunks = null;
+    private @Nullable Integer maxChunks = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
     private long gas = 0;
     private Hbar initialBalance = Hbar.ZERO;
 
-    @Nullable
-    private AccountId proxyAccountId = null;
+    private @Nullable AccountId proxyAccountId = null;
 
     private int maxAutomaticTokenAssociations = 0;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
     private byte[] constructorParameters = {};
 
-    @Nullable
-    private String contractMemo = null;
+    private @Nullable String contractMemo = null;
 
-    @Nullable
-    private List<AccountId> nodeAccountIds = null;
+    private @Nullable List<AccountId> nodeAccountIds = null;
 
     private String createBytecode = "";
     private String appendBytecode = "";
 
-    @Nullable
-    private AccountId stakedAccountId = null;
+    private @Nullable AccountId stakedAccountId = null;
 
-    @Nullable
-    private Long stakedNodeId = null;
+    private @Nullable Long stakedNodeId = null;
 
     private boolean declineStakingReward = false;
 
-    @Nullable
-    private Client freezeWithClient = null;
+    private @Nullable Client freezeWithClient = null;
 
-    @Nullable
-    private PrivateKey signPrivateKey = null;
+    private @Nullable PrivateKey signPrivateKey = null;
 
-    @Nullable
-    private PublicKey signPublicKey = null;
+    private @Nullable PublicKey signPublicKey = null;
 
-    @Nullable
-    private UnaryOperator<byte[]> transactionSigner = null;
+    private UnaryOperator<byte @Nullable []> transactionSigner = null;
 
     /**
      * Constructor
@@ -168,8 +155,7 @@ public class ContractCreateFlow {
      *
      * @return the maxChunks
      */
-    @Nullable
-    public Integer getMaxChunks() {
+    public @Nullable Integer getMaxChunks() {
         return maxChunks;
     }
 
@@ -189,8 +175,7 @@ public class ContractCreateFlow {
      *
      * @return the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -258,9 +243,8 @@ public class ContractCreateFlow {
      * <p>
      * Extract the proxy account id.
      */
-    @Nullable
     @Deprecated
-    public AccountId getProxyAccountId() {
+    public @Nullable AccountId getProxyAccountId() {
         return proxyAccountId;
     }
 
@@ -311,8 +295,7 @@ public class ContractCreateFlow {
      *
      * @return the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -333,8 +316,7 @@ public class ContractCreateFlow {
      *
      * @return the auto-renewal account id
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 
@@ -410,8 +392,7 @@ public class ContractCreateFlow {
      *
      * @return ID of the account to which this contract will stake.
      */
-    @Nullable
-    public AccountId getStakedAccountId() {
+    public @Nullable AccountId getStakedAccountId() {
         return stakedAccountId;
     }
 
@@ -432,8 +413,7 @@ public class ContractCreateFlow {
      *
      * @return ID of the node this contract will be staked to.
      */
-    @Nullable
-    public Long getStakedNodeId() {
+    public @Nullable Long getStakedNodeId() {
         return stakedNodeId;
     }
 
@@ -475,8 +455,7 @@ public class ContractCreateFlow {
      *
      * @return the list of node account id's
      */
-    @Nullable
-    public List<AccountId> getNodeAccountIds() {
+    public @Nullable List<AccountId> getNodeAccountIds() {
         return nodeAccountIds != null ? Collections.unmodifiableList(nodeAccountIds) : null;
     }
 

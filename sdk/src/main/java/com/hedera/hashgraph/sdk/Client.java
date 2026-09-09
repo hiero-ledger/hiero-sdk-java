@@ -38,7 +38,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Managed client for use on the Hedera Hashgraph network.
@@ -72,8 +72,7 @@ public final class Client implements AutoCloseable {
     Network network;
     MirrorNetwork mirrorNetwork;
 
-    @Nullable
-    private Operator operator;
+    private @Nullable Operator operator;
 
     private Duration requestTimeout = DEFAULT_REQUEST_TIMEOUT;
     private Duration closeTimeout = DEFAULT_CLOSE_TIMEOUT;
@@ -87,11 +86,9 @@ public final class Client implements AutoCloseable {
     private final long shard;
     private final long realm;
     // If networkUpdatePeriod is null, any network updates in progress will not complete
-    @Nullable
-    private Duration networkUpdatePeriod;
+    private @Nullable Duration networkUpdatePeriod;
 
-    @Nullable
-    private CompletableFuture<Void> networkUpdateFuture;
+    private @Nullable CompletableFuture<Void> networkUpdateFuture;
 
     private Logger logger = new Logger(LogLevel.SILENT);
 
@@ -652,7 +649,7 @@ public final class Client implements AutoCloseable {
      * @throws TimeoutException        when the transaction times out
      * @throws PrecheckStatusException when the precheck fails
      */
-    public Void ping(AccountId nodeAccountId) throws PrecheckStatusException, TimeoutException {
+    public @Nullable Void ping(AccountId nodeAccountId) throws PrecheckStatusException, TimeoutException {
         return ping(nodeAccountId, getRequestTimeout());
     }
 
@@ -664,7 +661,8 @@ public final class Client implements AutoCloseable {
      * @throws TimeoutException        when the transaction times out
      * @throws PrecheckStatusException when the precheck fails
      */
-    public Void ping(AccountId nodeAccountId, Duration timeout) throws PrecheckStatusException, TimeoutException {
+    public @Nullable Void ping(AccountId nodeAccountId, Duration timeout)
+            throws PrecheckStatusException, TimeoutException {
         new AccountInfoQuery()
                 .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
@@ -758,7 +756,7 @@ public final class Client implements AutoCloseable {
      * @throws TimeoutException        when the transaction times out
      * @throws PrecheckStatusException when the precheck fails
      */
-    public synchronized Void pingAll() throws PrecheckStatusException, TimeoutException {
+    public synchronized @Nullable Void pingAll() throws PrecheckStatusException, TimeoutException {
         return pingAll(getRequestTimeout());
     }
 
@@ -770,7 +768,8 @@ public final class Client implements AutoCloseable {
      * @throws TimeoutException        when the transaction times out
      * @throws PrecheckStatusException when the precheck fails
      */
-    public synchronized Void pingAll(Duration timeoutPerPing) throws PrecheckStatusException, TimeoutException {
+    public synchronized @Nullable Void pingAll(Duration timeoutPerPing)
+            throws PrecheckStatusException, TimeoutException {
         for (var nodeAccountId : network.getNetwork().values()) {
             ping(nodeAccountId, timeoutPerPing);
         }
@@ -902,9 +901,8 @@ public final class Client implements AutoCloseable {
      * @return the network name
      * @deprecated use {@link #getLedgerId()} instead
      */
-    @Nullable
     @Deprecated
-    public synchronized NetworkName getNetworkName() {
+    public synchronized @Nullable NetworkName getNetworkName() {
         var ledgerId = network.getLedgerId();
         return ledgerId == null ? null : ledgerId.toNetworkName();
     }
@@ -928,8 +926,7 @@ public final class Client implements AutoCloseable {
      *
      * @return the ledger id
      */
-    @Nullable
-    public synchronized LedgerId getLedgerId() {
+    public synchronized @Nullable LedgerId getLedgerId() {
         return network.getLedgerId();
     }
 
@@ -1181,8 +1178,7 @@ public final class Client implements AutoCloseable {
      *
      * @return {AccountId}
      */
-    @Nullable
-    public synchronized AccountId getOperatorAccountId() {
+    public synchronized @Nullable AccountId getOperatorAccountId() {
         if (operator == null) {
             return null;
         }
@@ -1195,8 +1191,7 @@ public final class Client implements AutoCloseable {
      *
      * @return {PublicKey}
      */
-    @Nullable
-    public synchronized PublicKey getOperatorPublicKey() {
+    public synchronized @Nullable PublicKey getOperatorPublicKey() {
         if (operator == null) {
             return null;
         }
@@ -1209,8 +1204,7 @@ public final class Client implements AutoCloseable {
      *
      * @return the max transaction fee
      */
-    @Nullable
-    public synchronized Hbar getDefaultMaxTransactionFee() {
+    public synchronized @Nullable Hbar getDefaultMaxTransactionFee() {
         return defaultMaxTransactionFee;
     }
 
@@ -1406,8 +1400,7 @@ public final class Client implements AutoCloseable {
      *
      * @return the operator
      */
-    @Nullable
-    synchronized Operator getOperator() {
+    synchronized @Nullable Operator getOperator() {
         return this.operator;
     }
 
@@ -1416,8 +1409,7 @@ public final class Client implements AutoCloseable {
      *
      * @return the networkUpdatePeriod
      */
-    @Nullable
-    public synchronized Duration getNetworkUpdatePeriod() {
+    public synchronized @Nullable Duration getNetworkUpdatePeriod() {
         return this.networkUpdatePeriod;
     }
 
@@ -1571,30 +1563,22 @@ public final class Client implements AutoCloseable {
     }
 
     private static class Config {
-        @Nullable
-        private JsonElement network;
+        private @Nullable JsonElement network;
 
-        @Nullable
-        private JsonElement networkName;
+        private @Nullable JsonElement networkName;
 
-        @Nullable
-        private ConfigOperator operator;
+        private @Nullable ConfigOperator operator;
 
-        @Nullable
-        private JsonElement mirrorNetwork;
+        private @Nullable JsonElement mirrorNetwork;
 
-        @Nullable
-        private JsonElement shard;
+        private @Nullable JsonElement shard;
 
-        @Nullable
-        private JsonElement realm;
+        private @Nullable JsonElement realm;
 
         private static class ConfigOperator {
-            @Nullable
-            private String accountId;
+            private @Nullable String accountId;
 
-            @Nullable
-            private String privateKey;
+            private @Nullable String privateKey;
         }
 
         private static Config fromString(String json) {

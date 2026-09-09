@@ -3,7 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The extra fee charged for the transaction.
@@ -35,8 +35,7 @@ public final class FeeExtra {
     /**
      * The unique name of this extra fee as defined in the fee schedule.
      */
-    @Nullable
-    private final String name;
+    private final @Nullable String name;
 
     /**
      * The subtotal in tinycents for this extra fee.
@@ -124,8 +123,7 @@ public final class FeeExtra {
      *
      * @return the unique name of this extra fee, or null if not set
      */
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 

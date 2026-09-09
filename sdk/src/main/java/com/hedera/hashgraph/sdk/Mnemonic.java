@@ -23,11 +23,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * BIP-39 24-word mnemonic phrases compatible with the Android and iOS mobile wallets.
@@ -35,19 +35,16 @@ import org.bouncycastle.crypto.params.KeyParameter;
 public final class Mnemonic {
     // by storing our word list in a SoftReference, the GC is free to evict it at its discretion
     // but the implementation is meant to wait until free space is needed
-    @Nullable
-    private static SoftReference<List<String>> bip39WordList = null;
+    private static @Nullable SoftReference<List<String>> bip39WordList = null;
 
-    @Nullable
-    private static SoftReference<List<String>> legacyWordList = null;
+    private static @Nullable SoftReference<List<String>> legacyWordList = null;
 
     /**
      * The list of words in this mnemonic.
      */
     public final List<CharSequence> words;
 
-    @Nullable
-    private String asString;
+    private @Nullable String asString;
 
     @SuppressWarnings("StaticAssignmentInConstructor")
     private Mnemonic(List<? extends CharSequence> words) {

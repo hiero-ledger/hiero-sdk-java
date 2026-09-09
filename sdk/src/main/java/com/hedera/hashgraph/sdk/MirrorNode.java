@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import java.util.concurrent.ExecutorService;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An individual mirror node.
@@ -28,7 +29,7 @@ class MirrorNode extends BaseNode<MirrorNode, BaseNodeAddress> {
     }
 
     @Override
-    protected String getAuthority() {
+    protected @Nullable String getAuthority() {
         return null;
     }
 

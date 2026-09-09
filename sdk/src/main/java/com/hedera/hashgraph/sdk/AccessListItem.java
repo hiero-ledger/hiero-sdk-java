@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2930.md">EIP-2930</a> access list entry: an
@@ -110,7 +111,7 @@ public class AccessListItem {
      * @param item the RLP item for a single entry
      * @return the decoded item, or null if the entry is malformed
      */
-    static AccessListItem fromRlp(RLPItem item) {
+    static @Nullable AccessListItem fromRlp(RLPItem item) {
         if (item == null || !item.isList()) {
             return null;
         }

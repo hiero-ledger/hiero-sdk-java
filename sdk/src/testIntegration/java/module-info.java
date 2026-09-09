@@ -5,7 +5,7 @@ module com.hedera.hashgraph.sdk.test.integration {
     requires org.assertj.core;
     requires org.bouncycastle.provider;
     requires org.junit.jupiter.api;
-    requires static java.annotation;
+    requires static org.jspecify;
 
     opens com.hedera.hashgraph.sdk.test.integration;
 }

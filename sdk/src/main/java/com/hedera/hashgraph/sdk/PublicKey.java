@@ -4,12 +4,11 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.SignaturePair;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A public key on the Hedera™ network.
@@ -129,8 +128,7 @@ public abstract class PublicKey extends Key {
      * @param aliasBytes                the immutable byte string
      * @return                          the key
      */
-    @Nullable
-    static PublicKey fromAliasBytes(ByteString aliasBytes) {
+    static @Nullable PublicKey fromAliasBytes(ByteString aliasBytes) {
         if (!aliasBytes.isEmpty()) {
             try {
                 var key = Key.fromProtobufKey(com.hedera.hashgraph.sdk.proto.Key.parseFrom(aliasBytes));
@@ -240,11 +238,11 @@ public abstract class PublicKey extends Key {
     /**
      * Create a new account id.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
      * @return                          the new account id
      */
-    public AccountId toAccountId(@Nonnegative long shard, @Nonnegative long realm) {
+    public AccountId toAccountId(long shard, long realm) {
         return new AccountId(shard, realm, 0, null, this, null);
     }
 

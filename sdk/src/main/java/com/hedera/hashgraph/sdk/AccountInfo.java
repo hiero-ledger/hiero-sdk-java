@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Current information about an account, including the balance.
@@ -42,8 +42,7 @@ public final class AccountInfo {
      * network, but without earning payments. If the proxyAccountID account refuses to accept proxy staking , or if it
      * is not currently running a node, then it will behave as if proxyAccountID was null.
      */
-    @Nullable
-    public final AccountId proxyAccountId;
+    public final @Nullable AccountId proxyAccountId;
 
     /**
      * The total proxy staked to this account.
@@ -115,8 +114,7 @@ public final class AccountInfo {
     /**
      * The public key which aliases to this account.
      */
-    @Nullable
-    public final PublicKey aliasKey;
+    public final @Nullable PublicKey aliasKey;
 
     /**
      * The ledger ID the response was returned from; please see <a
@@ -151,14 +149,12 @@ public final class AccountInfo {
     /**
      * Staking metadata for this account.
      */
-    @Nullable
-    public final StakingInfo stakingInfo;
+    public final @Nullable StakingInfo stakingInfo;
 
     /**
      * Delegation address if a EIP-7702 code delegation is set for the account.
      */
-    @Nullable
-    public final EvmAddress delegationAddress;
+    public final @Nullable EvmAddress delegationAddress;
 
     /**
      * Constructor.
@@ -258,7 +254,7 @@ public final class AccountInfo {
             relationships.put(tokenId, TokenRelationship.fromProtobuf(relationship));
         }
 
-        @Nullable var aliasKey = PublicKey.fromAliasBytes(accountInfo.getAlias());
+        var aliasKey = PublicKey.fromAliasBytes(accountInfo.getAlias());
 
         @Nullable EvmAddress delegationAddress = null;
         if (accountInfo.getDelegationAddress() != null

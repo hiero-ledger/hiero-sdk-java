@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * <p>A transaction to delete a file on the Hedera network.
@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  */
 public final class FileDeleteTransaction extends Transaction<FileDeleteTransaction> {
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
     /**
      * Constructor.
@@ -61,8 +60,7 @@ public final class FileDeleteTransaction extends Transaction<FileDeleteTransacti
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 
