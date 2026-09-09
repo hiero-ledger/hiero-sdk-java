@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import javax.annotation.Nonnull;
 
 final class Snapshot {
     private static final ObjectMapper objectMapper = buildObjectMapper();
@@ -55,7 +54,6 @@ final class Snapshot {
     private static PrettyPrinter buildDefaultPrettyPrinter() {
         DefaultPrettyPrinter pp = new DefaultPrettyPrinter() {
             @Override
-            @Nonnull
             public DefaultPrettyPrinter createInstance() {
                 return this;
             }

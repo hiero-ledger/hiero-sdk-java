@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A common base for file and topic message transactions.

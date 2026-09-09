@@ -11,7 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Deleting a token marks a token as deleted, though it will remain in the
@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/delete-a-token">Hedera Documentation</a>
  */
 public class TokenDeleteTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenDeleteTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     /**
      * Constructor.
@@ -61,8 +60,7 @@ public class TokenDeleteTransaction extends com.hedera.hashgraph.sdk.Transaction
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 

@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for all queries that can be submitted to Hedera.
@@ -37,26 +37,20 @@ public abstract class Query<O, T extends Query<O, T>>
     /**
      * The transaction ID
      */
-    @Nullable
-    protected TransactionId paymentTransactionId = null;
+    protected @Nullable TransactionId paymentTransactionId = null;
 
     /**
      * List of payment transactions
      */
-    @Nullable
-    protected List<Transaction> paymentTransactions = null;
+    protected @Nullable List<Transaction> paymentTransactions = null;
 
-    @Nullable
-    private Client.Operator paymentOperator = null;
+    private Client.@Nullable Operator paymentOperator = null;
 
-    @Nullable
-    private Hbar queryPayment = null;
+    private @Nullable Hbar queryPayment = null;
 
-    @Nullable
-    private Hbar maxQueryPayment = null;
+    private @Nullable Hbar maxQueryPayment = null;
 
-    @Nullable
-    private Hbar chosenQueryPayment = null;
+    private @Nullable Hbar chosenQueryPayment = null;
 
     /**
      * Constructor.
@@ -410,8 +404,7 @@ public abstract class Query<O, T extends Query<O, T>>
      *
      * @return                          the transaction id
      */
-    @Nullable
-    public TransactionId getPaymentTransactionId() {
+    public @Nullable TransactionId getPaymentTransactionId() {
         return paymentTransactionId;
     }
 
@@ -421,8 +414,7 @@ public abstract class Query<O, T extends Query<O, T>>
      * @param paymentTransactionId      the transaction id
      * @return {@code this}
      */
-    @Nullable
-    public T setPaymentTransactionId(TransactionId paymentTransactionId) {
+    public @Nullable T setPaymentTransactionId(TransactionId paymentTransactionId) {
         this.paymentTransactionId = paymentTransactionId;
 
         // noinspection unchecked

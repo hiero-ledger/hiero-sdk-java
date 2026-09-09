@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 abstract class RegisteredServiceEndpointBase<T extends RegisteredServiceEndpointBase<T>>
         extends RegisteredServiceEndpoint {
@@ -11,7 +11,7 @@ abstract class RegisteredServiceEndpointBase<T extends RegisteredServiceEndpoint
      * @param ipAddress the IPv4 or IPv6 address
      * @return this endpoint
      */
-    public T setIpAddress(@Nullable byte[] ipAddress) {
+    public T setIpAddress(byte @Nullable [] ipAddress) {
         this.ipAddress = ipAddress;
         // noinspection unchecked
         return (T) this;

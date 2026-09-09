@@ -10,7 +10,7 @@ import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get the record for a transaction.
@@ -23,8 +23,7 @@ import javax.annotation.Nullable;
  * in the record, then the results field will be set to nothing.
  */
 public final class TransactionRecordQuery extends Query<TransactionRecord, TransactionRecordQuery> {
-    @Nullable
-    private TransactionId transactionId = null;
+    private @Nullable TransactionId transactionId = null;
 
     private boolean includeChildren = false;
     private boolean includeDuplicates = false;
@@ -39,9 +38,8 @@ public final class TransactionRecordQuery extends Query<TransactionRecord, Trans
      *
      * @return                          the transaction id
      */
-    @Nullable
     @Override
-    public TransactionId getTransactionIdInternal() {
+    public @Nullable TransactionId getTransactionIdInternal() {
         return transactionId;
     }
 

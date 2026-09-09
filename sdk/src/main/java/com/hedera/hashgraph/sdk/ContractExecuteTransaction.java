@@ -11,7 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Call a function of the given smart contract instance, giving it parameters as its inputs.
@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  */
 public final class ContractExecuteTransaction extends Transaction<ContractExecuteTransaction> {
 
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     private long gas = 0;
     private Hbar payableAmount = new Hbar(0);
@@ -65,8 +64,7 @@ public final class ContractExecuteTransaction extends Transaction<ContractExecut
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

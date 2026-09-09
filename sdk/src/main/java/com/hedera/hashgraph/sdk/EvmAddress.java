@@ -3,8 +3,8 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID for a cryptocurrency account on Hedera.
@@ -35,8 +35,7 @@ public final class EvmAddress extends Key {
         throw new IllegalArgumentException("Invalid EvmAddress: " + evmAddress);
     }
 
-    @Nullable
-    static EvmAddress fromAliasBytes(ByteString aliasBytes) {
+    static @Nullable EvmAddress fromAliasBytes(ByteString aliasBytes) {
         if (!aliasBytes.isEmpty() && aliasBytes.size() == 20) {
             return new EvmAddress(aliasBytes.toByteArray());
         }

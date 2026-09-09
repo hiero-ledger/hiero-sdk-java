@@ -8,7 +8,7 @@ import com.hedera.hashgraph.sdk.proto.Response;
 import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get the balance of a Hedera™ crypto-currency account. This returns only the balance, so it is a
@@ -17,11 +17,9 @@ import javax.annotation.Nullable;
  * <p>This query is free.
  */
 public final class AccountBalanceQuery extends Query<AccountBalance, AccountBalanceQuery> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     /**
      * Constructor.
@@ -33,8 +31,7 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
      *
      * @return {@code accountId}
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -57,8 +54,7 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

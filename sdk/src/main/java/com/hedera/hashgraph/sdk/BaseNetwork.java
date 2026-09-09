@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Abstracts away most of the similar functionality between {@link Network} and {@link MirrorNetwork}
@@ -93,8 +93,7 @@ abstract class BaseNetwork<
     /**
      * The name of the network. This corresponds to ledger ID in entity ID checksum calculations
      */
-    @Nullable
-    private LedgerId ledgerId;
+    private @Nullable LedgerId ledgerId;
 
     @VisibleForTesting
     boolean hasShutDownNow = false;
@@ -109,8 +108,7 @@ abstract class BaseNetwork<
      *
      * @return                          the ledger id
      */
-    @Nullable
-    synchronized LedgerId getLedgerId() {
+    synchronized @Nullable LedgerId getLedgerId() {
         return ledgerId;
     }
 
@@ -538,8 +536,7 @@ abstract class BaseNetwork<
     }
 
     // returns null if successful, or Throwable if error occurred
-    @Nullable
-    synchronized Throwable awaitClose(Instant deadline, @Nullable Throwable previousError) {
+    synchronized @Nullable Throwable awaitClose(Instant deadline, @Nullable Throwable previousError) {
         try {
             if (previousError != null) {
                 throw previousError;

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Modify a smart contract instance to have the given parameter values.
@@ -44,43 +44,31 @@ import javax.annotation.Nullable;
  * without an admin key, then such a key can never be added, and its bytecode will be immutable.
  */
 public final class ContractUpdateTransaction extends Transaction<ContractUpdateTransaction> {
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
-    @Nullable
-    private AccountId proxyAccountId = null;
+    private @Nullable AccountId proxyAccountId = null;
 
-    @Nullable
-    private FileId bytecodeFileId = null;
+    private @Nullable FileId bytecodeFileId = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Integer maxAutomaticTokenAssociations = null;
+    private @Nullable Integer maxAutomaticTokenAssociations = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
-    @Nullable
-    private String contractMemo = null;
+    private @Nullable String contractMemo = null;
 
-    @Nullable
-    private AccountId stakedAccountId = null;
+    private @Nullable AccountId stakedAccountId = null;
 
-    @Nullable
-    private Long stakedNodeId = null;
+    private @Nullable Long stakedNodeId = null;
 
-    @Nullable
-    private Boolean declineStakingReward = null;
+    private @Nullable Boolean declineStakingReward = null;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
     private List<Long> hookIdsToDelete = new ArrayList<>();
 
@@ -118,8 +106,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 
@@ -141,8 +128,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the contract expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -180,8 +166,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the administrator key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -212,8 +197,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the proxy account id
      */
-    @Nullable
-    public AccountId getProxyAccountId() {
+    public @Nullable AccountId getProxyAccountId() {
         return proxyAccountId;
     }
 
@@ -242,8 +226,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Integer getMaxAutomaticTokenAssociations() {
+    public @Nullable Integer getMaxAutomaticTokenAssociations() {
         return maxAutomaticTokenAssociations;
     }
 
@@ -270,8 +253,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the duration for auto-renew
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -293,9 +275,8 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      * @deprecated with no replacement
      * @return the bytecodeFileId
      */
-    @Nullable
     @Deprecated
-    public FileId getBytecodeFileId() {
+    public @Nullable FileId getBytecodeFileId() {
         return bytecodeFileId;
     }
 
@@ -323,8 +304,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the contents of the memo
      */
-    @Nullable
-    public String getContractMemo() {
+    public @Nullable String getContractMemo() {
         return contractMemo;
     }
 
@@ -357,8 +337,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return ID of the account to which this contract will stake.
      */
-    @Nullable
-    public AccountId getStakedAccountId() {
+    public @Nullable AccountId getStakedAccountId() {
         return stakedAccountId;
     }
 
@@ -399,8 +378,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return ID of the node this contract will be staked to.
      */
-    @Nullable
-    public Long getStakedNodeId() {
+    public @Nullable Long getStakedNodeId() {
         return stakedNodeId;
     }
 
@@ -448,8 +426,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return If true, the contract declines receiving a staking reward. The default value is false.
      */
-    @Nullable
-    public Boolean getDeclineStakingReward() {
+    public @Nullable Boolean getDeclineStakingReward() {
         return declineStakingReward;
     }
 
@@ -488,8 +465,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
      *
      * @return                          the auto renew accountId
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 

@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import io.grpc.ChannelCredentials;
 import io.grpc.TlsChannelCredentials;
 import java.util.concurrent.ExecutorService;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class.
@@ -14,8 +14,7 @@ class Node extends BaseNode<Node, AccountId> {
 
     // This kind of shadows the address field inherited from BaseNode.
     // This is only needed for the cert hash
-    @Nullable
-    private NodeAddress addressBookEntry;
+    private @Nullable NodeAddress addressBookEntry;
 
     private boolean verifyCertificates;
 

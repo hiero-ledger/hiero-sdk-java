@@ -7,9 +7,38 @@ plugins {
 
 description = "Hiero SDK for Java"
 
+// grpc-api / grpc-protobuf POMs still list jsr305; override the synthetic module descriptors so
+// we do not need JSR-305 on the module path. Paired with the `modules { replacedBy(...) }` rule
+// below (#2889).
+extraJavaModuleInfo {
+    module("io.grpc:grpc-api", "io.grpc") {
+        requires("com.google.common")
+        requiresTransitive("com.google.errorprone.annotations")
+        requires("java.logging")
+        exports("io.grpc")
+        uses("io.grpc.LoadBalancerProvider")
+        uses("io.grpc.ManagedChannelProvider")
+        uses("io.grpc.NameResolverProvider")
+        uses("io.grpc.ServerProvider")
+    }
+    module("io.grpc:grpc-protobuf", "io.grpc.protobuf") {
+        requires("com.google.common")
+        requires("io.grpc.protobuf.lite")
+        requiresTransitive("io.grpc")
+        requiresTransitive("com.google.protobuf")
+        requiresTransitive("com.google.api.grpc.common")
+        exportAllPackages()
+    }
+}
+
 // Define dependency constraints for gRPC implementations so that clients automatically get the
 // correct version
 dependencies {
+    modules {
+        module("com.google.code.findbugs:jsr305") {
+            replacedBy("org.jspecify:jspecify", "JSR-305 is superseded by JSpecify (#2889)")
+        }
+    }
     publishDependencyConstraint("io.grpc:grpc-netty")
     publishDependencyConstraint("io.grpc:grpc-netty-shaded")
     publishDependencyConstraint("io.grpc:grpc-okhttp")

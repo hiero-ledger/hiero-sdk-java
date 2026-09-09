@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.GrantedTokenAllowance;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An approved allowance of token transfers for a spender.
@@ -16,18 +16,15 @@ public class TokenAllowance {
     /**
      * The token that the allowance pertains to
      */
-    @Nullable
-    public final TokenId tokenId;
+    public final @Nullable TokenId tokenId;
     /**
      * The account ID of the hbar owner (ie. the grantor of the allowance)
      */
-    @Nullable
-    public final AccountId ownerAccountId;
+    public final @Nullable AccountId ownerAccountId;
     /**
      * The account ID of the spender of the hbar allowance
      */
-    @Nullable
-    public final AccountId spenderAccountId;
+    public final @Nullable AccountId spenderAccountId;
     /**
      * The amount of the spender's token allowance
      */

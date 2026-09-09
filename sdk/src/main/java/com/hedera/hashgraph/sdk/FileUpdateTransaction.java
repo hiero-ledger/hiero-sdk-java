@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Update the metadata, and/or replace the content, of a file in the
@@ -46,21 +46,17 @@ import javax.annotation.Nullable;
  */
 public final class FileUpdateTransaction extends Transaction<FileUpdateTransaction> {
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
-    @Nullable
-    private KeyList keys = null;
+    private @Nullable KeyList keys = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
     private byte[] contents = {};
 
-    @Nullable
-    private String fileMemo = null;
+    private @Nullable String fileMemo = null;
 
     /**
      * Constructor.
@@ -96,8 +92,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 
@@ -119,8 +114,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
      *
      * @return                         the list of keys
      */
-    @Nullable
-    public Collection<Key> getKeys() {
+    public @Nullable Collection<Key> getKeys() {
         return keys != null ? Collections.unmodifiableCollection(keys) : null;
     }
 
@@ -149,8 +143,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -253,8 +246,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
      *
      * @return                          the file's memo up to 100 bytes
      */
-    @Nullable
-    public String getFileMemo() {
+    public @Nullable String getFileMemo() {
         return fileMemo;
     }
 

@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -249,8 +249,8 @@ class ExecutableTest {
     void successfulExecute() throws PrecheckStatusException, TimeoutException {
         var now = java.time.Instant.now();
         var tx = new DummyTransaction() {
-            @Nullable
             @Override
+            @Nullable
             TransactionResponse mapResponse(
                     com.hedera.hashgraph.sdk.proto.TransactionResponse response,
                     AccountId nodeId,
@@ -291,8 +291,8 @@ class ExecutableTest {
 
         var now = java.time.Instant.now();
         var tx = new DummyTransaction() {
-            @Nullable
             @Override
+            @Nullable
             TransactionResponse mapResponse(
                     com.hedera.hashgraph.sdk.proto.TransactionResponse response,
                     AccountId nodeId,
@@ -345,8 +345,8 @@ class ExecutableTest {
 
         var now = java.time.Instant.now();
         var tx = new DummyTransaction() {
-            @Nullable
             @Override
+            @Nullable
             TransactionResponse mapResponse(
                     com.hedera.hashgraph.sdk.proto.TransactionResponse response,
                     AccountId nodeId,
@@ -600,20 +600,19 @@ class ExecutableTest {
         @Override
         void onExecute(Client client) {}
 
-        @Nullable
         @Override
+        @Nullable
         CompletableFuture<Void> onExecuteAsync(Client client) {
             return null;
         }
 
-        @Nullable
         @Override
-        com.hedera.hashgraph.sdk.proto.Transaction makeRequest() {
+        com.hedera.hashgraph.sdk.proto.@Nullable Transaction makeRequest() {
             return null;
         }
 
-        @Nullable
         @Override
+        @Nullable
         TransactionResponse mapResponse(
                 com.hedera.hashgraph.sdk.proto.TransactionResponse response,
                 AccountId nodeId,
@@ -626,15 +625,15 @@ class ExecutableTest {
             return Status.OK;
         }
 
-        @Nullable
         @Override
+        @Nullable
         MethodDescriptor<com.hedera.hashgraph.sdk.proto.Transaction, com.hedera.hashgraph.sdk.proto.TransactionResponse>
                 getMethodDescriptor() {
             return null;
         }
 
-        @Nullable
         @Override
+        @Nullable
         TransactionId getTransactionIdInternal() {
             return null;
         }

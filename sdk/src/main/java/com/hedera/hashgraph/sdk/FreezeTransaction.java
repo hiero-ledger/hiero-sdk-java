@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction body for all five freeze transactions.
@@ -51,11 +51,9 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
     private int endHour = 0;
     private int endMinute = 0;
 
-    @Nullable
-    private Instant startTime = null;
+    private @Nullable Instant startTime = null;
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
     private byte[] fileHash = {};
     private FreezeType freezeType = FreezeType.UNKNOWN_FREEZE_TYPE;
@@ -173,8 +171,7 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
      * @return the fileId
      */
     @Deprecated
-    @Nullable
-    public FileId getUpdateFileId() {
+    public @Nullable FileId getUpdateFileId() {
         return fileId;
     }
 
@@ -212,8 +209,7 @@ public final class FreezeTransaction extends Transaction<FreezeTransaction> {
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 

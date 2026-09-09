@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get the contents of a file. The content field is empty (no bytes) if the
@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  */
 public final class FileContentsQuery extends Query<ByteString, FileContentsQuery> {
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
     /**
      * Constructor.
@@ -37,8 +36,7 @@ public final class FileContentsQuery extends Query<ByteString, FileContentsQuery
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 

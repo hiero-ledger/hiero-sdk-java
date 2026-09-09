@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Support Pectra EVM Type 4 Transaction Encoding (EIP-7702) (#2774)
 - feat: HIP-1340 (#2569)
 
+### Changed
+
+- chore: Replace JSR-305 (`com.google.code.findbugs:jsr305`) with JSpecify (`org.jspecify:jspecify`) for nullability annotations (#2889).
+  Package-level `@ParametersAreNonnullByDefault` is now `@NullMarked`. Annotations are TYPE_USE (including array and nested-type placement).
+  `@Nonnegative` was dropped (JSpecify covers nullness only and has no equivalent); every constraint it expressed is now stated in Javadoc instead.
+  It was never enforced by the build, so this is a documentation change, not a behaviour change.
+  **Kotlin / Android:** unannotated types under `@NullMarked` are treated as non-null by Kotlin (strict JSpecify mode). Previously these were often platform types, code that relied on that may need null checks or explicit platform-type handling.
+  **Retention:** JSpecify `@Nullable` has CLASS retention (JSR-305 was RUNTIME); reflective readers of nullability annotations will no longer see them at runtime.
+
 ## 2.77.0
 
 ## Added

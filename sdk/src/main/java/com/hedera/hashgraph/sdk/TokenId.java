@@ -5,8 +5,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.TokenID;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Constructs a TokenId.
@@ -15,61 +14,57 @@ import javax.annotation.Nullable;
  */
 public class TokenId implements Comparable<TokenId> {
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
 
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
 
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * Constructor.
      *
-     * @param num                       the num part
+     * @param num                       the num part, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public TokenId(@Nonnegative long num) {
+    public TokenId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public TokenId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public TokenId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      * @param checksum                  the checksum
      */
     @SuppressWarnings("InconsistentOverloads")
-    TokenId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    TokenId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -124,8 +119,8 @@ public class TokenId implements Comparable<TokenId> {
      * Constructs a TokenID from shard, realm, and EVM address.
      * The EVM address must be a "long zero address" (first 12 bytes are zero).
      *
-     * @param shard      the shard number
-     * @param realm      the realm number
+     * @param shard      the shard number, must be non-negative
+     * @param realm      the realm number, must be non-negative
      * @param evmAddress the EVM address as a hex string
      * @return           the TokenID object
      * @throws IllegalArgumentException if the EVM address is not a valid long zero address
@@ -158,10 +153,10 @@ public class TokenId implements Comparable<TokenId> {
     /**
      * Create an nft id.
      *
-     * @param serial                    the serial number
+     * @param serial                    the serial number, must be non-negative
      * @return                          the new nft id
      */
-    public NftId nft(@Nonnegative long serial) {
+    public NftId nft(long serial) {
         return new NftId(this, serial);
     }
 
@@ -214,8 +209,7 @@ public class TokenId implements Comparable<TokenId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

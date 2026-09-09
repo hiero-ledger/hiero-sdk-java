@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The HBAR balance of an account as reported by the mirror node REST API.
@@ -39,8 +39,7 @@ public final class MirrorNodeAccountBalance {
      * @return the new balance, or {@code null} if the mirror node knows no such account
      * @throws IllegalStateException if the payload is not a well-formed balances response
      */
-    @Nullable
-    static MirrorNodeAccountBalance fromJson(JsonObject root) {
+    static @Nullable MirrorNodeAccountBalance fromJson(JsonObject root) {
         if (!root.has("balances") || root.get("balances").isJsonNull()) {
             throw new IllegalStateException("Mirror Node returned a malformed response: no `balances` array");
         }

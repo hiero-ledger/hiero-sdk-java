@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction to create a new node in the network address book.
@@ -42,8 +42,7 @@ import javax.annotation.Nullable;
  */
 public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private String description = "";
 
@@ -51,20 +50,15 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
 
     private List<Endpoint> serviceEndpoints = new ArrayList<>();
 
-    @Nullable
-    private byte[] gossipCaCertificate = null;
+    private byte @Nullable [] gossipCaCertificate = null;
 
-    @Nullable
-    private byte[] grpcCertificateHash = null;
+    private byte @Nullable [] grpcCertificateHash = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Boolean declineReward = null;
+    private @Nullable Boolean declineReward = null;
 
-    @Nullable
-    private Endpoint grpcWebProxyEndpoint = null;
+    private @Nullable Endpoint grpcWebProxyEndpoint = null;
 
     private List<Long> associatedRegisteredNodes = new ArrayList<>();
 
@@ -267,8 +261,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * Extract the certificate used to sign gossip events.
      * @return the DER encoding of the certificate presented.
      */
-    @Nullable
-    public byte[] getGossipCaCertificate() {
+    public byte @Nullable [] getGossipCaCertificate() {
         return gossipCaCertificate;
     }
 
@@ -283,7 +276,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * @param gossipCaCertificate the DER encoding of the certificate presented.
      * @return {@code this}
      */
-    public NodeCreateTransaction setGossipCaCertificate(@Nullable byte[] gossipCaCertificate) {
+    public NodeCreateTransaction setGossipCaCertificate(byte @Nullable [] gossipCaCertificate) {
         requireNotFrozen();
         if (gossipCaCertificate != null) {
             if (gossipCaCertificate.length == 0) {
@@ -298,8 +291,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * Extract the hash of the node gRPC TLS certificate.
      * @return SHA-384 hash of the node gRPC TLS certificate.
      */
-    @Nullable
-    public byte[] getGrpcCertificateHash() {
+    public byte @Nullable [] getGrpcCertificateHash() {
         return grpcCertificateHash;
     }
 
@@ -327,8 +319,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * Get an administrative key controlled by the node operator.
      * @return an administrative key controlled by the node operator.
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -355,8 +346,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      *
      * @return true if rewards are declined; false if accepted; null if unset.
      */
-    @Nullable
-    public Boolean getDeclineReward() {
+    public @Nullable Boolean getDeclineReward() {
         return declineReward;
     }
 
@@ -376,8 +366,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * Get a web proxy for gRPC from non-gRPC clients.
      *
      */
-    @Nullable
-    public Endpoint getGrpcWebProxyEndpoint() {
+    public @Nullable Endpoint getGrpcWebProxyEndpoint() {
         return grpcWebProxyEndpoint;
     }
 

@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Create an HTS token.
@@ -67,11 +66,9 @@ import javax.annotation.Nullable;
 public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> {
     private List<CustomFee> customFees = new ArrayList<>();
 
-    @Nullable
-    private AccountId treasuryAccountId = null;
+    private @Nullable AccountId treasuryAccountId = null;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
     private String tokenName = "";
 
@@ -81,39 +78,29 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
 
     private long initialSupply = 0;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Key kycKey = null;
+    private @Nullable Key kycKey = null;
 
-    @Nullable
-    private Key freezeKey = null;
+    private @Nullable Key freezeKey = null;
 
-    @Nullable
-    private Key wipeKey = null;
+    private @Nullable Key wipeKey = null;
 
-    @Nullable
-    private Key supplyKey = null;
+    private @Nullable Key supplyKey = null;
 
-    @Nullable
-    private Key feeScheduleKey = null;
+    private @Nullable Key feeScheduleKey = null;
 
-    @Nullable
-    private Key pauseKey = null;
+    private @Nullable Key pauseKey = null;
 
-    @Nullable
-    private Key metadataKey = null;
+    private @Nullable Key metadataKey = null;
 
     private boolean freezeDefault = false;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
     private String tokenMemo = "";
 
@@ -161,8 +148,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the token name
      */
-    @Nullable
-    public String getTokenName() {
+    public @Nullable String getTokenName() {
         return tokenName;
     }
 
@@ -227,10 +213,10 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      * <p>
      * This MUST be zero(`0`) for non-fungible/unique tokens.
      *
-     * @param decimals                  the number of decimals
+     * @param decimals                  the number of decimals, must be non-negative
      * @return {@code this}
      */
-    public TokenCreateTransaction setDecimals(@Nonnegative int decimals) {
+    public TokenCreateTransaction setDecimals(int decimals) {
         requireNotFrozen();
         this.decimals = decimals;
         return this;
@@ -254,10 +240,10 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      * token (i.e. <tt>10<sup>-decimals</sup></tt> whole tokens).<br/>
      * This MUST be zero(`0`) for a non-fungible/unique token.
      *
-     * @param initialSupply             the initial supply of tokens
+     * @param initialSupply             the initial supply of tokens, must be non-negative
      * @return {@code this}
      */
-    public TokenCreateTransaction setInitialSupply(@Nonnegative long initialSupply) {
+    public TokenCreateTransaction setInitialSupply(long initialSupply) {
         requireNotFrozen();
         this.initialSupply = initialSupply;
         return this;
@@ -268,8 +254,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the treasury account id
      */
-    @Nullable
-    public AccountId getTreasuryAccountId() {
+    public @Nullable AccountId getTreasuryAccountId() {
         return treasuryAccountId;
     }
 
@@ -299,8 +284,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -327,8 +311,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the know your customer key
      */
-    @Nullable
-    public Key getKycKey() {
+    public @Nullable Key getKycKey() {
         return kycKey;
     }
 
@@ -356,8 +339,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the freeze key
      */
-    @Nullable
-    public Key getFreezeKey() {
+    public @Nullable Key getFreezeKey() {
         return freezeKey;
     }
 
@@ -387,8 +369,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the wipe key
      */
-    @Nullable
-    public Key getWipeKey() {
+    public @Nullable Key getWipeKey() {
         return wipeKey;
     }
 
@@ -416,8 +397,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the supply key
      */
-    @Nullable
-    public Key getSupplyKey() {
+    public @Nullable Key getSupplyKey() {
         return supplyKey;
     }
 
@@ -446,8 +426,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the fee schedule key
      */
-    @Nullable
-    public Key getFeeScheduleKey() {
+    public @Nullable Key getFeeScheduleKey() {
         return feeScheduleKey;
     }
 
@@ -474,8 +453,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the pause key
      */
-    @Nullable
-    public Key getPauseKey() {
+    public @Nullable Key getPauseKey() {
         return pauseKey;
     }
 
@@ -504,8 +482,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the metadata key
      */
-    @Nullable
-    public Key getMetadataKey() {
+    public @Nullable Key getMetadataKey() {
         return metadataKey;
     }
 
@@ -566,8 +543,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -613,8 +589,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the auto renew account id
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 
@@ -651,8 +626,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -710,8 +684,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      *
      * @return                          the custom fees
      */
-    @Nullable
-    public List<CustomFee> getCustomFees() {
+    public @Nullable List<CustomFee> getCustomFees() {
         return CustomFee.deepCloneList(customFees);
     }
 
@@ -805,10 +778,10 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
      * If `supplyType` is "infinite", this MUST be `0`.<br/>
      * This field SHALL be immutable.
      *
-     * @param maxSupply                 the max supply of tokens
+     * @param maxSupply                 the max supply of tokens, must be non-negative
      * @return {@code this}
      */
-    public TokenCreateTransaction setMaxSupply(@Nonnegative long maxSupply) {
+    public TokenCreateTransaction setMaxSupply(long maxSupply) {
         requireNotFrozen();
         this.maxSupply = maxSupply;
         return this;

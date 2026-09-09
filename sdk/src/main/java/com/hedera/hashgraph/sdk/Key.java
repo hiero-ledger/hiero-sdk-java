@@ -6,6 +6,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A common base for the signing authority or key that entities in Hedera may have.
@@ -32,7 +33,7 @@ public abstract class Key {
      * @param key                       the protobuf key of unknown type
      * @return                          the differentiated key
      */
-    static Key fromProtobufKey(com.hedera.hashgraph.sdk.proto.Key key) {
+    static @Nullable Key fromProtobufKey(com.hedera.hashgraph.sdk.proto.Key key) {
         switch (key.getKeyCase()) {
             case ED25519 -> {
                 return PublicKeyED25519.fromBytesInternal(key.getEd25519().toByteArray());

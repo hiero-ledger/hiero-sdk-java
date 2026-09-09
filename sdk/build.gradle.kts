@@ -8,6 +8,23 @@ plugins {
 
 description = "Hedera™ Hashgraph SDK for Java"
 
+// grpc-api's POM still lists jsr305; ExtraJavaModuleInfo would otherwise synthesize
+// `requires static transitive java.annotation`. Override that module descriptor so we do not
+// need the unmaintained JSR-305 artifact on the module path. Paired with the
+// `modules { replacedBy(...) }` rule below (#2889).
+extraJavaModuleInfo {
+    module("io.grpc:grpc-api", "io.grpc") {
+        requires("com.google.common")
+        requiresTransitive("com.google.errorprone.annotations")
+        requires("java.logging")
+        exports("io.grpc")
+        uses("io.grpc.LoadBalancerProvider")
+        uses("io.grpc.ManagedChannelProvider")
+        uses("io.grpc.NameResolverProvider")
+        uses("io.grpc.ServerProvider")
+    }
+}
+
 javaModuleDependencies.moduleNameToGA.put(
     "com.google.protobuf",
     "com.google.protobuf:protobuf-javalite",
@@ -16,6 +33,11 @@ javaModuleDependencies.moduleNameToGA.put(
 // Define dependency constraints for gRPC implementations so that clients automatically get the
 // correct version
 dependencies {
+    modules {
+        module("com.google.code.findbugs:jsr305") {
+            replacedBy("org.jspecify:jspecify", "JSR-305 is superseded by JSpecify (#2889)")
+        }
+    }
     publishDependencyConstraint("io.grpc:grpc-netty")
     publishDependencyConstraint("io.grpc:grpc-netty-shaded")
     publishDependencyConstraint("io.grpc:grpc-okhttp")

@@ -9,8 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Execute an Ethereum transaction on Hedera
@@ -25,14 +25,11 @@ public class EthereumFlow {
      */
     static int MAX_ETHEREUM_DATA_SIZE = 128_000;
 
-    @Nullable
-    private EthereumTransactionData ethereumData;
+    private @Nullable EthereumTransactionData ethereumData;
 
-    @Nullable
-    private FileId callDataFileId;
+    private @Nullable FileId callDataFileId;
 
-    @Nullable
-    private Hbar maxGasAllowance;
+    private @Nullable Hbar maxGasAllowance;
 
     /**
      * Constructor
@@ -113,8 +110,7 @@ public class EthereumFlow {
      *
      * @return the data of the Ethereum transaction
      */
-    @Nullable
-    public EthereumTransactionData getEthereumData() {
+    public @Nullable EthereumTransactionData getEthereumData() {
         return ethereumData;
     }
 
@@ -136,8 +132,7 @@ public class EthereumFlow {
      *
      * @return the max gas allowance
      */
-    @Nullable
-    public Hbar getMaxGasAllowance() {
+    public @Nullable Hbar getMaxGasAllowance() {
         return maxGasAllowance;
     }
 

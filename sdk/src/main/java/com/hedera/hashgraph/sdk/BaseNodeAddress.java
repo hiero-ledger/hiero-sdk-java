@@ -3,7 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class.
@@ -16,11 +16,9 @@ class BaseNodeAddress {
     static final int PORT_NODE_TLS = 50212;
 
     // If address is `in-process:.*` this will contain the right side of the `:`
-    @Nullable
-    private final String name;
+    private final @Nullable String name;
 
-    @Nullable
-    private final String address;
+    private final @Nullable String address;
 
     private final int port;
     private final boolean secure;

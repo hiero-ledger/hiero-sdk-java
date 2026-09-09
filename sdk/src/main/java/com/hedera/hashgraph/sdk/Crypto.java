@@ -7,7 +7,6 @@ import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import javax.annotation.Nullable;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -27,6 +26,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.bouncycastle.math.ec.ECAlgorithms;
 import org.bouncycastle.math.ec.ECPoint;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class used internally by the sdk.
@@ -213,7 +213,7 @@ final class Crypto {
      * @param input                     the byte array
      * @return                          the hmac using sha 384
      */
-    static byte[] calcHmacSha384(KeyParameter cipherKey, @Nullable byte[] iv, byte[] input) {
+    static byte[] calcHmacSha384(KeyParameter cipherKey, byte @Nullable [] iv, byte[] input) {
         HMac hmacSha384 = new HMac(new SHA384Digest());
         byte[] output = new byte[hmacSha384.getMacSize()];
 
@@ -265,7 +265,8 @@ final class Crypto {
      * @param messageHash Hash of the data that was signed.
      * @return A ECKey containing only the public part, or {@code null} if recovery wasn't possible.
      */
-    static byte[] recoverPublicKeyECDSAFromSignature(int recId, BigInteger r, BigInteger s, byte[] messageHash) {
+    static byte @Nullable [] recoverPublicKeyECDSAFromSignature(
+            int recId, BigInteger r, BigInteger s, byte[] messageHash) {
         if (!(recId == 0 || recId == 1)) {
             throw new IllegalArgumentException("Recovery Id must be 0 or 1 for secp256k1.");
         }
@@ -304,7 +305,7 @@ final class Crypto {
         return q.getEncoded(true);
     }
 
-    private static ECPoint decompressKey(BigInteger xBN, boolean yBit) {
+    private static @Nullable ECPoint decompressKey(BigInteger xBN, boolean yBit) {
         var X_9_INTEGER_CONVERTER = new X9IntegerConverter();
         byte[] compEnc = X_9_INTEGER_CONVERTER.integerToBytes(
                 xBN, 1 + X_9_INTEGER_CONVERTER.getByteLength(ECDSA_SECP256K1_DOMAIN.getCurve()));

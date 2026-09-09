@@ -6,7 +6,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.CryptoAllowance;
 import com.hedera.hashgraph.sdk.proto.GrantedCryptoAllowance;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An approved allowance of hbar transfers for a spender.
@@ -18,20 +18,17 @@ public class HbarAllowance {
     /**
      * The account ID of the hbar owner (ie. the grantor of the allowance)
      */
-    @Nullable
-    public final AccountId ownerAccountId;
+    public final @Nullable AccountId ownerAccountId;
 
     /**
      * The account ID of the spender of the hbar allowance
      */
-    @Nullable
-    public final AccountId spenderAccountId;
+    public final @Nullable AccountId spenderAccountId;
 
     /**
      * The amount of the spender's allowance in tinybars
      */
-    @Nullable
-    public final Hbar amount;
+    public final @Nullable Hbar amount;
 
     /**
      * Constructor.

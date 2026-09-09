@@ -3,21 +3,18 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The total fees charged for a transaction. It contains three parts namely
  * node data, network data and service data.
  */
 public class FeeData implements Cloneable {
-    @Nullable
-    private FeeComponents nodeData = null;
+    private @Nullable FeeComponents nodeData = null;
 
-    @Nullable
-    private FeeComponents networkData = null;
+    private @Nullable FeeComponents networkData = null;
 
-    @Nullable
-    private FeeComponents serviceData = null;
+    private @Nullable FeeComponents serviceData = null;
 
     private FeeDataType type = FeeDataType.DEFAULT;
 

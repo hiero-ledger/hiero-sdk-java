@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Update an existing token.
@@ -45,53 +45,39 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
     /**
      * The token's id
      */
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
-    @Nullable
-    private AccountId treasuryAccountId = null;
+    private @Nullable AccountId treasuryAccountId = null;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
     private String tokenName = "";
 
     private String tokenSymbol = "";
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Key kycKey = null;
+    private @Nullable Key kycKey = null;
 
-    @Nullable
-    private Key freezeKey = null;
+    private @Nullable Key freezeKey = null;
 
-    @Nullable
-    private Key wipeKey = null;
+    private @Nullable Key wipeKey = null;
 
-    @Nullable
-    private Key supplyKey = null;
+    private @Nullable Key supplyKey = null;
 
-    @Nullable
-    private Key feeScheduleKey = null;
+    private @Nullable Key feeScheduleKey = null;
 
-    @Nullable
-    private Key pauseKey = null;
+    private @Nullable Key pauseKey = null;
 
-    @Nullable
-    private Key metadataKey = null;
+    private @Nullable Key metadataKey = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
-    @Nullable
-    private String tokenMemo = null;
+    private @Nullable String tokenMemo = null;
 
     private byte[] tokenMetadata = null;
 
@@ -131,8 +117,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -159,8 +144,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the token name
      */
-    @Nullable
-    public String getTokenName() {
+    public @Nullable String getTokenName() {
         return tokenName;
     }
 
@@ -211,8 +195,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the treasury account id
      */
-    @Nullable
-    public AccountId getTreasuryAccountId() {
+    public @Nullable AccountId getTreasuryAccountId() {
         return treasuryAccountId;
     }
 
@@ -248,8 +231,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -279,8 +261,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the kyc key
      */
-    @Nullable
-    public Key getKycKey() {
+    public @Nullable Key getKycKey() {
         return kycKey;
     }
 
@@ -311,8 +292,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the freeze key
      */
-    @Nullable
-    public Key getFreezeKey() {
+    public @Nullable Key getFreezeKey() {
         return freezeKey;
     }
 
@@ -345,8 +325,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the wipe key
      */
-    @Nullable
-    public Key getWipeKey() {
+    public @Nullable Key getWipeKey() {
         return wipeKey;
     }
 
@@ -377,8 +356,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the supply key
      */
-    @Nullable
-    public Key getSupplyKey() {
+    public @Nullable Key getSupplyKey() {
         return supplyKey;
     }
 
@@ -410,8 +388,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the fee schedule key
      */
-    @Nullable
-    public Key getFeeScheduleKey() {
+    public @Nullable Key getFeeScheduleKey() {
         return feeScheduleKey;
     }
 
@@ -441,8 +418,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the pause key
      */
-    @Nullable
-    public Key getPauseKey() {
+    public @Nullable Key getPauseKey() {
         return pauseKey;
     }
 
@@ -474,8 +450,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the metadata key
      */
-    @Nullable
-    public Key getMetadataKey() {
+    public @Nullable Key getMetadataKey() {
         return metadataKey;
     }
 
@@ -505,8 +480,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -547,8 +521,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the auto renew account id
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 
@@ -590,8 +563,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -621,8 +593,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return                          the token memo
      */
-    @Nullable
-    public String getTokenMemo() {
+    public @Nullable String getTokenMemo() {
         return tokenMemo;
     }
 
@@ -658,8 +629,7 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
      *
      * @return the metadata
      */
-    @Nullable
-    public byte[] getTokenMetadata() {
+    public byte @Nullable [] getTokenMetadata() {
         return tokenMetadata;
     }
 

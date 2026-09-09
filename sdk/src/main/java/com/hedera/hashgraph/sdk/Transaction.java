@@ -26,8 +26,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for all transactions that may be built and submitted to Hedera.
@@ -74,8 +74,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * The builder that gets re-used to build each outer transaction. freezeWith() will create the frozenBodyBuilder.
      * The presence of frozenBodyBuilder indicates that this transaction is frozen.
      */
-    @Nullable
-    protected TransactionBody.Builder frozenBodyBuilder = null;
+    protected TransactionBody.@Nullable Builder frozenBodyBuilder = null;
 
     /**
      * An SDK [Transaction] is composed of multiple, raw protobuf transactions. These should be functionally identical,
@@ -127,8 +126,7 @@ public abstract class Transaction<T extends Transaction<T>>
 
     private Duration transactionValidDuration;
 
-    @Nullable
-    private Hbar maxTransactionFee = null;
+    private @Nullable Hbar maxTransactionFee = null;
 
     private String memo = "";
 
@@ -805,8 +803,7 @@ public abstract class Transaction<T extends Transaction<T>>
      *
      * @return the transaction valid duration
      */
-    @Nullable
-    public final Duration getTransactionValidDuration() {
+    public final @Nullable Duration getTransactionValidDuration() {
         return transactionValidDuration;
     }
 
@@ -831,8 +828,7 @@ public abstract class Transaction<T extends Transaction<T>>
      *
      * @return the maximum transaction fee
      */
-    @Nullable
-    public final Hbar getMaxTransactionFee() {
+    public final @Nullable Hbar getMaxTransactionFee() {
         return maxTransactionFee;
     }
 
