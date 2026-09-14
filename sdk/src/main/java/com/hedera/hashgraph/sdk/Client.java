@@ -208,10 +208,10 @@ public final class Client implements AutoCloseable {
 
     /**
      * Set up the client from selected mirror network.
-     * Using default `0` values for realm and shard for retrieving addressBookFileId
+     * Using default {@code 0} values for shard and realm for retrieving addressBookFileId.
      *
-     * @param mirrorNetworkList
-     * @return
+     * @param mirrorNetworkList the mirror node addresses
+     * @return {@link com.hedera.hashgraph.sdk.Client}
      */
     public static Client forMirrorNetwork(List<String> mirrorNetworkList)
             throws InterruptedException, TimeoutException {
@@ -219,12 +219,12 @@ public final class Client implements AutoCloseable {
     }
 
     /**
-     * Set up the client from selected mirror network and given realm and shard
+     * Set up the client from selected mirror network and given shard and realm.
      *
-     * @param mirrorNetworkList
-     * @param realm
-     * @param shard
-     * @return
+     * @param mirrorNetworkList the mirror node addresses
+     * @param shard the shard used to retrieve the address book file ID
+     * @param realm the realm used to retrieve the address book file ID
+     * @return {@link com.hedera.hashgraph.sdk.Client}
      */
     public static Client forMirrorNetwork(List<String> mirrorNetworkList, long shard, long realm)
             throws InterruptedException, TimeoutException {
