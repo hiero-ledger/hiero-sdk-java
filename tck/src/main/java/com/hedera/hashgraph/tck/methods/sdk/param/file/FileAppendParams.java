@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * FileAppendParams for file append method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FileAppendParams extends JSONRPC2Param {
+public class FileAppendParams implements JSONRPC2Param {
     private Optional<String> fileId;
     private Optional<String> contents;
     private Optional<Long> maxChunks;
@@ -25,8 +23,7 @@ public class FileAppendParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public FileAppendParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FileAppendParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = Optional.ofNullable((String) jrpcParams.get("fileId"));
         var parsedContents = Optional.ofNullable((String) jrpcParams.get("contents"));
         var parsedMaxChunks = Optional.ofNullable((Long) jrpcParams.get("maxChunks"));

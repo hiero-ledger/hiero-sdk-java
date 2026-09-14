@@ -9,12 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TokenClaimAirdropParams extends JSONRPC2Param {
+public class TokenClaimAirdropParams implements JSONRPC2Param {
     private Optional<String> senderAccountId;
     private Optional<String> receiverAccountId;
     private Optional<String> tokenId;
@@ -22,8 +20,7 @@ public class TokenClaimAirdropParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TokenClaimAirdropParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedSenderAccountId = Optional.ofNullable((String) jrpcParams.get("senderAccountId"));
         var parsedReceiverAccountId = Optional.ofNullable((String) jrpcParams.get("receiverAccountId"));
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
