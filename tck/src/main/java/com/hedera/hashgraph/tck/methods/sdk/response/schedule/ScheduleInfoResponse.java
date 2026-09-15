@@ -15,8 +15,8 @@ import java.util.List;
  * @param signers the public keys that have signed the scheduled transaction
  * @param scheduleMemo publicly visible information about the schedule entity
  * @param expirationTime the date and time at which the schedule transaction will expire
- * @param executed the consensus time the schedule transaction was executed
- * @param deleted the consensus time the schedule transaction was deleted
+ * @param executedAt the consensus time the schedule transaction was executed
+ * @param deletedAt the consensus time the schedule transaction was deleted
  * @param scheduledTransactionId the transaction ID of the transaction being scheduled
  * @param waitForExpiry whether the scheduled transaction should wait for expiry before executing
  * @param cost the cost of the query in tinybars
@@ -30,8 +30,8 @@ public record ScheduleInfoResponse(
         List<String> signers,
         String scheduleMemo,
         @Nullable String expirationTime,
-        @Nullable String executed,
-        @Nullable String deleted,
+        @Nullable String executedAt,
+        @Nullable String deletedAt,
         @Nullable String scheduledTransactionId,
         Boolean waitForExpiry,
         @Nullable String cost) {
