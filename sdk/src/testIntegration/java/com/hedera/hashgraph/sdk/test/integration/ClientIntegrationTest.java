@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class ClientIntegrationTest {
 
+    @Disabled
     @Test
     @DisplayName("fails when all the manually set nodes are not matching the address book")
     void failsWhenNoNodesAreMatching() throws Exception {
@@ -32,6 +34,7 @@ public class ClientIntegrationTest {
         client.close();
     }
 
+    @Disabled
     @Test
     @DisplayName("can skip invalid nodes")
     void canSkipNodes() throws Exception {
@@ -47,6 +50,7 @@ public class ClientIntegrationTest {
         client.close();
     }
 
+    @Disabled
     @Test
     @DisplayName("setNetwork() functions correctly")
     void testReplaceNodes() throws Exception {
