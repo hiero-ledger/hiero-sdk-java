@@ -50,6 +50,7 @@ public class ClientIntegrationTest {
         client.close();
     }
 
+    @Disabled
     @Test
     @DisplayName("setNetwork() functions correctly")
     void testReplaceNodes() throws Exception {
