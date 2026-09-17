@@ -9,15 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * FileCreateParams for file create method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FileCreateParams extends JSONRPC2Param {
+public class FileCreateParams implements JSONRPC2Param {
     private Optional<List<String>> keys;
     private Optional<String> contents;
     private Optional<String> expirationTime;
@@ -25,8 +23,7 @@ public class FileCreateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public FileCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FileCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedKeys = parseStringList(jrpcParams, "keys");
         var parsedContents = Optional.ofNullable((String) jrpcParams.get("contents"));
         var parsedExpirationTime = Optional.ofNullable((String) jrpcParams.get("expirationTime"));
@@ -43,7 +40,7 @@ public class FileCreateParams extends JSONRPC2Param {
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<List<String>> parseStringList(Map<String, Object> params, String key) {
+    private static Optional<List<String>> parseStringList(Map<String, Object> params, String key) {
         if (!params.containsKey(key)) {
             return Optional.empty();
         }

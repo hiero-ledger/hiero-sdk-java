@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods;
 
-import java.util.Map;
-
 /**
- * Abstract base class for JSON-RPC parameters. Every parameter POJO should extend this class
- * and implement the {@link #parse} method. This method assists JSON-RPC services in creating
- * parameters for their JSON-RPC methods from the request.
+ * Marker interface for JSON-RPC parameter types.
+ * Implementations represent the parameters accepted by JSON-RPC methods. This interface
+ * intentionally does not define any methods. Each parameter implementation
+ * provides its own type-specific parsing logic.
  *
+ * <p>
  * IMPORTANT:
- * all inheriting classes should include the following Lombok annotations:
- * {@code @Getter}, {@code @AllArgsConstructor}, and {@code @NoArgsConstructor}.
- * These annotations are needed for the instance creation via reflection.
- *
+ * all inheriting classes should include the following method signature:
+ * <pre>{@code
+ * public static JSONRPC2Param parse(Map<String, Object> params)
+ * }</pre>
  */
-public abstract class JSONRPC2Param {
-    public abstract JSONRPC2Param parse(final Map<String, Object> jrpcParams) throws Exception;
-}
+public interface JSONRPC2Param {}

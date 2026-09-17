@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * AccountCreateParams for account create method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AccountCreateParams extends JSONRPC2Param {
+public class AccountCreateParams implements JSONRPC2Param {
     private Optional<String> key;
     private Optional<String> initialBalance;
     private Optional<Boolean> receiverSignatureRequired;
@@ -31,8 +29,7 @@ public class AccountCreateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public AccountCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static AccountCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedKey = Optional.ofNullable((String) jrpcParams.get("key"));
         var parsedInitialBalance = Optional.ofNullable((String) jrpcParams.get("initialBalance"));
         var parsedReceiverSignatureRequired =
