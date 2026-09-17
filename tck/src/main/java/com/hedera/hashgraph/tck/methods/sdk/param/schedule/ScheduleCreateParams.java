@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * ScheduleCreateParams for schedule create method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ScheduleCreateParams extends JSONRPC2Param {
+public class ScheduleCreateParams implements JSONRPC2Param {
     private Optional<ScheduledTransaction> scheduledTransaction;
     private Optional<String> memo;
     private Optional<String> adminKey;
@@ -27,8 +25,7 @@ public class ScheduleCreateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public ScheduleCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static ScheduleCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduledTransaction = Optional.ofNullable(
                         (Map<String, Object>) jrpcParams.get("scheduledTransaction"))
                 .map(ScheduledTransaction::new);
@@ -55,7 +52,6 @@ public class ScheduleCreateParams extends JSONRPC2Param {
      */
     @Getter
     @AllArgsConstructor
-    @NoArgsConstructor
     public static class ScheduledTransaction {
         private String method;
         private Map<String, Object> params;

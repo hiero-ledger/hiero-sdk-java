@@ -7,19 +7,16 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FileInfoQueryParams extends JSONRPC2Param {
+public class FileInfoQueryParams implements JSONRPC2Param {
     private String fileId;
     private String queryPayment;
     private String maxQueryPayment;
     private String sessionId;
 
-    @Override
-    public FileInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FileInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedFileId = (String) jrpcParams.get("fileId");

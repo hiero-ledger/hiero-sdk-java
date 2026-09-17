@@ -10,18 +10,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TokenAirdropCancelParams extends JSONRPC2Param {
+public class TokenAirdropCancelParams implements JSONRPC2Param {
     private Optional<List<PendingAirdropParams>> pendingAirdrops;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TokenAirdropCancelParams parse(Map<String, Object> jrpcParams) throws Exception {
         @SuppressWarnings("unchecked")
         var parsedPendingAirdrops = Optional.ofNullable((List<Object>) jrpcParams.get("pendingAirdrops"))
                 .map(list -> list.stream()

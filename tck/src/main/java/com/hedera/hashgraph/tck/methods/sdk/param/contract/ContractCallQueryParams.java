@@ -7,12 +7,10 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ContractCallQueryParams extends JSONRPC2Param {
+public class ContractCallQueryParams implements JSONRPC2Param {
     private String contractId;
     private String gas;
     private String functionParameters;
@@ -20,8 +18,7 @@ public class ContractCallQueryParams extends JSONRPC2Param {
     private String senderAccountId;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static ContractCallQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedContractId = (String) jrpcParams.get("contractId");

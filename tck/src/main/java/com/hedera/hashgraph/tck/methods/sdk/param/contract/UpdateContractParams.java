@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * UpdateContractParams for contract update method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class UpdateContractParams extends JSONRPC2Param {
+public class UpdateContractParams implements JSONRPC2Param {
     private Optional<String> contractId;
     private Optional<String> adminKey;
     private Optional<String> autoRenewPeriod;
@@ -31,8 +29,7 @@ public class UpdateContractParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public UpdateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static UpdateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));
         var parsedAutoRenewPeriod = Optional.ofNullable((String) jrpcParams.get("autoRenewPeriod"));

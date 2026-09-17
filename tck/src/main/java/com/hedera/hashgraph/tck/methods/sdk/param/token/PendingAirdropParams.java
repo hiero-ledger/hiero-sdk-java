@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class PendingAirdropParams {
     private Optional<String> tokenId;
     private Optional<String> senderAccountId;

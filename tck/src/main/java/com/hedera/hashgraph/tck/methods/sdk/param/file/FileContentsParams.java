@@ -7,22 +7,19 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * GetFileContentsParams for get file contents method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FileContentsParams extends JSONRPC2Param {
+public class FileContentsParams implements JSONRPC2Param {
     private String fileId;
     private Optional<String> queryPayment;
     private Optional<String> maxQueryPayment;
     private String sessionId;
 
-    @Override
-    public FileContentsParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FileContentsParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = (String) jrpcParams.get("fileId");
         var parsedQueryPayment = Optional.ofNullable((String) jrpcParams.get("queryPayment"));
         var parsedMaxQueryPayment = Optional.ofNullable((String) jrpcParams.get("maxQueryPayment"));

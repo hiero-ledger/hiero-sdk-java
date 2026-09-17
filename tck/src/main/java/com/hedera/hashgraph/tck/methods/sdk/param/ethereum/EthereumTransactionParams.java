@@ -8,20 +8,17 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class EthereumTransactionParams extends JSONRPC2Param {
+public class EthereumTransactionParams implements JSONRPC2Param {
     private String ethereumData;
     private String callDataFileId;
     private String maxGasAllowance;
     private CommonTransactionParams commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public EthereumTransactionParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static EthereumTransactionParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedEthereumData = (String) jrpcParams.get("ethereumData");
