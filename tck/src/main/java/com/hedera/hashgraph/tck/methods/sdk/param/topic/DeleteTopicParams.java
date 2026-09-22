@@ -8,21 +8,18 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * DeleteTopicParams for topic delete method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class DeleteTopicParams extends JSONRPC2Param {
+public class DeleteTopicParams implements JSONRPC2Param {
     private Optional<String> topicId;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static DeleteTopicParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTopicId = Optional.ofNullable((String) jrpcParams.get("topicId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 

@@ -9,15 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * WipeTokenParams for token wipe method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TokenWipeParams extends JSONRPC2Param {
+public class TokenWipeParams implements JSONRPC2Param {
 
     private Optional<String> tokenId;
     private Optional<String> accountId;
@@ -26,8 +24,7 @@ public class TokenWipeParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TokenWipeParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));

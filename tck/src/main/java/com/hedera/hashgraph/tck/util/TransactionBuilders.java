@@ -146,7 +146,7 @@ public class TransactionBuilders {
 
         public static AccountCreateTransaction buildCreate(Map<String, Object> params) {
             try {
-                AccountCreateParams typedParams = new AccountCreateParams().parse(params);
+                AccountCreateParams typedParams = AccountCreateParams.parse(params);
                 return buildCreate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AccountCreateParams", e);
@@ -197,7 +197,7 @@ public class TransactionBuilders {
 
         public static AccountUpdateTransaction buildUpdate(Map<String, Object> params) {
             try {
-                AccountUpdateParams typedParams = new AccountUpdateParams().parse(params);
+                AccountUpdateParams typedParams = AccountUpdateParams.parse(params);
                 return buildUpdate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AccountUpdateParams", e);
@@ -219,7 +219,7 @@ public class TransactionBuilders {
 
         public static AccountDeleteTransaction buildDelete(Map<String, Object> params) {
             try {
-                AccountDeleteParams typedParams = new AccountDeleteParams().parse(params);
+                AccountDeleteParams typedParams = AccountDeleteParams.parse(params);
                 return buildDelete(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AccountDeleteParams", e);
@@ -238,8 +238,7 @@ public class TransactionBuilders {
 
         public static AccountAllowanceApproveTransaction buildApproveAllowance(Map<String, Object> params) {
             try {
-                AccountAllowanceParams typedParams =
-                        (AccountAllowanceParams) new AccountAllowanceParams().parse(params);
+                AccountAllowanceParams typedParams = AccountAllowanceParams.parse(params);
                 return buildApproveAllowance(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AccountAllowanceParams", e);
@@ -258,8 +257,7 @@ public class TransactionBuilders {
 
         public static AccountAllowanceDeleteTransaction buildDeleteAllowance(Map<String, Object> params) {
             try {
-                AccountAllowanceParams typedParams =
-                        (AccountAllowanceParams) new AccountAllowanceParams().parse(params);
+                AccountAllowanceParams typedParams = AccountAllowanceParams.parse(params);
                 return buildDeleteAllowance(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AccountAllowanceParams", e);
@@ -340,7 +338,7 @@ public class TransactionBuilders {
 
         public static TransferTransaction buildTransfer(Map<String, Object> params) {
             try {
-                TransferCryptoParams typedParams = (TransferCryptoParams) new TransferCryptoParams().parse(params);
+                TransferCryptoParams typedParams = TransferCryptoParams.parse(params);
                 return buildTransfer(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TransferCryptoParams", e);
@@ -444,7 +442,7 @@ public class TransactionBuilders {
 
         public static TokenCreateTransaction buildCreate(Map<String, Object> params) {
             try {
-                TokenCreateParams typedParams = (TokenCreateParams) new TokenCreateParams().parse(params);
+                TokenCreateParams typedParams = TokenCreateParams.parse(params);
                 return buildCreate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenCreateParams", e);
@@ -547,7 +545,7 @@ public class TransactionBuilders {
 
         public static TokenUpdateTransaction buildUpdate(Map<String, Object> params) {
             try {
-                TokenUpdateParams typedParams = (TokenUpdateParams) new TokenUpdateParams().parse(params);
+                TokenUpdateParams typedParams = TokenUpdateParams.parse(params);
                 return buildUpdate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenUpdateParams", e);
@@ -564,7 +562,7 @@ public class TransactionBuilders {
 
         public static TokenDeleteTransaction buildDelete(Map<String, Object> params) {
             try {
-                TokenDeleteParams typedParams = (TokenDeleteParams) new TokenDeleteParams().parse(params);
+                TokenDeleteParams typedParams = TokenDeleteParams.parse(params);
                 return buildDelete(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenDeleteParams", e);
@@ -591,7 +589,7 @@ public class TransactionBuilders {
 
         public static TokenMintTransaction buildMint(Map<String, Object> params) {
             try {
-                MintTokenParams typedParams = (MintTokenParams) new MintTokenParams().parse(params);
+                MintTokenParams typedParams = MintTokenParams.parse(params);
                 return buildMint(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse MintTokenParams", e);
@@ -620,7 +618,7 @@ public class TransactionBuilders {
 
         public static TokenBurnTransaction buildBurn(Map<String, Object> params) {
             try {
-                BurnTokenParams typedParams = (BurnTokenParams) new BurnTokenParams().parse(params);
+                BurnTokenParams typedParams = BurnTokenParams.parse(params);
                 return buildBurn(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse BurnTokenParams", e);
@@ -653,7 +651,7 @@ public class TransactionBuilders {
 
         public static TokenWipeTransaction buildWipe(Map<String, Object> params) {
             try {
-                TokenWipeParams typedParams = (TokenWipeParams) new TokenWipeParams().parse(params);
+                TokenWipeParams typedParams = TokenWipeParams.parse(params);
                 return buildWipe(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenWipeParams", e);
@@ -663,8 +661,7 @@ public class TransactionBuilders {
         // Additional token operations for schedule support
         public static TokenAssociateTransaction buildAssociate(Map<String, Object> params) {
             try {
-                AssociateDisassociateTokenParams typedParams =
-                        (AssociateDisassociateTokenParams) new AssociateDisassociateTokenParams().parse(params);
+                AssociateDisassociateTokenParams typedParams = AssociateDisassociateTokenParams.parse(params);
                 return buildAssociate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AssociateDisassociateTokenParams", e);
@@ -687,8 +684,7 @@ public class TransactionBuilders {
 
         public static TokenDissociateTransaction buildDissociate(Map<String, Object> params) {
             try {
-                AssociateDisassociateTokenParams typedParams =
-                        (AssociateDisassociateTokenParams) new AssociateDisassociateTokenParams().parse(params);
+                AssociateDisassociateTokenParams typedParams = AssociateDisassociateTokenParams.parse(params);
                 return buildDissociate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse AssociateDisassociateTokenParams", e);
@@ -711,8 +707,7 @@ public class TransactionBuilders {
 
         public static TokenFreezeTransaction buildFreeze(Map<String, Object> params) {
             try {
-                FreezeUnfreezeTokenParams typedParams =
-                        (FreezeUnfreezeTokenParams) new FreezeUnfreezeTokenParams().parse(params);
+                FreezeUnfreezeTokenParams typedParams = FreezeUnfreezeTokenParams.parse(params);
                 return buildFreeze(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FreezeUnfreezeTokenParams", e);
@@ -730,8 +725,7 @@ public class TransactionBuilders {
 
         public static TokenUnfreezeTransaction buildUnfreeze(Map<String, Object> params) {
             try {
-                FreezeUnfreezeTokenParams typedParams =
-                        (FreezeUnfreezeTokenParams) new FreezeUnfreezeTokenParams().parse(params);
+                FreezeUnfreezeTokenParams typedParams = FreezeUnfreezeTokenParams.parse(params);
                 return buildUnfreeze(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FreezeUnfreezeTokenParams", e);
@@ -750,8 +744,7 @@ public class TransactionBuilders {
 
         public static TokenGrantKycTransaction buildGrantKyc(Map<String, Object> params) {
             try {
-                GrantRevokeTokenKycParams typedParams =
-                        (GrantRevokeTokenKycParams) new GrantRevokeTokenKycParams().parse(params);
+                GrantRevokeTokenKycParams typedParams = GrantRevokeTokenKycParams.parse(params);
                 return buildGrantKyc(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse GrantRevokeTokenKycParams", e);
@@ -770,8 +763,7 @@ public class TransactionBuilders {
 
         public static TokenRevokeKycTransaction buildRevokeKyc(Map<String, Object> params) {
             try {
-                GrantRevokeTokenKycParams typedParams =
-                        (GrantRevokeTokenKycParams) new GrantRevokeTokenKycParams().parse(params);
+                GrantRevokeTokenKycParams typedParams = GrantRevokeTokenKycParams.parse(params);
                 return buildRevokeKyc(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse GrantRevokeTokenKycParams", e);
@@ -790,8 +782,7 @@ public class TransactionBuilders {
 
         public static TokenPauseTransaction buildPause(Map<String, Object> params) {
             try {
-                PauseUnpauseTokenParams typedParams =
-                        (PauseUnpauseTokenParams) new PauseUnpauseTokenParams().parse(params);
+                PauseUnpauseTokenParams typedParams = PauseUnpauseTokenParams.parse(params);
                 return buildPause(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse PauseUnpauseTokenParams", e);
@@ -808,8 +799,7 @@ public class TransactionBuilders {
 
         public static TokenUnpauseTransaction buildUnpause(Map<String, Object> params) {
             try {
-                PauseUnpauseTokenParams typedParams =
-                        (PauseUnpauseTokenParams) new PauseUnpauseTokenParams().parse(params);
+                PauseUnpauseTokenParams typedParams = PauseUnpauseTokenParams.parse(params);
                 return buildUnpause(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse PauseUnpauseTokenParams", e);
@@ -843,8 +833,7 @@ public class TransactionBuilders {
 
         public static TokenFeeScheduleUpdateTransaction buildUpdateFeeSchedule(Map<String, Object> params) {
             try {
-                TokenUpdateFeeScheduleParams typedParams =
-                        (TokenUpdateFeeScheduleParams) new TokenUpdateFeeScheduleParams().parse(params);
+                TokenUpdateFeeScheduleParams typedParams = TokenUpdateFeeScheduleParams.parse(params);
                 return buildUpdateFeeSchedule(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenUpdateFeeScheduleParams", e);
@@ -870,7 +859,7 @@ public class TransactionBuilders {
 
         public static TokenAirdropTransaction buildAirdrop(Map<String, Object> params) {
             try {
-                TokenAirdropParams typedParams = (TokenAirdropParams) new TokenAirdropParams().parse(params);
+                TokenAirdropParams typedParams = TokenAirdropParams.parse(params);
                 return buildAirdrop(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenAirdropParams", e);
@@ -916,8 +905,7 @@ public class TransactionBuilders {
 
         public static TokenCancelAirdropTransaction buildCancelAirdrop(Map<String, Object> params) {
             try {
-                TokenAirdropCancelParams typedParams =
-                        (TokenAirdropCancelParams) new TokenAirdropCancelParams().parse(params);
+                TokenAirdropCancelParams typedParams = TokenAirdropCancelParams.parse(params);
                 return buildCancelAirdrop(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenAirdropCancelParams", e);
@@ -981,8 +969,7 @@ public class TransactionBuilders {
 
         public static TokenClaimAirdropTransaction buildClaimAirdrop(Map<String, Object> params) {
             try {
-                TokenClaimAirdropParams typedParams =
-                        (TokenClaimAirdropParams) new TokenClaimAirdropParams().parse(params);
+                TokenClaimAirdropParams typedParams = TokenClaimAirdropParams.parse(params);
                 return buildClaimAirdrop(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse TokenClaimAirdropParams", e);
@@ -1141,7 +1128,7 @@ public class TransactionBuilders {
 
         public static TopicCreateTransaction buildCreate(Map<String, Object> params) {
             try {
-                CreateTopicParams typedParams = (CreateTopicParams) new CreateTopicParams().parse(params);
+                CreateTopicParams typedParams = CreateTopicParams.parse(params);
                 return buildCreate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse CreateTopicParams", e);
@@ -1178,7 +1165,7 @@ public class TransactionBuilders {
 
         public static TopicUpdateTransaction buildUpdate(Map<String, Object> params) {
             try {
-                UpdateTopicParams typedParams = (UpdateTopicParams) new UpdateTopicParams().parse(params);
+                UpdateTopicParams typedParams = UpdateTopicParams.parse(params);
                 return buildUpdate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse UpdateTopicParams", e);
@@ -1201,7 +1188,7 @@ public class TransactionBuilders {
 
         public static TopicDeleteTransaction buildDelete(Map<String, Object> params) {
             try {
-                DeleteTopicParams typedParams = (DeleteTopicParams) new DeleteTopicParams().parse(params);
+                DeleteTopicParams typedParams = DeleteTopicParams.parse(params);
                 return buildDelete(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse DeleteTopicParams", e);
@@ -1287,8 +1274,7 @@ public class TransactionBuilders {
 
         public static TopicMessageSubmitTransaction buildSubmitMessage(Map<String, Object> params) {
             try {
-                SubmitTopicMessageParams typedParams =
-                        (SubmitTopicMessageParams) new SubmitTopicMessageParams().parse(params);
+                SubmitTopicMessageParams typedParams = SubmitTopicMessageParams.parse(params);
                 return buildSubmitMessage(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse SubmitTopicMessageParams", e);
@@ -1330,7 +1316,7 @@ public class TransactionBuilders {
 
         public static FileCreateTransaction buildCreate(Map<String, Object> params) {
             try {
-                FileCreateParams typedParams = new FileCreateParams().parse(params);
+                FileCreateParams typedParams = FileCreateParams.parse(params);
                 return buildCreate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FileCreateParams", e);
@@ -1367,7 +1353,7 @@ public class TransactionBuilders {
 
         public static FileUpdateTransaction buildUpdate(Map<String, Object> params) {
             try {
-                FileUpdateParams typedParams = new FileUpdateParams().parse(params);
+                FileUpdateParams typedParams = FileUpdateParams.parse(params);
                 return buildUpdate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FileUpdateParams", e);
@@ -1384,7 +1370,7 @@ public class TransactionBuilders {
 
         public static FileDeleteTransaction buildDelete(Map<String, Object> params) {
             try {
-                FileDeleteParams typedParams = new FileDeleteParams().parse(params);
+                FileDeleteParams typedParams = FileDeleteParams.parse(params);
                 return buildDelete(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FileDeleteParams", e);
@@ -1411,7 +1397,7 @@ public class TransactionBuilders {
 
         public static FileAppendTransaction buildAppend(Map<String, Object> params) {
             try {
-                FileAppendParams typedParams = new FileAppendParams().parse(params);
+                FileAppendParams typedParams = FileAppendParams.parse(params);
                 return buildAppend(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse FileAppendParams", e);
@@ -1425,7 +1411,7 @@ public class TransactionBuilders {
     public static class EthereumBuilder {
         public static EthereumTransaction buildCreate(Map<String, Object> params) {
             try {
-                EthereumTransactionParams typedParams = new EthereumTransactionParams().parse(params);
+                EthereumTransactionParams typedParams = EthereumTransactionParams.parse(params);
                 return buildCreate(typedParams);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to parse EthereumTransactionParam", e);

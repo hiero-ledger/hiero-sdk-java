@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * SetupParams for SDK client
@@ -15,8 +14,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class SetupParams extends JSONRPC2Param {
+public class SetupParams implements JSONRPC2Param {
     private String operatorAccountId;
     private String operatorPrivateKey;
     private Optional<String> nodeIp;
@@ -24,8 +22,7 @@ public class SetupParams extends JSONRPC2Param {
     private Optional<String> mirrorNetworkIp;
     private String sessionId;
 
-    @Override
-    public SetupParams parse(Map<String, Object> jrpcParams) throws ClassCastException {
+    public static SetupParams parse(Map<String, Object> jrpcParams) throws ClassCastException {
         var parsedOperatorAccountId = (String) jrpcParams.get("operatorAccountId");
         var parsedOperatorPrivateKey = (String) jrpcParams.get("operatorPrivateKey");
         var parsedNodeIp = Optional.ofNullable((String) jrpcParams.get("nodeIp"));

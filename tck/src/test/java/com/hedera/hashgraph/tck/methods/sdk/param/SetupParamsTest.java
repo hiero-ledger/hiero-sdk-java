@@ -22,7 +22,7 @@ class SetupParamsTest {
         jrpcParams.put("sessionId", "session-setup");
 
         // When
-        SetupParams result = new SetupParams().parse(jrpcParams);
+        SetupParams result = SetupParams.parse(jrpcParams);
 
         // Then
         assertEquals("testAccountId", result.getOperatorAccountId());
