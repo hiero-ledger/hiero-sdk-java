@@ -6,19 +6,16 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * Base parameters that carry the session identifier for JSON-RPC calls.
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class BaseParams extends JSONRPC2Param {
+public class BaseParams implements JSONRPC2Param {
     private String sessionId;
 
-    @Override
-    public BaseParams parse(Map<String, Object> jrpcParams) {
+    public static BaseParams parse(Map<String, Object> jrpcParams) {
         return new BaseParams(JSONRPCParamParser.parseSessionId(jrpcParams));
     }
 }

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * ScheduleDeleteParams for delete schedule method
@@ -16,14 +15,12 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ScheduleDeleteParams extends JSONRPC2Param {
+public class ScheduleDeleteParams implements JSONRPC2Param {
     private Optional<String> scheduleId;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public ScheduleDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static ScheduleDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduleId = Optional.ofNullable((String) jrpcParams.get("scheduleId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);
 

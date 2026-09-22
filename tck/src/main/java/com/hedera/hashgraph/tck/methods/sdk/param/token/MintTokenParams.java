@@ -9,20 +9,17 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class MintTokenParams extends JSONRPC2Param {
+public class MintTokenParams implements JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<String> amount;
     private Optional<List<String>> metadata;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static MintTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));
         var parsedMetadata = Optional.ofNullable((List<String>) jrpcParams.get("metadata"));

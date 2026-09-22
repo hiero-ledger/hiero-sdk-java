@@ -9,22 +9,40 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Get the balance of a Hedera™ crypto-currency account. This returns only the balance, so it is a
  * smaller and faster reply than {@link AccountInfoQuery}.
  *
  * <p>This query is free.
+ *
+ * @deprecated AccountBalanceQuery is no longer supported. Use {@link MirrorNodeAccountBalanceQuery}
+ *             or the mirror node REST API ({@code GET /api/v1/accounts/{id}}) to retrieve account
+ *             balances.
  */
+@Deprecated
 public final class AccountBalanceQuery extends Query<AccountBalance, AccountBalanceQuery> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountBalanceQuery.class);
+
+    static final String DEPRECATION_MESSAGE =
+            "Deprecated: AccountBalanceQuery is no longer supported. Use MirrorNodeAccountBalanceQuery or "
+                    + "the mirror node REST API (GET /api/v1/accounts/{id}) to retrieve account balances.";
+
     private @Nullable AccountId accountId = null;
 
     private @Nullable ContractId contractId = null;
 
     /**
      * Constructor.
+     *
+     * @deprecated see {@link AccountBalanceQuery}
      */
-    public AccountBalanceQuery() {}
+    @Deprecated
+    public AccountBalanceQuery() {
+        LOGGER.warn(DEPRECATION_MESSAGE);
+    }
 
     /**
      * Return the account's id.

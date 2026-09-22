@@ -10,15 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * UpdateTopicParams for topic update method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class UpdateTopicParams extends JSONRPC2Param {
+public class UpdateTopicParams implements JSONRPC2Param {
     private Optional<String> topicId;
     private Optional<String> memo;
     private Optional<String> adminKey;
@@ -32,8 +30,7 @@ public class UpdateTopicParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static UpdateTopicParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTopicId = Optional.ofNullable((String) jrpcParams.get("topicId"));
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));

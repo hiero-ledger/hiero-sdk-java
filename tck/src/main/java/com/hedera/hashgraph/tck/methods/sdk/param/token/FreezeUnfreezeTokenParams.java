@@ -8,19 +8,16 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class FreezeUnfreezeTokenParams extends JSONRPC2Param {
+public class FreezeUnfreezeTokenParams implements JSONRPC2Param {
     private Optional<String> accountId;
     private Optional<String> tokenId;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static FreezeUnfreezeTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);

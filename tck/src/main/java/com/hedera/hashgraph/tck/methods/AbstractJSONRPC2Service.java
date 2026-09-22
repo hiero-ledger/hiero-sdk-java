@@ -66,7 +66,6 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
      * @param messageContext
      * @return JSONRPC2Response - result returned from the JSONRPCMethod or if error is thrown - JSONRPC2Error
      */
-    @SuppressWarnings("java:S1874")
     @Override
     public JSONRPC2Response process(final JSONRPC2Request req, final MessageContext messageContext) {
         try {
@@ -122,11 +121,8 @@ public abstract class AbstractJSONRPC2Service implements RequestHandler {
         Object[] args = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
             try {
-                var paramInstance = paramTypes[i].newInstance();
-                if (paramInstance instanceof JSONRPC2Param jsonRpcParam) {
-                    args[i] = jsonRpcParam.parse(jrpcParams);
-                }
-            } catch (Exception e) {
+                args[i] = JSONRPC2ParamRegistry.parse(paramTypes[i], jrpcParams);
+            } catch (InvalidJSONRPC2ParamsException e) {
                 throw new InvalidJSONRPC2ParamsException("Invalid parameters for method %s with args: %s"
                         .formatted(method.getName(), Arrays.toString(args)));
             }

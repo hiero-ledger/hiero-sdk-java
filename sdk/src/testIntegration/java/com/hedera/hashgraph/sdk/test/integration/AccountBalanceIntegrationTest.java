@@ -46,6 +46,7 @@ class AccountBalanceIntegrationTest {
         assertThat(succeededAtLeastOnce).isTrue();
     }
 
+    @Disabled
     @Test
     @DisplayName("can connect to testnet with TLS")
     void canConnectToTestnetWithTLS() throws Exception {

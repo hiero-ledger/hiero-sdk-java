@@ -9,19 +9,16 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AssociateDisassociateTokenParams extends JSONRPC2Param {
+public class AssociateDisassociateTokenParams implements JSONRPC2Param {
     private Optional<String> accountId;
     private Optional<List<String>> tokenIds;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static AssociateDisassociateTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
 
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));
         var parsedTokenIds = Optional.ofNullable((List<String>) jrpcParams.get("tokenIds"));

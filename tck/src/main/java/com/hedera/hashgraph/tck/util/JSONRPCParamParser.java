@@ -13,9 +13,13 @@ import net.minidev.json.JSONObject;
 
 public class JSONRPCParamParser {
 
+    private static final String COMMON_TRANSACTION_FEE_PARAMS = "commonTransactionParams";
+    private static final String ALLOWANCES = "allowances";
+    private static final String CUSTOM_FEES = "customFees";
+
     public static Optional<CommonTransactionParams> parseCommonTransactionParams(Map<String, Object> jrpcParams)
             throws Exception {
-        return parseJsonObject(jrpcParams, "commonTransactionParams", CommonTransactionParams::parse);
+        return parseJsonObject(jrpcParams, COMMON_TRANSACTION_FEE_PARAMS, CommonTransactionParams::parse);
     }
 
     public static String parseSessionId(Map<String, Object> jrpcParams) {
@@ -27,11 +31,11 @@ public class JSONRPCParamParser {
     }
 
     public static Optional<List<AllowanceParams>> parseAllowances(Map<String, Object> jrpcParams) throws Exception {
-        return parseJsonArray(jrpcParams, "allowances", AllowanceParams::parse);
+        return parseJsonArray(jrpcParams, ALLOWANCES, AllowanceParams::parse);
     }
 
     public static Optional<List<CustomFee>> parseCustomFees(Map<String, Object> jrpcParams) throws Exception {
-        return parseJsonArray(jrpcParams, "customFees", jsonObj -> new CustomFee().parse(jsonObj));
+        return parseJsonArray(jrpcParams, CUSTOM_FEES, jsonObj -> CustomFee.parse(jsonObj));
     }
 
     private static <T> Optional<T> parseJsonObject(

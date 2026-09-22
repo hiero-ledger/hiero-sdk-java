@@ -7,19 +7,16 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TopicInfoQueryParams extends JSONRPC2Param {
+public class TopicInfoQueryParams implements JSONRPC2Param {
     private String topicId;
     private String queryPayment;
     private String maxQueryPayment;
     private String sessionId;
 
-    @Override
-    public TopicInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TopicInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 
         var parsedTopicId = (String) jrpcParams.get("topicId");

@@ -43,7 +43,7 @@ class AccountCreateParamsTest {
 
         jrpcParams.put("commonTransactionParams", commonParamsJson);
 
-        AccountCreateParams params = new AccountCreateParams().parse(jrpcParams);
+        AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
         assertEquals(Optional.of("someKey"), params.getKey());
         assertEquals(Optional.of("1000"), params.getInitialBalance());
@@ -77,7 +77,7 @@ class AccountCreateParamsTest {
         jrpcParams.put("key", "someKey");
         jrpcParams.put("sessionId", "session-optional");
 
-        AccountCreateParams params = new AccountCreateParams().parse(jrpcParams);
+        AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
         assertEquals(Optional.of("someKey"), params.getKey());
         assertEquals(Optional.empty(), params.getInitialBalance());
@@ -99,7 +99,7 @@ class AccountCreateParamsTest {
         jrpcParams.put("sessionId", "session-invalid");
 
         assertThrows(ClassCastException.class, () -> {
-            new AccountCreateParams().parse(jrpcParams);
+            AccountCreateParams.parse(jrpcParams);
         });
     }
 
@@ -108,7 +108,7 @@ class AccountCreateParamsTest {
         Map<String, Object> jrpcParams = new HashMap<>();
         jrpcParams.put("sessionId", "session-empty");
 
-        AccountCreateParams params = new AccountCreateParams().parse(jrpcParams);
+        AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
         assertEquals(Optional.empty(), params.getKey());
         assertEquals(Optional.empty(), params.getInitialBalance());

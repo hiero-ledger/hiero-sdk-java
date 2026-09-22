@@ -8,15 +8,13 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * TokenUpdateParams for token update method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TokenUpdateParams extends JSONRPC2Param {
+public class TokenUpdateParams implements JSONRPC2Param {
     private Optional<String> tokenId;
     private Optional<String> name;
     private Optional<String> symbol;
@@ -37,8 +35,7 @@ public class TokenUpdateParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TokenUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedName = Optional.ofNullable((String) jrpcParams.get("name"));
         var parsedSymbol = Optional.ofNullable((String) jrpcParams.get("symbol"));

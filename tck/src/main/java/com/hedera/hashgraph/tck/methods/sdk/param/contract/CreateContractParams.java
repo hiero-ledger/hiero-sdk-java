@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * CreateContractParams for contract create method
@@ -16,8 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class CreateContractParams extends JSONRPC2Param {
+public class CreateContractParams implements JSONRPC2Param {
     private Optional<String> adminKey;
     private Optional<String> autoRenewPeriod;
     private Optional<String> autoRenewAccountId;
@@ -34,8 +32,7 @@ public class CreateContractParams extends JSONRPC2Param {
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public CreateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
+    public static CreateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));
         var parsedAutoRenewPeriod = Optional.ofNullable((String) jrpcParams.get("autoRenewPeriod"));
         var parsedAutoRenewAccountId = Optional.ofNullable((String) jrpcParams.get("autoRenewAccountId"));

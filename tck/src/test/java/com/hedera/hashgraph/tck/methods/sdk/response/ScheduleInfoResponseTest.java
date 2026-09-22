@@ -33,8 +33,8 @@ public class ScheduleInfoResponseTest {
         Assertions.assertTrue(json.contains("\"signers\":[\"key1\",\"key2\"]"));
         Assertions.assertTrue(json.contains("\"scheduleMemo\":\"schedule memo\""));
         Assertions.assertTrue(json.contains("\"expirationTime\":\"1787170588.538185104\""));
-        Assertions.assertTrue(json.contains("\"executed\":\"true\""));
-        Assertions.assertTrue(json.contains("\"deleted\":\"true\""));
+        Assertions.assertTrue(json.contains("\"executedAt\":\"true\""));
+        Assertions.assertTrue(json.contains("\"deletedAt\":\"true\""));
         Assertions.assertTrue(json.contains("\"scheduledTransactionId\":\"0.0.4951978@1787170588.538185104\""));
         Assertions.assertTrue(json.contains("\"waitForExpiry\":false"));
         Assertions.assertTrue(json.contains("\"cost\":\"10\""));
@@ -52,8 +52,8 @@ public class ScheduleInfoResponseTest {
         Assertions.assertFalse(json.contains("\"signers\""));
         Assertions.assertFalse(json.contains("\"scheduleMemo\""));
         Assertions.assertFalse(json.contains("\"expirationTime\""));
-        Assertions.assertFalse(json.contains("\"executed\""));
-        Assertions.assertFalse(json.contains("\"deleted\""));
+        Assertions.assertFalse(json.contains("\"executedAt\""));
+        Assertions.assertFalse(json.contains("\"deletedAt\""));
         Assertions.assertFalse(json.contains("\"scheduledTransactionId\""));
         Assertions.assertFalse(json.contains("\"waitForExpiry\""));
         Assertions.assertFalse(json.contains("\"cost\""));

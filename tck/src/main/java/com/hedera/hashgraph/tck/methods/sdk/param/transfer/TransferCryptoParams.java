@@ -9,21 +9,18 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * TransferCryptoParams for transfer crypto method
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TransferCryptoParams extends JSONRPC2Param {
+public class TransferCryptoParams implements JSONRPC2Param {
     private Optional<List<TransferParams>> transfers;
     private Optional<CommonTransactionParams> commonTransactionParams;
     private String sessionId;
 
-    @Override
-    public JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
+    public static TransferCryptoParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTransfers = Optional.ofNullable(jrpcParams.get("transfers"))
                 .filter(obj -> obj instanceof List)
                 .map(obj -> {
