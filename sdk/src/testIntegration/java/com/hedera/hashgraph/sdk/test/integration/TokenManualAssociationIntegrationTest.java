@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountInfoQuery;
 import com.hedera.hashgraph.sdk.ContractDeleteTransaction;
@@ -54,10 +53,7 @@ class TokenManualAssociationIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-
-            assertThat(accountBalance.tokens.get(tokenId)).isEqualTo(10);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenId, 10);
         }
     }
 

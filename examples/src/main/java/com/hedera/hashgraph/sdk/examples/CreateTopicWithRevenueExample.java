@@ -76,11 +76,9 @@ public class CreateTopicWithRevenueExample {
              */
             System.out.println("Submitting a message as Alice to the topic...");
 
-            var aliceBalanceBefore =
-                    new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).hbars;
+            var aliceBalanceBefore = MirrorNodeHelper.awaitHbarBalance(client, aliceAccountId, Hbar.from(2));
 
-            var feeCollectorBalanceBefore =
-                    new AccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
+            var feeCollectorBalanceBefore = MirrorNodeHelper.hbarBalanceAfterSync(client, OPERATOR_ID);
 
             var customFeeLimit = new CustomFeeLimit()
                     .setPayerId(aliceAccountId)
@@ -103,11 +101,11 @@ public class CreateTopicWithRevenueExample {
              */
             client.setOperator(OPERATOR_ID, OPERATOR_KEY);
 
-            var aliceBalanceAfter =
-                    new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).hbars;
+            var aliceBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                    client, aliceAccountId, balance -> balance.compareTo(aliceBalanceBefore) < 0);
 
-            var feeCollectorBalanceAfter =
-                    new AccountBalanceQuery().setAccountId(OPERATOR_ID).execute(client).hbars;
+            var feeCollectorBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                    client, OPERATOR_ID, balance -> balance.compareTo(feeCollectorBalanceBefore) > 0);
 
             System.out.println("Alice's balance before: " + aliceBalanceBefore + ", after: " + aliceBalanceAfter);
             System.out.println("Fee collector's balance before: " + feeCollectorBalanceBefore + ", after: "
@@ -168,17 +166,10 @@ public class CreateTopicWithRevenueExample {
             /**
              * Step 8: Verify Alice's token balance and the fee collector's token balance after the transaction.
              */
-            var aliceTokenBalanceAfter = new AccountBalanceQuery()
-                    .setAccountId(aliceAccountId)
-                    .execute(client)
-                    .tokens
-                    .get(tokenId);
+            var aliceTokenBalanceAfter =
+                    MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, tokenId).balance;
 
-            var feeCollectorTokenBalanceAfter = new AccountBalanceQuery()
-                    .setAccountId(OPERATOR_ID)
-                    .execute(client)
-                    .tokens
-                    .get(tokenId);
+            var feeCollectorTokenBalanceAfter = MirrorNodeHelper.awaitTokenBalance(client, OPERATOR_ID, tokenId, 100);
 
             System.out.println("Alice's token balance: " + aliceTokenBalanceAfter);
             System.out.println("Fee collector's token balance: " + feeCollectorTokenBalanceAfter);
@@ -226,8 +217,8 @@ public class CreateTopicWithRevenueExample {
             /**
              * Step 12: Verify Bob's balance should be almost the same as the initial
              */
-            var bobBalanceAfter =
-                    new AccountBalanceQuery().setAccountId(bobAccountId).execute(client).hbars;
+            var bobBalanceAfter = MirrorNodeHelper.awaitHbarBalance(
+                    client, bobAccountId, balance -> balance.compareTo(initialBalance) < 0);
             System.out.println("Bob's initial balance: " + initialBalance + ", after: " + bobBalanceAfter);
 
         } catch (Exception e) {
