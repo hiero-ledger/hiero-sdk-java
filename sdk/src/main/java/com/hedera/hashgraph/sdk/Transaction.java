@@ -1703,6 +1703,23 @@ public abstract class Transaction<T extends Transaction<T>>
         return super.getExecutionState(status, response);
     }
 
+    /**
+     * Whether every signature on this transaction can be reproduced over a regenerated transaction body.
+     * <p>
+     * Signatures supplied via {@link #addSignature(PublicKey, byte[])} (or restored by {@code fromBytes()}) have no
+     * associated signer function, so they are silently dropped when the body is rebuilt under a new transaction ID.
+     *
+     * @return false if any public key on this transaction has no signer function
+     */
+    boolean canRegenerateSignatures() {
+        for (var signer : signers) {
+            if (signer == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     Transaction regenerateTransactionId(Client client) {
         Objects.requireNonNull(client.getOperatorAccountId());
         transactionIds.setLocked(false);

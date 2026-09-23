@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
@@ -43,17 +44,17 @@ public final class TransactionResponse {
     /**
      * The node ID
      */
-    public final AccountId nodeId;
+    public AccountId nodeId;
 
     /**
      * The transaction hash
      */
-    public final byte[] transactionHash;
+    public byte[] transactionHash;
 
     /**
      * The transaction ID
      */
-    public final TransactionId transactionId;
+    public TransactionId transactionId;
 
     /**
      * The scheduled transaction ID
@@ -61,6 +62,7 @@ public final class TransactionResponse {
     @Deprecated
     public final @Nullable TransactionId scheduledTransactionId;
 
+    @Nullable
     private final Transaction transaction;
 
     private boolean validateStatus = true;
@@ -78,7 +80,7 @@ public final class TransactionResponse {
             TransactionId transactionId,
             byte[] transactionHash,
             @Nullable TransactionId scheduledTransactionId,
-            Transaction transaction) {
+            @Nullable Transaction transaction) {
         this.nodeId = nodeId;
         this.transactionId = transactionId;
         this.transactionHash = transactionHash;
@@ -101,6 +103,33 @@ public final class TransactionResponse {
     public TransactionResponse setValidateStatus(boolean validateStatus) {
         this.validateStatus = validateStatus;
         return this;
+    }
+
+    /**
+     * Extract the node ID the transaction was submitted to.
+     *
+     * @return the node ID
+     */
+    public AccountId getNodeId() {
+        return nodeId;
+    }
+
+    /**
+     * Extract the hash of the transaction that was submitted.
+     *
+     * @return the transaction hash
+     */
+    public byte[] getTransactionHash() {
+        return transactionHash;
+    }
+
+    /**
+     * Extract the ID of the transaction that was submitted.
+     *
+     * @return the transaction ID
+     */
+    public TransactionId getTransactionId() {
+        return transactionId;
     }
 
     /**
@@ -129,60 +158,88 @@ public final class TransactionResponse {
      */
     public TransactionReceipt getReceipt(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
-        int attempts = 0;
-        ReceiptStatusException lastException = null;
         long backoffMs = INITIAL_BACKOFF_MS;
 
-        while (attempts < MAX_RETRY_ATTEMPTS) {
+        for (int attempt = 1; ; attempt++) {
             try {
-                // Attempt to execute the receipt query
+                // Attempt to execute the receipt query against the currently bound transaction ID
                 return getReceiptQuery(client).execute(client, timeout).validateStatus(validateStatus);
             } catch (ReceiptStatusException e) {
-                // Check if the exception status indicates throttling or inner transaction throttling
-                if (e.receipt.status == Status.THROTTLED_AT_CONSENSUS) {
-                    lastException = e;
-                    attempts++;
-
-                    if (attempts < MAX_RETRY_ATTEMPTS) {
-                        try {
-                            // Wait with exponential backoff before retrying
-                            Thread.sleep(Math.min(backoffMs, MAX_BACKOFF_MS));
-                            // Double the backoff for next attempt
-                            backoffMs *= 2;
-
-                            // Retry the transaction
-                            return retryTransaction(client);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Retry on throttled status interrupted", ie);
-                        } catch (ReceiptStatusException retryException) {
-                            // Store the exception and continue with the next attempt
-                            lastException = retryException;
-                        }
-                    }
-                } else {
-                    // If not throttled, rethrow the exception immediately
+                // Anything other than a consensus throttle, an exhausted retry budget, or a transaction we
+                // must not resubmit is reported to the caller as-is
+                if (e.receipt.status != Status.THROTTLED_AT_CONSENSUS
+                        || attempt >= MAX_RETRY_ATTEMPTS
+                        || !canResubmitThrottled(client)) {
                     throw e;
                 }
             }
-        }
 
-        // If we've exhausted all retries, throw the last exception
-        throw lastException;
+            try {
+                // Wait with exponential backoff before resubmitting
+                Thread.sleep(Math.min(backoffMs, MAX_BACKOFF_MS));
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Retry on throttled status interrupted", ie);
+            }
+            backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
+
+            // Resubmit under a new transaction ID and rebind this response to it, so the next iteration
+            // queries the receipt of the attempt that actually ran
+            resubmitThrottled(client, timeout);
+        }
     }
 
-    private TransactionReceipt retryTransaction(Client client)
-            throws PrecheckStatusException, TimeoutException, ReceiptStatusException {
-        // reset the transaction body
-        transaction.frozenBodyBuilder = null;
+    /**
+     * Whether a transaction that finalized as {@link Status#THROTTLED_AT_CONSENSUS} may be resubmitted under a
+     * freshly generated transaction ID.
+     *
+     * @param client the client the receipt is being fetched with
+     * @return whether the transaction may be resubmitted
+     */
+    private boolean canResubmitThrottled(Client client) {
+        if (transaction == null) {
+            // this response was not produced by an SDK-managed execute(), so there is nothing to resubmit
+            return false;
+        }
+
+        if (Boolean.FALSE.equals(transaction.getRegenerateTransactionId())) {
+            // the caller explicitly opted out of transaction ID regeneration
+            return false;
+        }
+
+        if (!transaction.canRegenerateSignatures()) {
+            // signatures supplied via addSignature() cannot be reproduced over a new body, so the
+            // resubmission would be under-signed
+            return false;
+        }
+
+        // regenerateTransactionId() always mints an operator-payer ID; resubmitting a transaction paid by
+        // anyone else would silently switch the fee payer
+        var operatorId = client.getOperatorAccountId();
+        return operatorId != null && operatorId.equals(transactionId.accountId);
+    }
+
+    /**
+     * Resubmit the transaction under a freshly generated transaction ID and rebind this response to the new
+     * attempt, so {@link #getReceiptQuery(Client)}, {@link #getRecordQuery(Client)} and {@link #getRecord(Client)}
+     * all follow the transaction that actually ran.
+     *
+     * @param client  the client to resubmit with
+     * @param timeout the timeout after which the execution attempt will be cancelled
+     */
+    private void resubmitThrottled(Client client, Duration timeout) throws PrecheckStatusException, TimeoutException {
+        var tx = Objects.requireNonNull(transaction);
+
+        // reset the transaction body so execute() re-freezes and re-signs it under the new transaction ID
+        tx.frozenBodyBuilder = null;
         // regenerate the transaction id
-        transaction.regenerateTransactionId(client);
-        TransactionResponse transactionResponse = (TransactionResponse) this.transaction.execute(client);
-        return new TransactionReceiptQuery()
-                .setTransactionId(transactionResponse.transactionId)
-                .setNodeAccountIds(List.of(transactionResponse.nodeId))
-                .execute(client)
-                .validateStatus(validateStatus);
+        tx.regenerateTransactionId(client);
+
+        var response = (TransactionResponse) tx.execute(client, timeout);
+
+        this.transactionId = response.transactionId;
+        this.nodeId = response.nodeId;
+        this.transactionHash = response.transactionHash;
     }
 
     /**
@@ -310,8 +367,10 @@ public final class TransactionResponse {
      */
     public TransactionRecord getRecord(Client client, Duration timeout)
             throws TimeoutException, PrecheckStatusException, ReceiptStatusException {
+        // getReceipt() rebinds this response if the transaction had to be resubmitted, so the record query
+        // below is built from the transaction that actually ran
         getReceipt(client, timeout);
-        return getRecordQuery(client).execute(client, timeout);
+        return getRecordQuery(client).execute(client, timeout).validateReceiptStatus(validateStatus);
     }
 
     /**
@@ -359,8 +418,15 @@ public final class TransactionResponse {
      * @return future result of the transaction record
      */
     public CompletableFuture<TransactionRecord> getRecordAsync(Client client, Duration timeout) {
-        return getReceiptAsync(client, timeout)
-                .thenCompose((receipt) -> getRecordQuery(client).executeAsync(client, timeout));
+        return getReceiptAsync(client, timeout).thenCompose((receipt) -> getRecordQuery(client)
+                .executeAsync(client, timeout)
+                .thenCompose(record -> {
+                    try {
+                        return CompletableFuture.completedFuture(record.validateReceiptStatus(validateStatus));
+                    } catch (ReceiptStatusException e) {
+                        return CompletableFuture.failedFuture(e);
+                    }
+                }));
     }
 
     /**
