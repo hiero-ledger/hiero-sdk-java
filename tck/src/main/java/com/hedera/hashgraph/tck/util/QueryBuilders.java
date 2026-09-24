@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.util;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractByteCodeQuery;
 import com.hedera.hashgraph.sdk.ContractCallQuery;
@@ -21,7 +20,6 @@ import com.hedera.hashgraph.sdk.TopicInfoQuery;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.TransactionReceiptQuery;
 import com.hedera.hashgraph.tck.methods.sdk.param.TransactionReceiptQueryParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.file.FileContentsParams;
@@ -52,21 +50,6 @@ public class QueryBuilders {
         public static TokenNftInfoQuery buildNftInfo(NftInfoQueryParams params) {
             TokenNftInfoQuery query = new TokenNftInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
             query.setNftId(NftId.fromString(params.getNftId()));
-
-            return query;
-        }
-    }
-
-    /**
-     * Account-related query builders
-     */
-    public static class AccountBuilder {
-
-        public static AccountBalanceQuery buildAccountBalanceQuery(AccountBalanceQueryParams params) {
-            AccountBalanceQuery query = new AccountBalanceQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            params.getAccountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
-            params.getContractId()
-                    .ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
 
             return query;
         }

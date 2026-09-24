@@ -8,6 +8,7 @@ import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.BaseParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.PingParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.SetupParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.SetupResponse;
 import java.util.HashMap;
@@ -71,6 +72,18 @@ public class SdkService extends AbstractJSONRPC2Service {
             client.close();
         }
         return new SetupResponse("");
+    }
+
+    @JSONRPC2Method("ping")
+    public SetupResponse ping(final PingParams params) throws Exception {
+        getClient(params.getSessionId()).ping(AccountId.fromString(params.getNodeAccountId()));
+        return new SetupResponse("Successfully pinged node " + params.getNodeAccountId() + ".");
+    }
+
+    @JSONRPC2Method("pingAll")
+    public SetupResponse pingAll(final BaseParams params) throws Exception {
+        getClient(params.getSessionId()).pingAll();
+        return new SetupResponse("Successfully pinged all nodes.");
     }
 
     public Client getClient(final String sessionId) {

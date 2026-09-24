@@ -10,6 +10,8 @@ description = "Hiero SDK TCK Server"
 version = "0.0.1"
 
 mainModuleInfo {
+    requires("ch.qos.logback.classic")
+    requires("ch.qos.logback.core")
     requires("com.thetransactioncompany.jsonrpc2.base")
     requires("com.thetransactioncompany.jsonrpc2.server")
     requires("net.minidev.json.smart")
