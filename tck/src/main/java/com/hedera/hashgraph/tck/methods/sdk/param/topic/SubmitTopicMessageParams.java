@@ -7,23 +7,19 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * SubmitTopicMessageParams for topic message submit method
  */
-@Getter
-@AllArgsConstructor
-public class SubmitTopicMessageParams implements JSONRPC2Param {
-    private Optional<String> topicId;
-    private Optional<String> message;
-    private Optional<Long> maxChunks;
-    private Optional<Long> chunkSize;
-    private Optional<List<CustomFeeLimit>> customFeeLimits;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record SubmitTopicMessageParams(
+        Optional<String> topicId,
+        Optional<String> message,
+        Optional<Long> maxChunks,
+        Optional<Long> chunkSize,
+        Optional<List<CustomFeeLimit>> customFeeLimits,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static SubmitTopicMessageParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTopicId = Optional.ofNullable((String) jrpcParams.get("topicId"));
         var parsedMessage = Optional.ofNullable((String) jrpcParams.get("message"));

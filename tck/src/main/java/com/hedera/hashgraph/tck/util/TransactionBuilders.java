@@ -106,7 +106,7 @@ public class TransactionBuilders {
             AccountCreateTransaction transaction =
                     new AccountCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getKey().ifPresent(key -> {
+            params.key().ifPresent(key -> {
                 try {
                     transaction.setKeyWithoutAlias(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -114,32 +114,31 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getInitialBalance()
+            params.initialBalance()
                     .ifPresent(initialBalanceTinybars -> transaction.setInitialBalance(
                             Hbar.from(Long.parseLong(initialBalanceTinybars), HbarUnit.TINYBAR)));
 
-            params.getReceiverSignatureRequired().ifPresent(transaction::setReceiverSignatureRequired);
+            params.receiverSignatureRequired().ifPresent(transaction::setReceiverSignatureRequired);
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(autoRenewPeriodSeconds ->
                             transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
 
-            params.getMemo().ifPresent(transaction::setAccountMemo);
+            params.memo().ifPresent(transaction::setAccountMemo);
 
-            params.getMaxAutoTokenAssociations()
+            params.maxAutoTokenAssociations()
                     .ifPresent(autoAssociations ->
                             transaction.setMaxAutomaticTokenAssociations(autoAssociations.intValue()));
 
-            params.getStakedAccountId()
+            params.stakedAccountId()
                     .ifPresent(
                             stakedAccountId -> transaction.setStakedAccountId(AccountId.fromString(stakedAccountId)));
 
-            params.getStakedNodeId()
-                    .ifPresent(stakedNodeId -> transaction.setStakedNodeId(Long.parseLong(stakedNodeId)));
+            params.stakedNodeId().ifPresent(stakedNodeId -> transaction.setStakedNodeId(Long.parseLong(stakedNodeId)));
 
-            params.getDeclineStakingReward().ifPresent(transaction::setDeclineStakingReward);
+            params.declineStakingReward().ifPresent(transaction::setDeclineStakingReward);
 
-            params.getAlias().ifPresent(transaction::setAlias);
+            params.alias().ifPresent(transaction::setAlias);
 
             return transaction;
         }
@@ -157,9 +156,9 @@ public class TransactionBuilders {
             AccountUpdateTransaction transaction =
                     new AccountUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
-            params.getKey().ifPresent(key -> {
+            params.key().ifPresent(key -> {
                 try {
                     transaction.setKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -167,30 +166,29 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getReceiverSignatureRequired().ifPresent(transaction::setReceiverSignatureRequired);
+            params.receiverSignatureRequired().ifPresent(transaction::setReceiverSignatureRequired);
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(autoRenewPeriodSeconds ->
                             transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
 
-            params.getMemo().ifPresent(transaction::setAccountMemo);
+            params.memo().ifPresent(transaction::setAccountMemo);
 
-            params.getExpirationTime()
+            params.expirationTime()
                     .ifPresent(expirationTime ->
                             transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
 
-            params.getMaxAutoTokenAssociations()
+            params.maxAutoTokenAssociations()
                     .ifPresent(autoAssociations ->
                             transaction.setMaxAutomaticTokenAssociations(autoAssociations.intValue()));
 
-            params.getStakedAccountId()
+            params.stakedAccountId()
                     .ifPresent(
                             stakedAccountId -> transaction.setStakedAccountId(AccountId.fromString(stakedAccountId)));
 
-            params.getStakedNodeId()
-                    .ifPresent(stakedNodeId -> transaction.setStakedNodeId(Long.parseLong(stakedNodeId)));
+            params.stakedNodeId().ifPresent(stakedNodeId -> transaction.setStakedNodeId(Long.parseLong(stakedNodeId)));
 
-            params.getDeclineStakingReward().ifPresent(transaction::setDeclineStakingReward);
+            params.declineStakingReward().ifPresent(transaction::setDeclineStakingReward);
 
             return transaction;
         }
@@ -208,10 +206,9 @@ public class TransactionBuilders {
             AccountDeleteTransaction transaction =
                     new AccountDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getDeleteAccountId()
-                    .ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.deleteAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
-            params.getTransferAccountId()
+            params.transferAccountId()
                     .ifPresent(accountId -> transaction.setTransferAccountId(AccountId.fromString(accountId)));
 
             return transaction;
@@ -230,7 +227,7 @@ public class TransactionBuilders {
             AccountAllowanceApproveTransaction transaction =
                     new AccountAllowanceApproveTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAllowances()
+            params.allowances()
                     .ifPresent(allowances -> allowances.forEach(allowance -> approve(transaction, allowance)));
 
             return transaction;
@@ -249,7 +246,7 @@ public class TransactionBuilders {
             AccountAllowanceDeleteTransaction transaction =
                     new AccountAllowanceDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAllowances()
+            params.allowances()
                     .ifPresent(allowances -> allowances.forEach(allowance -> delete(transaction, allowance)));
 
             return transaction;
@@ -267,31 +264,31 @@ public class TransactionBuilders {
         private static void approve(
                 AccountAllowanceApproveTransaction tx,
                 com.hedera.hashgraph.tck.methods.sdk.param.account.AllowanceParams allowance) {
-            AccountId owner = AccountId.fromString(allowance.getOwnerAccountId().orElseThrow());
+            AccountId owner = AccountId.fromString(allowance.ownerAccountId().orElseThrow());
             AccountId spender =
-                    AccountId.fromString(allowance.getSpenderAccountId().orElseThrow());
+                    AccountId.fromString(allowance.spenderAccountId().orElseThrow());
 
             allowance
-                    .getHbar()
-                    .ifPresent(hbar -> tx.approveHbarAllowance(
-                            owner, spender, Hbar.fromTinybars(Long.parseLong(hbar.getAmount()))));
+                    .hbar()
+                    .ifPresent(hbar ->
+                            tx.approveHbarAllowance(owner, spender, Hbar.fromTinybars(Long.parseLong(hbar.amount()))));
 
             allowance
-                    .getToken()
+                    .token()
                     .ifPresent(token -> tx.approveTokenAllowance(
-                            TokenId.fromString(token.getTokenId()), owner, spender, token.getAmount()));
+                            TokenId.fromString(token.tokenId()), owner, spender, token.amount()));
 
-            allowance.getNft().ifPresent(nft -> approveNFT(tx, owner, spender, nft));
+            allowance.nft().ifPresent(nft -> approveNFT(tx, owner, spender, nft));
         }
 
         private static void delete(
                 AccountAllowanceDeleteTransaction tx,
                 com.hedera.hashgraph.tck.methods.sdk.param.account.AllowanceParams allowance) {
-            var owner = AccountId.fromString(allowance.getOwnerAccountId().orElseThrow());
-            var tokenId = allowance.getTokenId().orElseThrow();
+            var owner = AccountId.fromString(allowance.ownerAccountId().orElseThrow());
+            var tokenId = allowance.tokenId().orElseThrow();
 
-            if (allowance.getSerialNumbers().isPresent()) {
-                allowance.getSerialNumbers().get().forEach(serialNumber -> {
+            if (allowance.serialNumbers().isPresent()) {
+                allowance.serialNumbers().get().forEach(serialNumber -> {
                     var nftId = new NftId(TokenId.fromString(tokenId), Long.parseLong(serialNumber));
                     tx.deleteAllTokenNftAllowances(nftId, owner);
                 });
@@ -303,17 +300,17 @@ public class TransactionBuilders {
                 AccountId owner,
                 AccountId spender,
                 com.hedera.hashgraph.tck.methods.sdk.param.account.AllowanceParams.TokenNftAllowance nft) {
-            TokenId tokenId = TokenId.fromString(nft.getTokenId());
-            Optional<String> delegateSpender = Optional.ofNullable(nft.getDelegatingSpender());
+            TokenId tokenId = TokenId.fromString(nft.tokenId());
+            Optional<String> delegateSpender = Optional.ofNullable(nft.delegatingSpender());
 
-            if (!nft.getSerialNumbers().isEmpty()) {
-                nft.getSerialNumbers().forEach(serial -> {
+            if (!nft.serialNumbers().isEmpty()) {
+                nft.serialNumbers().forEach(serial -> {
                     NftId nftId = new NftId(tokenId, serial);
                     delegateSpender.ifPresentOrElse(
                             ds -> tx.approveTokenNftAllowance(nftId, owner, spender, AccountId.fromString(ds)),
                             () -> tx.approveTokenNftAllowance(nftId, owner, spender));
                 });
-            } else if (nft.getAllSerials()) {
+            } else if (nft.allSerials()) {
                 tx.approveTokenNftAllowanceAllSerials(tokenId, owner, spender);
             } else {
                 tx.deleteTokenNftAllowanceAllSerials(tokenId, owner, spender);
@@ -329,7 +326,7 @@ public class TransactionBuilders {
         public static TransferTransaction buildTransfer(TransferCryptoParams params) {
             TransferTransaction transaction = new TransferTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTransfers()
+            params.transfers()
                     .ifPresent(transfers ->
                             transfers.forEach(txParams -> AccountService.processTransfer(transaction, txParams)));
 
@@ -354,46 +351,46 @@ public class TransactionBuilders {
         public static TokenCreateTransaction buildCreate(TokenCreateParams params) {
             TokenCreateTransaction transaction = new TokenCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            setKey(params.getAdminKey(), transaction::setAdminKey, "admin");
-            setKey(params.getKycKey(), transaction::setKycKey, "kyc");
-            setKey(params.getFreezeKey(), transaction::setFreezeKey, "freeze");
-            setKey(params.getWipeKey(), transaction::setWipeKey, "wipe");
-            setKey(params.getSupplyKey(), transaction::setSupplyKey, "supply");
-            setKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
-            setKey(params.getPauseKey(), transaction::setPauseKey, "pause");
-            setKey(params.getMetadataKey(), transaction::setMetadataKey, "metadata");
+            setKey(params.adminKey(), transaction::setAdminKey, "admin");
+            setKey(params.kycKey(), transaction::setKycKey, "kyc");
+            setKey(params.freezeKey(), transaction::setFreezeKey, "freeze");
+            setKey(params.wipeKey(), transaction::setWipeKey, "wipe");
+            setKey(params.supplyKey(), transaction::setSupplyKey, "supply");
+            setKey(params.feeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+            setKey(params.pauseKey(), transaction::setPauseKey, "pause");
+            setKey(params.metadataKey(), transaction::setMetadataKey, "metadata");
 
-            params.getName().ifPresent(transaction::setTokenName);
-            params.getSymbol().ifPresent(transaction::setTokenSymbol);
-            params.getDecimals().ifPresent(decimals -> transaction.setDecimals(decimals.intValue()));
-            params.getInitialSupply()
+            params.name().ifPresent(transaction::setTokenName);
+            params.symbol().ifPresent(transaction::setTokenSymbol);
+            params.decimals().ifPresent(decimals -> transaction.setDecimals(decimals.intValue()));
+            params.initialSupply()
                     .ifPresent(initialSupply -> transaction.setInitialSupply(Long.parseLong(initialSupply)));
 
-            params.getTreasuryAccountId()
+            params.treasuryAccountId()
                     .ifPresent(treasuryAccountId ->
                             transaction.setTreasuryAccountId(AccountId.fromString(treasuryAccountId)));
 
-            params.getFreezeDefault().ifPresent(transaction::setFreezeDefault);
+            params.freezeDefault().ifPresent(transaction::setFreezeDefault);
 
-            params.getExpirationTime()
+            params.expirationTime()
                     .ifPresent(expirationTime ->
                             transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
 
-            params.getAutoRenewAccountId()
+            params.autoRenewAccountId()
                     .ifPresent(autoRenewAccountId ->
                             transaction.setAutoRenewAccountId(AccountId.fromString(autoRenewAccountId)));
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(autoRenewPeriodSeconds ->
                             transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
 
-            params.getMemo().ifPresent(transaction::setTokenMemo);
-            params.getMetadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
-            params.getTokenType().ifPresent(tokenType -> transaction.setTokenType(parseTokenType(tokenType)));
+            params.memo().ifPresent(transaction::setTokenMemo);
+            params.metadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
+            params.tokenType().ifPresent(tokenType -> transaction.setTokenType(parseTokenType(tokenType)));
 
-            params.getSupplyType().ifPresent(supplyType -> transaction.setSupplyType(parseSupplyType(supplyType)));
+            params.supplyType().ifPresent(supplyType -> transaction.setSupplyType(parseSupplyType(supplyType)));
 
-            params.getMaxSupply().ifPresent(maxSupply -> transaction.setMaxSupply(Long.parseLong(maxSupply)));
+            params.maxSupply().ifPresent(maxSupply -> transaction.setMaxSupply(Long.parseLong(maxSupply)));
 
             setCustomFees(params, transaction);
 
@@ -431,7 +428,7 @@ public class TransactionBuilders {
         }
 
         private static void setCustomFees(TokenCreateParams params, TokenCreateTransaction transaction) {
-            params.getCustomFees().ifPresent(customFees -> {
+            params.customFees().ifPresent(customFees -> {
                 if (!customFees.isEmpty()) {
                     List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
                             customFees.get(0).fillOutCustomFees(customFees);
@@ -452,9 +449,9 @@ public class TransactionBuilders {
         public static TokenUpdateTransaction buildUpdate(TokenUpdateParams params) {
             TokenUpdateTransaction transaction = new TokenUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
-            params.getAdminKey().ifPresent(key -> {
+            params.adminKey().ifPresent(key -> {
                 try {
                     transaction.setAdminKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -462,7 +459,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getKycKey().ifPresent(key -> {
+            params.kycKey().ifPresent(key -> {
                 try {
                     transaction.setKycKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -470,7 +467,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getFreezeKey().ifPresent(key -> {
+            params.freezeKey().ifPresent(key -> {
                 try {
                     transaction.setFreezeKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -478,7 +475,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getWipeKey().ifPresent(key -> {
+            params.wipeKey().ifPresent(key -> {
                 try {
                     transaction.setWipeKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -486,7 +483,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getSupplyKey().ifPresent(key -> {
+            params.supplyKey().ifPresent(key -> {
                 try {
                     transaction.setSupplyKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -494,7 +491,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getFeeScheduleKey().ifPresent(key -> {
+            params.feeScheduleKey().ifPresent(key -> {
                 try {
                     transaction.setFeeScheduleKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -502,7 +499,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getPauseKey().ifPresent(key -> {
+            params.pauseKey().ifPresent(key -> {
                 try {
                     transaction.setPauseKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -510,7 +507,7 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getMetadataKey().ifPresent(key -> {
+            params.metadataKey().ifPresent(key -> {
                 try {
                     transaction.setMetadataKey(KeyUtils.getKeyFromString(key));
                 } catch (InvalidProtocolBufferException e) {
@@ -518,27 +515,27 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getName().ifPresent(transaction::setTokenName);
-            params.getSymbol().ifPresent(transaction::setTokenSymbol);
-            params.getMemo().ifPresent(transaction::setTokenMemo);
+            params.name().ifPresent(transaction::setTokenName);
+            params.symbol().ifPresent(transaction::setTokenSymbol);
+            params.memo().ifPresent(transaction::setTokenMemo);
 
-            params.getTreasuryAccountId()
+            params.treasuryAccountId()
                     .ifPresent(treasuryAccountId ->
                             transaction.setTreasuryAccountId(AccountId.fromString(treasuryAccountId)));
 
-            params.getAutoRenewAccountId()
+            params.autoRenewAccountId()
                     .ifPresent(autoRenewAccountId ->
                             transaction.setAutoRenewAccountId(AccountId.fromString(autoRenewAccountId)));
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(autoRenewPeriodSeconds ->
                             transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(autoRenewPeriodSeconds))));
 
-            params.getExpirationTime()
+            params.expirationTime()
                     .ifPresent(expirationTime ->
                             transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTime))));
 
-            params.getMetadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
+            params.metadata().ifPresent(metadata -> transaction.setTokenMetadata(metadata.getBytes()));
 
             return transaction;
         }
@@ -555,7 +552,7 @@ public class TransactionBuilders {
         public static TokenDeleteTransaction buildDelete(TokenDeleteParams params) {
             TokenDeleteTransaction transaction = new TokenDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             return transaction;
         }
@@ -572,15 +569,15 @@ public class TransactionBuilders {
         public static TokenMintTransaction buildMint(MintTokenParams params) {
             TokenMintTransaction transaction = new TokenMintTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             try {
-                params.getAmount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
+                params.amount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
             } catch (NumberFormatException e) {
                 transaction.setAmount(-1L);
             }
 
-            params.getMetadata()
+            params.metadata()
                     .ifPresent(metadata -> transaction.setMetadata(
                             metadata.stream().map(Hex::decode).toList()));
 
@@ -599,15 +596,15 @@ public class TransactionBuilders {
         public static TokenBurnTransaction buildBurn(BurnTokenParams params) {
             TokenBurnTransaction transaction = new TokenBurnTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             try {
-                params.getAmount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
+                params.amount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
             } catch (NumberFormatException e) {
                 transaction.setAmount(-1L);
             }
 
-            params.getSerialNumbers().ifPresent(serialNumbers -> {
+            params.serialNumbers().ifPresent(serialNumbers -> {
                 List<Long> tokenIdList =
                         serialNumbers.stream().map(Long::parseLong).collect(Collectors.toList());
                 transaction.setSerials(tokenIdList);
@@ -628,17 +625,17 @@ public class TransactionBuilders {
         public static TokenWipeTransaction buildWipe(TokenWipeParams params) {
             TokenWipeTransaction transaction = new TokenWipeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             try {
-                params.getAmount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
+                params.amount().ifPresent(amount -> transaction.setAmount(Long.parseLong(amount)));
             } catch (NumberFormatException e) {
                 transaction.setAmount(-1L);
             }
 
-            params.getSerialNumbers().ifPresent(serialNumbers -> {
+            params.serialNumbers().ifPresent(serialNumbers -> {
                 List<Long> serialNumbersList = new ArrayList<>();
                 for (String serialNumber : serialNumbers) {
                     serialNumbersList.add(Long.parseLong(serialNumber));
@@ -672,8 +669,8 @@ public class TransactionBuilders {
             TokenAssociateTransaction transaction =
                     new TokenAssociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
-            params.getTokenIds().ifPresent(tokenIds -> {
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenIds().ifPresent(tokenIds -> {
                 List<TokenId> tokenIdList =
                         tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
                 transaction.setTokenIds(tokenIdList);
@@ -695,8 +692,8 @@ public class TransactionBuilders {
             TokenDissociateTransaction transaction =
                     new TokenDissociateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
-            params.getTokenIds().ifPresent(tokenIds -> {
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenIds().ifPresent(tokenIds -> {
                 List<TokenId> tokenIdList =
                         tokenIds.stream().map(TokenId::fromString).collect(Collectors.toList());
                 transaction.setTokenIds(tokenIdList);
@@ -717,8 +714,8 @@ public class TransactionBuilders {
         public static TokenFreezeTransaction buildFreeze(FreezeUnfreezeTokenParams params) {
             TokenFreezeTransaction transaction = new TokenFreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
@@ -736,8 +733,8 @@ public class TransactionBuilders {
             TokenUnfreezeTransaction transaction =
                     new TokenUnfreezeTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
@@ -755,8 +752,8 @@ public class TransactionBuilders {
             TokenGrantKycTransaction transaction =
                     new TokenGrantKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
@@ -774,8 +771,8 @@ public class TransactionBuilders {
             TokenRevokeKycTransaction transaction =
                     new TokenRevokeKycTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
-            params.getAccountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.accountId().ifPresent(accountId -> transaction.setAccountId(AccountId.fromString(accountId)));
 
             return transaction;
         }
@@ -792,7 +789,7 @@ public class TransactionBuilders {
         public static TokenPauseTransaction buildPause(PauseUnpauseTokenParams params) {
             TokenPauseTransaction transaction = new TokenPauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             return transaction;
         }
@@ -809,7 +806,7 @@ public class TransactionBuilders {
         public static TokenUnpauseTransaction buildUnpause(PauseUnpauseTokenParams params) {
             TokenUnpauseTransaction transaction = new TokenUnpauseTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
             return transaction;
         }
@@ -818,9 +815,9 @@ public class TransactionBuilders {
             TokenFeeScheduleUpdateTransaction transaction =
                     new TokenFeeScheduleUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> transaction.setTokenId(TokenId.fromString(tokenId)));
 
-            params.getCustomFees().ifPresent(customFees -> {
+            params.customFees().ifPresent(customFees -> {
                 if (!customFees.isEmpty()) {
                     List<com.hedera.hashgraph.sdk.CustomFee> sdkCustomFees =
                             customFees.get(0).fillOutCustomFees(customFees);
@@ -843,7 +840,7 @@ public class TransactionBuilders {
         public static TokenAirdropTransaction buildAirdrop(TokenAirdropParams params) {
             TokenAirdropTransaction transaction = new TokenAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTokenTransfers().ifPresent(transferParams -> {
+            params.tokenTransfers().ifPresent(transferParams -> {
                 for (com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams transferParam :
                         transferParams) {
                     try {
@@ -870,18 +867,18 @@ public class TransactionBuilders {
             TokenCancelAirdropTransaction transaction =
                     new TokenCancelAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getPendingAirdrops().ifPresent(pendingAirdrops -> {
+            params.pendingAirdrops().ifPresent(pendingAirdrops -> {
                 for (PendingAirdropParams pendingAirdrop : pendingAirdrops) {
-                    String tokenId = pendingAirdrop.getTokenId().orElseThrow();
-                    String senderAccountId = pendingAirdrop.getSenderAccountId().orElseThrow();
+                    String tokenId = pendingAirdrop.tokenId().orElseThrow();
+                    String senderAccountId = pendingAirdrop.senderAccountId().orElseThrow();
                     String receiverAccountId =
-                            pendingAirdrop.getReceiverAccountId().orElseThrow();
+                            pendingAirdrop.receiverAccountId().orElseThrow();
 
                     // NFT token cancellation
-                    if (pendingAirdrop.getSerialNumbers().isPresent()
-                            && !pendingAirdrop.getSerialNumbers().get().isEmpty()) {
+                    if (pendingAirdrop.serialNumbers().isPresent()
+                            && !pendingAirdrop.serialNumbers().get().isEmpty()) {
                         List<String> serialNumbers =
-                                pendingAirdrop.getSerialNumbers().get();
+                                pendingAirdrop.serialNumbers().get();
                         for (String serialNumber : serialNumbers) {
                             PendingAirdropId pendingAirdropId = new PendingAirdropId(
                                     AccountId.fromString(senderAccountId),
@@ -916,14 +913,14 @@ public class TransactionBuilders {
             TokenClaimAirdropTransaction transaction =
                     new TokenClaimAirdropTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            String senderAccountId = params.getSenderAccountId().orElseThrow();
-            String receiverAccountId = params.getReceiverAccountId().orElseThrow();
-            String tokenId = params.getTokenId().orElseThrow();
+            String senderAccountId = params.senderAccountId().orElseThrow();
+            String receiverAccountId = params.receiverAccountId().orElseThrow();
+            String tokenId = params.tokenId().orElseThrow();
 
             // NFT token claiming
-            if (params.getSerialNumbers().isPresent()
-                    && !params.getSerialNumbers().get().isEmpty()) {
-                List<String> serialNumbers = params.getSerialNumbers().get();
+            if (params.serialNumbers().isPresent()
+                    && !params.serialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = params.serialNumbers().get();
                 for (String serialNumber : serialNumbers) {
                     PendingAirdropId pendingAirdropId = new PendingAirdropId(
                             AccountId.fromString(senderAccountId),
@@ -946,19 +943,18 @@ public class TransactionBuilders {
         public static TokenRejectTransaction buildRejectAirdrop(TokenRejectAirdropParams params) {
             TokenRejectTransaction transaction = new TokenRejectTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            String ownerAccountId = params.getOwnerAccountId().orElseThrow();
+            String ownerAccountId = params.ownerAccountId().orElseThrow();
             transaction.setOwnerId(AccountId.fromString(ownerAccountId));
 
-            if (params.getSerialNumbers().isPresent()
-                    && !params.getSerialNumbers().get().isEmpty()) {
-                List<String> serialNumbers = params.getSerialNumbers().get();
+            if (params.serialNumbers().isPresent()
+                    && !params.serialNumbers().get().isEmpty()) {
+                List<String> serialNumbers = params.serialNumbers().get();
                 for (String serialNumber : serialNumbers) {
                     transaction.addNftId(new NftId(
-                            TokenId.fromString(params.getTokenIds().get().getFirst()), Long.parseLong(serialNumber)));
+                            TokenId.fromString(params.tokenIds().get().getFirst()), Long.parseLong(serialNumber)));
                 }
-            } else if (params.getTokenIds().isPresent()
-                    && !params.getTokenIds().get().isEmpty()) {
-                List<String> tokenIds = params.getTokenIds().get();
+            } else if (params.tokenIds().isPresent() && !params.tokenIds().get().isEmpty()) {
+                List<String> tokenIds = params.tokenIds().get();
                 for (String id : tokenIds) {
                     transaction.addTokenId(TokenId.fromString(id));
                 }
@@ -985,19 +981,19 @@ public class TransactionBuilders {
         public static TopicCreateTransaction buildCreate(CreateTopicParams params) {
             TopicCreateTransaction transaction = new TopicCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getMemo().ifPresent(transaction::setTopicMemo);
+            params.memo().ifPresent(transaction::setTopicMemo);
 
-            setTopicKey(params.getAdminKey(), transaction::setAdminKey, "admin");
-            setTopicKey(params.getSubmitKey(), transaction::setSubmitKey, "submit");
-            setTopicKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+            setTopicKey(params.adminKey(), transaction::setAdminKey, "admin");
+            setTopicKey(params.submitKey(), transaction::setSubmitKey, "submit");
+            setTopicKey(params.feeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
 
             setFeeExemptKeys(params, transaction);
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(
                             periodStr -> transaction.setAutoRenewPeriod(parseDuration(periodStr, "auto renew period")));
 
-            setAccountId(params.getAutoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
+            setAccountId(params.autoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
 
             setTopicCustomFees(params, transaction);
 
@@ -1015,7 +1011,7 @@ public class TransactionBuilders {
         }
 
         private static void setFeeExemptKeys(CreateTopicParams params, TopicCreateTransaction transaction) {
-            params.getFeeExemptKeys().ifPresent(keyStrings -> {
+            params.feeExemptKeys().ifPresent(keyStrings -> {
                 if (keyStrings.isEmpty()) {
                     transaction.clearFeeExemptKeys();
                 } else {
@@ -1033,7 +1029,7 @@ public class TransactionBuilders {
         }
 
         private static void setFeeExemptKeys(UpdateTopicParams params, TopicUpdateTransaction transaction) {
-            params.getFeeExemptKeys().ifPresent(keyStrings -> {
+            params.feeExemptKeys().ifPresent(keyStrings -> {
                 if (keyStrings.isEmpty()) {
                     // Empty array means clear all fee exempt keys
                     transaction.clearFeeExemptKeys();
@@ -1081,7 +1077,7 @@ public class TransactionBuilders {
         }
 
         private static void setTopicCustomFees(CreateTopicParams params, TopicCreateTransaction transaction) {
-            params.getCustomFees().ifPresent(customFees -> {
+            params.customFees().ifPresent(customFees -> {
                 if (customFees.isEmpty()) {
                     transaction.clearCustomFees();
                 } else {
@@ -1103,7 +1099,7 @@ public class TransactionBuilders {
         }
 
         private static void setTopicCustomFees(UpdateTopicParams params, TopicUpdateTransaction transaction) {
-            params.getCustomFees().ifPresent(customFees -> {
+            params.customFees().ifPresent(customFees -> {
                 if (customFees.isEmpty()) {
                     // Empty array means clear all custom fees
                     transaction.clearCustomFees();
@@ -1138,23 +1134,23 @@ public class TransactionBuilders {
         public static TopicUpdateTransaction buildUpdate(UpdateTopicParams params) {
             TopicUpdateTransaction transaction = new TopicUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            setTopicId(params.getTopicId(), transaction::setTopicId);
+            setTopicId(params.topicId(), transaction::setTopicId);
 
-            params.getMemo().ifPresent(transaction::setTopicMemo);
+            params.memo().ifPresent(transaction::setTopicMemo);
 
-            setTopicKey(params.getAdminKey(), transaction::setAdminKey, "admin");
-            setTopicKey(params.getSubmitKey(), transaction::setSubmitKey, "submit");
-            setTopicKey(params.getFeeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
+            setTopicKey(params.adminKey(), transaction::setAdminKey, "admin");
+            setTopicKey(params.submitKey(), transaction::setSubmitKey, "submit");
+            setTopicKey(params.feeScheduleKey(), transaction::setFeeScheduleKey, "fee schedule");
 
             setFeeExemptKeys(params, transaction);
 
-            params.getAutoRenewPeriod()
+            params.autoRenewPeriod()
                     .ifPresent(
                             periodStr -> transaction.setAutoRenewPeriod(parseDuration(periodStr, "auto renew period")));
 
-            setAccountId(params.getAutoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
+            setAccountId(params.autoRenewAccountId(), transaction::setAutoRenewAccountId, "auto renew account ID");
 
-            params.getExpirationTime()
+            params.expirationTime()
                     .ifPresent(expirationTimeStr ->
                             transaction.setExpirationTime(parseDuration(expirationTimeStr, "expiration time")));
 
@@ -1175,7 +1171,7 @@ public class TransactionBuilders {
         public static TopicDeleteTransaction buildDelete(DeleteTopicParams params) {
             TopicDeleteTransaction transaction = new TopicDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTopicId().ifPresent(topicIdStr -> {
+            params.topicId().ifPresent(topicIdStr -> {
                 try {
                     transaction.setTopicId(TopicId.fromString(topicIdStr));
                 } catch (Exception e) {
@@ -1199,7 +1195,7 @@ public class TransactionBuilders {
             TopicMessageSubmitTransaction transaction =
                     new TopicMessageSubmitTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getTopicId().ifPresent(topicIdStr -> {
+            params.topicId().ifPresent(topicIdStr -> {
                 try {
                     transaction.setTopicId(TopicId.fromString(topicIdStr));
                 } catch (Exception e) {
@@ -1207,28 +1203,28 @@ public class TransactionBuilders {
                 }
             });
 
-            if (params.getMessage().isEmpty()) {
+            if (params.message().isEmpty()) {
                 throw new IllegalArgumentException("Message is required");
             } else {
-                String message = params.getMessage().get();
+                String message = params.message().get();
                 transaction.setMessage(message.getBytes());
             }
 
-            params.getMaxChunks().ifPresent(maxChunks -> {
+            params.maxChunks().ifPresent(maxChunks -> {
                 transaction.setMaxChunks(maxChunks.intValue());
             });
 
-            params.getChunkSize().ifPresent(chunkSize -> {
+            params.chunkSize().ifPresent(chunkSize -> {
                 transaction.setChunkSize(chunkSize.intValue());
             });
 
-            params.getCustomFeeLimits().ifPresent(customFeeLimits -> {
+            params.customFeeLimits().ifPresent(customFeeLimits -> {
                 for (CustomFeeLimit customFeeLimitParam : customFeeLimits) {
                     com.hedera.hashgraph.sdk.CustomFeeLimit sdkCustomFeeLimit =
                             new com.hedera.hashgraph.sdk.CustomFeeLimit();
 
                     // Set payer ID if present
-                    customFeeLimitParam.getPayerId().ifPresent(payerIdStr -> {
+                    customFeeLimitParam.payerId().ifPresent(payerIdStr -> {
                         try {
                             sdkCustomFeeLimit.setPayerId(AccountId.fromString(payerIdStr));
                         } catch (Exception e) {
@@ -1237,20 +1233,19 @@ public class TransactionBuilders {
                     });
 
                     // Process fixed fees
-                    customFeeLimitParam.getFixedFees().ifPresent(fixedFees -> {
+                    customFeeLimitParam.fixedFees().ifPresent(fixedFees -> {
                         List<CustomFixedFee> sdkFixedFees = new ArrayList<>();
 
                         for (com.hedera.hashgraph.tck.methods.sdk.param.CustomFee.FixedFee fixedFee : fixedFees) {
                             CustomFixedFee sdkFixedFee = new CustomFixedFee();
 
                             try {
-                                sdkFixedFee.setAmount(Long.parseLong(fixedFee.getAmount()));
+                                sdkFixedFee.setAmount(Long.parseLong(fixedFee.amount()));
                             } catch (NumberFormatException e) {
-                                throw new IllegalArgumentException(
-                                        "Invalid fixed fee amount: " + fixedFee.getAmount(), e);
+                                throw new IllegalArgumentException("Invalid fixed fee amount: " + fixedFee.amount(), e);
                             }
 
-                            fixedFee.getDenominatingTokenId().ifPresent(tokenIdStr -> {
+                            fixedFee.denominatingTokenId().ifPresent(tokenIdStr -> {
                                 try {
                                     sdkFixedFee.setDenominatingTokenId(TokenId.fromString(tokenIdStr));
                                 } catch (Exception e) {
@@ -1291,7 +1286,7 @@ public class TransactionBuilders {
             FileCreateTransaction transaction = new FileCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
             // Handle keys (optional)
-            params.getKeys().ifPresent(keyStrings -> {
+            params.keys().ifPresent(keyStrings -> {
                 try {
                     Key[] keys = new Key[keyStrings.size()];
                     for (int i = 0; i < keyStrings.size(); i++) {
@@ -1303,13 +1298,13 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getContents().ifPresent(transaction::setContents);
+            params.contents().ifPresent(transaction::setContents);
 
-            params.getExpirationTime().ifPresent(expirationTimeStr -> {
+            params.expirationTime().ifPresent(expirationTimeStr -> {
                 transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTimeStr)));
             });
 
-            params.getMemo().ifPresent(transaction::setFileMemo);
+            params.memo().ifPresent(transaction::setFileMemo);
 
             return transaction;
         }
@@ -1326,9 +1321,9 @@ public class TransactionBuilders {
         public static FileUpdateTransaction buildUpdate(FileUpdateParams params) {
             FileUpdateTransaction transaction = new FileUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
+            params.fileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
 
-            params.getKeys().ifPresent(keyStrings -> {
+            params.keys().ifPresent(keyStrings -> {
                 try {
                     Key[] keys = new Key[keyStrings.size()];
                     for (int i = 0; i < keyStrings.size(); i++) {
@@ -1340,13 +1335,13 @@ public class TransactionBuilders {
                 }
             });
 
-            params.getContents().ifPresent(transaction::setContents);
+            params.contents().ifPresent(transaction::setContents);
 
-            params.getExpirationTime().ifPresent(expirationTimeStr -> {
+            params.expirationTime().ifPresent(expirationTimeStr -> {
                 transaction.setExpirationTime(Duration.ofSeconds(Long.parseLong(expirationTimeStr)));
             });
 
-            params.getMemo().ifPresent(transaction::setFileMemo);
+            params.memo().ifPresent(transaction::setFileMemo);
 
             return transaction;
         }
@@ -1363,7 +1358,7 @@ public class TransactionBuilders {
         public static FileDeleteTransaction buildDelete(FileDeleteParams params) {
             FileDeleteTransaction transaction = new FileDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
+            params.fileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
 
             return transaction;
         }
@@ -1380,15 +1375,15 @@ public class TransactionBuilders {
         public static FileAppendTransaction buildAppend(FileAppendParams params) {
             FileAppendTransaction transaction = new FileAppendTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            params.getFileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
+            params.fileId().ifPresent(fileId -> transaction.setFileId(FileId.fromString(fileId)));
 
-            params.getContents().ifPresent(contents -> transaction.setContents(contents.getBytes()));
+            params.contents().ifPresent(contents -> transaction.setContents(contents.getBytes()));
 
-            params.getChunkSize().ifPresent(chunkSize -> {
+            params.chunkSize().ifPresent(chunkSize -> {
                 transaction.setChunkSize(chunkSize.intValue());
             });
 
-            params.getMaxChunks().ifPresent(maxChunks -> {
+            params.maxChunks().ifPresent(maxChunks -> {
                 transaction.setMaxChunks(maxChunks.intValue());
             });
 
@@ -1421,17 +1416,17 @@ public class TransactionBuilders {
         public static EthereumTransaction buildCreate(EthereumTransactionParams params) {
             EthereumTransaction transaction = new EthereumTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.getEthereumData() != null) {
-                byte[] bytes = Hex.decode(params.getEthereumData());
+            if (params.ethereumData() != null) {
+                byte[] bytes = Hex.decode(params.ethereumData());
                 transaction.setEthereumData(bytes);
             }
 
-            if (params.getCallDataFileId() != null) {
-                transaction.setCallDataFileId(FileId.fromString(params.getCallDataFileId()));
+            if (params.callDataFileId() != null) {
+                transaction.setCallDataFileId(FileId.fromString(params.callDataFileId()));
             }
 
-            if (params.getMaxGasAllowance() != null) {
-                transaction.setMaxGasAllowanceHbar(Hbar.fromTinybars(Long.parseLong(params.getMaxGasAllowance())));
+            if (params.maxGasAllowance() != null) {
+                transaction.setMaxGasAllowanceHbar(Hbar.fromTinybars(Long.parseLong(params.maxGasAllowance())));
             }
 
             return transaction;

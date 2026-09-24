@@ -52,7 +52,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("contractByteCodeQuery")
     public ContractByteCodeResponse contractByteCodeQuery(final ContractByteCodeQueryParams params) throws Exception {
         ContractByteCodeQuery query = QueryBuilders.buildContractBytecode(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         ByteString response = query.execute(client);
 
@@ -62,7 +62,7 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("contractCallQuery")
     public ContractCallResponse contractCallQuery(final ContractCallQueryParams params) throws Exception {
         ContractCallQuery query = QueryBuilders.buildContractCall(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         ContractFunctionResult result = query.execute(client);
 
@@ -82,9 +82,9 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createContract")
     public ContractResponse createContract(final CreateContractParams params) throws Exception {
         ContractCreateTransaction transaction = new ContractCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getAdminKey().ifPresent(key -> {
+        params.adminKey().ifPresent(key -> {
             try {
                 transaction.setAdminKey(KeyUtils.getKeyFromString(key));
             } catch (InvalidProtocolBufferException e) {
@@ -92,36 +92,36 @@ public class ContractService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getAutoRenewPeriod()
+        params.autoRenewPeriod()
                 .ifPresent(periodStr -> transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(periodStr))));
 
-        params.getGas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
+        params.gas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
 
-        params.getAutoRenewAccountId()
+        params.autoRenewAccountId()
                 .ifPresent(accountIdStr -> transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr)));
 
-        params.getInitialBalance()
+        params.initialBalance()
                 .ifPresent(balanceStr -> transaction.setInitialBalance(Hbar.fromTinybars(Long.parseLong(balanceStr))));
 
-        params.getInitcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
+        params.initcode().ifPresent(hex -> transaction.setBytecode(Hex.decode(hex)));
 
-        params.getBytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
+        params.bytecodeFileId().ifPresent(fileIdStr -> transaction.setBytecodeFileId(FileId.fromString(fileIdStr)));
 
-        params.getStakedAccountId()
+        params.stakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
 
-        params.getStakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
+        params.stakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
 
-        params.getDeclineStakingReward().ifPresent(transaction::setDeclineStakingReward);
+        params.declineStakingReward().ifPresent(transaction::setDeclineStakingReward);
 
-        params.getMemo().ifPresent(transaction::setContractMemo);
+        params.memo().ifPresent(transaction::setContractMemo);
 
-        params.getMaxAutomaticTokenAssociations()
+        params.maxAutomaticTokenAssociations()
                 .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
 
-        params.getConstructorParameters().ifPresent(hex -> transaction.setConstructorParameters(Hex.decode(hex)));
+        params.constructorParameters().ifPresent(hex -> transaction.setConstructorParameters(Hex.decode(hex)));
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
@@ -137,21 +137,21 @@ public class ContractService extends AbstractJSONRPC2Service {
     public ContractResponse executeContract(final ExecuteContractParams params) throws Exception {
         ContractExecuteTransaction transaction =
                 new ContractExecuteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        if (params.getContractId() != null) {
-            transaction.setContractId(ContractId.fromString(params.getContractId()));
+        if (params.contractId() != null) {
+            transaction.setContractId(ContractId.fromString(params.contractId()));
         }
 
-        params.getGas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
+        params.gas().ifPresent(gasStr -> transaction.setGas(Long.parseLong(gasStr)));
 
-        params.getAmount()
+        params.amount()
                 .ifPresent(amountStr -> transaction.setPayableAmount(Hbar.fromTinybars(Long.parseLong(amountStr))));
 
-        params.getFunctionParameters()
+        params.functionParameters()
                 .ifPresent(hex -> transaction.setFunctionParameters(ByteString.copyFrom(Hex.decode(hex))));
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
@@ -161,12 +161,11 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateContract")
     public ContractResponse updateContract(final UpdateContractParams params) throws Exception {
         ContractUpdateTransaction transaction = new ContractUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getContractId()
-                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+        params.contractId().ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
 
-        params.getAdminKey().ifPresent(key -> {
+        params.adminKey().ifPresent(key -> {
             try {
                 transaction.setAdminKey(KeyUtils.getKeyFromString(key));
             } catch (InvalidProtocolBufferException e) {
@@ -174,25 +173,25 @@ public class ContractService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getAutoRenewPeriod()
+        params.autoRenewPeriod()
                 .ifPresent(periodStr -> transaction.setAutoRenewPeriod(Duration.ofSeconds(Long.parseLong(periodStr))));
 
-        params.getAutoRenewAccountId()
+        params.autoRenewAccountId()
                 .ifPresent(accountIdStr -> transaction.setAutoRenewAccountId(AccountId.fromString(accountIdStr)));
 
-        params.getStakedAccountId()
+        params.stakedAccountId()
                 .ifPresent(accountIdStr -> transaction.setStakedAccountId(AccountId.fromString(accountIdStr)));
 
-        params.getStakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
+        params.stakedNodeId().ifPresent(nodeIdStr -> transaction.setStakedNodeId(Long.parseLong(nodeIdStr)));
 
-        params.getDeclineStakingReward().ifPresent(transaction::setDeclineStakingReward);
+        params.declineStakingReward().ifPresent(transaction::setDeclineStakingReward);
 
-        params.getMemo().ifPresent(transaction::setContractMemo);
+        params.memo().ifPresent(transaction::setContractMemo);
 
-        params.getMaxAutomaticTokenAssociations()
+        params.maxAutomaticTokenAssociations()
                 .ifPresent(maxAuto -> transaction.setMaxAutomaticTokenAssociations(maxAuto.intValue()));
 
-        params.getExpirationTime().ifPresent(expirationTimeStr -> {
+        params.expirationTime().ifPresent(expirationTimeStr -> {
             try {
                 long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
                 transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
@@ -201,7 +200,7 @@ public class ContractService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
@@ -211,28 +210,27 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteContract")
     public ContractResponse deleteContract(final DeleteContractParams params) throws Exception {
         ContractDeleteTransaction transaction = new ContractDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getContractId()
-                .ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
+        params.contractId().ifPresent(contractIdStr -> transaction.setContractId(ContractId.fromString(contractIdStr)));
 
-        if (params.getTransferAccountId().isPresent()
-                && params.getTransferContractId().isPresent()) {
+        if (params.transferAccountId().isPresent()
+                && params.transferContractId().isPresent()) {
             transaction.setTransferAccountId(
-                    AccountId.fromString(params.getTransferAccountId().get()));
+                    AccountId.fromString(params.transferAccountId().get()));
         } else {
-            params.getTransferContractId()
+            params.transferContractId()
                     .ifPresent(transferContractIdStr ->
                             transaction.setTransferContractId(ContractId.fromString(transferContractIdStr)));
 
-            params.getTransferAccountId()
+            params.transferAccountId()
                     .ifPresent(transferAccountIdStr ->
                             transaction.setTransferAccountId(AccountId.fromString(transferAccountIdStr)));
         }
 
-        params.getPermanentRemoval().ifPresent(transaction::setPermanentRemoval);
+        params.permanentRemoval().ifPresent(transaction::setPermanentRemoval);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);
 
@@ -242,15 +240,15 @@ public class ContractService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("contractInfoQuery")
     public ContractInfoQueryResponse contractInfoQuery(final InfoQueryContractParams params) throws Exception {
         ContractInfoQuery query = new ContractInfoQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getContractId().ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+        params.contractId().ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
 
-        params.getQueryPayment()
+        params.queryPayment()
                 .ifPresent(
                         queryPaymentStr -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPaymentStr))));
 
-        params.getMaxQueryPayment()
+        params.maxQueryPayment()
                 .ifPresent(maxQueryPaymentStr ->
                         query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPaymentStr))));
 

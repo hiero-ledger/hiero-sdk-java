@@ -6,29 +6,25 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * UpdateContractParams for contract update method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class UpdateContractParams implements JSONRPC2Param {
-    private Optional<String> contractId;
-    private Optional<String> adminKey;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> stakedAccountId;
-    private Optional<String> stakedNodeId;
-    private Optional<Boolean> declineStakingReward;
-    private Optional<String> memo;
-    private Optional<Long> maxAutomaticTokenAssociations;
-    private Optional<String> expirationTime;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record UpdateContractParams(
+        Optional<String> contractId,
+        Optional<String> adminKey,
+        Optional<String> autoRenewPeriod,
+        Optional<String> autoRenewAccountId,
+        Optional<String> stakedAccountId,
+        Optional<String> stakedNodeId,
+        Optional<Boolean> declineStakingReward,
+        Optional<String> memo,
+        Optional<Long> maxAutomaticTokenAssociations,
+        Optional<String> expirationTime,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static UpdateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));

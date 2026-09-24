@@ -20,9 +20,9 @@ public class AirdropUtils {
      */
     public static void handleAirdropParam(TokenAirdropTransaction transaction, TransferParams transferParam)
             throws Exception {
-        if (transferParam.getToken().isPresent()) {
+        if (transferParam.token().isPresent()) {
             handleAirdropTokenTransfer(transaction, transferParam);
-        } else if (transferParam.getNft().isPresent()) {
+        } else if (transferParam.nft().isPresent()) {
             handleAirdropNftTransfer(transaction, transferParam);
         } else {
             throw new InvalidJSONRPC2ParamsException("Invalid transfer parameter");
@@ -38,27 +38,27 @@ public class AirdropUtils {
      */
     private static void handleAirdropTokenTransfer(TokenAirdropTransaction transaction, TransferParams transferParam)
             throws Exception {
-        var token = transferParam.getToken().get();
+        var token = transferParam.token().get();
 
         AccountId accountId = AccountId.fromString(
-                token.getAccountId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("AccountId is required")));
+                token.accountId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("AccountId is required")));
 
         TokenId tokenId = TokenId.fromString(
-                token.getTokenId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("TokenId is required")));
+                token.tokenId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("TokenId is required")));
 
         long amount;
         try {
             amount = Long.parseLong(
-                    token.getAmount().orElseThrow(() -> new InvalidJSONRPC2ParamsException("Amount is required")));
+                    token.amount().orElseThrow(() -> new InvalidJSONRPC2ParamsException("Amount is required")));
         } catch (NumberFormatException e) {
             throw new InvalidJSONRPC2ParamsException("Invalid amount format");
         }
 
-        boolean isApproved = transferParam.getApproved().isPresent()
-                && transferParam.getApproved().get();
+        boolean isApproved =
+                transferParam.approved().isPresent() && transferParam.approved().get();
 
-        if (token.getDecimals().isPresent()) {
-            int decimals = token.getDecimals().get().intValue();
+        if (token.decimals().isPresent()) {
+            int decimals = token.decimals().get().intValue();
             if (isApproved) {
                 transaction.addApprovedTokenTransferWithDecimals(tokenId, accountId, amount, decimals);
             } else {
@@ -82,29 +82,29 @@ public class AirdropUtils {
      */
     private static void handleAirdropNftTransfer(TokenAirdropTransaction transaction, TransferParams transferParam)
             throws Exception {
-        var nft = transferParam.getNft().get();
+        var nft = transferParam.nft().get();
 
-        AccountId senderAccountId = AccountId.fromString(nft.getSenderAccountId()
+        AccountId senderAccountId = AccountId.fromString(nft.senderAccountId()
                 .orElseThrow(() -> new InvalidJSONRPC2ParamsException("SenderAccountId is required")));
 
-        AccountId receiverAccountId = AccountId.fromString(nft.getReceiverAccountId()
+        AccountId receiverAccountId = AccountId.fromString(nft.receiverAccountId()
                 .orElseThrow(() -> new InvalidJSONRPC2ParamsException("ReceiverAccountId is required")));
 
         long serialNumber;
         try {
-            serialNumber = Long.parseLong(nft.getSerialNumber()
+            serialNumber = Long.parseLong(nft.serialNumber()
                     .orElseThrow(() -> new InvalidJSONRPC2ParamsException("SerialNumber is required")));
         } catch (NumberFormatException e) {
             throw new InvalidJSONRPC2ParamsException("Invalid serial number format");
         }
 
         TokenId tokenId = TokenId.fromString(
-                nft.getTokenId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("TokenId is required")));
+                nft.tokenId().orElseThrow(() -> new InvalidJSONRPC2ParamsException("TokenId is required")));
 
         NftId nftId = new NftId(tokenId, serialNumber);
 
-        boolean isApproved = transferParam.getApproved().isPresent()
-                && transferParam.getApproved().get();
+        boolean isApproved =
+                transferParam.approved().isPresent() && transferParam.approved().get();
 
         if (isApproved) {
             transaction.addApprovedNftTransfer(nftId, senderAccountId, receiverAccountId);

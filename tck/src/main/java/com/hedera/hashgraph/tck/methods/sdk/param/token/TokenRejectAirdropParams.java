@@ -7,18 +7,14 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class TokenRejectAirdropParams implements JSONRPC2Param {
-    private Optional<String> ownerAccountId;
-    private Optional<List<String>> tokenIds;
-    private Optional<List<String>> serialNumbers;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record TokenRejectAirdropParams(
+        Optional<String> ownerAccountId,
+        Optional<List<String>> tokenIds,
+        Optional<List<String>> serialNumbers,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TokenRejectAirdropParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedOwnerAccountId = Optional.ofNullable((String) jrpcParams.get("ownerId"));
         var parsedTokenIds = Optional.ofNullable((List<String>) jrpcParams.get("tokenIds"));

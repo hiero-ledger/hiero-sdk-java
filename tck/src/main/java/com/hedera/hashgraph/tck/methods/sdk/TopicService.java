@@ -43,9 +43,9 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createTopic")
     public TopicResponse createTopic(final CreateTopicParams params) throws Exception {
         TopicCreateTransaction transaction = TransactionBuilders.TopicBuilder.buildCreate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -62,9 +62,9 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateTopic")
     public TopicResponse updateTopic(final UpdateTopicParams params) throws Exception {
         TopicUpdateTransaction transaction = TransactionBuilders.TopicBuilder.buildUpdate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -76,9 +76,9 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteTopic")
     public TopicResponse deleteTopic(final DeleteTopicParams params) throws Exception {
         TopicDeleteTransaction transaction = TransactionBuilders.TopicBuilder.buildDelete(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -90,9 +90,9 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("submitTopicMessage")
     public TopicResponse submitTopicMessage(final SubmitTopicMessageParams params) throws Exception {
         TopicMessageSubmitTransaction transaction = TransactionBuilders.TopicBuilder.buildSubmitMessage(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -104,7 +104,7 @@ public class TopicService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("getTopicInfo")
     public TopicInfoResponse getTopicInfo(final TopicInfoQueryParams params) throws Exception {
         TopicInfoQuery query = QueryBuilders.TopicBuilder.buildTopicInfoQuery(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         TopicInfo result = query.execute(client);
         return mapTopicInfoResponse(result);

@@ -6,20 +6,14 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * ScheduleSignParams for sign schedule method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class ScheduleSignParams implements JSONRPC2Param {
-    private Optional<String> scheduleId;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record ScheduleSignParams(
+        Optional<String> scheduleId, Optional<CommonTransactionParams> commonTransactionParams, String sessionId)
+        implements JSONRPC2Param {
     public static ScheduleSignParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduleId = Optional.ofNullable((String) jrpcParams.get("scheduleId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);

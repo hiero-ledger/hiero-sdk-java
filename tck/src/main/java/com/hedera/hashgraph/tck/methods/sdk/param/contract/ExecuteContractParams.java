@@ -6,23 +6,19 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * ExecuteContractParams for contract execute method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class ExecuteContractParams implements JSONRPC2Param {
-    private String contractId;
-    private Optional<String> gas;
-    private Optional<String> amount;
-    private Optional<String> functionParameters; // hex string
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record ExecuteContractParams(
+        String contractId,
+        Optional<String> gas,
+        Optional<String> amount,
+        Optional<String> functionParameters, // hex string
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static ExecuteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = (String) jrpcParams.get("contractId");
         var parsedGas = Optional.ofNullable((String) jrpcParams.get("gas"));

@@ -83,20 +83,20 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createSchedule")
     public ScheduleResponse createSchedule(final ScheduleCreateParams params) throws Exception {
         ScheduleCreateTransaction transaction = new ScheduleCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getScheduledTransaction().ifPresent(scheduledTx -> {
+        params.scheduledTransaction().ifPresent(scheduledTx -> {
             try {
-                Transaction<?> tx = buildScheduledTransaction(scheduledTx, params.getSessionId());
+                Transaction<?> tx = buildScheduledTransaction(scheduledTx, params.sessionId());
                 transaction.setScheduledTransaction(tx);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to build scheduled transaction", e);
             }
         });
 
-        params.getMemo().ifPresent(transaction::setScheduleMemo);
+        params.memo().ifPresent(transaction::setScheduleMemo);
 
-        params.getAdminKey().ifPresent(key -> {
+        params.adminKey().ifPresent(key -> {
             try {
                 transaction.setAdminKey(KeyUtils.getKeyFromString(key));
             } catch (Exception e) {
@@ -104,10 +104,10 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getPayerAccountId()
+        params.payerAccountId()
                 .ifPresent(accountIdStr -> transaction.setPayerAccountId(AccountId.fromString(accountIdStr)));
 
-        params.getExpirationTime().ifPresent(expirationTimeStr -> {
+        params.expirationTime().ifPresent(expirationTimeStr -> {
             try {
                 long expirationTimeSeconds = Long.parseLong(expirationTimeStr);
                 transaction.setExpirationTime(Duration.ofSeconds(expirationTimeSeconds));
@@ -116,9 +116,9 @@ public class ScheduleService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getWaitForExpiry().ifPresent(transaction::setWaitForExpiry);
+        params.waitForExpiry().ifPresent(transaction::setWaitForExpiry);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
         TransactionReceipt receipt = txResponse.getReceipt(client);
@@ -140,12 +140,11 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("signSchedule")
     public ScheduleResponse signSchedule(final ScheduleSignParams params) throws Exception {
         ScheduleSignTransaction transaction = new ScheduleSignTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getScheduleId()
-                .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
+        params.scheduleId().ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
         TransactionReceipt receipt = txResponse.getReceipt(client);
@@ -153,8 +152,8 @@ public class ScheduleService extends AbstractJSONRPC2Service {
         String scheduleId = "";
         String transactionId = "";
         if (receipt.status == Status.SUCCESS) {
-            if (params.getScheduleId().isPresent()) {
-                scheduleId = params.getScheduleId().get();
+            if (params.scheduleId().isPresent()) {
+                scheduleId = params.scheduleId().get();
             }
             if (receipt.scheduledTransactionId != null) {
                 transactionId = receipt.scheduledTransactionId.toString();
@@ -167,12 +166,11 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteSchedule")
     public ScheduleResponse deleteSchedule(final ScheduleDeleteParams params) throws Exception {
         ScheduleDeleteTransaction transaction = new ScheduleDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getScheduleId()
-                .ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
+        params.scheduleId().ifPresent(scheduleIdStr -> transaction.setScheduleId(ScheduleId.fromString(scheduleIdStr)));
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
         TransactionReceipt receipt = txResponse.getReceipt(client);
@@ -180,8 +178,8 @@ public class ScheduleService extends AbstractJSONRPC2Service {
         String scheduleId = "";
         String transactionId = "";
         if (receipt.status == Status.SUCCESS) {
-            if (params.getScheduleId().isPresent()) {
-                scheduleId = params.getScheduleId().get();
+            if (params.scheduleId().isPresent()) {
+                scheduleId = params.scheduleId().get();
             }
             if (receipt.scheduledTransactionId != null) {
                 transactionId = receipt.scheduledTransactionId.toString();
@@ -196,13 +194,13 @@ public class ScheduleService extends AbstractJSONRPC2Service {
      */
     private Transaction<?> buildScheduledTransaction(
             ScheduleCreateParams.ScheduledTransaction scheduledTx, String sessionId) {
-        Map<String, Object> params = new HashMap<>(scheduledTx.getParams());
+        Map<String, Object> params = new HashMap<>(scheduledTx.params());
         params.put("sessionId", sessionId);
 
         Function<Map<String, Object>, Transaction<?>> builder =
-                SCHEDULED_TRANSACTION_BUILDERS.get(scheduledTx.getMethod());
+                SCHEDULED_TRANSACTION_BUILDERS.get(scheduledTx.method());
         if (builder == null) {
-            throw new IllegalArgumentException("Unsupported scheduled transaction method: " + scheduledTx.getMethod());
+            throw new IllegalArgumentException("Unsupported scheduled transaction method: " + scheduledTx.method());
         }
         return builder.apply(params);
     }
@@ -210,9 +208,9 @@ public class ScheduleService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("getScheduleInfo")
     public ScheduleInfoResponse getScheduleInfo(final ScheduleInfoParams params) throws Exception {
         ScheduleInfoQuery query = QueryBuilders.ScheduleBuilder.buildScheduleInfoQuery(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        if (params.getGetCost()) {
+        if (params.getCost()) {
             Hbar cost = query.getCost(client);
             return ScheduleInfoResponse.forCostOnly(String.valueOf(cost.toTinybars()));
         }

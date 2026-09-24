@@ -6,18 +6,14 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class EthereumTransactionParams implements JSONRPC2Param {
-    private String ethereumData;
-    private String callDataFileId;
-    private String maxGasAllowance;
-    private CommonTransactionParams commonTransactionParams;
-    private String sessionId;
-
+public record EthereumTransactionParams(
+        String ethereumData,
+        String callDataFileId,
+        String maxGasAllowance,
+        CommonTransactionParams commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static EthereumTransactionParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 

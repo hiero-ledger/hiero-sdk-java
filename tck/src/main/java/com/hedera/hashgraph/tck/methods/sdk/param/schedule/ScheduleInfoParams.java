@@ -5,18 +5,10 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class ScheduleInfoParams implements JSONRPC2Param {
-    private String scheduleId;
-    private String queryPayment;
-    private String maxQueryPayment;
-    private Boolean getCost;
-    private String sessionId;
-
+public record ScheduleInfoParams(
+        String scheduleId, String queryPayment, String maxQueryPayment, Boolean getCost, String sessionId)
+        implements JSONRPC2Param {
     public static JSONRPC2Param parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 

@@ -5,18 +5,14 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class TransactionReceiptQueryParams implements JSONRPC2Param {
-    private String transactionId;
-    private Boolean includeDuplicates;
-    private Boolean includeChildren;
-    private Boolean validateStatus;
-    private String sessionId;
-
+public record TransactionReceiptQueryParams(
+        String transactionId,
+        Boolean includeDuplicates,
+        Boolean includeChildren,
+        Boolean validateStatus,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TransactionReceiptQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 

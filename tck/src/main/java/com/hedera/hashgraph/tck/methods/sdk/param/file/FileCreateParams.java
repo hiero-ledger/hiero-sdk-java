@@ -7,22 +7,18 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * FileCreateParams for file create method
  */
-@Getter
-@AllArgsConstructor
-public class FileCreateParams implements JSONRPC2Param {
-    private Optional<List<String>> keys;
-    private Optional<String> contents;
-    private Optional<String> expirationTime;
-    private Optional<String> memo;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record FileCreateParams(
+        Optional<List<String>> keys,
+        Optional<String> contents,
+        Optional<String> expirationTime,
+        Optional<String> memo,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static FileCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedKeys = parseStringList(jrpcParams, "keys");
         var parsedContents = Optional.ofNullable((String) jrpcParams.get("contents"));

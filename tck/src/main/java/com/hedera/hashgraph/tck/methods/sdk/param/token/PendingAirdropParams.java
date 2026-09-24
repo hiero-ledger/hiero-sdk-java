@@ -4,17 +4,12 @@ package com.hedera.hashgraph.tck.methods.sdk.param.token;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class PendingAirdropParams {
-    private Optional<String> tokenId;
-    private Optional<String> senderAccountId;
-    private Optional<String> receiverAccountId;
-    private Optional<List<String>> serialNumbers;
-
+public record PendingAirdropParams(
+        Optional<String> tokenId,
+        Optional<String> senderAccountId,
+        Optional<String> receiverAccountId,
+        Optional<List<String>> serialNumbers) {
     public static PendingAirdropParams parse(Map<String, Object> params) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) params.get("tokenId"));
         var parsedSenderAccountId = Optional.ofNullable((String) params.get("senderAccountId"));
