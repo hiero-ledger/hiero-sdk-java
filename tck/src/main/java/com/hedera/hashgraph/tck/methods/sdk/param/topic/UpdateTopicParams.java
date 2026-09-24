@@ -8,28 +8,24 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * UpdateTopicParams for topic update method
  */
-@Getter
-@AllArgsConstructor
-public class UpdateTopicParams implements JSONRPC2Param {
-    private Optional<String> topicId;
-    private Optional<String> memo;
-    private Optional<String> adminKey;
-    private Optional<String> submitKey;
-    private Optional<String> feeScheduleKey;
-    private Optional<List<String>> feeExemptKeys;
-    private Optional<List<CustomFee>> customFees;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> expirationTime;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record UpdateTopicParams(
+        Optional<String> topicId,
+        Optional<String> memo,
+        Optional<String> adminKey,
+        Optional<String> submitKey,
+        Optional<String> feeScheduleKey,
+        Optional<List<String>> feeExemptKeys,
+        Optional<List<CustomFee>> customFees,
+        Optional<String> autoRenewPeriod,
+        Optional<String> autoRenewAccountId,
+        Optional<String> expirationTime,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static UpdateTopicParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTopicId = Optional.ofNullable((String) jrpcParams.get("topicId"));
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));

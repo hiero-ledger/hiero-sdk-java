@@ -26,15 +26,15 @@ class CommonTransactionParamsTest {
 
         CommonTransactionParams params = CommonTransactionParams.parse(jrpcParams);
 
-        assertEquals(Optional.of("txId"), params.getTransactionId());
-        assertEquals(Optional.of(100L), params.getMaxTransactionFee());
-        assertEquals(Optional.of(120L), params.getValidTransactionDuration());
-        assertEquals(Optional.of("commonMemo"), params.getMemo());
-        assertEquals(Optional.of(true), params.getRegenerateTransactionId());
+        assertEquals(Optional.of("txId"), params.transactionId());
+        assertEquals(Optional.of(100L), params.maxTransactionFee());
+        assertEquals(Optional.of(120L), params.validTransactionDuration());
+        assertEquals(Optional.of("commonMemo"), params.memo());
+        assertEquals(Optional.of(true), params.regenerateTransactionId());
         assertEquals(
                 Optional.of(
                         List.of(
                                 "302e020100300506032b657004220420c1ed50ed4b024f5df25992d1fc4b8c5b4e3c3db63a5ff5fa05857f5b4b90f3bc")),
-                params.getSigners());
+                params.signers());
     }
 }

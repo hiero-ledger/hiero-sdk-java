@@ -3,20 +3,15 @@ package com.hedera.hashgraph.tck.methods.sdk.param.transfer;
 
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * Contains the parameters of an NFT transfer.
  */
-@Getter
-@AllArgsConstructor
-public class NftTransferParams {
-    private Optional<String> senderAccountId;
-    private Optional<String> receiverAccountId;
-    private Optional<String> tokenId;
-    private Optional<String> serialNumber;
-
+public record NftTransferParams(
+        Optional<String> senderAccountId,
+        Optional<String> receiverAccountId,
+        Optional<String> tokenId,
+        Optional<String> serialNumber) {
     public static NftTransferParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedSenderAccountId = Optional.ofNullable((String) jrpcParams.get("senderAccountId"));
         var parsedReceiverAccountId = Optional.ofNullable((String) jrpcParams.get("receiverAccountId"));

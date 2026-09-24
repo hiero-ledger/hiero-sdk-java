@@ -6,20 +6,14 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * ScheduleDeleteParams for delete schedule method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class ScheduleDeleteParams implements JSONRPC2Param {
-    private Optional<String> scheduleId;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record ScheduleDeleteParams(
+        Optional<String> scheduleId, Optional<CommonTransactionParams> commonTransactionParams, String sessionId)
+        implements JSONRPC2Param {
     public static ScheduleDeleteParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduleId = Optional.ofNullable((String) jrpcParams.get("scheduleId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);

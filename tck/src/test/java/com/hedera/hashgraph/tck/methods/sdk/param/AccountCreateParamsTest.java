@@ -45,30 +45,29 @@ class AccountCreateParamsTest {
 
         AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
-        assertEquals(Optional.of("someKey"), params.getKey());
-        assertEquals(Optional.of("1000"), params.getInitialBalance());
-        assertEquals(Optional.of(true), params.getReceiverSignatureRequired());
-        assertEquals(Optional.of("7890000"), params.getAutoRenewPeriod());
-        assertEquals(Optional.of("test memo"), params.getMemo());
-        assertEquals(Optional.of(10L), params.getMaxAutoTokenAssociations());
-        assertEquals(Optional.of("stakedAccountId"), params.getStakedAccountId());
-        assertEquals(Optional.of("5"), params.getStakedNodeId());
-        assertEquals(Optional.of(true), params.getDeclineStakingReward());
-        assertEquals(Optional.of("alias"), params.getAlias());
+        assertEquals(Optional.of("someKey"), params.key());
+        assertEquals(Optional.of("1000"), params.initialBalance());
+        assertEquals(Optional.of(true), params.receiverSignatureRequired());
+        assertEquals(Optional.of("7890000"), params.autoRenewPeriod());
+        assertEquals(Optional.of("test memo"), params.memo());
+        assertEquals(Optional.of(10L), params.maxAutoTokenAssociations());
+        assertEquals(Optional.of("stakedAccountId"), params.stakedAccountId());
+        assertEquals(Optional.of("5"), params.stakedNodeId());
+        assertEquals(Optional.of(true), params.declineStakingReward());
+        assertEquals(Optional.of("alias"), params.alias());
 
-        assertTrue(params.getCommonTransactionParams().isPresent());
-        CommonTransactionParams commonParams =
-                params.getCommonTransactionParams().get();
-        assertEquals(Optional.of("txId"), commonParams.getTransactionId());
-        assertEquals(Optional.of(100L), commonParams.getMaxTransactionFee());
-        assertEquals(Optional.of(120L), commonParams.getValidTransactionDuration());
-        assertEquals(Optional.of("commonMemo"), commonParams.getMemo());
-        assertEquals(Optional.of(true), commonParams.getRegenerateTransactionId());
+        assertTrue(params.commonTransactionParams().isPresent());
+        CommonTransactionParams commonParams = params.commonTransactionParams().get();
+        assertEquals(Optional.of("txId"), commonParams.transactionId());
+        assertEquals(Optional.of(100L), commonParams.maxTransactionFee());
+        assertEquals(Optional.of(120L), commonParams.validTransactionDuration());
+        assertEquals(Optional.of("commonMemo"), commonParams.memo());
+        assertEquals(Optional.of(true), commonParams.regenerateTransactionId());
         assertEquals(
                 Optional.of(List.of(
                         "302e020100300506032b657004220420c1ed50ed4b024f5df25992d1fc4b8c5b4e3c3db63a5ff5fa05857f5b4b90f3bc",
                         "test")),
-                commonParams.getSigners());
+                commonParams.signers());
     }
 
     @Test
@@ -79,17 +78,17 @@ class AccountCreateParamsTest {
 
         AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
-        assertEquals(Optional.of("someKey"), params.getKey());
-        assertEquals(Optional.empty(), params.getInitialBalance());
-        assertEquals(Optional.empty(), params.getReceiverSignatureRequired());
-        assertEquals(Optional.empty(), params.getAutoRenewPeriod());
-        assertEquals(Optional.empty(), params.getMemo());
-        assertEquals(Optional.empty(), params.getMaxAutoTokenAssociations());
-        assertEquals(Optional.empty(), params.getStakedAccountId());
-        assertEquals(Optional.empty(), params.getStakedNodeId());
-        assertEquals(Optional.empty(), params.getDeclineStakingReward());
-        assertEquals(Optional.empty(), params.getAlias());
-        assertEquals(Optional.empty(), params.getCommonTransactionParams());
+        assertEquals(Optional.of("someKey"), params.key());
+        assertEquals(Optional.empty(), params.initialBalance());
+        assertEquals(Optional.empty(), params.receiverSignatureRequired());
+        assertEquals(Optional.empty(), params.autoRenewPeriod());
+        assertEquals(Optional.empty(), params.memo());
+        assertEquals(Optional.empty(), params.maxAutoTokenAssociations());
+        assertEquals(Optional.empty(), params.stakedAccountId());
+        assertEquals(Optional.empty(), params.stakedNodeId());
+        assertEquals(Optional.empty(), params.declineStakingReward());
+        assertEquals(Optional.empty(), params.alias());
+        assertEquals(Optional.empty(), params.commonTransactionParams());
     }
 
     @Test
@@ -110,16 +109,16 @@ class AccountCreateParamsTest {
 
         AccountCreateParams params = AccountCreateParams.parse(jrpcParams);
 
-        assertEquals(Optional.empty(), params.getKey());
-        assertEquals(Optional.empty(), params.getInitialBalance());
-        assertEquals(Optional.empty(), params.getReceiverSignatureRequired());
-        assertEquals(Optional.empty(), params.getAutoRenewPeriod());
-        assertEquals(Optional.empty(), params.getMemo());
-        assertEquals(Optional.empty(), params.getMaxAutoTokenAssociations());
-        assertEquals(Optional.empty(), params.getStakedAccountId());
-        assertEquals(Optional.empty(), params.getStakedNodeId());
-        assertEquals(Optional.empty(), params.getDeclineStakingReward());
-        assertEquals(Optional.empty(), params.getAlias());
-        assertEquals(Optional.empty(), params.getCommonTransactionParams());
+        assertEquals(Optional.empty(), params.key());
+        assertEquals(Optional.empty(), params.initialBalance());
+        assertEquals(Optional.empty(), params.receiverSignatureRequired());
+        assertEquals(Optional.empty(), params.autoRenewPeriod());
+        assertEquals(Optional.empty(), params.memo());
+        assertEquals(Optional.empty(), params.maxAutoTokenAssociations());
+        assertEquals(Optional.empty(), params.stakedAccountId());
+        assertEquals(Optional.empty(), params.stakedNodeId());
+        assertEquals(Optional.empty(), params.declineStakingReward());
+        assertEquals(Optional.empty(), params.alias());
+        assertEquals(Optional.empty(), params.commonTransactionParams());
     }
 }

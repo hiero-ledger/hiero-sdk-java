@@ -6,18 +6,12 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CustomFee;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * CustomFeeLimit for topic message submit method
  */
-@Getter
-@AllArgsConstructor
-public class CustomFeeLimit implements JSONRPC2Param {
-    private Optional<String> payerId;
-    private Optional<List<CustomFee.FixedFee>> fixedFees;
-
+public record CustomFeeLimit(Optional<String> payerId, Optional<List<CustomFee.FixedFee>> fixedFees)
+        implements JSONRPC2Param {
     public static CustomFeeLimit parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedPayerId = Optional.ofNullable((String) jrpcParams.get("payerId"));
 

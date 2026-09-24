@@ -7,23 +7,18 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * WipeTokenParams for token wipe method
  */
-@Getter
-@AllArgsConstructor
-public class TokenWipeParams implements JSONRPC2Param {
-
-    private Optional<String> tokenId;
-    private Optional<String> accountId;
-    private Optional<String> amount;
-    private Optional<List<String>> serialNumbers;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record TokenWipeParams(
+        Optional<String> tokenId,
+        Optional<String> accountId,
+        Optional<String> amount,
+        Optional<List<String>> serialNumbers,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TokenWipeParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));

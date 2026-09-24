@@ -25,10 +25,10 @@ class SetupParamsTest {
         SetupParams result = SetupParams.parse(jrpcParams);
 
         // Then
-        assertEquals("testAccountId", result.getOperatorAccountId());
-        assertEquals("testPrivateKey", result.getOperatorPrivateKey());
-        assertEquals(Optional.of("testNodeIp"), result.getNodeIp());
-        assertEquals(Optional.of("testNodeAccountId"), result.getNodeAccountId());
-        assertEquals(Optional.of("testMirrorNetworkIp"), result.getMirrorNetworkIp());
+        assertEquals("testAccountId", result.operatorAccountId());
+        assertEquals("testPrivateKey", result.operatorPrivateKey());
+        assertEquals(Optional.of("testNodeIp"), result.nodeIp());
+        assertEquals(Optional.of("testNodeAccountId"), result.nodeAccountId());
+        assertEquals(Optional.of("testMirrorNetworkIp"), result.mirrorNetworkIp());
     }
 }

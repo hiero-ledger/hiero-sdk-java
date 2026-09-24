@@ -1,7 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import com.hedera.hashgraph.sdk.*;
+import com.hedera.hashgraph.sdk.AccountAllowanceApproveTransaction;
+import com.hedera.hashgraph.sdk.AccountAllowanceDeleteTransaction;
+import com.hedera.hashgraph.sdk.AccountBalance;
+import com.hedera.hashgraph.sdk.AccountBalanceQuery;
+import com.hedera.hashgraph.sdk.AccountCreateTransaction;
+import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.AccountInfo;
+import com.hedera.hashgraph.sdk.AccountInfoQuery;
+import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.EvmAddress;
+import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.HbarAllowance;
+import com.hedera.hashgraph.sdk.LiveHash;
+import com.hedera.hashgraph.sdk.NftId;
+import com.hedera.hashgraph.sdk.StakingInfo;
+import com.hedera.hashgraph.sdk.Status;
+import com.hedera.hashgraph.sdk.TokenAllowance;
+import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenNftAllowance;
+import com.hedera.hashgraph.sdk.TokenRelationship;
+import com.hedera.hashgraph.sdk.TransactionReceipt;
+import com.hedera.hashgraph.sdk.TransactionReceiptQuery;
+import com.hedera.hashgraph.sdk.TransferTransaction;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
@@ -12,7 +36,6 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.GetAccountInfoParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.transfer.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.HbarTransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.NftTransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TokenTransferParams;
@@ -45,7 +68,7 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("getAccountBalance")
     public AccountBalanceResponse accountBalanceQuery(final AccountBalanceQueryParams params) throws Exception {
         AccountBalanceQuery query = QueryBuilders.AccountBuilder.buildAccountBalanceQuery(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         AccountBalance result = query.execute(client);
         return new AccountBalanceResponse(
@@ -55,9 +78,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createAccount")
     public AccountResponse createAccount(final AccountCreateParams params) throws Exception {
         AccountCreateTransaction accountCreateTransaction = TransactionBuilders.AccountBuilder.buildCreate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams ->
                         commonTransactionParams.fillOutTransaction(accountCreateTransaction, client));
 
@@ -78,9 +101,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateAccount")
     public AccountResponse updateAccount(final AccountUpdateParams params) throws Exception {
         AccountUpdateTransaction accountUpdateTransaction = TransactionBuilders.AccountBuilder.buildUpdate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams ->
                         commonTransactionParams.fillOutTransaction(accountUpdateTransaction, client));
 
@@ -96,9 +119,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteAccount")
     public AccountResponse deleteAccount(final AccountDeleteParams params) throws Exception {
         AccountDeleteTransaction accountDeleteTransaction = TransactionBuilders.AccountBuilder.buildDelete(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams ->
                         commonTransactionParams.fillOutTransaction(accountDeleteTransaction, client));
 
@@ -114,9 +137,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("approveAllowance")
     public AccountAllowanceResponse approveAllowance(final AccountAllowanceParams params) throws Exception {
         AccountAllowanceApproveTransaction tx = TransactionBuilders.AccountBuilder.buildApproveAllowance(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
+        params.commonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
 
         TransactionReceipt transactionReceipt = tx.execute(client).getReceipt(client);
         return new AccountAllowanceResponse(transactionReceipt.status);
@@ -125,9 +148,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteAllowance")
     public AccountAllowanceResponse deleteAllowance(final AccountAllowanceParams params) throws Exception {
         AccountAllowanceDeleteTransaction tx = TransactionBuilders.AccountBuilder.buildDeleteAllowance(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
+        params.commonTransactionParams().ifPresent(commonParams -> commonParams.fillOutTransaction(tx, client));
 
         TransactionReceipt transactionReceipt = tx.execute(client).getReceipt(client);
         return new AccountAllowanceResponse(transactionReceipt.status);
@@ -135,11 +158,11 @@ public class AccountService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("getAccountInfo")
     public GetAccountInfoResponse getAccountInfo(final GetAccountInfoParams params) throws Exception {
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
         AccountInfoQuery query = new AccountInfoQuery().setGrpcDeadline(Duration.ofSeconds(10L));
 
-        if (params.getAccountId() != null) {
-            query.setAccountId(AccountId.fromString(params.getAccountId()));
+        if (params.accountId() != null) {
+            query.setAccountId(AccountId.fromString(params.accountId()));
         }
 
         AccountInfo accountInfo = query.execute(client);
@@ -156,9 +179,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("transferCrypto")
     public Map<String, String> transferCrypto(final TransferCryptoParams params) throws Exception {
         TransferTransaction transferTransaction = TransactionBuilders.TransferBuilder.buildTransfer(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonParams -> commonParams.fillOutTransaction(transferTransaction, client));
 
         TransactionReceipt receipt = transferTransaction.execute(client).getReceipt(client);
@@ -170,21 +193,21 @@ public class AccountService extends AbstractJSONRPC2Service {
      * Process an individual transfer based on its type (Hbar, Token, or NFT)
      */
     public static void processTransfer(TransferTransaction tx, TransferParams txParams) {
-        boolean approved = txParams.getApproved().orElse(false);
+        boolean approved = txParams.approved().orElse(false);
 
-        txParams.getHbar().ifPresent(hbarParams -> processHbarTransfer(tx, hbarParams, approved));
-        txParams.getToken().ifPresent(tokenParams -> processTokenTransfer(tx, tokenParams, approved));
-        txParams.getNft().ifPresent(nftParams -> processNftTransfer(tx, nftParams, approved));
+        txParams.hbar().ifPresent(hbarParams -> processHbarTransfer(tx, hbarParams, approved));
+        txParams.token().ifPresent(tokenParams -> processTokenTransfer(tx, tokenParams, approved));
+        txParams.nft().ifPresent(nftParams -> processNftTransfer(tx, nftParams, approved));
     }
 
     /**
      * Process an Hbar transfer
      */
     private static void processHbarTransfer(TransferTransaction tx, HbarTransferParams hbarParams, boolean approved) {
-        hbarParams.getAmount().ifPresent(amountStr -> {
+        hbarParams.amount().ifPresent(amountStr -> {
             Hbar amount = Hbar.fromTinybars(Long.parseLong(amountStr));
 
-            hbarParams.getAccountId().ifPresent(accountIdStr -> {
+            hbarParams.accountId().ifPresent(accountIdStr -> {
                 AccountId accountId = AccountId.fromString(accountIdStr);
                 if (approved) {
                     tx.addApprovedHbarTransfer(accountId, amount);
@@ -193,7 +216,7 @@ public class AccountService extends AbstractJSONRPC2Service {
                 }
             });
 
-            hbarParams.getEvmAddress().ifPresent(evmAddressStr -> {
+            hbarParams.evmAddress().ifPresent(evmAddressStr -> {
                 EvmAddress evmAddress = EvmAddress.fromString(evmAddressStr);
                 if (approved) {
                     tx.addApprovedHbarTransfer(AccountId.fromEvmAddress(evmAddress, 0, 0), amount);
@@ -209,15 +232,15 @@ public class AccountService extends AbstractJSONRPC2Service {
      */
     private static void processTokenTransfer(
             TransferTransaction tx, TokenTransferParams tokenParams, boolean approved) {
-        tokenParams.getAccountId().ifPresent(accountIdStr -> {
-            tokenParams.getTokenId().ifPresent(tokenIdStr -> {
-                tokenParams.getAmount().ifPresent(amountStr -> {
+        tokenParams.accountId().ifPresent(accountIdStr -> {
+            tokenParams.tokenId().ifPresent(tokenIdStr -> {
+                tokenParams.amount().ifPresent(amountStr -> {
                     AccountId accountId = AccountId.fromString(accountIdStr);
                     TokenId tokenId = TokenId.fromString(tokenIdStr);
                     long amount = Long.parseLong(amountStr);
 
-                    if (tokenParams.getDecimals().isPresent()) {
-                        Long decimals = tokenParams.getDecimals().get();
+                    if (tokenParams.decimals().isPresent()) {
+                        Long decimals = tokenParams.decimals().get();
                         if (approved) {
                             tx.addApprovedTokenTransferWithDecimals(tokenId, accountId, amount, decimals.intValue());
                         } else {
@@ -239,10 +262,10 @@ public class AccountService extends AbstractJSONRPC2Service {
      * Process an NFT transfer
      */
     private static void processNftTransfer(TransferTransaction tx, NftTransferParams nftParams, boolean approved) {
-        nftParams.getSenderAccountId().ifPresent(senderIdStr -> {
-            nftParams.getReceiverAccountId().ifPresent(receiverIdStr -> {
-                nftParams.getTokenId().ifPresent(tokenIdStr -> {
-                    nftParams.getSerialNumber().ifPresent(serialNumberStr -> {
+        nftParams.senderAccountId().ifPresent(senderIdStr -> {
+            nftParams.receiverAccountId().ifPresent(receiverIdStr -> {
+                nftParams.tokenId().ifPresent(tokenIdStr -> {
+                    nftParams.serialNumber().ifPresent(serialNumberStr -> {
                         AccountId senderAccountId = AccountId.fromString(senderIdStr);
                         AccountId receiverAccountId = AccountId.fromString(receiverIdStr);
                         TokenId tokenId = TokenId.fromString(tokenIdStr);
@@ -372,9 +395,9 @@ public class AccountService extends AbstractJSONRPC2Service {
     public TransactionReceiptResponse getTransactionReceipt(final TransactionReceiptQueryParams params)
             throws Exception {
         TransactionReceiptQuery receiptQuery = QueryBuilders.buildTransactionReceiptQuery(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        TransactionReceipt receipt = receiptQuery.execute(client).validateStatus(params.getValidateStatus());
+        TransactionReceipt receipt = receiptQuery.execute(client).validateStatus(params.validateStatus());
 
         return mapTransactionReceiptResponse(receipt);
     }

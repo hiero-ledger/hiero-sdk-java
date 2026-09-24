@@ -6,16 +6,10 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class PauseUnpauseTokenParams implements JSONRPC2Param {
-    private Optional<String> tokenId;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record PauseUnpauseTokenParams(
+        Optional<String> tokenId, Optional<CommonTransactionParams> commonTransactionParams, String sessionId)
+        implements JSONRPC2Param {
     public static PauseUnpauseTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);

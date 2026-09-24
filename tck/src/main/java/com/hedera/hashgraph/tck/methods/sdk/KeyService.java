@@ -25,36 +25,35 @@ public class KeyService extends AbstractJSONRPC2Service {
     public GenerateKeyResponse generateKey(final GenerateKeyParams params) throws Exception {
         // Make sure getFromKey() is only provided for ED25519_PUBLIC_KEY, ECDSA_SECP256k1_PUBLIC_KEY, or
         // EVM_ADDRESS_KEY
-        if (params.getFromKey().isPresent()
-                && !params.getType().equals(KeyType.ED25519_PUBLIC_KEY)
-                && !params.getType().equals(KeyType.ECDSA_SECP256K1_PUBLIC_KEY)
-                && !params.getType().equals(KeyType.EVM_ADDRESS_KEY)) {
+        if (params.fromKey().isPresent()
+                && !params.type().equals(KeyType.ED25519_PUBLIC_KEY)
+                && !params.type().equals(KeyType.ECDSA_SECP256K1_PUBLIC_KEY)
+                && !params.type().equals(KeyType.EVM_ADDRESS_KEY)) {
             throw new InvalidJSONRPC2RequestException(
                     "invalid parameters: fromKey should only be provided for ed25519PublicKey, ecdsaSecp256k1PublicKey, or evmAddress types.");
         }
 
         // Make sure threshold is only provided for THRESHOLD_KEY_TYPE.
-        if (params.getThreshold().isPresent() && !params.getType().equals(KeyType.THRESHOLD_KEY)) {
+        if (params.threshold().isPresent() && !params.type().equals(KeyType.THRESHOLD_KEY)) {
             throw new InvalidJSONRPC2RequestException(
                     "invalid parameters: threshold should only be provided for thresholdKey types.");
         }
 
         // Make sure keys is only provided for LIST_KEY_TYPE or THRESHOLD_KEY_TYPE
-        if (params.getKeys().isPresent()
-                && !params.getType().equals(KeyType.LIST_KEY)
-                && !params.getType().equals(KeyType.THRESHOLD_KEY)) {
+        if (params.keys().isPresent()
+                && !params.type().equals(KeyType.LIST_KEY)
+                && !params.type().equals(KeyType.THRESHOLD_KEY)) {
             throw new InvalidJSONRPC2RequestException(
                     "invalid parameters: keys should only be provided for keyList or thresholdKey types.");
         }
 
-        if ((params.getType().equals(KeyType.THRESHOLD_KEY) || params.getType().equals(KeyType.LIST_KEY))
-                && params.getKeys().isEmpty()) {
+        if ((params.type().equals(KeyType.THRESHOLD_KEY) || params.type().equals(KeyType.LIST_KEY))
+                && params.keys().isEmpty()) {
             throw new InvalidJSONRPC2RequestException(
                     "invalid request: keys list is required for generating a KeyList type.");
         }
 
-        if (params.getType().equals(KeyType.THRESHOLD_KEY)
-                && params.getThreshold().isEmpty()) {
+        if (params.type().equals(KeyType.THRESHOLD_KEY) && params.threshold().isEmpty()) {
             throw new InvalidJSONRPC2RequestException(
                     "invalid request: threshold is required for generating a ThresholdKey type.");
         }
@@ -68,9 +67,9 @@ public class KeyService extends AbstractJSONRPC2Service {
             throws InvalidJSONRPC2RequestException, InvalidProtocolBufferException {
         String privateKeyString;
         PrivateKey privateKey;
-        switch (params.getType()) {
+        switch (params.type()) {
             case ED25519_PRIVATE_KEY, ECDSA_SECP256K1_PRIVATE_KEY:
-                privateKeyString = params.getType().equals(KeyType.ED25519_PRIVATE_KEY)
+                privateKeyString = params.type().equals(KeyType.ED25519_PRIVATE_KEY)
                         ? PrivateKey.generateED25519().toStringDER()
                         : PrivateKey.generateECDSA().toStringDER();
                 if (isList) {
@@ -80,12 +79,12 @@ public class KeyService extends AbstractJSONRPC2Service {
                 return privateKeyString;
 
             case ED25519_PUBLIC_KEY, ECDSA_SECP256K1_PUBLIC_KEY:
-                if (params.getFromKey().isPresent()) {
-                    return PrivateKey.fromString(params.getFromKey().get())
+                if (params.fromKey().isPresent()) {
+                    return PrivateKey.fromString(params.fromKey().get())
                             .getPublicKey()
                             .toStringDER();
                 }
-                privateKey = params.getType().equals(KeyType.ED25519_PUBLIC_KEY)
+                privateKey = params.type().equals(KeyType.ED25519_PUBLIC_KEY)
                         ? PrivateKey.generateED25519()
                         : PrivateKey.generateECDSA();
                 if (isList) {
@@ -96,7 +95,7 @@ public class KeyService extends AbstractJSONRPC2Service {
 
             case LIST_KEY, THRESHOLD_KEY:
                 KeyList keyList = new KeyList();
-                params.getKeys().get().forEach(keyParams -> {
+                params.keys().get().forEach(keyParams -> {
                     try {
                         keyList.add(KeyUtils.getKeyFromString(processKeyRecursively(keyParams, privateKeys, true)));
                     } catch (Exception e) {
@@ -104,16 +103,15 @@ public class KeyService extends AbstractJSONRPC2Service {
                     }
                 });
 
-                if (params.getType().equals(KeyType.THRESHOLD_KEY)) {
-                    keyList.setThreshold(params.getThreshold().get().intValue());
+                if (params.type().equals(KeyType.THRESHOLD_KEY)) {
+                    keyList.setThreshold(params.threshold().get().intValue());
                 }
 
                 return Hex.toHexString(keyList.toBytes());
 
             case EVM_ADDRESS_KEY:
-                if (params.getFromKey().isPresent()) {
-                    Key hederaKey =
-                            KeyUtils.getKeyFromString(params.getFromKey().get());
+                if (params.fromKey().isPresent()) {
+                    Key hederaKey = KeyUtils.getKeyFromString(params.fromKey().get());
                     if (hederaKey instanceof PrivateKey pk) {
                         return pk.getPublicKey().toEvmAddress().toString();
                     } else if (hederaKey instanceof PublicKey pk) {

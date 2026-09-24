@@ -6,25 +6,21 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * ScheduleCreateParams for schedule create method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class ScheduleCreateParams implements JSONRPC2Param {
-    private Optional<ScheduledTransaction> scheduledTransaction;
-    private Optional<String> memo;
-    private Optional<String> adminKey;
-    private Optional<String> payerAccountId;
-    private Optional<String> expirationTime;
-    private Optional<Boolean> waitForExpiry;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record ScheduleCreateParams(
+        Optional<ScheduledTransaction> scheduledTransaction,
+        Optional<String> memo,
+        Optional<String> adminKey,
+        Optional<String> payerAccountId,
+        Optional<String> expirationTime,
+        Optional<Boolean> waitForExpiry,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static ScheduleCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedScheduledTransaction = Optional.ofNullable(
                         (Map<String, Object>) jrpcParams.get("scheduledTransaction"))
@@ -50,15 +46,9 @@ public class ScheduleCreateParams implements JSONRPC2Param {
     /**
      * Represents a scheduled transaction with method and params
      */
-    @Getter
-    @AllArgsConstructor
-    public static class ScheduledTransaction {
-        private String method;
-        private Map<String, Object> params;
-
+    public record ScheduledTransaction(String method, Map<String, Object> params) {
         public ScheduledTransaction(Map<String, Object> data) {
-            this.method = (String) data.get("method");
-            this.params = (Map<String, Object>) data.get("params");
+            this((String) data.get("method"), (Map<String, Object>) data.get("params"));
         }
     }
 }

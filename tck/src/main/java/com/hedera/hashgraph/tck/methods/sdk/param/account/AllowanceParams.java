@@ -2,22 +2,15 @@
 package com.hedera.hashgraph.tck.methods.sdk.param.account;
 
 import java.util.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
-public class AllowanceParams {
-
-    private Optional<String> ownerAccountId;
-    private Optional<String> spenderAccountId;
-    private Optional<String> tokenId;
-    private Optional<Collection<String>> serialNumbers;
-    private Optional<HbarAllowance> hbar;
-    private Optional<TokenAllowance> token;
-    private Optional<TokenNftAllowance> nft;
-
+public record AllowanceParams(
+        Optional<String> ownerAccountId,
+        Optional<String> spenderAccountId,
+        Optional<String> tokenId,
+        Optional<Collection<String>> serialNumbers,
+        Optional<HbarAllowance> hbar,
+        Optional<TokenAllowance> token,
+        Optional<TokenNftAllowance> nft) {
     public static AllowanceParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedOwnerAccountId = Optional.ofNullable((String) jrpcParams.get("ownerAccountId"));
         var parsedSpenderAccountId = Optional.ofNullable((String) jrpcParams.get("spenderAccountId"));
@@ -79,32 +72,15 @@ public class AllowanceParams {
                 parsedNft);
     }
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class HbarAllowance {
-        private String amount;
-    }
+    public record HbarAllowance(String amount) {}
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class TokenAllowance {
-        private String tokenId;
-        private String ownerAccountId;
-        private String spenderAccountId;
-        private long amount;
-    }
+    public record TokenAllowance(String tokenId, String ownerAccountId, String spenderAccountId, long amount) {}
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class TokenNftAllowance {
-        private String tokenId;
-        private String ownerAccountId;
-        private String spenderAccountId;
-        private String delegatingSpender;
-        private List<Long> serialNumbers;
-        private Boolean allSerials;
-    }
+    public record TokenNftAllowance(
+            String tokenId,
+            String ownerAccountId,
+            String spenderAccountId,
+            String delegatingSpender,
+            List<Long> serialNumbers,
+            Boolean allSerials) {}
 }

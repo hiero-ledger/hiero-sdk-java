@@ -7,23 +7,19 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * FileUpdateParams for file update method
  */
-@Getter
-@AllArgsConstructor
-public class FileUpdateParams implements JSONRPC2Param {
-    private Optional<String> fileId;
-    private Optional<List<String>> keys;
-    private Optional<String> contents;
-    private Optional<String> expirationTime;
-    private Optional<String> memo;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record FileUpdateParams(
+        Optional<String> fileId,
+        Optional<List<String>> keys,
+        Optional<String> contents,
+        Optional<String> expirationTime,
+        Optional<String> memo,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static FileUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = Optional.ofNullable((String) jrpcParams.get("fileId"));
         var parsedKeys = parseStringList(jrpcParams, "keys");
