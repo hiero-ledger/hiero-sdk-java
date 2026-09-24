@@ -3,6 +3,7 @@ package com.hedera.hashgraph.tck.methods.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.AddressBookQuery;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Endpoint;
 import com.hedera.hashgraph.sdk.FileId;
@@ -11,7 +12,6 @@ import com.hedera.hashgraph.sdk.NodeCreateTransaction;
 import com.hedera.hashgraph.sdk.NodeDeleteTransaction;
 import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
-import com.hedera.hashgraph.sdk.AddressBookQuery;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
