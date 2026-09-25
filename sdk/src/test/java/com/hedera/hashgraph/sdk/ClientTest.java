@@ -339,8 +339,9 @@ class ClientTest {
                 .setNodeMaxBackoff(Duration.ofMillis(0))
                 .setMinNodeReadmitTime(Duration.ofMillis(0))
                 .setMaxNodeReadmitTime(Duration.ofMillis(0));
-        AccountBalanceQuery query =
-                new AccountBalanceQuery().setAccountId(accountId).setMaxAttempts(3);
+        TransactionReceiptQuery query = new TransactionReceiptQuery()
+                .setTransactionId(TransactionId.generate(accountId))
+                .setMaxAttempts(3);
         Instant start = Instant.now();
 
         try {
@@ -379,9 +380,8 @@ class ClientTest {
                 .setNodeMaxBackoff(Duration.ofMillis(0))
                 .setMinNodeReadmitTime(Duration.ofMillis(0))
                 .setMaxNodeReadmitTime(Duration.ofMillis(0));
-
-        AccountBalanceQuery query = new AccountBalanceQuery()
-                .setAccountId(accountId)
+        TransactionReceiptQuery query = new TransactionReceiptQuery()
+                .setTransactionId(TransactionId.generate(accountId))
                 .setMaxAttempts(3)
                 .setGrpcDeadline(Duration.ofSeconds(5));
         Instant start = Instant.now();

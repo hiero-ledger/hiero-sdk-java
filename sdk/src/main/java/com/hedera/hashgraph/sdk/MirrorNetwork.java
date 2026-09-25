@@ -7,11 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Utility class.
  */
 class MirrorNetwork extends BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode> {
+    /**
+     * The cursor behind {@link #getNextRestBaseUrlRoundRobin()}. It is the only shared mutable state on
+     * the mirror REST hot path, and a client is explicitly concurrent, so it advances atomically.
+     */
+    private final AtomicInteger restBaseUrlCursor = new AtomicInteger();
+
     private MirrorNetwork(ExecutorService executor, List<String> addresses) {
         super(executor);
         this.transportSecurity = true;
@@ -112,5 +119,29 @@ class MirrorNetwork extends BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNo
      */
     String getRestBaseUrl() throws InterruptedException {
         return getNextMirrorNode().getRestBaseUrl();
+    }
+
+    /**
+     * The REST base URL for one mirror node REST call, chosen by round-robin.
+     *
+     * <p>Distinct from {@link #getRestBaseUrl()}, which picks by health order and is what the
+     * consensus-era mirror REST call sites still use. Round-robin is what the HTTP transport proposal
+     * specifies: drawing at random from a list nothing ever demotes makes a two-node network with one
+     * node down a coin flip that retrying cannot escape, re-flipped on the next call.
+     *
+     * <p>A transport failure does not mark a mirror node unhealthy. Demotion on failure is the right end
+     * state and a different design; it is excluded deliberately rather than forgotten.
+     *
+     * @return the base URL to pin for the whole call
+     */
+    synchronized String getNextRestBaseUrlRoundRobin() {
+        readmitNodes();
+
+        if (healthyNodes.isEmpty()) {
+            throw new IllegalStateException("this client has no mirror network configured");
+        }
+
+        var index = Math.floorMod(restBaseUrlCursor.getAndIncrement(), healthyNodes.size());
+        return healthyNodes.get(index).getRestBaseUrl();
     }
 }

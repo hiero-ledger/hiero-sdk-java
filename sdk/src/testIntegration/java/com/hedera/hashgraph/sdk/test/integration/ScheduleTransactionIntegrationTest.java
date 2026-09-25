@@ -61,10 +61,10 @@ public class ScheduleTransactionIntegrationTest {
 
             payerClient.close();
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(payerAccountId).execute(testEnv.client);
+            var balance = IntegrationTestEnv.awaitMirrorBalance(
+                    testEnv.client, payerAccountId, b -> b.toTinybars() < hbar / 2);
 
-            assertThat(accountBalance.hbars.toTinybars()).isLessThan(hbar / 2);
+            assertThat(balance.toTinybars()).isLessThan(hbar / 2);
 
             // Cleanup
             new TopicDeleteTransaction()
@@ -121,10 +121,11 @@ public class ScheduleTransactionIntegrationTest {
                     .execute(payerClient)
                     .getReceipt(payerClient);
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(payerAccountId).execute(testEnv.client);
+            // The payer must NOT have been charged, so wait for the mirror node to catch up rather
+            // than polling for a change that should never arrive.
+            var balance = IntegrationTestEnv.mirrorBalanceAfterSync(testEnv.client, payerAccountId);
 
-            assertThat(accountBalance.hbars.toTinybars()).isGreaterThan(hbar / 2);
+            assertThat(balance.toTinybars()).isGreaterThan(hbar / 2);
 
             payerClient.close();
 
@@ -204,10 +205,7 @@ public class ScheduleTransactionIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var accountBalance =
-                    new AccountBalanceQuery().setAccountId(payerAccountId).execute(testEnv.client);
-
-            assertThat(accountBalance.tokens.get(tokenId)).isEqualTo(2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, payerAccountId, tokenId, 2);
         }
     }
 }

@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.AccountID;
-import com.hedera.hashgraph.sdk.proto.CryptoGetAccountBalanceResponse;
 import com.hedera.hashgraph.sdk.proto.CryptoGetInfoResponse;
 import com.hedera.hashgraph.sdk.proto.CryptoServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.FileServiceGrpc;
@@ -52,24 +51,31 @@ class MockingTest {
                 (Function<Object, Object>)
                         o -> Status.Code.UNAVAILABLE.toStatus().asRuntimeException(),
                 Response.newBuilder()
-                        .setCryptogetAccountBalance(CryptoGetAccountBalanceResponse.newBuilder()
+                        .setCryptoGetInfo(CryptoGetInfoResponse.newBuilder()
                                 .setHeader(ResponseHeader.newBuilder()
                                         .setNodeTransactionPrecheckCode(ResponseCodeEnum.OK)
                                         .build())
-                                .setAccountID(
-                                        AccountID.newBuilder().setAccountNum(10).build())
-                                .setBalance(100)
+                                .setAccountInfo(CryptoGetInfoResponse.AccountInfo.newBuilder()
+                                        .setAccountID(AccountID.newBuilder()
+                                                .setAccountNum(10)
+                                                .build())
+                                        .setKey(PrivateKey.generateED25519()
+                                                .getPublicKey()
+                                                .toProtobufKey())
+                                        .setBalance(100)
+                                        .build())
                                 .build())
                         .build());
 
         var responses = List.of(responses1);
 
         try (var mocker = Mocker.withResponses(responses)) {
-            var balance = new AccountBalanceQuery()
+            var info = new AccountInfoQuery()
                     .setAccountId(new AccountId(0, 0, 10))
+                    .setQueryPayment(Hbar.ZERO)
                     .execute(mocker.client);
 
-            Assertions.assertEquals(balance.hbars, Hbar.fromTinybars(100));
+            Assertions.assertEquals(info.balance, Hbar.fromTinybars(100));
         }
     }
 
@@ -420,8 +426,9 @@ class MockingTest {
         var responses = List.of(responses1);
 
         try (var mocker = Mocker.withResponses(responses)) {
-            Assertions.assertThrows(RuntimeException.class, () -> new AccountBalanceQuery()
+            Assertions.assertThrows(RuntimeException.class, () -> new AccountInfoQuery()
                     .setAccountId(new AccountId(0, 0, 10))
+                    .setQueryPayment(Hbar.ZERO)
                     .execute(mocker.client));
         }
     }
@@ -835,13 +842,19 @@ class MockingTest {
                     "User agent header does not match expected format: " + userAgent);
 
             return Response.newBuilder()
-                    .setCryptogetAccountBalance(CryptoGetAccountBalanceResponse.newBuilder()
+                    .setCryptoGetInfo(CryptoGetInfoResponse.newBuilder()
                             .setHeader(ResponseHeader.newBuilder()
                                     .setNodeTransactionPrecheckCode(ResponseCodeEnum.OK)
                                     .build())
-                            .setAccountID(
-                                    AccountID.newBuilder().setAccountNum(10).build())
-                            .setBalance(100)
+                            .setAccountInfo(CryptoGetInfoResponse.AccountInfo.newBuilder()
+                                    .setAccountID(AccountID.newBuilder()
+                                            .setAccountNum(10)
+                                            .build())
+                                    .setKey(PrivateKey.generateED25519()
+                                            .getPublicKey()
+                                            .toProtobufKey())
+                                    .setBalance(100)
+                                    .build())
                             .build())
                     .build();
         });
@@ -854,8 +867,10 @@ class MockingTest {
                 builder.intercept(metadataCaptor);
             }
         }) {
-            // Execute query to trigger metadata interceptor
-            new AccountBalanceQuery().setAccountId(new AccountId(0, 0, 10)).execute(mocker.client);
+            new AccountInfoQuery()
+                    .setAccountId(new AccountId(0, 0, 10))
+                    .setQueryPayment(Hbar.ZERO)
+                    .execute(mocker.client);
         }
     }
 

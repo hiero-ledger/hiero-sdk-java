@@ -7,7 +7,9 @@ import com.hedera.hashgraph.sdk.proto.QueryHeader;
 import com.hedera.hashgraph.sdk.proto.Response;
 import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,56 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
         Objects.requireNonNull(contractId);
         this.contractId = contractId;
         return this;
+    }
+
+    /**
+     * @deprecated see {@link AccountBalanceQuery}
+     * @param client the client with which this would have been executed
+     * @param timeout ignored
+     * @return never returns
+     * @throws UnsupportedOperationException always
+     */
+    @Deprecated
+    @Override
+    public AccountBalance execute(Client client, Duration timeout) {
+        throw new UnsupportedOperationException(DEPRECATION_MESSAGE);
+    }
+
+    /**
+     * @deprecated see {@link AccountBalanceQuery}
+     * @param client the client with which this would have been executed
+     * @param timeout ignored
+     * @return a future that has already failed with {@link UnsupportedOperationException}
+     */
+    @Deprecated
+    @Override
+    public CompletableFuture<AccountBalance> executeAsync(Client client, Duration timeout) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException(DEPRECATION_MESSAGE));
+    }
+
+    /**
+     * @deprecated see {@link AccountBalanceQuery}
+     * @param client the client with which this would have been executed
+     * @param timeout ignored
+     * @return never returns
+     * @throws UnsupportedOperationException always
+     */
+    @Deprecated
+    @Override
+    public Hbar getCost(Client client, Duration timeout) {
+        throw new UnsupportedOperationException(DEPRECATION_MESSAGE);
+    }
+
+    /**
+     * @deprecated see {@link AccountBalanceQuery}
+     * @param client the client with which this would have been executed
+     * @param timeout ignored
+     * @return a future that has already failed with {@link UnsupportedOperationException}
+     */
+    @Deprecated
+    @Override
+    public CompletableFuture<Hbar> getCostAsync(Client client, Duration timeout) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException(DEPRECATION_MESSAGE));
     }
 
     @Override

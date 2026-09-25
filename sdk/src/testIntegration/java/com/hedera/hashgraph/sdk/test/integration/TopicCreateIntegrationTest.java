@@ -300,7 +300,8 @@ class TopicCreateIntegrationTest {
 
             clientSetOperator(testEnv, accountId);
 
-            var balance = new AccountBalanceQuery().setAccountId(accountId).execute(testEnv.client).hbars;
+            var balance = IntegrationTestEnv.awaitMirrorBalance(
+                    testEnv.client, accountId, b -> b.toTinybars() < hbarAmount / 2);
 
             assertThat(balance.toTinybars()).isLessThan(hbarAmount / 2);
         }
@@ -340,7 +341,9 @@ class TopicCreateIntegrationTest {
 
             clientSetOperator(testEnv, payerAccountId);
 
-            var balance = new AccountBalanceQuery().setAccountId(payerAccountId).execute(testEnv.client).hbars;
+            // The fee-exempt payer must NOT have been charged, so wait for the mirror node to catch
+            // up rather than polling for a change that should never arrive.
+            var balance = IntegrationTestEnv.mirrorBalanceAfterSync(testEnv.client, payerAccountId);
 
             assertThat(balance.toTinybars()).isGreaterThan(hbarAmount / 2);
         }
