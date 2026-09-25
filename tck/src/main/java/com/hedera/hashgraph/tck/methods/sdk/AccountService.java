@@ -42,7 +42,7 @@ public class AccountService extends AbstractJSONRPC2Service {
         this.sdkService = sdkService;
     }
 
-//    @JSONRPC2Method("getAccountBalance")
+    //    @JSONRPC2Method("getAccountBalance")
     public AccountBalanceResponse accountBalanceQuery(final AccountBalanceQueryParams params) throws Exception {
         AccountBalanceQuery query = QueryBuilders.AccountBuilder.buildAccountBalanceQuery(params);
         Client client = sdkService.getClient(params.getSessionId());
