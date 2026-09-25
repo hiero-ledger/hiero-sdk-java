@@ -352,8 +352,8 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
 
         public MetadataInterceptor() {
             metadata = new Metadata();
-            Metadata.Key<String> authKey = Metadata.Key.of("x-user-agent", Metadata.ASCII_STRING_MARSHALLER);
-            metadata.put(authKey, getUserAgent());
+            Metadata.Key<String> authKey = Metadata.Key.of(SdkUserAgent.HEADER_NAME, Metadata.ASCII_STRING_MARSHALLER);
+            metadata.put(authKey, SdkUserAgent.value());
         }
 
         @Override
@@ -367,16 +367,6 @@ abstract class BaseNode<N extends BaseNode<N, KeyT>, KeyT> {
                     super.start(responseListener, headers);
                 }
             };
-        }
-
-        /**
-         * Extract the user agent. This information is used to gather usage metrics.
-         * If the version is not available, the user agent will be set to "hiero-sdk-java/DEV".
-         */
-        private String getUserAgent() {
-            var thePackage = getClass().getPackage();
-            var implementationVersion = thePackage != null ? thePackage.getImplementationVersion() : null;
-            return "hiero-sdk-java/" + ((implementationVersion != null) ? (implementationVersion) : "DEV");
         }
     }
 }

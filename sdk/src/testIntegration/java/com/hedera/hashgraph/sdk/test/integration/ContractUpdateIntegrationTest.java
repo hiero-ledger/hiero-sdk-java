@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk.test.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractDeleteTransaction;
@@ -233,9 +232,9 @@ class ContractUpdateIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var contractBalance =
-                    new AccountBalanceQuery().setContractId(contractId).execute(testEnv.client);
-            assertThat(contractBalance.tokens.get(tokenId)).isEqualTo(10);
+            // The mirror node resolves contract ids through the account path, so no setContractId is needed.
+            var contractAsAccountId = new AccountId(contractId.shard, contractId.realm, contractId.num);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, contractAsAccountId, tokenId, 10);
 
             new TransferTransaction()
                     .addTokenTransfer(tokenId, testEnv.operatorId, 10)

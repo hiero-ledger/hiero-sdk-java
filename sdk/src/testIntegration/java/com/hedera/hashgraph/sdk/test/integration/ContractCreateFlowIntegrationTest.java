@@ -166,9 +166,9 @@ public class ContractCreateFlowIntegrationTest {
                     .execute(testEnv.client)
                     .getReceipt(testEnv.client);
 
-            var contractBalance =
-                    new AccountBalanceQuery().setContractId(contractId).execute(testEnv.client);
-            assertThat(contractBalance.tokens.get(tokenId)).isEqualTo(10);
+            // The mirror node resolves contract ids through the account path, so no setContractId is needed.
+            var contractAsAccountId = new AccountId(contractId.shard, contractId.realm, contractId.num);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, contractAsAccountId, tokenId, 10);
 
             new TransferTransaction()
                     .addTokenTransfer(tokenId, testEnv.operatorId, 10)

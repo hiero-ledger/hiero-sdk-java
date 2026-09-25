@@ -107,11 +107,10 @@ class ScheduledTransactionMultiSigThresholdExample {
          * Step 4:
          * Check the balance of the newly created account.
          */
-        AccountBalance accountBalance =
-                new AccountBalanceQuery().setAccountId(multiSigAccountId).execute(client);
+        Hbar accountBalance = MirrorNodeHelper.awaitHbarBalance(client, multiSigAccountId, Hbar.from(1));
 
         System.out.println("Balance of a newly created account with ID " + multiSigAccountId + ": "
-                + accountBalance.hbars.toTinybars() + " tinybar.");
+                + accountBalance.toTinybars() + " tinybar.");
 
         /*
          * Step 5:

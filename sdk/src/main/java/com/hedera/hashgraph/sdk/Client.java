@@ -33,6 +33,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -51,6 +52,14 @@ public final class Client implements AutoCloseable {
     static final Duration DEFAULT_MIN_NODE_BACKOFF = Duration.ofSeconds(8L);
     static final Duration DEFAULT_CLOSE_TIMEOUT = Duration.ofSeconds(30L);
     static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofMinutes(2L);
+    /**
+     * How long {@link #close()} waits for in-flight mirror node REST reads to drain.
+     *
+     * <p>Deliberately far below the per-attempt read timeout: waiting out a stalled read on a shutdown
+     * path is worse than aborting it.
+     */
+    static final Duration MIRROR_HTTP_CLOSE_GRACE_PERIOD = Duration.ofSeconds(5L);
+
     static final Duration DEFAULT_GRPC_DEADLINE = Duration.ofSeconds(10L);
     static final Duration DEFAULT_NETWORK_UPDATE_PERIOD = Duration.ofHours(24);
     // Initial delay of 10 seconds before we update the network for the first time,
@@ -94,6 +103,25 @@ public final class Client implements AutoCloseable {
     private CompletableFuture<Void> networkUpdateFuture;
 
     private Logger logger = new Logger(LogLevel.SILENT);
+
+    private final Object mirrorHttpLock = new Object();
+
+    /**
+     * Bumped by every {@link #close(Duration)}. A mirror node REST call captures it when it starts and
+     * stops as soon as it changes, so an injected transport -- which the SDK must never close -- does not
+     * go on serving retries for a client that has already shut down.
+     */
+    private final AtomicLong mirrorHttpGeneration = new AtomicLong();
+
+    /**
+     * The configuration as supplied, never as resolved.
+     */
+    private volatile MirrorNodeHttpConfig mirrorNodeHttpConfig = MirrorNodeHttpConfig.defaults();
+
+    @Nullable
+    private HttpTransport mirrorHttpTransport = null;
+
+    private boolean mirrorHttpTransportOwned = false;
 
     /**
      * Constructor.
@@ -462,6 +490,120 @@ public final class Client implements AutoCloseable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while retrieving mirror base URL", e);
+        }
+    }
+
+    /**
+     * Extract the mirror node REST configuration as it was supplied.
+     *
+     * <p>This never reports the transport the client built for itself, so inspecting a client never
+     * constructs one and {@code setMirrorNodeHttpConfig(getMirrorNodeHttpConfig())} is a true no-op
+     * rather than a statement of ownership.
+     *
+     * @return the configuration, never null
+     */
+    public MirrorNodeHttpConfig getMirrorNodeHttpConfig() {
+        return mirrorNodeHttpConfig;
+    }
+
+    /**
+     * Set the mirror node REST configuration.
+     *
+     * <p>Replaces rather than merges, so the idiom is
+     * {@code client.setMirrorNodeHttpConfig(client.getMirrorNodeHttpConfig().withX(...))}. A transport
+     * must be installed before the first mirror node REST call, because the transport is built once per
+     * client.
+     *
+     * @param config the configuration to use
+     * @return {@code this}
+     */
+    public Client setMirrorNodeHttpConfig(MirrorNodeHttpConfig config) {
+        Objects.requireNonNull(config, "config must not be null");
+
+        synchronized (mirrorHttpLock) {
+            this.mirrorNodeHttpConfig = config;
+
+            // Drop any transport resolved from the previous configuration. One the client built itself is
+            // left to the close path; an injected one is never ours to close.
+            if (!mirrorHttpTransportOwned) {
+                mirrorHttpTransport = null;
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * The transport every mirror node REST call on this client shares, built on first use.
+     *
+     * <p>Most clients never make a mirror node REST call, and a short-lived client should not open a pool
+     * it will not use. Lazy construction also means a transport injected any time before the first call
+     * still wins.
+     *
+     * <p>Kept as its own small method deliberately: on Android, where {@code java.net.http} does not
+     * exist, an application that injects its own transport must never cause {@link DefaultHttpTransport}
+     * to be loaded, and a runtime verifies method bodies lazily.
+     *
+     * @return the transport to use
+     */
+    HttpTransport getOrCreateMirrorHttpTransport() {
+        synchronized (mirrorHttpLock) {
+            var injected = mirrorNodeHttpConfig.getTransport();
+
+            if (injected != null) {
+                mirrorHttpTransport = injected;
+                mirrorHttpTransportOwned = false;
+                return injected;
+            }
+
+            if (mirrorHttpTransport == null) {
+                mirrorHttpTransport = DefaultHttpTransport.create(mirrorNodeHttpConfig.getTransportConfiguration());
+                mirrorHttpTransportOwned = true;
+            }
+
+            return mirrorHttpTransport;
+        }
+    }
+
+    /**
+     * Build the adapter for one mirror node REST call.
+     *
+     * <p>The base URL is chosen here, once, and pinned for every attempt and every page of that call:
+     * two mirror nodes at different ingest heights would otherwise be able to return a silently
+     * truncated paginated result at HTTP 200.
+     *
+     * @param retryPolicy the resolved budget for this call, whose total deadline must already be positive
+     * @return the adapter
+     */
+    MirrorNodeHttpClient newMirrorNodeHttpClient(MirrorNodeHttpRetryPolicy retryPolicy) {
+        var config = mirrorNodeHttpConfig;
+        var transport = getOrCreateMirrorHttpTransport();
+        var generation = mirrorHttpGeneration.get();
+
+        var baseUrl = mirrorNetwork.getNextRestBaseUrlRoundRobin();
+
+        return MirrorNodeHttpClient.create(
+                baseUrl,
+                transport,
+                retryPolicy,
+                config.getRequestHeaders(),
+                () -> mirrorHttpGeneration.get() != generation);
+    }
+
+    /**
+     * Claim the transport this client built for itself, so it can be released outside the client lock.
+     *
+     * @return the transport to close, or null when there is nothing this client owns
+     */
+    @Nullable
+    private HttpTransport takeOwnedMirrorHttpTransport() {
+        mirrorHttpGeneration.incrementAndGet();
+
+        synchronized (mirrorHttpLock) {
+            var owned = mirrorHttpTransportOwned ? mirrorHttpTransport : null;
+            mirrorHttpTransport = null;
+            mirrorHttpTransportOwned = false;
+            return owned;
         }
     }
 
@@ -1506,7 +1648,7 @@ public final class Client implements AutoCloseable {
      * @throws TimeoutException if the mirror network doesn't close in time
      */
     @Override
-    public synchronized void close() throws TimeoutException {
+    public void close() throws TimeoutException {
         close(closeTimeout);
     }
 
@@ -1520,7 +1662,22 @@ public final class Client implements AutoCloseable {
      * @param timeout The Duration to be set
      * @throws TimeoutException if the mirror network doesn't close in time
      */
-    public synchronized void close(Duration timeout) throws TimeoutException {
+    public void close(Duration timeout) throws TimeoutException {
+        // Claimed before the lock is taken and released after it, because releasing a transport can wait
+        // out the grace period and every other synchronized method on this client would wait with it. A
+        // transport the application injected is never closed by the SDK.
+        var ownedTransport = takeOwnedMirrorHttpTransport();
+
+        try {
+            closeNetworks(timeout);
+        } finally {
+            if (ownedTransport != null) {
+                ownedTransport.close(MIRROR_HTTP_CLOSE_GRACE_PERIOD);
+            }
+        }
+    }
+
+    private synchronized void closeNetworks(Duration timeout) throws TimeoutException {
         var closeDeadline = Instant.now().plus(timeout);
 
         networkUpdatePeriod = null;

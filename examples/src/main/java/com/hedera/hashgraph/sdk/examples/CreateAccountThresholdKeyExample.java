@@ -122,8 +122,7 @@ class CreateAccountThresholdKeyExample {
         // (Important!) Wait for the transfer to reach the consensus.
         transferTxResponse.getReceipt(client);
 
-        Hbar accountBalanceAfterTransfer =
-                new AccountBalanceQuery().setAccountId(newAccountId).execute(client).hbars;
+        Hbar accountBalanceAfterTransfer = MirrorNodeHelper.awaitHbarBalance(client, newAccountId, Hbar.ZERO);
 
         System.out.println("New account's Hbar balance after transfer: " + accountBalanceAfterTransfer);
 
