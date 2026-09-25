@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.78.0
+
+### Changed
+
+- chore: add deprecation message to AccountBalanceQuery (#2946)
+- chore: Decouple JSON-RPC result serialization from json-smart bean serialization (#2899)
+- chore: Converted TCK response classes to records (#2920)
+- chore: Replace reflective no-arg instantiation of JSON-RPC parameters with a typed parser registry (#2933)
+
 ## 2.78.0-beta.1
 
 ### Added
