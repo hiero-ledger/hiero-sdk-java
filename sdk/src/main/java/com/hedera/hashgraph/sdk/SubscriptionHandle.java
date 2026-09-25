@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Subscribe to a topic ID's messages from a mirror node. You will receive
@@ -11,8 +11,7 @@ import javax.annotation.Nullable;
  * See <a href="https://docs.hedera.com/guides/docs/sdks/consensus/get-topic-message">Hedera Documentation</a>
  */
 public final class SubscriptionHandle {
-    @Nullable
-    private Runnable onUnsubscribe;
+    private @Nullable Runnable onUnsubscribe;
 
     /**
      * Constructor.

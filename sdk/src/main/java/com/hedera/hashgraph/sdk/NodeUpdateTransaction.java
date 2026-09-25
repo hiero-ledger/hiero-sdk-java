@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction to modify address book node attributes.
@@ -43,33 +43,25 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
     private Long nodeId;
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
-    @Nullable
-    private String description = null;
+    private @Nullable String description = null;
 
     private List<Endpoint> gossipEndpoints = new ArrayList<>();
 
     private List<Endpoint> serviceEndpoints = new ArrayList<>();
 
-    @Nullable
-    private byte[] gossipCaCertificate = null;
+    private byte @Nullable [] gossipCaCertificate = null;
 
-    @Nullable
-    private byte[] grpcCertificateHash = null;
+    private byte @Nullable [] grpcCertificateHash = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Boolean declineReward = null;
+    private @Nullable Boolean declineReward = null;
 
-    @Nullable
-    private Endpoint grpcWebProxyEndpoint = null;
+    private @Nullable Endpoint grpcWebProxyEndpoint = null;
 
-    @Nullable
-    private List<Long> associatedRegisteredNodes = null;
+    private @Nullable List<Long> associatedRegisteredNodes = null;
 
     /**
      * Constructor.
@@ -159,8 +151,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Extract the description of the node.
      * @return the node's description.
      */
-    @Nullable
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -324,8 +315,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Extract the certificate used to sign gossip events.
      * @return the DER encoding of the certificate presented.
      */
-    @Nullable
-    public byte[] getGossipCaCertificate() {
+    public byte @Nullable [] getGossipCaCertificate() {
         return gossipCaCertificate;
     }
 
@@ -355,8 +345,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Extract the hash of the node gRPC TLS certificate.
      * @return SHA-384 hash of the node gRPC TLS certificate.
      */
-    @Nullable
-    public byte[] getGrpcCertificateHash() {
+    public byte @Nullable [] getGrpcCertificateHash() {
         return grpcCertificateHash;
     }
 
@@ -389,8 +378,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Get an administrative key controlled by the node operator.
      * @return an administrative key controlled by the node operator.
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -417,8 +405,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Gets whether this node declines rewards.
      * @return true if the node declines rewards; false if it accepts rewards.
      */
-    @Nullable
-    public Boolean getDeclineReward() {
+    public @Nullable Boolean getDeclineReward() {
         return declineReward;
     }
 
@@ -437,8 +424,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Get a web proxy for gRPC from non-gRPC clients.
      *
      */
-    @Nullable
-    public Endpoint getGrpcWebProxyEndpoint() {
+    public @Nullable Endpoint getGrpcWebProxyEndpoint() {
         return grpcWebProxyEndpoint;
     }
 

@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.hedera.hashgraph.sdk.proto.Fraction;
 import com.hedera.hashgraph.sdk.proto.RoyaltyFee;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Custom royalty fee utility class.
@@ -14,8 +14,7 @@ public class CustomRoyaltyFee extends CustomFeeBase<CustomRoyaltyFee> {
     private long numerator = 0;
     private long denominator = 1;
 
-    @Nullable
-    private CustomFixedFee fallbackFee = null;
+    private @Nullable CustomFixedFee fallbackFee = null;
 
     /**
      * Constructor.
@@ -107,8 +106,7 @@ public class CustomRoyaltyFee extends CustomFeeBase<CustomRoyaltyFee> {
      *
      * @return the fallback fixed fee
      */
-    @Nullable
-    public CustomFixedFee getFallbackFee() {
+    public @Nullable CustomFixedFee getFallbackFee() {
         return fallbackFee != null ? fallbackFee.deepCloneSubclass() : null;
     }
 

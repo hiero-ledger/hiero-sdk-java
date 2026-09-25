@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Pause transaction activity for a token.
@@ -28,8 +28,7 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     /**
      * Constructor.
@@ -65,8 +64,7 @@ public class TokenPauseTransaction extends Transaction<TokenPauseTransaction> {
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 

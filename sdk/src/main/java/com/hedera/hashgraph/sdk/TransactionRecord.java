@@ -19,8 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The complete record for a transaction on Hedera that has reached consensus.
@@ -68,8 +68,7 @@ public final class TransactionRecord {
      * Record of the value returned by the smart contract
      * function or constructor.
      */
-    @Nullable
-    public final ContractFunctionResult contractFunctionResult;
+    public final @Nullable ContractFunctionResult contractFunctionResult;
 
     /**
      * All hbar transfers as a result of this transaction, such as fees, or
@@ -96,8 +95,7 @@ public final class TransactionRecord {
     /**
      * Reference to the scheduled transaction ID that this transaction record represents
      */
-    @Nullable
-    public final ScheduleId scheduleRef;
+    public final @Nullable ScheduleId scheduleRef;
 
     /**
      * All custom fees that were assessed during a CryptoTransfer, and must be paid if the
@@ -114,8 +112,7 @@ public final class TransactionRecord {
      * In the record of an internal CryptoCreate transaction triggered by a user
      * transaction with a (previously unused) alias, the new account's alias.
      */
-    @Nullable
-    public final PublicKey aliasKey;
+    public final @Nullable PublicKey aliasKey;
 
     /**
      * The records of processing all child transaction spawned by the transaction with the given
@@ -133,8 +130,7 @@ public final class TransactionRecord {
      * In the record of an internal transaction, the consensus timestamp of the user
      * transaction that spawned it.
      */
-    @Nullable
-    public final Instant parentConsensusTimestamp;
+    public final @Nullable Instant parentConsensusTimestamp;
 
     /**
      * The keccak256 hash of the ethereumData. This field will only be populated for
@@ -168,14 +164,12 @@ public final class TransactionRecord {
     /**
      * In the record of a UtilPrng transaction with no output range, a pseudorandom 384-bit string.
      */
-    @Nullable
-    public final ByteString prngBytes;
+    public final @Nullable ByteString prngBytes;
 
     /**
      * In the record of a PRNG transaction with an output range, the output of a PRNG whose input was a 384-bit string.
      */
-    @Nullable
-    public final Integer prngNumber;
+    public final @Nullable Integer prngNumber;
 
     /**
      * The new default EVM address of the account created by this transaction.

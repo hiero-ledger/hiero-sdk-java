@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Dissociate an account from one or more HTS tokens.
@@ -43,8 +43,7 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenDissociateTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenDissociateTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private List<TokenId> tokenIds = new ArrayList<>();
 
@@ -84,8 +83,7 @@ public class TokenDissociateTransaction extends com.hedera.hashgraph.sdk.Transac
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

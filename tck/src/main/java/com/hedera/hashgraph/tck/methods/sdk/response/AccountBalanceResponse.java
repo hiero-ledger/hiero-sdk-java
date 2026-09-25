@@ -3,16 +3,13 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.hedera.hashgraph.sdk.TokenId;
 import java.util.Map;
-import javax.annotation.Nonnegative;
 
 /**
  * Represent accountBalance response.
  *
- * @param hbars the hbar balance of the account in tinybars
+ * @param hbars the hbar balance of the account in tinybars, non-negative
  * @param tokenBalances a map of token IDs to the balances
- * @param tokenDecimals a map of token IDs to the decimal places
+ * @param tokenDecimals a map of token IDs to the decimal places, every value non-negative
  */
 public record AccountBalanceResponse(
-        @Nonnegative String hbars,
-        Map<TokenId, Long> tokenBalances,
-        @Nonnegative Map<TokenId, Integer> tokenDecimals) {}
+        String hbars, Map<TokenId, Long> tokenBalances, Map<TokenId, Integer> tokenDecimals) {}

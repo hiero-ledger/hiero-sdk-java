@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Topic message records.
@@ -34,13 +34,11 @@ public final class TopicMessage {
     /**
      * Array of topic message chunks.
      */
-    @Nullable
-    public final TopicMessageChunk[] chunks;
+    public final TopicMessageChunk @Nullable [] chunks;
     /**
      * The transaction id
      */
-    @Nullable
-    public final TransactionId transactionId;
+    public final @Nullable TransactionId transactionId;
 
     /**
      * Constructor.
@@ -57,7 +55,7 @@ public final class TopicMessage {
             byte[] message,
             byte[] lastRunningHash,
             long lastSequenceNumber,
-            @Nullable TopicMessageChunk[] chunks,
+            TopicMessageChunk @Nullable [] chunks,
             @Nullable TransactionId transactionId) {
         this.consensusTimestamp = lastConsensusTimestamp;
         this.contents = message;

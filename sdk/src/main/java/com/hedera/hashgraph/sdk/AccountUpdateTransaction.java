@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Modify the current state of an account.
@@ -40,50 +40,37 @@ import javax.annotation.Nullable;
  * None
  */
 public final class AccountUpdateTransaction extends Transaction<AccountUpdateTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
-    @Nullable
-    private AccountId proxyAccountId = null;
+    private @Nullable AccountId proxyAccountId = null;
 
-    @Nullable
-    private Key key = null;
+    private @Nullable Key key = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
-    @Nullable
-    private Boolean receiverSigRequired = null;
+    private @Nullable Boolean receiverSigRequired = null;
 
-    @Nullable
-    private String accountMemo = null;
+    private @Nullable String accountMemo = null;
 
-    @Nullable
-    private Integer maxAutomaticTokenAssociations = null;
+    private @Nullable Integer maxAutomaticTokenAssociations = null;
 
-    @Nullable
-    private Key aliasKey;
+    private @Nullable Key aliasKey;
 
-    @Nullable
-    private AccountId stakedAccountId = null;
+    private @Nullable AccountId stakedAccountId = null;
 
-    @Nullable
-    private Long stakedNodeId = null;
+    private @Nullable Long stakedNodeId = null;
 
-    @Nullable
-    private Boolean declineStakingReward = null;
+    private @Nullable Boolean declineStakingReward = null;
 
     private List<Long> hookIdsToDelete = new ArrayList<>();
 
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
-    @Nullable
-    private EvmAddress delegationAddress = null;
+    private @Nullable EvmAddress delegationAddress = null;
 
     /**
      * Constructor.
@@ -118,8 +105,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -141,8 +127,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the key
      */
-    @Nullable
-    public Key getKey() {
+    public @Nullable Key getKey() {
         return key;
     }
 
@@ -169,8 +154,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      * @return the alias key
      */
     @Deprecated
-    @Nullable
-    public Key getAliasKey() {
+    public @Nullable Key getAliasKey() {
         return aliasKey;
     }
 
@@ -195,8 +179,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the proxy account id
      */
-    @Nullable
-    public AccountId getProxyAccountId() {
+    public @Nullable AccountId getProxyAccountId() {
         return proxyAccountId;
     }
 
@@ -226,8 +209,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -264,8 +246,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -294,8 +275,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          is the receiver required to sign
      */
-    @Nullable
-    public Boolean getReceiverSignatureRequired() {
+    public @Nullable Boolean getReceiverSignatureRequired() {
         return receiverSigRequired;
     }
 
@@ -319,8 +299,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the max automatic token associations
      */
-    @Nullable
-    public Integer getMaxAutomaticTokenAssociations() {
+    public @Nullable Integer getMaxAutomaticTokenAssociations() {
         return maxAutomaticTokenAssociations;
     }
 
@@ -349,8 +328,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return                          the account memo
      */
-    @Nullable
-    public String getAccountMemo() {
+    public @Nullable String getAccountMemo() {
         return accountMemo;
     }
 
@@ -386,8 +364,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return ID of the account to which this account will stake.
      */
-    @Nullable
-    public AccountId getStakedAccountId() {
+    public @Nullable AccountId getStakedAccountId() {
         return stakedAccountId;
     }
 
@@ -424,8 +401,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return ID of the node this account will be staked to.
      */
-    @Nullable
-    public Long getStakedNodeId() {
+    public @Nullable Long getStakedNodeId() {
         return stakedNodeId;
     }
 
@@ -465,8 +441,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return If true, the account declines receiving a staking reward. The default value is false.
      */
-    @Nullable
-    public Boolean getDeclineStakingReward() {
+    public @Nullable Boolean getDeclineStakingReward() {
         return declineStakingReward;
     }
 
@@ -576,8 +551,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
      *
      * @return the delegation address, or null if not set
      */
-    @Nullable
-    public EvmAddress getDelegationAddress() {
+    public @Nullable EvmAddress getDelegationAddress() {
         return delegationAddress;
     }
 

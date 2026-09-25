@@ -2,8 +2,8 @@
 package com.hedera.hashgraph.tck.methods.sdk.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.annotation.Nullable;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent the topicInfo response.

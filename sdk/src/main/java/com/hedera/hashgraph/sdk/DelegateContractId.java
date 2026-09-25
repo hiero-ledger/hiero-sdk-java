@@ -4,9 +4,8 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.ContractID;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID for a smart contract instance on Hedera.
@@ -15,7 +14,7 @@ public final class DelegateContractId extends ContractId {
     /**
      * Constructor.
      *
-     * @param num                       the num portion of the contract id
+     * @param num                       the num portion of the contract id, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
@@ -28,9 +27,9 @@ public final class DelegateContractId extends ContractId {
     /**
      * Constructor.
      *
-     * @param shard                     the shard portion of the contract id
-     * @param realm                     the realm portion of the contract id
-     * @param num                       the num portion of the contract id
+     * @param shard                     the shard portion of the contract id, must be non-negative
+     * @param realm                     the realm portion of the contract id, must be non-negative
+     * @param num                       the num portion of the contract id, must be non-negative
      */
     public DelegateContractId(long shard, long realm, long num) {
         super(shard, realm, num);
@@ -39,9 +38,9 @@ public final class DelegateContractId extends ContractId {
     /**
      * Constructor.
      *
-     * @param shard                     the shard portion of the contract id
-     * @param realm                     the realm portion of the contract id
-     * @param num                       the num portion of the contract id
+     * @param shard                     the shard portion of the contract id, must be non-negative
+     * @param realm                     the realm portion of the contract id, must be non-negative
+     * @param num                       the num portion of the contract id, must be non-negative
      * @param checksum                  the optional checksum
      */
     DelegateContractId(long shard, long realm, long num, @Nullable String checksum) {
@@ -76,13 +75,12 @@ public final class DelegateContractId extends ContractId {
     /**
      * Parse DelegateContract id from an ethereum address.
      *
-     * @param shard                     the desired shard
-     * @param realm                     the desired realm
+     * @param shard                     the desired shard, must be non-negative
+     * @param realm                     the desired realm, must be non-negative
      * @param evmAddress                the evm address
      * @return                          the contract id object
      */
-    public static DelegateContractId fromEvmAddress(
-            @Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
+    public static DelegateContractId fromEvmAddress(long shard, long realm, String evmAddress) {
         EntityIdHelper.decodeEvmAddress(evmAddress);
         return new DelegateContractId(
                 shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));

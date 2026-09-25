@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reject undesired token(s) and dissociate in a single flow.
@@ -21,8 +21,7 @@ public class TokenRejectFlow {
     /**
      * An account holding the tokens to be rejected.
      */
-    @Nullable
-    private AccountId ownerId = null;
+    private @Nullable AccountId ownerId = null;
 
     /**
      * A list of one or more token rejections (a fungible/common token type).
@@ -34,20 +33,15 @@ public class TokenRejectFlow {
      */
     private List<NftId> nftIds = new ArrayList<>();
 
-    @Nullable
-    private List<AccountId> nodeAccountIds = null;
+    private @Nullable List<AccountId> nodeAccountIds = null;
 
-    @Nullable
-    private Client freezeWithClient = null;
+    private @Nullable Client freezeWithClient = null;
 
-    @Nullable
-    private PrivateKey signPrivateKey = null;
+    private @Nullable PrivateKey signPrivateKey = null;
 
-    @Nullable
-    private PublicKey signPublicKey = null;
+    private @Nullable PublicKey signPublicKey = null;
 
-    @Nullable
-    private UnaryOperator<byte[]> transactionSigner = null;
+    private UnaryOperator<byte @Nullable []> transactionSigner = null;
 
     public TokenRejectFlow() {}
 

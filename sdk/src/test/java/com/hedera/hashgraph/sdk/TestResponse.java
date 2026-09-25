@@ -6,17 +6,14 @@ import com.hedera.hashgraph.sdk.proto.TransactionGetReceiptResponse;
 import com.hedera.hashgraph.sdk.proto.TransactionReceipt;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.StatusRuntimeException;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TestResponse {
-    @Nullable
-    public final TransactionResponse transactionResponse;
+    public final @Nullable TransactionResponse transactionResponse;
 
-    @Nullable
-    public final Response queryResponse;
+    public final @Nullable Response queryResponse;
 
-    @Nullable
-    public final StatusRuntimeException errorResponse;
+    public final @Nullable StatusRuntimeException errorResponse;
 
     private TestResponse(
             @Nullable TransactionResponse transactionResponse,

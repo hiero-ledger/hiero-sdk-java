@@ -5,20 +5,18 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Builder class for Solidity function selectors.
  */
 public final class ContractFunctionSelector {
-    @Nullable
-    private Keccak.Digest256 digest;
+    private Keccak.@Nullable Digest256 digest;
 
     private boolean needsComma = false;
 
-    @Nullable
-    private byte[] finished = null;
+    private byte @Nullable [] finished = null;
 
     /**
      * Start building a selector for a function with a given name.

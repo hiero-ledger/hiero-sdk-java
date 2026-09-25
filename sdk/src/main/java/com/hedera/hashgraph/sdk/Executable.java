@@ -29,8 +29,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Abstract base utility class.
@@ -49,20 +49,17 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
     /**
      * The maximum times execution will be attempted
      */
-    @Nullable
-    protected Integer maxAttempts = null;
+    protected @Nullable Integer maxAttempts = null;
 
     /**
      * The maximum amount of time to wait between retries
      */
-    @Nullable
-    protected Duration maxBackoff = null;
+    protected @Nullable Duration maxBackoff = null;
 
     /**
      * The minimum amount of time to wait between retries
      */
-    @Nullable
-    protected Duration minBackoff = null;
+    protected @Nullable Duration minBackoff = null;
 
     /**
      * List of account IDs for nodes with which execution will be attempted.
@@ -233,8 +230,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
      *
      * @return the list of account IDs
      */
-    @Nullable
-    public final List<AccountId> getNodeAccountIds() {
+    public final @Nullable List<AccountId> getNodeAccountIds() {
         if (!nodeAccountIds.isEmpty()) {
             return new ArrayList<>(nodeAccountIds.getList());
         }
@@ -644,7 +640,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         // When multiple nodes are available the system retries with different node on each attempt
         // instead of different proxy of the same node
         for (var accountId : nodeAccountIds) {
-            @Nullable var nodeProxies = client.network.getNodeProxies(accountId);
+            var nodeProxies = client.network.getNodeProxies(accountId);
             if (nodeProxies == null || nodeProxies.isEmpty()) {
                 logger.warn(
                         "Attempting to fetch node {} proxy which is not included in the Client's network. Please review your Client config.",
@@ -889,8 +885,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
      */
     abstract MethodDescriptor<ProtoRequestT, ResponseT> getMethodDescriptor();
 
-    @Nullable
-    abstract TransactionId getTransactionIdInternal();
+    abstract @Nullable TransactionId getTransactionIdInternal();
 
     boolean shouldRetryExceptionally(@Nullable Throwable error) {
         if (error instanceof StatusRuntimeException statusException) {
@@ -929,8 +924,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
 
     @VisibleForTesting
     class GrpcRequest {
-        @Nullable
-        private final Network network;
+        private final @Nullable Network network;
 
         private final Node node;
         private final int attempt;

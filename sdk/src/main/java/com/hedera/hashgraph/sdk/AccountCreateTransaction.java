@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /*
  * Create a new Hedera™ account.
@@ -29,11 +29,9 @@ import javax.annotation.Nullable;
  */
 
 public final class AccountCreateTransaction extends Transaction<AccountCreateTransaction> {
-    @Nullable
-    private AccountId proxyAccountId = null;
+    private @Nullable AccountId proxyAccountId = null;
 
-    @Nullable
-    private Key key = null;
+    private @Nullable Key key = null;
 
     private String accountMemo = "";
     private Hbar initialBalance = new Hbar(0);
@@ -41,19 +39,15 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
     private Duration autoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
     private int maxAutomaticTokenAssociations = 0;
 
-    @Nullable
-    private AccountId stakedAccountId = null;
+    private @Nullable AccountId stakedAccountId = null;
 
-    @Nullable
-    private Long stakedNodeId = null;
+    private @Nullable Long stakedNodeId = null;
 
     private boolean declineStakingReward = false;
 
-    @Nullable
-    private EvmAddress alias = null;
+    private @Nullable EvmAddress alias = null;
 
-    @Nullable
-    private EvmAddress delegationAddress = null;
+    private @Nullable EvmAddress delegationAddress = null;
 
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
@@ -92,8 +86,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return                          the creating account's key
      */
-    @Nullable
-    public Key getKey() {
+    public @Nullable Key getKey() {
         return key;
     }
 
@@ -222,9 +215,8 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return                          the proxy account id
      */
-    @Nullable
     @Deprecated
-    public AccountId getProxyAccountId() {
+    public @Nullable AccountId getProxyAccountId() {
         return proxyAccountId;
     }
 
@@ -252,8 +244,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return                          the duration for auto-renew
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -335,8 +326,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return ID of the account to which this account will stake.
      */
-    @Nullable
-    public AccountId getStakedAccountId() {
+    public @Nullable AccountId getStakedAccountId() {
         return stakedAccountId;
     }
 
@@ -358,8 +348,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return ID of the node this account will be staked to.
      */
-    @Nullable
-    public Long getStakedNodeId() {
+    public @Nullable Long getStakedNodeId() {
         return stakedNodeId;
     }
 
@@ -414,8 +403,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      * <p>
      * At most only one account can ever have a given alias on the network.
      */
-    @Nullable
-    public EvmAddress getAlias() {
+    public @Nullable EvmAddress getAlias() {
         return alias;
     }
 
@@ -471,8 +459,7 @@ public final class AccountCreateTransaction extends Transaction<AccountCreateTra
      *
      * @return the delegation address, or null if not set
      */
-    @Nullable
-    public EvmAddress getDelegationAddress() {
+    public @Nullable EvmAddress getDelegationAddress() {
         return delegationAddress;
     }
 

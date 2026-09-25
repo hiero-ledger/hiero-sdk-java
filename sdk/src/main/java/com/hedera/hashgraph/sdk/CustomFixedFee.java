@@ -3,7 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.hedera.hashgraph.sdk.proto.FixedCustomFee;
 import com.hedera.hashgraph.sdk.proto.FixedFee;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Custom fixed fee utility class.
@@ -14,8 +14,7 @@ public class CustomFixedFee extends CustomFeeBase<CustomFixedFee> {
     /**
      * The shard, realm, number of the tokens.
      */
-    @Nullable
-    private TokenId denominatingTokenId = null;
+    private @Nullable TokenId denominatingTokenId = null;
 
     /**
      * Constructor.
@@ -123,8 +122,7 @@ public class CustomFixedFee extends CustomFeeBase<CustomFixedFee> {
      *
      * @return                          the token id object
      */
-    @Nullable
-    public TokenId getDenominatingTokenId() {
+    public @Nullable TokenId getDenominatingTokenId() {
         return denominatingTokenId;
     }
 

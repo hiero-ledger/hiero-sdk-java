@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction that appends signatures to a schedule transaction.
@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
  */
 public final class ScheduleSignTransaction extends Transaction<ScheduleSignTransaction> {
 
-    @Nullable
-    private ScheduleId scheduleId = null;
+    private @Nullable ScheduleId scheduleId = null;
 
     /**
      * Constructor.
@@ -56,8 +55,7 @@ public final class ScheduleSignTransaction extends Transaction<ScheduleSignTrans
      *
      * @return                          the schedule id
      */
-    @Nullable
-    public ScheduleId getScheduleId() {
+    public @Nullable ScheduleId getScheduleId() {
         return scheduleId;
     }
 

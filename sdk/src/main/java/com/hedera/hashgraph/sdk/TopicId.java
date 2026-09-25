@@ -5,69 +5,64 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.TopicID;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unique identifier for a topic (used by the consensus service).
  */
 public final class TopicId implements Comparable<TopicId> {
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
 
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
 
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * Constructor.
      *
-     * @param num                       the num part
+     * @param num                       the num part, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public TopicId(@Nonnegative long num) {
+    public TopicId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public TopicId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public TopicId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      * @param checksum                  the checksum
      */
     @SuppressWarnings("InconsistentOverloads")
-    TopicId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    TopicId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -134,8 +129,8 @@ public final class TopicId implements Comparable<TopicId> {
      * Constructs a TopicId from shard, realm, and EVM address.
      * The EVM address must be a "long zero address" (first 12 bytes are zero).
      *
-     * @param shard      the shard number
-     * @param realm      the realm number
+     * @param shard      the shard number, must be non-negative
+     * @param realm      the realm number, must be non-negative
      * @param evmAddress the EVM address as a hex string
      * @return           the TopicId object
      * @throws IllegalArgumentException if the EVM address is not a valid long zero address
@@ -202,8 +197,7 @@ public final class TopicId implements Comparable<TopicId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

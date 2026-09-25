@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.hedera.hashgraph.sdk;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

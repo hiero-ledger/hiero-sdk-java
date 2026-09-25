@@ -14,14 +14,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class.
  */
 class Network extends BaseNetwork<Network, AccountId, Node> {
-    @Nullable
-    private Integer maxNodesPerRequest;
+    private @Nullable Integer maxNodesPerRequest;
 
     /**
      * The protobuf address book converted into a map of node account IDs to NodeAddress
@@ -175,8 +174,7 @@ class Network extends BaseNetwork<Network, AccountId, Node> {
         }
     }
 
-    @Nullable
-    private static Map<AccountId, NodeAddress> getAddressBookForLedger(@Nullable LedgerId ledgerId) {
+    private static @Nullable Map<AccountId, NodeAddress> getAddressBookForLedger(@Nullable LedgerId ledgerId) {
         return (ledgerId == null || !ledgerId.isKnownNetwork())
                 ? null
                 : readAddressBookResource("addressbook/" + ledgerId + ".pb");

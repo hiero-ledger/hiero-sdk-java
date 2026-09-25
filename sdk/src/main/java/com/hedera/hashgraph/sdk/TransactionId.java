@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The client-generated ID for a transaction.
@@ -28,8 +28,7 @@ public final class TransactionId implements Comparable<TransactionId> {
     /**
      * The Account ID that paid for this transaction.
      */
-    @Nullable
-    public final AccountId accountId;
+    public final @Nullable AccountId accountId;
 
     /**
      * The time from when this transaction is valid.
@@ -37,13 +36,11 @@ public final class TransactionId implements Comparable<TransactionId> {
      * <p>When a transaction is submitted there is additionally a validDuration (defaults to 120s)
      * and together they define a time window that a transaction may be processed in.
      */
-    @Nullable
-    public final Instant validStart;
+    public final @Nullable Instant validStart;
 
     private boolean scheduled = false;
 
-    @Nullable
-    private Integer nonce = null;
+    private @Nullable Integer nonce = null;
 
     private static final long NANOSECONDS_PER_MILLISECOND = 1_000_000L;
 
@@ -203,8 +200,7 @@ public final class TransactionId implements Comparable<TransactionId> {
      *
      * @return                          the nonce value
      */
-    @Nullable
-    public Integer getNonce() {
+    public @Nullable Integer getNonce() {
         return nonce;
     }
 

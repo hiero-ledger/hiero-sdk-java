@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A custom transfer fee that was assessed during the handling of a CryptoTransfer.
@@ -22,14 +22,12 @@ public class AssessedCustomFee {
     /**
      * The denomination of the fee; taken as hbar if left unset
      */
-    @Nullable
-    public final TokenId tokenId;
+    public final @Nullable TokenId tokenId;
 
     /**
      * The account to receive the assessed fee
      */
-    @Nullable
-    public final AccountId feeCollectorAccountId;
+    public final @Nullable AccountId feeCollectorAccountId;
 
     /**
      * The account(s) whose final balances would have been higher in the absence of this assessed fee

@@ -5,14 +5,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.sec.ECPrivateKey;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A private key on the Hedera™ network.
@@ -21,8 +20,7 @@ public abstract class PrivateKey extends Key {
     /**
      * The public key derived from the private key
      */
-    @Nullable
-    protected PublicKey publicKey = null; // Cache the derivation of the public key
+    protected @Nullable PublicKey publicKey = null; // Cache the derivation of the public key
 
     /**
      * Generates a new <a href="https://ed25519.cr.yp.to/">Ed25519</a> private key.
@@ -429,11 +427,11 @@ public abstract class PrivateKey extends Key {
     /**
      * Retrieve the account id.
      *
-     * @param shard                     the shard
-     * @param realm                     the realm
+     * @param shard                     the shard, must be non-negative
+     * @param realm                     the realm, must be non-negative
      * @return                          the account id
      */
-    public AccountId toAccountId(@Nonnegative long shard, @Nonnegative long realm) {
+    public AccountId toAccountId(long shard, long realm) {
         return getPublicKey().toAccountId(shard, realm);
     }
 

@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Wipe (administratively burn) tokens held by a non-treasury account.<br/>
@@ -36,11 +35,9 @@ import javax.annotation.Nullable;
  * The new total supply for the wiped token type SHALL be recorded.
  */
 public class TokenWipeTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenWipeTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private long amount = 0;
 
@@ -80,8 +77,7 @@ public class TokenWipeTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -107,8 +103,7 @@ public class TokenWipeTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -160,10 +155,10 @@ public class TokenWipeTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *   <li>This value MAY be zero(`0`).</li>
      * </ul>
      *
-     * @param amount                    the amount
+     * @param amount                    the amount, must be non-negative
      * @return {@code this}
      */
-    public TokenWipeTransaction setAmount(@Nonnegative long amount) {
+    public TokenWipeTransaction setAmount(long amount) {
         requireNotFrozen();
         this.amount = amount;
         return this;
@@ -213,10 +208,10 @@ public class TokenWipeTransaction extends com.hedera.hashgraph.sdk.Transaction<T
     /**
      * Add a serial number to the list of serial numbers.
      *
-     * @param serial                    the serial number to add
+     * @param serial                    the serial number to add, must be non-negative
      * @return {@code this}
      */
-    public TokenWipeTransaction addSerial(@Nonnegative long serial) {
+    public TokenWipeTransaction addSerial(long serial) {
         requireNotFrozen();
         serials.add(serial);
         return this;

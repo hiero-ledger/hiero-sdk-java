@@ -10,11 +10,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import javax.annotation.Nullable;
 import javax.net.ssl.X509TrustManager;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +27,7 @@ class HederaTrustManager implements X509TrustManager {
     private static final String PEM_FOOTER = "-----END CERTIFICATE-----\n";
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Nullable
-    private final String certHash;
+    private final @Nullable String certHash;
 
     /**
      * Constructor.

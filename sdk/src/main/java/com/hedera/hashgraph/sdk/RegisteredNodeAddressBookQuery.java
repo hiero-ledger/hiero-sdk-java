@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,7 +245,7 @@ public class RegisteredNodeAddressBookQuery {
         throw new RuntimeException("Failed to fetch page after " + maxAttempts + " attempts", lastException);
     }
 
-    private String getNextPagePath(JsonObject response) {
+    private @Nullable String getNextPagePath(JsonObject response) {
         if (response.has("links") && !response.get("links").isJsonNull()) {
             JsonObject links = response.getAsJsonObject("links");
             if (links.has("next") && !links.get("next").isJsonNull()) {

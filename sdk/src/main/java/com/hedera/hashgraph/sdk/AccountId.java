@@ -9,9 +9,8 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID for a cryptocurrency account on Hedera.
@@ -21,72 +20,66 @@ public final class AccountId implements Comparable<AccountId> {
             Pattern.compile("(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.((?:[0-9a-fA-F][0-9a-fA-F])+)$");
 
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
 
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
 
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
     /**
      * The public key bytes to be used as the account's alias
      */
-    @Nullable
-    public final PublicKey aliasKey;
+    public final @Nullable PublicKey aliasKey;
 
     /**
      * The ethereum account 20-byte EVM address to be used initially in place of the public key bytes
      */
-    @Nullable
-    public final EvmAddress evmAddress;
+    public final @Nullable EvmAddress evmAddress;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * Assign the num part of the account id.
      *
-     * @param num                       the num part of the account id
+     * @param num                       the num part of the account id, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public AccountId(@Nonnegative long num) {
+    public AccountId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Assign all parts of the account id.
      *
-     * @param shard                     the shard part of the account id
-     * @param realm                     the realm part of the account id
-     * @param num                       the num part of the account id
+     * @param shard                     the shard part of the account id, must be non-negative
+     * @param realm                     the realm part of the account id, must be non-negative
+     * @param num                       the num part of the account id, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public AccountId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public AccountId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Assign all parts of the account id.
      *
-     * @param shard                     the shard part of the account id
-     * @param realm                     the realm part of the account id
-     * @param num                       the num part of the account id
+     * @param shard                     the shard part of the account id, must be non-negative
+     * @param realm                     the realm part of the account id, must be non-negative
+     * @param num                       the num part of the account id, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    AccountId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    AccountId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -98,15 +91,15 @@ public final class AccountId implements Comparable<AccountId> {
     /**
      * Assign all parts of the account id.
      *
-     * @param shard                     the shard part of the account id
-     * @param realm                     the realm part of the account id
-     * @param num                       the num part of the account id
+     * @param shard                     the shard part of the account id, must be non-negative
+     * @param realm                     the realm part of the account id, must be non-negative
+     * @param num                       the num part of the account id, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
     AccountId(
-            @Nonnegative long shard,
-            @Nonnegative long realm,
-            @Nonnegative long num,
+            long shard,
+            long realm,
+            long num,
             @Nullable String checksum,
             @Nullable PublicKey aliasKey,
             @Nullable EvmAddress evmAddress) {
@@ -168,13 +161,13 @@ public final class AccountId implements Comparable<AccountId> {
      * Retrieve the account id from an EVM address.
      *
      * @param evmAddress                a string representing the EVM address
-     * @param shard                     the shard part of the account id
-     * @param realm                     the shard realm of the account id
+     * @param shard                     the shard part of the account id, must be non-negative
+     * @param realm                     the shard realm of the account id, must be non-negative
      * @return                          the account id object
      *
      * In case shard and realm are unknown, they should be set to zero
      */
-    public static AccountId fromEvmAddress(String evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
+    public static AccountId fromEvmAddress(String evmAddress, long shard, long realm) {
         return fromEvmAddress(EvmAddress.fromString(evmAddress), shard, realm);
     }
 
@@ -196,13 +189,13 @@ public final class AccountId implements Comparable<AccountId> {
      * Retrieve the account id from an EVM address.
      *
      * @param evmAddress                an EvmAddress instance
-     * @param shard                     the shard part of the account id
-     * @param realm                     the shard realm of the account id
+     * @param shard                     the shard part of the account id, must be non-negative
+     * @param realm                     the shard realm of the account id, must be non-negative
      * @return                          the account id object
      *
      * In case shard and realm are unknown, they should be set to zero
      */
-    public static AccountId fromEvmAddress(EvmAddress evmAddress, @Nonnegative long shard, @Nonnegative long realm) {
+    public static AccountId fromEvmAddress(EvmAddress evmAddress, long shard, long realm) {
         EntityIdHelper.decodeEvmAddress(evmAddress.toString());
         return new AccountId(shard, realm, 0, null, null, evmAddress);
     }
@@ -389,8 +382,7 @@ public final class AccountId implements Comparable<AccountId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

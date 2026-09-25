@@ -9,9 +9,8 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID for a smart contract instance on Hedera.
@@ -19,66 +18,61 @@ import org.bouncycastle.util.encoders.Hex;
 public class ContractId extends Key implements Comparable<ContractId> {
     static final Pattern EVM_ADDRESS_REGEX = Pattern.compile("(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.([a-fA-F0-9]{40}$)");
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
 
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
 
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * The 20-byte EVM address of the contract to call.
      */
-    @Nullable
-    public final byte[] evmAddress;
+    public final byte @Nullable [] evmAddress;
 
     /**
      * Assign the num part of the contract id.
      *
-     * @param num                       the num part of the account id
+     * @param num                       the num part of the account id, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public ContractId(@Nonnegative long num) {
+    public ContractId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Assign all parts of the contract id.
      *
-     * @param shard                     the shard part of the contract id
-     * @param realm                     the realm part of the contract id
-     * @param num                       the num part of the contract id
+     * @param shard                     the shard part of the contract id, must be non-negative
+     * @param realm                     the realm part of the contract id, must be non-negative
+     * @param num                       the num part of the contract id, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public ContractId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public ContractId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Assign all parts of the contract id.
      *
-     * @param shard                     the shard part of the contract id
-     * @param realm                     the realm part of the contract id
-     * @param num                       the num part of the contract id
+     * @param shard                     the shard part of the contract id, must be non-negative
+     * @param realm                     the realm part of the contract id, must be non-negative
+     * @param num                       the num part of the contract id, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    ContractId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    ContractId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -86,7 +80,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
         this.evmAddress = null;
     }
 
-    ContractId(@Nonnegative long shard, @Nonnegative long realm, byte[] evmAddress) {
+    ContractId(long shard, long realm, byte[] evmAddress) {
         this.shard = shard;
         this.realm = realm;
         this.evmAddress = evmAddress;
@@ -129,12 +123,12 @@ public class ContractId extends Key implements Comparable<ContractId> {
     /**
      * Parse contract id from an ethereum address.
      *
-     * @param shard                     the desired shard
-     * @param realm                     the desired realm
+     * @param shard                     the desired shard, must be non-negative
+     * @param realm                     the desired realm, must be non-negative
      * @param evmAddress                the evm address
      * @return                          the contract id object
      */
-    public static ContractId fromEvmAddress(@Nonnegative long shard, @Nonnegative long realm, String evmAddress) {
+    public static ContractId fromEvmAddress(long shard, long realm, String evmAddress) {
         EntityIdHelper.decodeEvmAddress(evmAddress);
         return new ContractId(
                 shard, realm, Hex.decode(evmAddress.startsWith("0x") ? evmAddress.substring(2) : evmAddress));
@@ -268,8 +262,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

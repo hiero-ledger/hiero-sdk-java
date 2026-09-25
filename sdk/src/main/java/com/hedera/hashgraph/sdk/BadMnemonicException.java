@@ -2,7 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Custom exception for when there are issues with the mnemonic.
@@ -24,8 +24,7 @@ public class BadMnemonicException extends Exception {
      * <p>
      * If {@code reason == BadMnemonicReason.UnknownWords} then this will be not null.
      */
-    @Nullable
-    public final List<Integer> unknownWordIndices;
+    public final @Nullable List<Integer> unknownWordIndices;
 
     /**
      * Constructor.

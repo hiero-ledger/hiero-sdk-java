@@ -7,7 +7,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import com.hedera.hashgraph.sdk.proto.UtilPrngTransactionBody;
 import com.hedera.hashgraph.sdk.proto.UtilServiceGrpc;
 import io.grpc.MethodDescriptor;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Random Number Generator Transaction.
@@ -18,8 +18,7 @@ public class PrngTransaction extends Transaction<PrngTransaction> {
      * If provided and is positive, returns a 32-bit pseudorandom number from the given range in the transaction record.
      * If not set or set to zero, will return a 384-bit pseudorandom data in the record.
      */
-    @Nullable
-    private Integer range = null;
+    private @Nullable Integer range = null;
 
     /**
      * Constructor.

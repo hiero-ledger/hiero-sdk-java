@@ -6,13 +6,12 @@ import com.hedera.hashgraph.sdk.proto.AccountAmount;
 import com.hedera.hashgraph.sdk.proto.NftTransfer;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 class TokenTransferList {
     final TokenId tokenId;
 
-    @Nullable
-    final Integer expectDecimals;
+    final @Nullable Integer expectDecimals;
 
     List<TokenTransfer> transfers = new ArrayList<>();
     List<TokenNftTransfer> nftTransfers = new ArrayList<>();

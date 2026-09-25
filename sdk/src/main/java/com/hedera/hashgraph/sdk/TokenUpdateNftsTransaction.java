@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Modify the metadata field for an individual non-fungible/unique token (NFT).
@@ -34,8 +33,7 @@ import javax.annotation.Nullable;
  */
 public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTransaction> {
 
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     private List<Long> serials = new ArrayList<>();
 
@@ -69,8 +67,7 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
      *
      * @return the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -121,10 +118,10 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
     /**
      * Add a serial number to the list of serial numbers.
      *
-     * @param serial the serial number to add
+     * @param serial the serial number to add, must be non-negative
      * @return {@code this}
      */
-    public TokenUpdateNftsTransaction addSerial(@Nonnegative long serial) {
+    public TokenUpdateNftsTransaction addSerial(long serial) {
         requireNotFrozen();
         serials.add(serial);
         return this;
@@ -135,8 +132,7 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
      *
      * @return the metadata
      */
-    @Nullable
-    public byte[] getMetadata() {
+    public byte @Nullable [] getMetadata() {
         return metadata;
     }
 

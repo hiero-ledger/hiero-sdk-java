@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.FileGetInfoResponse;
 import java.time.Instant;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Current information for a file, including its size.
@@ -37,8 +37,7 @@ public final class FileInfo {
      * One of these keys must sign in order to delete the file.
      * All of these keys must sign in order to update the file.
      */
-    @Nullable
-    public final KeyList keys;
+    public final @Nullable KeyList keys;
 
     /**
      * The memo associated with the file

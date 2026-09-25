@@ -26,7 +26,7 @@ mainModuleInfo {
     requires("com.fasterxml.jackson.annotation")
     requires("com.fasterxml.jackson.core")
     requiresStatic("lombok")
-    requiresStatic("java.annotation")
+    requiresStatic("org.jspecify")
     annotationProcessor("lombok")
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("spring.boot.starter.web")

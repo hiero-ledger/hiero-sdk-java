@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The fee schedule for a specific hedera functionality and the time period this fee schedule will expire.
@@ -18,8 +18,7 @@ import javax.annotation.Nullable;
 public class FeeSchedule implements Cloneable {
     private List<TransactionFeeSchedule> transactionFeeSchedules = new ArrayList<>();
 
-    @Nullable
-    private Instant expirationTime;
+    private @Nullable Instant expirationTime;
 
     /**
      * Constructor.
@@ -100,8 +99,7 @@ public class FeeSchedule implements Cloneable {
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 

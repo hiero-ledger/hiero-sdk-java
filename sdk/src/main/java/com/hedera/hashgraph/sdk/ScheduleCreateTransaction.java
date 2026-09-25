@@ -11,7 +11,7 @@ import io.grpc.MethodDescriptor;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Create a new Schedule.
@@ -87,22 +87,17 @@ import javax.annotation.Nullable;
  * schedule created.
  */
 public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateTransaction> {
-    @Nullable
-    private AccountId payerAccountId = null;
+    private @Nullable AccountId payerAccountId = null;
 
-    @Nullable
-    private SchedulableTransactionBody transactionToSchedule = null;
+    private @Nullable SchedulableTransactionBody transactionToSchedule = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
     private String scheduleMemo = "";
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
-    @Nullable
-    private java.time.Duration expirationTimeDuration = null;
+    private java.time.@Nullable Duration expirationTimeDuration = null;
 
     private boolean waitForExpiry = false;
 
@@ -132,8 +127,7 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
      *
      * @return The expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -209,8 +203,7 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
      *
      * @return The payer's account ID
      */
-    @Nullable
-    public AccountId getPayerAccountId() {
+    public @Nullable AccountId getPayerAccountId() {
         return payerAccountId;
     }
 
@@ -270,8 +263,7 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
      *
      * @return                          the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 

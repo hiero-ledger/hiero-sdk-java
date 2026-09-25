@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.SchedulableTransactionBody;
 import java.time.Instant;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A query that returns information about the current state of a scheduled
@@ -36,14 +36,12 @@ public final class ScheduleInfo {
     /**
      * The Key which is able to delete the schedule transaction if set
      */
-    @Nullable
-    public final Key adminKey;
+    public final @Nullable Key adminKey;
 
     /**
      * The scheduled transaction
      */
-    @Nullable
-    public final TransactionId scheduledTransactionId;
+    public final @Nullable TransactionId scheduledTransactionId;
 
     /**
      * Publicly visible information about the Schedule entity, up to
@@ -54,22 +52,19 @@ public final class ScheduleInfo {
     /**
      * The date and time the schedule transaction will expire
      */
-    @Nullable
-    public final Instant expirationTime;
+    public final @Nullable Instant expirationTime;
 
     /**
      * The time the schedule transaction was executed. If the schedule
      * transaction has not executed this field will be left null.
      */
-    @Nullable
-    public final Instant executedAt;
+    public final @Nullable Instant executedAt;
 
     /**
      * The consensus time the schedule transaction was deleted. If the
      * schedule transaction was not deleted, this field will be left null.
      */
-    @Nullable
-    public final Instant deletedAt;
+    public final @Nullable Instant deletedAt;
 
     /**
      * The scheduled transaction (inner transaction).
@@ -79,8 +74,7 @@ public final class ScheduleInfo {
     /**
      * The ledger ID the response was returned from; please see <a href="https://github.com/hashgraph/hedera-improvement-proposal/blob/master/HIP/hip-198.md">HIP-198</a> for the network-specific IDs.
      */
-    @Nullable
-    public final LedgerId ledgerId;
+    public final @Nullable LedgerId ledgerId;
 
     /**
      * When set to true, the transaction will be evaluated for execution at expiration_time instead

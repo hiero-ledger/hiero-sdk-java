@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +53,7 @@ public final class MirrorNodeAccountBalanceQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(MirrorNodeAccountBalanceQuery.class);
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
@@ -69,8 +68,7 @@ public final class MirrorNodeAccountBalanceQuery {
      *
      * @return {@code accountId}
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

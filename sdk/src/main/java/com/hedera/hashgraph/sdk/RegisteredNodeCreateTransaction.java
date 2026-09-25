@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction to create a new registered node in the network
@@ -26,8 +26,7 @@ import javax.annotation.Nullable;
 public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeCreateTransaction> {
     private Key adminKey;
 
-    @Nullable
-    private String description;
+    private @Nullable String description;
 
     private List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
 

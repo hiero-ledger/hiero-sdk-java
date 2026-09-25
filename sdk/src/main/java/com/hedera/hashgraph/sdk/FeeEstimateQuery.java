@@ -10,7 +10,7 @@ import java.net.http.HttpTimeoutException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +24,9 @@ public class FeeEstimateQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeeEstimateQuery.class);
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
-    @Nullable
-    private FeeEstimateMode mode = null;
+    private @Nullable FeeEstimateMode mode = null;
 
-    @Nullable
-    private com.hedera.hashgraph.sdk.proto.Transaction transaction = null;
+    private com.hedera.hashgraph.sdk.proto.@Nullable Transaction transaction = null;
 
     private int highVolumeThrottle = 0;
     private int maxAttempts = 10;
@@ -57,8 +55,7 @@ public class FeeEstimateQuery {
      *
      * @return the fee estimate mode that was set, or null if not set
      */
-    @Nullable
-    public FeeEstimateMode getMode() {
+    public @Nullable FeeEstimateMode getMode() {
         return mode;
     }
 
@@ -107,8 +104,7 @@ public class FeeEstimateQuery {
      *
      * @return the transaction that was set, or null if not set
      */
-    @Nullable
-    public com.hedera.hashgraph.sdk.proto.Transaction getTransaction() {
+    public com.hedera.hashgraph.sdk.proto.@Nullable Transaction getTransaction() {
         return transaction;
     }
 
@@ -230,7 +226,7 @@ public class FeeEstimateQuery {
     /**
      * Handle the HTTP response and return the result or null if retry is needed.
      */
-    private FeeEstimateResponse handleResponse(HttpResponse<String> response, int attempt) {
+    private @Nullable FeeEstimateResponse handleResponse(HttpResponse<String> response, int attempt) {
         if (isSuccessfulResponse(response.statusCode())) {
             return FeeEstimateResponse.fromJson(response.body());
         }
