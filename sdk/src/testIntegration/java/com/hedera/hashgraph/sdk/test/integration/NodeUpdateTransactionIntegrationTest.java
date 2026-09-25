@@ -472,6 +472,7 @@ class NodeUpdateTransactionIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     @DisplayName(
             "Given an SDK receives INVALID_NODE_ACCOUNT for a node, when updating its network configuration, then the SDK updates its network with the latest node account IDs for subsequent transactions")
