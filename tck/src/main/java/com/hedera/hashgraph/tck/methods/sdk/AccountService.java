@@ -1,17 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.hedera.hashgraph.sdk.*;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.sdk.param.TransactionReceiptQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountAllowanceParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.account.DeprecatedAccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.GetAccountInfoParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.account.MirrorNodeAccountBalanceParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.*;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.HbarTransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.NftTransferParams;
@@ -19,9 +24,10 @@ import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TokenTransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferCryptoParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.transfer.TransferParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountAllowanceResponse;
-import com.hedera.hashgraph.tck.methods.sdk.response.AccountBalanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.AccountResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.DeprecatedAccountBalanceQueryResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.GetAccountInfoResponse;
+import com.hedera.hashgraph.tck.methods.sdk.response.MirrorNodeAccountBalanceResponse;
 import com.hedera.hashgraph.tck.methods.sdk.response.TransactionReceiptResponse;
 import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
@@ -29,27 +35,76 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.LoggerFactory;
 
 /**
  * AccountService for account related methods
  */
 @JSONRPC2Service
 public class AccountService extends AbstractJSONRPC2Service {
+    private static final Object DEPRECATION_WARNING_LOCK = new Object();
+
     private final SdkService sdkService;
 
     public AccountService(SdkService sdkService) {
         this.sdkService = sdkService;
     }
 
-    //    @JSONRPC2Method("getAccountBalance")
-    public AccountBalanceResponse accountBalanceQuery(final AccountBalanceQueryParams params) throws Exception {
-        AccountBalanceQuery query = QueryBuilders.AccountBuilder.buildAccountBalanceQuery(params);
+    @JSONRPC2Method("getMirrorNodeAccountBalance")
+    public MirrorNodeAccountBalanceResponse getMirrorNodeAccountBalance(final MirrorNodeAccountBalanceParams params)
+            throws Exception {
         Client client = sdkService.getClient(params.getSessionId());
 
-        AccountBalance result = query.execute(client);
-        return new AccountBalanceResponse(
-                result.hbars.toString().replace(" tℏ", ""), result.tokens, result.tokenDecimals);
+        MirrorNodeAccountBalance balance = new MirrorNodeAccountBalanceQuery()
+                .setAccountId(AccountId.fromString(params.getAccountId()))
+                .execute(client);
+        return new MirrorNodeAccountBalanceResponse(String.valueOf(balance.hbars.toTinybars()));
+    }
+
+    /**
+     * Constructs the deprecated {@link AccountBalanceQuery}, capturing the warning the SDK logs while constructing
+     * it, then runs the requested operation and reports the error it raised.
+     */
+    @JSONRPC2Method("executeDeprecatedAccountBalanceQuery")
+    public DeprecatedAccountBalanceQueryResponse executeDeprecatedAccountBalanceQuery(
+            final DeprecatedAccountBalanceQueryParams params) {
+        Client client = sdkService.getClient(params.getSessionId());
+        AccountId accountId = AccountId.fromString(params.getAccountId());
+
+        Logger logger = (Logger) LoggerFactory.getLogger(AccountBalanceQuery.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        AccountBalanceQuery query;
+        // The appender sees every event of the shared SDK logger, so constructions must not overlap.
+        synchronized (DEPRECATION_WARNING_LOCK) {
+            logger.addAppender(appender);
+            try {
+                query = new AccountBalanceQuery();
+            } finally {
+                logger.detachAppender(appender);
+            }
+        }
+        String constructionWarning = appender.list.stream()
+                .filter(event -> event.getLevel() == Level.WARN)
+                .map(ILoggingEvent::getFormattedMessage)
+                .findFirst()
+                .orElse(null);
+
+        query.setAccountId(accountId);
+        String executionError = null;
+        try {
+            if (params.getOperation().equals("getCost")) {
+                query.getCost(client);
+            } else {
+                query.execute(client);
+            }
+        } catch (Exception e) {
+            executionError = Objects.requireNonNullElse(e.getMessage(), e.toString());
+        }
+
+        return new DeprecatedAccountBalanceQueryResponse(constructionWarning, executionError);
     }
 
     @JSONRPC2Method("createAccount")
