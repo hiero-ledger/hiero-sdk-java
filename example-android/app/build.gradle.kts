@@ -46,7 +46,7 @@ dependencies {
     implementation(platform("org.hiero:hiero-dependency-versions"))
     // ---------------------------------------------
 
-    implementation("com.hedera.hashgraph:sdk:2.78.0-beta.1")
+    implementation("com.hedera.hashgraph:sdk:2.78.0")
 
     implementation("com.google.android.material:material:1.12.0")
 
