@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.tck.methods.sdk;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,7 +22,7 @@ class AccountServiceTest {
 
     @Test
     void testExecuteDeprecatedAccountBalanceQueryCapturesWarningAndError() throws Exception {
-        // Given a client whose only node refuses connections, so every operation fails fast
+        // The deprecated query must fail locally, even when its only node is unreachable.
         var sessionId = "session-deprecated-balance";
         sdkService.setup(new SetupParams(
                 "0.0.2",
@@ -41,8 +41,7 @@ class AccountServiceTest {
 
                 // Then every construction is captured, not just the first
                 assertTrue(response.constructionWarning().contains("AccountBalanceQuery is no longer supported"));
-                // Only proves the error plumbing (the refused connection): Java has no Stage 2 error yet (#2851)
-                assertNotNull(response.executionError());
+                assertEquals(response.constructionWarning(), response.executionError());
             }
         } finally {
             sdkService.reset(new BaseParams(sessionId));

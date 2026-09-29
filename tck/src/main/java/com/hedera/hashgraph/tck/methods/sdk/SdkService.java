@@ -11,6 +11,7 @@ import com.hedera.hashgraph.tck.methods.sdk.param.BaseParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.PingParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.SetupParams;
 import com.hedera.hashgraph.tck.methods.sdk.response.SetupResponse;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ import java.util.concurrent.TimeoutException;
  */
 @JSONRPC2Service
 public class SdkService extends AbstractJSONRPC2Service {
+    // Leave room for recovery probes within the TCK's 90-second recovery window.
+    private static final Duration PING_TIMEOUT = Duration.ofSeconds(30);
+
     private final ConcurrentMap<String, Client> clients = new ConcurrentHashMap<>();
 
     @JSONRPC2Method("setup")
@@ -76,13 +80,13 @@ public class SdkService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("ping")
     public SetupResponse ping(final PingParams params) throws Exception {
-        getClient(params.getSessionId()).ping(AccountId.fromString(params.getNodeAccountId()));
+        getClient(params.getSessionId()).ping(AccountId.fromString(params.getNodeAccountId()), PING_TIMEOUT);
         return new SetupResponse("Successfully pinged node " + params.getNodeAccountId() + ".");
     }
 
     @JSONRPC2Method("pingAll")
     public SetupResponse pingAll(final BaseParams params) throws Exception {
-        getClient(params.getSessionId()).pingAll();
+        getClient(params.getSessionId()).pingAll(PING_TIMEOUT);
         return new SetupResponse("Successfully pinged all nodes.");
     }
 
