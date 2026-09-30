@@ -14,7 +14,7 @@ dependencies {
 
 dependencies.constraints {
     api("com.esaulpaugh:headlong:13.3.1") { because("com.esaulpaugh.headlong") }
-    api("org.jspecify:jspecify:1.0.1") { because("org.jspecify") }
+    api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
     api("com.google.code.gson:gson:2.14.0") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
@@ -28,6 +28,7 @@ dependencies.constraints {
     api("io.grpc:grpc-okhttp:$grpc")
     api("org.bouncycastle:bcpkix-jdk18on:$bouncycastle") { because("org.bouncycastle.pkix") }
     api("org.bouncycastle:bcprov-jdk18on:$bouncycastle") { because("org.bouncycastle.provider") }
+    api("org.jspecify:jspecify:1.0.1") { because("org.jspecify") }
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing

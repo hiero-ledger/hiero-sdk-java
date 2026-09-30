@@ -5,6 +5,9 @@ dependencies {
 
     implementation(project(":tck"))
     implementation("io.grpc:grpc-protobuf")
+    // gRPC's module descriptors 'require static java.annotation'; its version must be resolvable
+    // here
+    implementation("com.google.code.findbugs:jsr305")
 }
 
 // Separate publishing from the coverage aggregation as 'sdk' and 'sdk-full'
