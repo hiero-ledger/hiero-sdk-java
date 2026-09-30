@@ -95,7 +95,7 @@ An `Executable` object represents a request to the server.
 The code for using any `Executable` subclass object should look something like this:
 
 ```java
-AccountBalance accountBalanceNew = new AccountBalanceQuery()
+AccountInfo accountInfo = new AccountInfoQuery()
     .setAccountId(newAccountId)
     .execute(client);
 ```

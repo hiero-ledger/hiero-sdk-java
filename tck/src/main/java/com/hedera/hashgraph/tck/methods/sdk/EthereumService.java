@@ -24,10 +24,10 @@ public class EthereumService extends AbstractJSONRPC2Service {
     public EthereumTransactionResponse createEthereumTransaction(final EthereumTransactionParams params)
             throws Exception {
         EthereumTransaction transaction = TransactionBuilders.EthereumBuilder.buildCreate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        if (params.getCommonTransactionParams() != null) {
-            params.getCommonTransactionParams().fillOutTransaction(transaction, client);
+        if (params.commonTransactionParams() != null) {
+            params.commonTransactionParams().fillOutTransaction(transaction, client);
         }
 
         TransactionReceipt receipt = transaction.execute(client).getReceipt(client);

@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.PendingAirdropId;
 import com.hedera.hashgraph.sdk.PendingAirdropRecord;
 import com.hedera.hashgraph.sdk.PrecheckStatusException;
@@ -94,16 +93,13 @@ class TokenAirdropClaimIntegrationTest {
             assertEquals(0, record.pendingAirdropRecords.size());
 
             // verify the receiver holds the tokens via query
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-            assertEquals(amount, receiverAccountBalance.tokens.get(tokenID));
-            assertEquals(2, receiverAccountBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenID, amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, nftID, 2);
 
             // verify the operator does not hold the tokens
-            var operatorBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-            assertEquals(fungibleInitialBalance - amount, operatorBalance.tokens.get(tokenID));
-            assertEquals(mitedNfts - 2, operatorBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(
+                    testEnv.client, testEnv.operatorId, tokenID, fungibleInitialBalance - amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, nftID, mitedNfts - 2);
         }
     }
 
@@ -162,22 +158,17 @@ class TokenAirdropClaimIntegrationTest {
             // verify in the transaction record the pending airdrop ids for nft and ft - should no longer exist
             assertEquals(0, record.pendingAirdropRecords.size());
             // verify receiver1 holds the tokens via query
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiver1AccountId).execute(testEnv.client);
-            assertEquals(amount, receiverAccountBalance.tokens.get(tokenID));
-            assertEquals(2, receiverAccountBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiver1AccountId, tokenID, amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiver1AccountId, nftID, 2);
 
             // verify receiver2 holds the tokens via query
-            var receiver2AccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiver1AccountId).execute(testEnv.client);
-            assertEquals(amount, receiver2AccountBalance.tokens.get(tokenID));
-            assertEquals(2, receiver2AccountBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiver2AccountId, tokenID, amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiver2AccountId, nftID, 2);
 
             // verify the operator does not hold the tokens
-            var operatorBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-            assertEquals(fungibleInitialBalance - amount * 2, operatorBalance.tokens.get(tokenID));
-            assertEquals(mitedNfts - 4, operatorBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(
+                    testEnv.client, testEnv.operatorId, tokenID, fungibleInitialBalance - amount * 2);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, nftID, mitedNfts - 4);
         }
     }
 
@@ -236,16 +227,13 @@ class TokenAirdropClaimIntegrationTest {
             assertEquals(0, record.pendingAirdropRecords.size());
 
             // verify the receiver holds the tokens via query
-            var receiverAccountBalance =
-                    new AccountBalanceQuery().setAccountId(receiverAccountId).execute(testEnv.client);
-            assertEquals(amount, receiverAccountBalance.tokens.get(tokenID));
-            assertEquals(2, receiverAccountBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, tokenID, amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, receiverAccountId, nftID, 2);
 
             // verify the operator does not hold the tokens
-            var operatorBalance =
-                    new AccountBalanceQuery().setAccountId(testEnv.operatorId).execute(testEnv.client);
-            assertEquals(fungibleInitialBalance - amount, operatorBalance.tokens.get(tokenID));
-            assertEquals(mitedNfts - 2, operatorBalance.tokens.get(nftID));
+            IntegrationTestEnv.assertTokenBalance(
+                    testEnv.client, testEnv.operatorId, tokenID, fungibleInitialBalance - amount);
+            IntegrationTestEnv.assertTokenBalance(testEnv.client, testEnv.operatorId, nftID, mitedNfts - 2);
         }
     }
 

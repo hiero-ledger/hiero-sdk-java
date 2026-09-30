@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
  * {@link #setAccountId(AccountId)}, as the balances endpoint supports them directly and no separate
  * setter is needed.
  *
- * <p>Only the HBAR balance is returned. Token balances are not covered by this query.
+ * <p>Only the HBAR balance is returned. For token balances use {@link MirrorNodeTokenBalanceQuery},
+ * which reads one token at a time.
  *
  * <p>An account the mirror node does not know fails with a {@link PrecheckStatusException} carrying
  * {@link Status#INVALID_ACCOUNT_ID}, the same error {@link AccountBalanceQuery} reported. Note that the

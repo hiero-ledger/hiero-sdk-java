@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
@@ -21,7 +20,6 @@ import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -202,23 +200,13 @@ class ExemptCustomFeesExample {
          * Show that the fee collector accounts in the custom fee list
          * of the token that was created was not charged a custom fee in the transfer.
          */
-        Long aliceAccountBalanceAfter = new AccountBalanceQuery()
-                .setAccountId(aliceAccountId)
-                .execute(client)
-                .tokens
-                .get(fungibleTokenId);
+        long aliceAccountBalanceAfter =
+                MirrorNodeHelper.tokenBalanceAfterSync(client, aliceAccountId, fungibleTokenId).balance;
 
-        Long bobAccountBalanceAfter = new AccountBalanceQuery()
-                .setAccountId(bobAccountId)
-                .execute(client)
-                .tokens
-                .get(fungibleTokenId);
+        long bobAccountBalanceAfter = MirrorNodeHelper.awaitTokenBalance(client, bobAccountId, fungibleTokenId, 0);
 
-        Long charlieAccountBalanceAfter = new AccountBalanceQuery()
-                .setAccountId(charlieAccountId)
-                .execute(client)
-                .tokens
-                .get(fungibleTokenId);
+        long charlieAccountBalanceAfter =
+                MirrorNodeHelper.tokenBalanceAfterSync(client, charlieAccountId, fungibleTokenId).balance;
 
         System.out.println("Alice's balance after transferring the fungible token: " + aliceAccountBalanceAfter);
         System.out.println("Bob's account balance after transferring the fungible token: " + bobAccountBalanceAfter);
@@ -229,12 +217,11 @@ class ExemptCustomFeesExample {
          * Clean up:
          * Delete created accounts and token.
          */
-        Map<TokenId, Long> alicesTokens =
-                new AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).tokens;
+        long alicesTokenBalance = MirrorNodeHelper.awaitTokenBalance(client, aliceAccountId, fungibleTokenId, 10_000);
 
         new TokenWipeTransaction()
                 .setTokenId(fungibleTokenId)
-                .setAmount(alicesTokens.get(fungibleTokenId))
+                .setAmount(alicesTokenBalance)
                 .setAccountId(aliceAccountId)
                 .freezeWith(client)
                 .sign(OPERATOR_KEY)

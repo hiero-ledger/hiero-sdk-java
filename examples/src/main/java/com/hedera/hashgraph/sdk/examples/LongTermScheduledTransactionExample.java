@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk.examples;
 
-import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.AccountUpdateTransaction;
@@ -136,8 +135,8 @@ class LongTermScheduledTransactionExample {
          * Step 5:
          * Sign the transaction with the other key and verify the transaction executes successfully
          */
-        var accountBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        System.out.println("Alice's account balance before schedule transfer: " + accountBalance.hbars);
+        var accountBalance = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(2));
+        System.out.println("Alice's account balance before schedule transfer: " + accountBalance);
 
         System.out.println("Signing the new scheduled transaction with the 2nd key");
         new ScheduleSignTransaction()
@@ -147,8 +146,8 @@ class LongTermScheduledTransactionExample {
                 .execute(client)
                 .getReceipt(client);
 
-        accountBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        System.out.println("Alice's account balance after schedule transfer: " + accountBalance.hbars);
+        accountBalance = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(1));
+        System.out.println("Alice's account balance after schedule transfer: " + accountBalance);
 
         info = new ScheduleInfoQuery().setScheduleId(scheduleId).execute(client);
         System.out.println("Scheduled transaction is executed. Executed at: " + info.executedAt);
@@ -206,16 +205,16 @@ class LongTermScheduledTransactionExample {
          * Step 9:
          * Verify that the transfer successfully executes roughly at the time of its expiration.
          */
-        accountBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
+        accountBalance = MirrorNodeHelper.awaitHbarBalance(client, alice, new Hbar(1));
 
-        System.out.println("Alice's account balance before schedule transfer: " + accountBalance.hbars);
+        System.out.println("Alice's account balance before schedule transfer: " + accountBalance);
         while (elapsedTime < 10 * 1000) {
             elapsedTime = System.currentTimeMillis() - startTime;
             System.out.printf("Elapsed time: %.1f seconds\r", elapsedTime / 1000.0);
             Thread.sleep(100); // Pause briefly to reduce CPU usage
         }
-        accountBalance = new AccountBalanceQuery().setAccountId(alice).execute(client);
-        System.out.println("Alice's account balance after schedule transfer: " + accountBalance.hbars);
+        accountBalance = MirrorNodeHelper.awaitHbarBalance(client, alice, Hbar.ZERO);
+        System.out.println("Alice's account balance after schedule transfer: " + accountBalance);
 
         System.out.println("Long Term Scheduled Transaction Example Complete!");
     }

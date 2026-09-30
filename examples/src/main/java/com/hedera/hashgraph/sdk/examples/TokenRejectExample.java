@@ -188,18 +188,19 @@ class TokenRejectExample {
          * Step 6:
          * Check receiver account balance.
          */
-        var receiverAccountBalance =
-                new AccountBalanceQuery().setAccountId(receiverAccountId).execute(client);
+        long receiverFungibleBalance =
+                MirrorNodeHelper.awaitTokenBalance(client, receiverAccountId, fungibleTokenId, 1_000);
 
-        if (receiverAccountBalance.tokens.get(fungibleTokenId) == 1_000) {
-            System.out.println("Receiver account has: " + receiverAccountBalance.tokens.get(fungibleTokenId)
-                    + " example fungible tokens.");
+        if (receiverFungibleBalance == 1_000) {
+            System.out.println("Receiver account has: " + receiverFungibleBalance + " example fungible tokens.");
         } else {
             throw new Exception("Failed to transfer Fungible Token to the receiver account!");
         }
 
-        if (receiverAccountBalance.tokens.get(nftId) == 3) {
-            System.out.println("Receiver account has: " + receiverAccountBalance.tokens.get(nftId) + " example NFTs.");
+        long receiverNftBalance = MirrorNodeHelper.awaitTokenBalance(client, receiverAccountId, nftId, 3);
+
+        if (receiverNftBalance == 3) {
+            System.out.println("Receiver account has: " + receiverNftBalance + " example NFTs.");
         } else {
             throw new Exception("Failed to transfer NFT to the receiver account!");
         }
@@ -235,20 +236,21 @@ class TokenRejectExample {
          * Step 9:
          * Check receiver account balance after token reject.
          */
-        var receiverAccountBalance_AfterTokenReject =
-                new AccountBalanceQuery().setAccountId(receiverAccountId).execute(client);
+        long receiverFungibleBalanceAfterReject =
+                MirrorNodeHelper.awaitTokenBalance(client, receiverAccountId, fungibleTokenId, 0);
 
-        if (receiverAccountBalance_AfterTokenReject.tokens.get(fungibleTokenId) == 0) {
-            System.out.println("Receiver account has (after rejecting tokens): "
-                    + receiverAccountBalance_AfterTokenReject.tokens.get(fungibleTokenId)
+        if (receiverFungibleBalanceAfterReject == 0) {
+            System.out.println("Receiver account has (after rejecting tokens): " + receiverFungibleBalanceAfterReject
                     + " example fungible tokens.");
         } else {
             throw new Exception("Failed to reject Fungible Token!");
         }
 
-        if (receiverAccountBalance_AfterTokenReject.tokens.get(nftId) == null) {
-            System.out.println("Receiver account has (after rejecting tokens): "
-                    + receiverAccountBalance_AfterTokenReject.tokens.get(nftId) + " example NFTs.");
+        var receiverNftBalanceAfterReject = MirrorNodeHelper.awaitTokenBalance(
+                client, receiverAccountId, nftId, balance -> !balance.isAssociated() || balance.balance == 0);
+
+        if (!receiverNftBalanceAfterReject.isAssociated() || receiverNftBalanceAfterReject.balance == 0) {
+            System.out.println("Receiver account holds no example NFTs after rejecting tokens.");
         } else {
             throw new Exception("Failed to reject NFT!");
         }
@@ -257,18 +259,19 @@ class TokenRejectExample {
          * Step 10:
          * Check treasury account balance after token reject.
          */
-        var treasuryAccountBalance =
-                new AccountBalanceQuery().setAccountId(treasuryAccountId).execute(client);
+        long treasuryFungibleBalance =
+                MirrorNodeHelper.awaitTokenBalance(client, treasuryAccountId, fungibleTokenId, FUNGIBLE_TOKEN_SUPPLY);
 
-        if (treasuryAccountBalance.tokens.get(fungibleTokenId) == FUNGIBLE_TOKEN_SUPPLY) {
-            System.out.println("Treasury account has: " + treasuryAccountBalance.tokens.get(fungibleTokenId)
-                    + " example fungible tokens.");
+        if (treasuryFungibleBalance == FUNGIBLE_TOKEN_SUPPLY) {
+            System.out.println("Treasury account has: " + treasuryFungibleBalance + " example fungible tokens.");
         } else {
             throw new Exception("Failed to transfer Fungible Token to the treasury account during token rejection!");
         }
 
-        if (treasuryAccountBalance.tokens.get(nftId) == 3) {
-            System.out.println("Receiver account has: " + receiverAccountBalance.tokens.get(nftId) + " example NFTs.");
+        long treasuryNftBalance = MirrorNodeHelper.awaitTokenBalance(client, treasuryAccountId, nftId, 3);
+
+        if (treasuryNftBalance == 3) {
+            System.out.println("Treasury account has: " + treasuryNftBalance + " example NFTs.");
         } else {
             throw new Exception("Failed to transfer NFT to the treasury account during token rejection!");
         }
