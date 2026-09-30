@@ -30,43 +30,41 @@ public class SdkService extends AbstractJSONRPC2Service {
     public SetupResponse setup(final SetupParams params) throws Exception {
         var clientExecutor = Executors.newFixedThreadPool(16);
         String clientType;
-        if (params.getNodeIp().isPresent()
-                && params.getNodeAccountId().isPresent()
-                && params.getMirrorNetworkIp().isPresent()) {
+        if (params.nodeIp().isPresent()
+                && params.nodeAccountId().isPresent()
+                && params.mirrorNetworkIp().isPresent()) {
             // Custom client setup
             Map<String, AccountId> node = new HashMap<>();
-            var nodeId = AccountId.fromString(params.getNodeAccountId().get());
-            node.put(params.getNodeIp().get(), nodeId);
+            var nodeId = AccountId.fromString(params.nodeAccountId().get());
+            node.put(params.nodeIp().get(), nodeId);
             Client client = Client.forNetwork(node, clientExecutor);
             clientType = "custom";
-            client.setMirrorNetwork(List.of(params.getMirrorNetworkIp().get()));
-            registerClient(params.getSessionId(), client);
+            client.setMirrorNetwork(List.of(params.mirrorNetworkIp().get()));
+            registerClient(params.sessionId(), client);
         } else {
             // Default to testnet
             Client client = Client.forTestnet(clientExecutor);
             clientType = "testnet";
-            registerClient(params.getSessionId(), client);
+            registerClient(params.sessionId(), client);
         }
 
-        Client client = getClient(params.getSessionId());
+        Client client = getClient(params.sessionId());
         client.setOperator(
-                AccountId.fromString(params.getOperatorAccountId()),
-                PrivateKey.fromString(params.getOperatorPrivateKey()));
+                AccountId.fromString(params.operatorAccountId()), PrivateKey.fromString(params.operatorPrivateKey()));
         return new SetupResponse("Successfully setup " + clientType + " client.");
     }
 
     @JSONRPC2Method("setOperator")
     public SetupResponse setOperator(final SetupParams params) throws Exception {
-        Client client = getClient(params.getSessionId());
+        Client client = getClient(params.sessionId());
         client.setOperator(
-                AccountId.fromString(params.getOperatorAccountId()),
-                PrivateKey.fromString(params.getOperatorPrivateKey()));
+                AccountId.fromString(params.operatorAccountId()), PrivateKey.fromString(params.operatorPrivateKey()));
         return new SetupResponse("");
     }
 
     @JSONRPC2Method("reset")
     public SetupResponse reset(final BaseParams params) throws Exception {
-        Client client = clients.remove(params.getSessionId());
+        Client client = clients.remove(params.sessionId());
         if (client != null) {
             client.close();
         }
