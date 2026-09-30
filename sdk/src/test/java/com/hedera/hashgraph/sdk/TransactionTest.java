@@ -334,6 +334,33 @@ public class TransactionTest {
     }
 
     @Test
+    @DisplayName("getAllSignatures returns ECDSA signature bytes for every chunk and node")
+    void getAllSignaturesReturnsEcdsaSignatureBytes() {
+        var ecdsaKey = PrivateKey.generateECDSA();
+        var publicKey = ecdsaKey.getPublicKey();
+        var transaction = new FileAppendTransaction()
+                .setFileId(fileID)
+                .setContents(new byte[3000])
+                .setNodeAccountIds(nodeAccountIDs)
+                .setTransactionId(testTransactionID)
+                .freezeWith(client)
+                .sign(ecdsaKey);
+
+        var allSignatures = transaction.getAllSignatures();
+        var bodies = transaction.getSignableNodeBodyBytesList();
+        var nodeCount = nodeAccountIDs.size();
+
+        assertThat(allSignatures).hasSize(2);
+        for (int chunk = 0; chunk < allSignatures.size(); chunk++) {
+            for (var body : bodies.subList(chunk * nodeCount, (chunk + 1) * nodeCount)) {
+                var signature = allSignatures.get(chunk).get(body.getNodeID()).get(publicKey);
+                assertThat(signature).hasSize(64);
+                assertThat(publicKey.verify(body.getBody(), signature)).isTrue();
+            }
+        }
+    }
+
+    @Test
     @DisplayName("AddSignatureV2 - Multiple Nodes Single Chunk")
     void testAddSignatureV2MultipleNodesSingleChunk() {
         var transaction = new FileAppendTransaction()
