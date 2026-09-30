@@ -6,23 +6,19 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * FileAppendParams for file append method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class FileAppendParams implements JSONRPC2Param {
-    private Optional<String> fileId;
-    private Optional<String> contents;
-    private Optional<Long> maxChunks;
-    private Optional<Long> chunkSize;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record FileAppendParams(
+        Optional<String> fileId,
+        Optional<String> contents,
+        Optional<Long> maxChunks,
+        Optional<Long> chunkSize,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static FileAppendParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = Optional.ofNullable((String) jrpcParams.get("fileId"));
         var parsedContents = Optional.ofNullable((String) jrpcParams.get("contents"));

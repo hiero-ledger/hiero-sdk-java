@@ -7,20 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class GenerateKeyParams implements JSONRPC2Param {
-    private KeyType type;
-    private Optional<String> fromKey;
-    private Optional<Long> threshold;
-    private Optional<List<GenerateKeyParams>> keys;
-
+public record GenerateKeyParams(
+        KeyType type, Optional<String> fromKey, Optional<Long> threshold, Optional<List<GenerateKeyParams>> keys)
+        implements JSONRPC2Param {
     public static GenerateKeyParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedType = (String) jrpcParams.get("type");
         var parsedFromKey = Optional.ofNullable((String) jrpcParams.get("fromKey"));

@@ -44,14 +44,14 @@ public class QueryBuilders {
 
         public static TokenInfoQuery buildTokenInfo(TokenInfoQueryParams params) {
             TokenInfoQuery query = new TokenInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            params.getTokenId().ifPresent(tokenId -> query.setTokenId(TokenId.fromString(tokenId)));
+            params.tokenId().ifPresent(tokenId -> query.setTokenId(TokenId.fromString(tokenId)));
 
             return query;
         }
 
         public static TokenNftInfoQuery buildNftInfo(NftInfoQueryParams params) {
             TokenNftInfoQuery query = new TokenNftInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            query.setNftId(NftId.fromString(params.getNftId()));
+            query.setNftId(NftId.fromString(params.nftId()));
 
             return query;
         }
@@ -64,9 +64,8 @@ public class QueryBuilders {
 
         public static AccountBalanceQuery buildAccountBalanceQuery(AccountBalanceQueryParams params) {
             AccountBalanceQuery query = new AccountBalanceQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            params.getAccountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
-            params.getContractId()
-                    .ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
+            params.accountId().ifPresent(accountId -> query.setAccountId(AccountId.fromString(accountId)));
+            params.contractId().ifPresent(contractIdStr -> query.setContractId(ContractId.fromString(contractIdStr)));
 
             return query;
         }
@@ -80,16 +79,16 @@ public class QueryBuilders {
         public static ScheduleInfoQuery buildScheduleInfoQuery(ScheduleInfoParams params) {
             ScheduleInfoQuery query = new ScheduleInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
 
-            if (params.getScheduleId() != null) {
-                query.setScheduleId(ScheduleId.fromString(params.getScheduleId()));
+            if (params.scheduleId() != null) {
+                query.setScheduleId(ScheduleId.fromString(params.scheduleId()));
             }
 
-            if (params.getQueryPayment() != null) {
-                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            if (params.queryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.queryPayment())));
             }
 
-            if (params.getMaxQueryPayment() != null) {
-                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            if (params.maxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.maxQueryPayment())));
             }
 
             return query;
@@ -103,16 +102,16 @@ public class QueryBuilders {
         public static FileInfoQuery buildFileInfoQuery(FileInfoQueryParams params) {
             FileInfoQuery query = new FileInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
 
-            if (params.getFileId() != null) {
-                query.setFileId(FileId.fromString(params.getFileId()));
+            if (params.fileId() != null) {
+                query.setFileId(FileId.fromString(params.fileId()));
             }
 
-            if (params.getQueryPayment() != null) {
-                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            if (params.queryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.queryPayment())));
             }
 
-            if (params.getMaxQueryPayment() != null) {
-                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            if (params.maxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.maxQueryPayment())));
             }
 
             return query;
@@ -121,14 +120,14 @@ public class QueryBuilders {
         public static FileContentsQuery buildFileContents(FileContentsParams params) {
             FileContentsQuery query = new FileContentsQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-            if (params.getFileId() != null) {
-                query.setFileId(FileId.fromString(params.getFileId()));
+            if (params.fileId() != null) {
+                query.setFileId(FileId.fromString(params.fileId()));
             }
 
-            params.getQueryPayment()
+            params.queryPayment()
                     .ifPresent(queryPayment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPayment))));
 
-            params.getMaxQueryPayment()
+            params.maxQueryPayment()
                     .ifPresent(maxQueryPayment ->
                             query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPayment))));
 
@@ -142,16 +141,16 @@ public class QueryBuilders {
     public static class TopicBuilder {
         public static TopicInfoQuery buildTopicInfoQuery(TopicInfoQueryParams params) {
             TopicInfoQuery query = new TopicInfoQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-            if (params.getTopicId() != null) {
-                query.setTopicId(TopicId.fromString(params.getTopicId()));
+            if (params.topicId() != null) {
+                query.setTopicId(TopicId.fromString(params.topicId()));
             }
 
-            if (params.getQueryPayment() != null) {
-                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getQueryPayment())));
+            if (params.queryPayment() != null) {
+                query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(params.queryPayment())));
             }
 
-            if (params.getMaxQueryPayment() != null) {
-                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.getMaxQueryPayment())));
+            if (params.maxQueryPayment() != null) {
+                query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(params.maxQueryPayment())));
             }
 
             return query;
@@ -161,12 +160,12 @@ public class QueryBuilders {
     public static ContractByteCodeQuery buildContractBytecode(ContractByteCodeQueryParams params) {
         ContractByteCodeQuery query = new ContractByteCodeQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-        params.getContractId().ifPresent(contractId -> query.setContractId(ContractId.fromString(contractId)));
+        params.contractId().ifPresent(contractId -> query.setContractId(ContractId.fromString(contractId)));
 
-        params.getQueryPayment()
+        params.queryPayment()
                 .ifPresent(queryPayment -> query.setQueryPayment(Hbar.fromTinybars(Long.parseLong(queryPayment))));
 
-        params.getMaxQueryPayment()
+        params.maxQueryPayment()
                 .ifPresent(maxQueryPayment ->
                         query.setMaxQueryPayment(Hbar.fromTinybars(Long.parseLong(maxQueryPayment))));
 
@@ -175,20 +174,20 @@ public class QueryBuilders {
 
     public static ContractCallQuery buildContractCall(ContractCallQueryParams params) {
         ContractCallQuery query = new ContractCallQuery().setGrpcDeadline((DEFAULT_GRPC_DEADLINE));
-        if (params.getContractId() != null) {
-            query.setContractId(ContractId.fromString(params.getContractId()));
+        if (params.contractId() != null) {
+            query.setContractId(ContractId.fromString(params.contractId()));
         }
-        if (params.getGas() != null) {
-            query.setGas(Long.parseLong(params.getGas()));
+        if (params.gas() != null) {
+            query.setGas(Long.parseLong(params.gas()));
         }
-        if (params.getFunctionParameters() != null) {
-            query.setFunctionParameters(Hex.decode(params.getFunctionParameters()));
+        if (params.functionParameters() != null) {
+            query.setFunctionParameters(Hex.decode(params.functionParameters()));
         }
-        if (params.getMaxResultSize() != null) {
-            query.setMaxResultSize(Long.parseLong(params.getMaxResultSize()));
+        if (params.maxResultSize() != null) {
+            query.setMaxResultSize(Long.parseLong(params.maxResultSize()));
         }
-        if (params.getSenderAccountId() != null) {
-            query.setSenderAccountId(AccountId.fromString(params.getSenderAccountId()));
+        if (params.senderAccountId() != null) {
+            query.setSenderAccountId(AccountId.fromString(params.senderAccountId()));
         }
 
         return query;
@@ -197,12 +196,12 @@ public class QueryBuilders {
     public static TransactionReceiptQuery buildTransactionReceiptQuery(TransactionReceiptQueryParams params) {
         TransactionReceiptQuery query = new TransactionReceiptQuery().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
 
-        if (params.getTransactionId() != null) {
-            query.setTransactionId(TransactionId.fromString(params.getTransactionId()));
+        if (params.transactionId() != null) {
+            query.setTransactionId(TransactionId.fromString(params.transactionId()));
         }
 
-        query.setIncludeChildren(params.getIncludeChildren());
-        query.setIncludeDuplicates(params.getIncludeDuplicates());
+        query.setIncludeChildren(params.includeChildren());
+        query.setIncludeDuplicates(params.includeDuplicates());
         return query;
     }
 }

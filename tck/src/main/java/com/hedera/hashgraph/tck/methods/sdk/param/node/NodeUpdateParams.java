@@ -7,28 +7,24 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class NodeUpdateParams implements JSONRPC2Param {
-    private Optional<String> nodeId;
-    private Optional<String> accountId;
-    private Optional<String> description;
-    private Optional<List<ServiceEndpointParams>> gossipEndpoints;
-    private Optional<List<ServiceEndpointParams>> serviceEndpoints;
-    private Optional<String> gossipCaCertificate;
-    private Optional<String> grpcCertificateHash;
-    private Optional<ServiceEndpointParams> grpcWebProxyEndpoint;
-    private Optional<String> adminKey;
-    private Optional<Boolean> declineReward;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record NodeUpdateParams(
+        Optional<String> nodeId,
+        Optional<String> accountId,
+        Optional<String> description,
+        Optional<List<ServiceEndpointParams>> gossipEndpoints,
+        Optional<List<ServiceEndpointParams>> serviceEndpoints,
+        Optional<String> gossipCaCertificate,
+        Optional<String> grpcCertificateHash,
+        Optional<ServiceEndpointParams> grpcWebProxyEndpoint,
+        Optional<String> adminKey,
+        Optional<Boolean> declineReward,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static NodeUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedNodeId = Optional.ofNullable((String) jrpcParams.get("nodeId"));
         var parsedAccountId = Optional.ofNullable((String) jrpcParams.get("accountId"));

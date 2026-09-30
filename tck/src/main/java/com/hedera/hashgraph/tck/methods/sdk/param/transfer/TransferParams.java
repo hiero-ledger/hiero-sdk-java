@@ -3,20 +3,15 @@ package com.hedera.hashgraph.tck.methods.sdk.param.transfer;
 
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * Contains the parameters of a transfer.
  */
-@Getter
-@AllArgsConstructor
-public class TransferParams {
-    private Optional<HbarTransferParams> hbar;
-    private Optional<TokenTransferParams> token;
-    private Optional<NftTransferParams> nft;
-    private Optional<Boolean> approved;
-
+public record TransferParams(
+        Optional<HbarTransferParams> hbar,
+        Optional<TokenTransferParams> token,
+        Optional<NftTransferParams> nft,
+        Optional<Boolean> approved) {
     public static TransferParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedHbar = Optional.ofNullable(jrpcParams.get("hbar"))
                 .filter(obj -> obj instanceof Map)

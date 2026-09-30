@@ -7,24 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.minidev.json.JSONArray;
 
 /**
  * CommonTransactionParams
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class CommonTransactionParams {
-    private Optional<String> transactionId;
-    private Optional<Long> maxTransactionFee;
-    private Optional<Long> validTransactionDuration;
-    private Optional<String> memo;
-    private Optional<Boolean> regenerateTransactionId;
-    private Optional<List<String>> signers;
-
+public record CommonTransactionParams(
+        Optional<String> transactionId,
+        Optional<Long> maxTransactionFee,
+        Optional<Long> validTransactionDuration,
+        Optional<String> memo,
+        Optional<Boolean> regenerateTransactionId,
+        Optional<List<String>> signers) {
     public static CommonTransactionParams parse(Map<String, Object> jrpcParams) throws ClassCastException {
         var parsedTransactionId = Optional.ofNullable((String) jrpcParams.get("transactionId"));
         var parsedMaxTransactionFee = Optional.ofNullable((Long) jrpcParams.get("maxTransactionFee"));
