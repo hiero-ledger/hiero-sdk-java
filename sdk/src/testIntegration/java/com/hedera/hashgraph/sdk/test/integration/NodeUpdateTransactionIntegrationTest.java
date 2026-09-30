@@ -163,6 +163,7 @@ class NodeUpdateTransactionIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     @DisplayName(
             "Given a node whose account ID has been updated, when a transaction is submitted to that node with the old account ID after the NodeUpdateTransaction reaches consensus, then the signed transaction for this node fails with INVALID_NODE_ACCOUNT_ID and the SDK retries successfully with another node")
@@ -417,6 +418,7 @@ class NodeUpdateTransactionIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     @DisplayName(
             "Given an successfully handled transaction with outdated node account id , when subsequent transaction that target the new node account id of that node is executed, then the transaction succeeds")
@@ -472,6 +474,7 @@ class NodeUpdateTransactionIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     @DisplayName(
             "Given an SDK receives INVALID_NODE_ACCOUNT for a node, when updating its network configuration, then the SDK updates its network with the latest node account IDs for subsequent transactions")

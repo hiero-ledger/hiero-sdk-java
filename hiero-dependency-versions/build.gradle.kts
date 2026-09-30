@@ -4,8 +4,8 @@ group = "org.hiero"
 val bouncycastle = "1.86"
 val grpc = "1.84.0"
 val protobuf = "4.36.2"
-val slf4j = "2.0.19"
-val mockito = "5.23.0"
+val slf4j = "2.0.20"
+val mockito = "5.24.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:4.1.1"))
@@ -31,7 +31,7 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.22.2") { because("com.fasterxml.jackson.core") }
+    api("com.fasterxml.jackson.core:jackson-core:2.22.3") { because("com.fasterxml.jackson.core") }
     api("com.google.guava:guava:33.7.1-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
     api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
@@ -51,7 +51,7 @@ dependencies.constraints {
     api("org.springframework:spring-webmvc:7.0.9")
     api("org.springframework:spring-context:7.0.9")
     api("org.springframework:spring-web:7.0.9")
-    api("ch.qos.logback:logback-core:1.6.3")
+    api("ch.qos.logback:logback-core:1.6.4")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

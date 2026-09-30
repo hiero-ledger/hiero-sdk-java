@@ -116,12 +116,9 @@ class AccountAllowanceExample {
         System.out.println("Bob's account ID: " + bobId);
         System.out.println("Charlie's account ID: " + charlieId);
 
-        System.out.println("Alice's balance: "
-                + new AccountBalanceQuery().setAccountId(aliceId).execute(client).hbars);
-        System.out.println("Bob's balance: "
-                + new AccountBalanceQuery().setAccountId(bobId).execute(client).hbars);
-        System.out.println("Charlie's balance: "
-                + new AccountBalanceQuery().setAccountId(charlieId).execute(client).hbars);
+        System.out.println("Alice's balance: " + MirrorNodeHelper.awaitHbarBalance(client, aliceId, Hbar.from(5)));
+        System.out.println("Bob's balance: " + MirrorNodeHelper.awaitHbarBalance(client, bobId, Hbar.from(5)));
+        System.out.println("Charlie's balance: " + MirrorNodeHelper.awaitHbarBalance(client, charlieId, Hbar.from(5)));
 
         /*
          * Step 3:
@@ -136,12 +133,9 @@ class AccountAllowanceExample {
                 .execute(client)
                 .getReceipt(client);
 
-        System.out.println("Alice's balance: "
-                + new AccountBalanceQuery().setAccountId(aliceId).execute(client).hbars);
-        System.out.println("Bob's balance: "
-                + new AccountBalanceQuery().setAccountId(bobId).execute(client).hbars);
-        System.out.println("Charlie's balance: "
-                + new AccountBalanceQuery().setAccountId(charlieId).execute(client).hbars);
+        System.out.println("Alice's balance: " + MirrorNodeHelper.hbarBalanceAfterSync(client, aliceId));
+        System.out.println("Bob's balance: " + MirrorNodeHelper.awaitHbarBalance(client, bobId, Hbar.from(5)));
+        System.out.println("Charlie's balance: " + MirrorNodeHelper.awaitHbarBalance(client, charlieId, Hbar.from(5)));
 
         /*
          * Step 4:
@@ -165,12 +159,12 @@ class AccountAllowanceExample {
 
         System.out.println("Transfer succeeded. Bob should now have 1 Hbar left in his allowance.");
 
-        System.out.println("Alice's balance: "
-                + new AccountBalanceQuery().setAccountId(aliceId).execute(client).hbars);
-        System.out.println("Bob's balance: "
-                + new AccountBalanceQuery().setAccountId(bobId).execute(client).hbars);
-        System.out.println("Charlie's balance: "
-                + new AccountBalanceQuery().setAccountId(charlieId).execute(client).hbars);
+        Hbar bobBalanceAfterFirstTransfer =
+                MirrorNodeHelper.awaitHbarBalance(client, bobId, balance -> balance.compareTo(Hbar.from(5)) < 0);
+
+        System.out.println("Alice's balance: " + MirrorNodeHelper.awaitHbarBalance(client, aliceId, Hbar.from(4)));
+        System.out.println("Bob's balance: " + bobBalanceAfterFirstTransfer);
+        System.out.println("Charlie's balance: " + MirrorNodeHelper.awaitHbarBalance(client, charlieId, Hbar.from(6)));
 
         /*
          * Step 5:
@@ -227,12 +221,11 @@ class AccountAllowanceExample {
 
         System.out.println("Transfer succeeded.");
 
-        System.out.println("Alice's balance: "
-                + new AccountBalanceQuery().setAccountId(aliceId).execute(client).hbars);
+        System.out.println("Alice's balance: " + MirrorNodeHelper.awaitHbarBalance(client, aliceId, Hbar.from(2)));
         System.out.println("Bob's balance: "
-                + new AccountBalanceQuery().setAccountId(bobId).execute(client).hbars);
-        System.out.println("Charlie's balance: "
-                + new AccountBalanceQuery().setAccountId(charlieId).execute(client).hbars);
+                + MirrorNodeHelper.awaitHbarBalance(
+                        client, bobId, balance -> balance.compareTo(bobBalanceAfterFirstTransfer) < 0));
+        System.out.println("Charlie's balance: " + MirrorNodeHelper.awaitHbarBalance(client, charlieId, Hbar.from(8)));
 
         /*
          * Clean up:

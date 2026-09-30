@@ -7,16 +7,12 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class AccountAllowanceParams implements JSONRPC2Param {
-    private Optional<List<AllowanceParams>> allowances;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record AccountAllowanceParams(
+        Optional<List<AllowanceParams>> allowances,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static AccountAllowanceParams parse(Map<String, Object> jrpcParams) throws Exception {
 
         var parsedCommonTransactionParams = JSONRPCParamParser.parseCommonTransactionParams(jrpcParams);

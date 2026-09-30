@@ -65,7 +65,7 @@ class GetAccountInfoExample {
 
         /*
          * Step 1:
-         * Execute AccountBalanceQuery and output operator's account info.
+         * Execute AccountInfoQuery and output operator's account info.
          */
         AccountInfo operatorsAccountInfo = new AccountInfoQuery()
                 .setAccountId(OPERATOR_ID)

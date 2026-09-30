@@ -8,41 +8,37 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * TokenCreateParams for token create method
  */
-@Getter
-@AllArgsConstructor
-public class TokenCreateParams implements JSONRPC2Param {
-    private Optional<String> name;
-    private Optional<String> symbol;
-    private Optional<Long> decimals;
-    private Optional<String> initialSupply;
-    private Optional<String> treasuryAccountId;
-    private Optional<String> adminKey;
-    private Optional<String> kycKey;
-    private Optional<String> freezeKey;
-    private Optional<String> wipeKey;
-    private Optional<String> supplyKey;
-    private Optional<String> feeScheduleKey;
-    private Optional<String> pauseKey;
-    private Optional<String> metadataKey;
-    private Optional<Boolean> freezeDefault;
-    private Optional<String> expirationTime;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> memo;
-    private Optional<String> tokenType;
-    private Optional<String> supplyType;
-    private Optional<String> maxSupply;
-    private Optional<List<CustomFee>> customFees;
-    private Optional<String> metadata;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record TokenCreateParams(
+        Optional<String> name,
+        Optional<String> symbol,
+        Optional<Long> decimals,
+        Optional<String> initialSupply,
+        Optional<String> treasuryAccountId,
+        Optional<String> adminKey,
+        Optional<String> kycKey,
+        Optional<String> freezeKey,
+        Optional<String> wipeKey,
+        Optional<String> supplyKey,
+        Optional<String> feeScheduleKey,
+        Optional<String> pauseKey,
+        Optional<String> metadataKey,
+        Optional<Boolean> freezeDefault,
+        Optional<String> expirationTime,
+        Optional<String> autoRenewAccountId,
+        Optional<String> autoRenewPeriod,
+        Optional<String> memo,
+        Optional<String> tokenType,
+        Optional<String> supplyType,
+        Optional<String> maxSupply,
+        Optional<List<CustomFee>> customFees,
+        Optional<String> metadata,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TokenCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedName = Optional.ofNullable((String) jrpcParams.get("name"));
         var parsedSymbol = Optional.ofNullable((String) jrpcParams.get("symbol"));

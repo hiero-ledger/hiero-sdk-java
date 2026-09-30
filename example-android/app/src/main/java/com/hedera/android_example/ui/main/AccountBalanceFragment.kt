@@ -12,10 +12,11 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.hedera.android_example.R
-import com.hedera.hashgraph.sdk.AccountBalanceQuery
 import com.hedera.hashgraph.sdk.AccountId
+import com.hedera.hashgraph.sdk.AccountInfoQuery
 import com.hedera.hashgraph.sdk.Client
 import com.hedera.hashgraph.sdk.PrecheckStatusException
+import com.hedera.hashgraph.sdk.PrivateKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,10 +54,12 @@ class AccountBalanceFragment : Fragment() {
                 }, doInBackground = {
                     try {
                         val id = AccountId.fromString(accountId.text.toString())
-                        val client = Client.forTestnet()
-                        val balance = AccountBalanceQuery()
+                        val operatorKey =
+                            PrivateKey.fromString(view.resources.getString(R.string.operator_key))
+                        val client = Client.forTestnet().setOperator(operatorId, operatorKey)
+                        val balance = AccountInfoQuery()
                             .setAccountId(id)
-                            .execute(client).hbars
+                            .execute(client).balance
                         balance.toString()
                     } catch (e: TimeoutException) {
                         "Error: " + e.message
