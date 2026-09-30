@@ -6,29 +6,25 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * AccountCreateParams for account create method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class AccountCreateParams implements JSONRPC2Param {
-    private Optional<String> key;
-    private Optional<String> initialBalance;
-    private Optional<Boolean> receiverSignatureRequired;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> memo;
-    private Optional<Long> maxAutoTokenAssociations;
-    private Optional<String> stakedAccountId;
-    private Optional<String> stakedNodeId;
-    private Optional<Boolean> declineStakingReward;
-    private Optional<String> alias;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record AccountCreateParams(
+        Optional<String> key,
+        Optional<String> initialBalance,
+        Optional<Boolean> receiverSignatureRequired,
+        Optional<String> autoRenewPeriod,
+        Optional<String> memo,
+        Optional<Long> maxAutoTokenAssociations,
+        Optional<String> stakedAccountId,
+        Optional<String> stakedNodeId,
+        Optional<Boolean> declineStakingReward,
+        Optional<String> alias,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static AccountCreateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedKey = Optional.ofNullable((String) jrpcParams.get("key"));
         var parsedInitialBalance = Optional.ofNullable((String) jrpcParams.get("initialBalance"));

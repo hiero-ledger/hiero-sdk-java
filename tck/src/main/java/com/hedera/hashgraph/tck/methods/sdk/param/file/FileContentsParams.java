@@ -5,20 +5,13 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * GetFileContentsParams for get file contents method
  */
-@Getter
-@AllArgsConstructor
-public class FileContentsParams implements JSONRPC2Param {
-    private String fileId;
-    private Optional<String> queryPayment;
-    private Optional<String> maxQueryPayment;
-    private String sessionId;
-
+public record FileContentsParams(
+        String fileId, Optional<String> queryPayment, Optional<String> maxQueryPayment, String sessionId)
+        implements JSONRPC2Param {
     public static FileContentsParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedFileId = (String) jrpcParams.get("fileId");
         var parsedQueryPayment = Optional.ofNullable((String) jrpcParams.get("queryPayment"));

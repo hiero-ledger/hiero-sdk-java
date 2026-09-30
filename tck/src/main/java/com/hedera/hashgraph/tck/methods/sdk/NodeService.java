@@ -2,7 +2,16 @@
 package com.hedera.hashgraph.tck.methods.sdk;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hedera.hashgraph.sdk.*;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.AddressBookQuery;
+import com.hedera.hashgraph.sdk.Client;
+import com.hedera.hashgraph.sdk.Endpoint;
+import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.NodeAddressBook;
+import com.hedera.hashgraph.sdk.NodeCreateTransaction;
+import com.hedera.hashgraph.sdk.NodeDeleteTransaction;
+import com.hedera.hashgraph.sdk.NodeUpdateTransaction;
+import com.hedera.hashgraph.sdk.TransactionReceipt;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Method;
 import com.hedera.hashgraph.tck.annotation.JSONRPC2Service;
 import com.hedera.hashgraph.tck.methods.AbstractJSONRPC2Service;
@@ -31,8 +40,8 @@ public class NodeService extends AbstractJSONRPC2Service {
 
     @JSONRPC2Method("getAddressBook")
     public AddressBookResponse addressBookQuery(final AddressBookQueryParams params) {
-        AddressBookQuery query = new AddressBookQuery().setFileId(FileId.fromString(params.getFileId()));
-        Client client = sdkService.getClient(params.getSessionId());
+        AddressBookQuery query = new AddressBookQuery().setFileId(FileId.fromString(params.fileId()));
+        Client client = sdkService.getClient(params.sessionId());
 
         NodeAddressBook addressBook = query.execute(client);
         AddressBookResponse response = new AddressBookResponse();
@@ -61,22 +70,22 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createNode")
     public NodeResponse createNode(final NodeCreateParams params) throws Exception {
         NodeCreateTransaction tx = new NodeCreateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getAccountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
-        params.getDescription().ifPresent(tx::setDescription);
+        params.accountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
+        params.description().ifPresent(tx::setDescription);
 
-        params.getGossipEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setGossipEndpoints));
+        params.gossipEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setGossipEndpoints));
 
-        params.getServiceEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setServiceEndpoints));
+        params.serviceEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setServiceEndpoints));
 
-        params.getGossipCaCertificate().ifPresent(hex -> tx.setGossipCaCertificate(Hex.decode(hex)));
+        params.gossipCaCertificate().ifPresent(hex -> tx.setGossipCaCertificate(Hex.decode(hex)));
 
-        params.getGrpcCertificateHash().ifPresent(hex -> tx.setGrpcCertificateHash(Hex.decode(hex)));
+        params.grpcCertificateHash().ifPresent(hex -> tx.setGrpcCertificateHash(Hex.decode(hex)));
 
-        params.getGrpcWebProxyEndpoint().ifPresent(ep -> tx.setGrpcWebProxyEndpoint(ep.toSdkEndpoint()));
+        params.grpcWebProxyEndpoint().ifPresent(ep -> tx.setGrpcWebProxyEndpoint(ep.toSdkEndpoint()));
 
-        params.getAdminKey().ifPresent(keyStr -> {
+        params.adminKey().ifPresent(keyStr -> {
             try {
                 tx.setAdminKey(KeyUtils.getKeyFromString(keyStr));
             } catch (InvalidProtocolBufferException e) {
@@ -84,9 +93,9 @@ public class NodeService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getDeclineReward().ifPresent(tx::setDeclineReward);
+        params.declineReward().ifPresent(tx::setDeclineReward);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
         TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 
@@ -97,29 +106,29 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateNode")
     public NodeResponse updateNode(final NodeUpdateParams params) throws Exception {
         NodeUpdateTransaction tx = new NodeUpdateTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         try {
-            params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
+            params.nodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
         } catch (NumberFormatException e) {
             // Set an invalid node ID to allow the network to return the proper error
             tx.setNodeId(Long.MAX_VALUE);
         }
 
-        params.getAccountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
-        params.getDescription().ifPresent(tx::setDescription);
+        params.accountId().ifPresent(a -> tx.setAccountId(AccountId.fromString(a)));
+        params.description().ifPresent(tx::setDescription);
 
-        params.getGossipEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setGossipEndpoints));
+        params.gossipEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setGossipEndpoints));
 
-        params.getServiceEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setServiceEndpoints));
+        params.serviceEndpoints().ifPresent(endpoints -> setEndpoints(endpoints, tx::setServiceEndpoints));
 
-        params.getGossipCaCertificate().ifPresent(hex -> tx.setGossipCaCertificate(Hex.decode(hex)));
+        params.gossipCaCertificate().ifPresent(hex -> tx.setGossipCaCertificate(Hex.decode(hex)));
 
-        params.getGrpcCertificateHash().ifPresent(hex -> tx.setGrpcCertificateHash(Hex.decode(hex)));
+        params.grpcCertificateHash().ifPresent(hex -> tx.setGrpcCertificateHash(Hex.decode(hex)));
 
-        params.getGrpcWebProxyEndpoint().ifPresent(ep -> tx.setGrpcWebProxyEndpoint(ep.toSdkEndpoint()));
+        params.grpcWebProxyEndpoint().ifPresent(ep -> tx.setGrpcWebProxyEndpoint(ep.toSdkEndpoint()));
 
-        params.getAdminKey().ifPresent(keyStr -> {
+        params.adminKey().ifPresent(keyStr -> {
             try {
                 tx.setAdminKey(KeyUtils.getKeyFromString(keyStr));
             } catch (InvalidProtocolBufferException e) {
@@ -127,9 +136,9 @@ public class NodeService extends AbstractJSONRPC2Service {
             }
         });
 
-        params.getDeclineReward().ifPresent(tx::setDeclineReward);
+        params.declineReward().ifPresent(tx::setDeclineReward);
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
         TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 
@@ -140,16 +149,16 @@ public class NodeService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteNode")
     public NodeResponse deleteNode(final NodeDeleteParams params) throws Exception {
         NodeDeleteTransaction tx = new NodeDeleteTransaction().setGrpcDeadline(DEFAULT_GRPC_DEADLINE);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         try {
-            params.getNodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
+            params.nodeId().ifPresent(idStr -> tx.setNodeId(Long.parseLong(idStr)));
         } catch (NumberFormatException e) {
             // Set an invalid node ID to allow the network to return the proper error
             tx.setNodeId(Long.MAX_VALUE);
         }
 
-        params.getCommonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
+        params.commonTransactionParams().ifPresent(common -> common.fillOutTransaction(tx, client));
 
         TransactionReceipt receipt = tx.execute(client).getReceipt(client);
 

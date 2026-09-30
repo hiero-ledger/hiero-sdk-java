@@ -8,26 +8,22 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * CreateTopicParams for topic create method
  */
-@Getter
-@AllArgsConstructor
-public class CreateTopicParams implements JSONRPC2Param {
-    private Optional<String> memo;
-    private Optional<String> adminKey;
-    private Optional<String> submitKey;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> feeScheduleKey;
-    private Optional<List<String>> feeExemptKeys;
-    private Optional<List<CustomFee>> customFees;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record CreateTopicParams(
+        Optional<String> memo,
+        Optional<String> adminKey,
+        Optional<String> submitKey,
+        Optional<String> autoRenewPeriod,
+        Optional<String> autoRenewAccountId,
+        Optional<String> feeScheduleKey,
+        Optional<List<String>> feeExemptKeys,
+        Optional<List<CustomFee>> customFees,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static CreateTopicParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));

@@ -4,18 +4,10 @@ package com.hedera.hashgraph.tck.methods.sdk.param.node;
 import com.hedera.hashgraph.sdk.Endpoint;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.bouncycastle.util.encoders.Hex;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class ServiceEndpointParams {
-    private Optional<String> ipAddressV4;
-    private Optional<String> domainName;
-    private Optional<Integer> port;
-
+public record ServiceEndpointParams(Optional<String> ipAddressV4, Optional<String> domainName, Optional<Integer> port) {
     public static ServiceEndpointParams parse(Map<String, Object> params) {
         var parsedIp = Optional.ofNullable((String) params.get("ipAddressV4"));
         var parsedDomain = Optional.ofNullable((String) params.get("domainName"));

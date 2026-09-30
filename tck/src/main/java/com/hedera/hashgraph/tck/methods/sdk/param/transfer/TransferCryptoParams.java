@@ -7,19 +7,15 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * TransferCryptoParams for transfer crypto method
  */
-@Getter
-@AllArgsConstructor
-public class TransferCryptoParams implements JSONRPC2Param {
-    private Optional<List<TransferParams>> transfers;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record TransferCryptoParams(
+        Optional<List<TransferParams>> transfers,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TransferCryptoParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTransfers = Optional.ofNullable(jrpcParams.get("transfers"))
                 .filter(obj -> obj instanceof List)
