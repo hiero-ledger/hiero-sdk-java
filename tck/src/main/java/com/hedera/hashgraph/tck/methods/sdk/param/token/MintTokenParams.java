@@ -7,18 +7,14 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class MintTokenParams implements JSONRPC2Param {
-    private Optional<String> tokenId;
-    private Optional<String> amount;
-    private Optional<List<String>> metadata;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record MintTokenParams(
+        Optional<String> tokenId,
+        Optional<String> amount,
+        Optional<List<String>> metadata,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static MintTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));

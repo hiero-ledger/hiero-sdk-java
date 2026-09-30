@@ -7,19 +7,15 @@ import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class BurnTokenParams implements JSONRPC2Param {
-    private Optional<String> tokenId;
-    private Optional<String> amount;
-    private Optional<List<String>> metadata;
-    private Optional<List<String>> serialNumbers;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record BurnTokenParams(
+        Optional<String> tokenId,
+        Optional<String> amount,
+        Optional<List<String>> metadata,
+        Optional<List<String>> serialNumbers,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static BurnTokenParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedAmount = Optional.ofNullable((String) jrpcParams.get("amount"));

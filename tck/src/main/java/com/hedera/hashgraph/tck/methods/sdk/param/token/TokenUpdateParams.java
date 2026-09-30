@@ -6,35 +6,31 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * TokenUpdateParams for token update method
  */
-@Getter
-@AllArgsConstructor
-public class TokenUpdateParams implements JSONRPC2Param {
-    private Optional<String> tokenId;
-    private Optional<String> name;
-    private Optional<String> symbol;
-    private Optional<String> treasuryAccountId;
-    private Optional<String> adminKey;
-    private Optional<String> kycKey;
-    private Optional<String> freezeKey;
-    private Optional<String> wipeKey;
-    private Optional<String> supplyKey;
-    private Optional<String> feeScheduleKey;
-    private Optional<String> pauseKey;
-    private Optional<String> metadataKey;
-    private Optional<String> expirationTime;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> memo;
-    private Optional<String> metadata;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record TokenUpdateParams(
+        Optional<String> tokenId,
+        Optional<String> name,
+        Optional<String> symbol,
+        Optional<String> treasuryAccountId,
+        Optional<String> adminKey,
+        Optional<String> kycKey,
+        Optional<String> freezeKey,
+        Optional<String> wipeKey,
+        Optional<String> supplyKey,
+        Optional<String> feeScheduleKey,
+        Optional<String> pauseKey,
+        Optional<String> metadataKey,
+        Optional<String> expirationTime,
+        Optional<String> autoRenewAccountId,
+        Optional<String> autoRenewPeriod,
+        Optional<String> memo,
+        Optional<String> metadata,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static TokenUpdateParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedTokenId = Optional.ofNullable((String) jrpcParams.get("tokenId"));
         var parsedName = Optional.ofNullable((String) jrpcParams.get("name"));

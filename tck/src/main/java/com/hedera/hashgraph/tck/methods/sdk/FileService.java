@@ -46,9 +46,9 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("createFile")
     public FileResponse createFile(final FileCreateParams params) throws Exception {
         FileCreateTransaction transaction = TransactionBuilders.FileBuilder.buildCreate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -65,9 +65,9 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("deleteFile")
     public FileResponse deleteFile(final FileDeleteParams params) throws Exception {
         FileDeleteTransaction transaction = TransactionBuilders.FileBuilder.buildDelete(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -79,9 +79,9 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("updateFile")
     public FileResponse updateFile(final FileUpdateParams params) throws Exception {
         FileUpdateTransaction transaction = TransactionBuilders.FileBuilder.buildUpdate(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -93,9 +93,9 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("appendFile")
     public FileResponse appendFile(final FileAppendParams params) throws Exception {
         FileAppendTransaction transaction = TransactionBuilders.FileBuilder.buildAppend(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
-        params.getCommonTransactionParams()
+        params.commonTransactionParams()
                 .ifPresent(commonTransactionParams -> commonTransactionParams.fillOutTransaction(transaction, client));
 
         TransactionResponse txResponse = transaction.execute(client);
@@ -107,7 +107,7 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("getFileInfo")
     public FileInfoResponse getFileInfo(final FileInfoQueryParams params) throws Exception {
         FileInfoQuery query = QueryBuilders.FileBuilder.buildFileInfoQuery(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         FileInfo result = query.execute(client);
         return mapFileInfoResponse(result);
@@ -134,7 +134,7 @@ public class FileService extends AbstractJSONRPC2Service {
     @JSONRPC2Method("getFileContents")
     public FileContentsResponse getFileContents(final FileContentsParams params) throws Exception {
         FileContentsQuery query = QueryBuilders.FileBuilder.buildFileContents(params);
-        Client client = sdkService.getClient(params.getSessionId());
+        Client client = sdkService.getClient(params.sessionId());
 
         ByteString response = query.execute(client);
 

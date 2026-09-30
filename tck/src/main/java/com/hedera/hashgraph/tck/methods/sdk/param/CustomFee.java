@@ -6,23 +6,17 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import net.minidev.json.JSONObject;
 
-@Getter
-@AllArgsConstructor
-public class CustomFee implements JSONRPC2Param {
-
-    private String feeCollectorAccountId;
-    private Boolean feeCollectorsExempt;
-    private Optional<FixedFee> fixedFee;
-    private Optional<FractionalFee> fractionalFee;
-    private Optional<RoyaltyFee> royaltyFee;
-
+public record CustomFee(
+        String feeCollectorAccountId,
+        Boolean feeCollectorsExempt,
+        Optional<FixedFee> fixedFee,
+        Optional<FractionalFee> fractionalFee,
+        Optional<RoyaltyFee> royaltyFee)
+        implements JSONRPC2Param {
     public static CustomFee parse(Map<String, Object> jrpcParams) throws Exception {
         var feeCollectorAccountIdParsed = (String) jrpcParams.get("feeCollectorAccountId");
         var feeCollectorsExemptParsed = (Boolean) jrpcParams.get("feeCollectorsExempt");
@@ -53,13 +47,7 @@ public class CustomFee implements JSONRPC2Param {
                 royaltyFeeParsed);
     }
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class FixedFee {
-        private String amount;
-        private Optional<String> denominatingTokenId;
-
+    public record FixedFee(String amount, Optional<String> denominatingTokenId) {
         public static FixedFee parse(Map<String, Object> jrpcParams) throws Exception {
             var amountParsed = (String) jrpcParams.get("amount");
             var denominatingTokenIdParsed = Optional.ofNullable((String) jrpcParams.get("denominatingTokenId"));
@@ -67,16 +55,8 @@ public class CustomFee implements JSONRPC2Param {
         }
     }
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class FractionalFee {
-        private String numerator;
-        private String denominator;
-        private String minimumAmount;
-        private String maximumAmount;
-        private String assessmentMethod;
-
+    public record FractionalFee(
+            String numerator, String denominator, String minimumAmount, String maximumAmount, String assessmentMethod) {
         public static FractionalFee parse(Map<String, Object> jrpcParams) throws Exception {
             var numeratorParsed = (String) jrpcParams.get("numerator");
             var denominatorParsed = (String) jrpcParams.get("denominator");
@@ -92,14 +72,7 @@ public class CustomFee implements JSONRPC2Param {
         }
     }
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class RoyaltyFee {
-        private String numerator;
-        private String denominator;
-        private Optional<FixedFee> fallbackFee;
-
+    public record RoyaltyFee(String numerator, String denominator, Optional<FixedFee> fallbackFee) {
         public static RoyaltyFee parse(Map<String, Object> jrpcParams) throws Exception {
             var numeratorParsed = (String) jrpcParams.get("numerator");
             var denominatorParsed = (String) jrpcParams.get("denominator");
@@ -114,50 +87,51 @@ public class CustomFee implements JSONRPC2Param {
         }
     }
 
-    public List<com.hedera.hashgraph.sdk.CustomFee> fillOutCustomFees(@NonNull List<CustomFee> customFees) {
+    public List<com.hedera.hashgraph.sdk.CustomFee> fillOutCustomFees(List<CustomFee> customFees) {
+        Objects.requireNonNull(customFees, "customFees must not be null");
         List<com.hedera.hashgraph.sdk.CustomFee> customFeeList = new ArrayList<>();
 
         for (var customFee : customFees) {
-            customFee.getFixedFee().ifPresent(fixedFee -> {
+            customFee.fixedFee().ifPresent(fixedFee -> {
                 var sdkFixedFee = new CustomFixedFee()
-                        .setAmount(Long.parseLong(fixedFee.getAmount()))
-                        .setFeeCollectorAccountId(AccountId.fromString(customFee.getFeeCollectorAccountId()))
-                        .setAllCollectorsAreExempt(customFee.getFeeCollectorsExempt());
+                        .setAmount(Long.parseLong(fixedFee.amount()))
+                        .setFeeCollectorAccountId(AccountId.fromString(customFee.feeCollectorAccountId()))
+                        .setAllCollectorsAreExempt(customFee.feeCollectorsExempt());
 
-                fixedFee.getDenominatingTokenId()
+                fixedFee.denominatingTokenId()
                         .ifPresent(tokenId -> sdkFixedFee.setDenominatingTokenId(TokenId.fromString(tokenId)));
 
                 customFeeList.add(sdkFixedFee);
             });
 
-            customFee.getFractionalFee().ifPresent(fractionalFee -> {
+            customFee.fractionalFee().ifPresent(fractionalFee -> {
                 var sdkFractionalFee = new CustomFractionalFee()
-                        .setNumerator(Long.parseLong(fractionalFee.getNumerator()))
-                        .setDenominator(Long.parseLong(fractionalFee.getDenominator()))
-                        .setMin(Long.parseLong(fractionalFee.getMinimumAmount()))
-                        .setMax(Long.parseLong(fractionalFee.getMaximumAmount()))
-                        .setFeeCollectorAccountId(AccountId.fromString(customFee.getFeeCollectorAccountId()))
-                        .setAllCollectorsAreExempt(customFee.getFeeCollectorsExempt())
+                        .setNumerator(Long.parseLong(fractionalFee.numerator()))
+                        .setDenominator(Long.parseLong(fractionalFee.denominator()))
+                        .setMin(Long.parseLong(fractionalFee.minimumAmount()))
+                        .setMax(Long.parseLong(fractionalFee.maximumAmount()))
+                        .setFeeCollectorAccountId(AccountId.fromString(customFee.feeCollectorAccountId()))
+                        .setAllCollectorsAreExempt(customFee.feeCollectorsExempt())
                         .setAssessmentMethod(
-                                "inclusive".equalsIgnoreCase(fractionalFee.getAssessmentMethod())
+                                "inclusive".equalsIgnoreCase(fractionalFee.assessmentMethod())
                                         ? FeeAssessmentMethod.INCLUSIVE
                                         : FeeAssessmentMethod.EXCLUSIVE);
 
                 customFeeList.add(sdkFractionalFee);
             });
 
-            customFee.getRoyaltyFee().ifPresent(royaltyFee -> {
+            customFee.royaltyFee().ifPresent(royaltyFee -> {
                 var sdkRoyaltyFee = new CustomRoyaltyFee()
-                        .setDenominator(Long.parseLong(royaltyFee.getDenominator()))
-                        .setNumerator(Long.parseLong(royaltyFee.getNumerator()))
-                        .setFeeCollectorAccountId(AccountId.fromString(customFee.getFeeCollectorAccountId()))
-                        .setAllCollectorsAreExempt(customFee.getFeeCollectorsExempt());
+                        .setDenominator(Long.parseLong(royaltyFee.denominator()))
+                        .setNumerator(Long.parseLong(royaltyFee.numerator()))
+                        .setFeeCollectorAccountId(AccountId.fromString(customFee.feeCollectorAccountId()))
+                        .setAllCollectorsAreExempt(customFee.feeCollectorsExempt());
 
-                royaltyFee.getFallbackFee().ifPresent(fallbackFee -> {
-                    var fixedFallback = new CustomFixedFee().setAmount(Long.parseLong(fallbackFee.getAmount()));
+                royaltyFee.fallbackFee().ifPresent(fallbackFee -> {
+                    var fixedFallback = new CustomFixedFee().setAmount(Long.parseLong(fallbackFee.amount()));
 
                     fallbackFee
-                            .getDenominatingTokenId()
+                            .denominatingTokenId()
                             .ifPresent(tokenId -> fixedFallback.setDenominatingTokenId(TokenId.fromString(tokenId)));
 
                     sdkRoyaltyFee.setFallbackFee(fixedFallback);
