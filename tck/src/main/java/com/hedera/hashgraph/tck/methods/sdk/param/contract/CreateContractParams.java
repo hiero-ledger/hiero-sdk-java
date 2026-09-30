@@ -6,32 +6,28 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * CreateContractParams for contract create method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class CreateContractParams implements JSONRPC2Param {
-    private Optional<String> adminKey;
-    private Optional<String> autoRenewPeriod;
-    private Optional<String> autoRenewAccountId;
-    private Optional<String> initialBalance;
-    private Optional<String> bytecodeFileId;
-    private Optional<String> initcode; // hex string
-    private Optional<String> stakedAccountId;
-    private Optional<String> stakedNodeId;
-    private Optional<String> gas;
-    private Optional<Boolean> declineStakingReward;
-    private Optional<String> memo;
-    private Optional<Long> maxAutomaticTokenAssociations;
-    private Optional<String> constructorParameters; // hex string
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record CreateContractParams(
+        Optional<String> adminKey,
+        Optional<String> autoRenewPeriod,
+        Optional<String> autoRenewAccountId,
+        Optional<String> initialBalance,
+        Optional<String> bytecodeFileId,
+        Optional<String> initcode, // hex string
+        Optional<String> stakedAccountId,
+        Optional<String> stakedNodeId,
+        Optional<String> gas,
+        Optional<Boolean> declineStakingReward,
+        Optional<String> memo,
+        Optional<Long> maxAutomaticTokenAssociations,
+        Optional<String> constructorParameters, // hex string
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static CreateContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedAdminKey = Optional.ofNullable((String) jrpcParams.get("adminKey"));
         var parsedAutoRenewPeriod = Optional.ofNullable((String) jrpcParams.get("autoRenewPeriod"));

@@ -6,23 +6,19 @@ import com.hedera.hashgraph.tck.methods.sdk.param.CommonTransactionParams;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * DeleteContractParams for contract delete method
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class DeleteContractParams implements JSONRPC2Param {
-    private Optional<String> contractId;
-    private Optional<String> transferAccountId;
-    private Optional<String> transferContractId;
-    private Optional<Boolean> permanentRemoval;
-    private Optional<CommonTransactionParams> commonTransactionParams;
-    private String sessionId;
-
+public record DeleteContractParams(
+        Optional<String> contractId,
+        Optional<String> transferAccountId,
+        Optional<String> transferContractId,
+        Optional<Boolean> permanentRemoval,
+        Optional<CommonTransactionParams> commonTransactionParams,
+        String sessionId)
+        implements JSONRPC2Param {
     public static DeleteContractParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
         var parsedTransferAccountId = Optional.ofNullable((String) jrpcParams.get("transferAccountId"));

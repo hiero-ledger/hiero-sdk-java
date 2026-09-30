@@ -5,17 +5,9 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class FileInfoQueryParams implements JSONRPC2Param {
-    private String fileId;
-    private String queryPayment;
-    private String maxQueryPayment;
-    private String sessionId;
-
+public record FileInfoQueryParams(String fileId, String queryPayment, String maxQueryPayment, String sessionId)
+        implements JSONRPC2Param {
     public static FileInfoQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         Objects.requireNonNull(jrpcParams, "jrpcParams must not be null");
 

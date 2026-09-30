@@ -27,14 +27,13 @@ class GenerateKeyParamsTest {
 
         GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
-        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.getType());
-        assertEquals(Optional.of("someFromKey"), params.getFromKey());
-        assertEquals(Optional.of(2L), params.getThreshold());
-        assertTrue(params.getKeys().isPresent());
-        assertEquals(1, params.getKeys().get().size());
+        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.type());
+        assertEquals(Optional.of("someFromKey"), params.fromKey());
+        assertEquals(Optional.of(2L), params.threshold());
+        assertTrue(params.keys().isPresent());
+        assertEquals(1, params.keys().get().size());
         assertEquals(
-                KeyType.ECDSA_SECP256K1_PUBLIC_KEY,
-                params.getKeys().get().get(0).getType());
+                KeyType.ECDSA_SECP256K1_PUBLIC_KEY, params.keys().get().get(0).type());
     }
 
     @Test
@@ -44,10 +43,10 @@ class GenerateKeyParamsTest {
 
         GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
-        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.getType());
-        assertEquals(Optional.empty(), params.getFromKey());
-        assertEquals(Optional.empty(), params.getThreshold());
-        assertEquals(Optional.empty(), params.getKeys());
+        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.type());
+        assertEquals(Optional.empty(), params.fromKey());
+        assertEquals(Optional.empty(), params.threshold());
+        assertEquals(Optional.empty(), params.keys());
     }
 
     @Test
@@ -67,9 +66,9 @@ class GenerateKeyParamsTest {
 
         GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
-        assertEquals(Optional.empty(), params.getFromKey());
-        assertEquals(Optional.empty(), params.getThreshold());
-        assertEquals(Optional.empty(), params.getKeys());
+        assertEquals(Optional.empty(), params.fromKey());
+        assertEquals(Optional.empty(), params.threshold());
+        assertEquals(Optional.empty(), params.keys());
     }
 
     @Test
@@ -88,13 +87,12 @@ class GenerateKeyParamsTest {
 
         GenerateKeyParams params = GenerateKeyParams.parse(jrpcParams);
 
-        assertEquals(KeyType.LIST_KEY, params.getType());
-        assertTrue(params.getKeys().isPresent());
-        assertEquals(2, params.getKeys().get().size());
-        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.getKeys().get().get(0).getType());
+        assertEquals(KeyType.LIST_KEY, params.type());
+        assertTrue(params.keys().isPresent());
+        assertEquals(2, params.keys().get().size());
+        assertEquals(KeyType.ED25519_PUBLIC_KEY, params.keys().get().get(0).type());
         assertEquals(
-                KeyType.ECDSA_SECP256K1_PUBLIC_KEY,
-                params.getKeys().get().get(1).getType());
+                KeyType.ECDSA_SECP256K1_PUBLIC_KEY, params.keys().get().get(1).type());
     }
 
     @Test
