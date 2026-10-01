@@ -174,6 +174,29 @@ public class ECDSAPublicKeyTest {
     }
 
     @Test
+    @DisplayName("getSignatures returns the ECDSA signature bytes, not empty arrays")
+    void getSignaturesReturnsEcdsaSignatureBytes() {
+        var privateKey = PrivateKey.generateECDSA();
+        var publicKey = privateKey.getPublicKey();
+        var client = Client.forTestnet().setOperator(AccountId.fromString("0.0.1337"), privateKey);
+        var tx = new TransferTransaction()
+                .addHbarTransfer(AccountId.fromString("0.0.1337"), Hbar.fromTinybars(-1))
+                .addHbarTransfer(AccountId.fromString("0.0.3"), Hbar.fromTinybars(1))
+                .setNodeAccountIds(java.util.List.of(AccountId.fromString("0.0.3"), AccountId.fromString("0.0.4")))
+                .freezeWith(client)
+                .sign(privateKey);
+
+        var signatures = tx.getSignatures();
+
+        assertThat(signatures).hasSize(2);
+        for (var body : tx.getSignableNodeBodyBytesList()) {
+            var signature = signatures.get(body.getNodeID()).get(publicKey);
+            assertThat(signature).hasSize(64);
+            assertThat(publicKey.verify(body.getBody(), signature)).isTrue();
+        }
+    }
+
+    @Test
     @DisplayName("public key can be recovered from string")
     void keyStringSerialization() {
         PublicKey key1 = PrivateKey.generateECDSA().getPublicKey();
