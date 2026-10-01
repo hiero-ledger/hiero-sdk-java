@@ -5,23 +5,19 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * SetupParams for SDK client
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Getter
-@AllArgsConstructor
-public class SetupParams implements JSONRPC2Param {
-    private String operatorAccountId;
-    private String operatorPrivateKey;
-    private Optional<String> nodeIp;
-    private Optional<String> nodeAccountId;
-    private Optional<String> mirrorNetworkIp;
-    private String sessionId;
-
+public record SetupParams(
+        String operatorAccountId,
+        String operatorPrivateKey,
+        Optional<String> nodeIp,
+        Optional<String> nodeAccountId,
+        Optional<String> mirrorNetworkIp,
+        String sessionId)
+        implements JSONRPC2Param {
     public static SetupParams parse(Map<String, Object> jrpcParams) throws ClassCastException {
         var parsedOperatorAccountId = (String) jrpcParams.get("operatorAccountId");
         var parsedOperatorPrivateKey = (String) jrpcParams.get("operatorPrivateKey");

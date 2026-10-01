@@ -5,17 +5,10 @@ import com.hedera.hashgraph.tck.methods.JSONRPC2Param;
 import com.hedera.hashgraph.tck.util.JSONRPCParamParser;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class ContractByteCodeQueryParams implements JSONRPC2Param {
-    private Optional<String> contractId;
-    private Optional<String> queryPayment;
-    private Optional<String> maxQueryPayment;
-    private String sessionId;
-
+public record ContractByteCodeQueryParams(
+        Optional<String> contractId, Optional<String> queryPayment, Optional<String> maxQueryPayment, String sessionId)
+        implements JSONRPC2Param {
     public static ContractByteCodeQueryParams parse(Map<String, Object> jrpcParams) throws Exception {
         var parsedContractId = Optional.ofNullable((String) jrpcParams.get("contractId"));
         var parsedQueryPayment = Optional.ofNullable((String) jrpcParams.get("queryPayment"));
