@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Create a new file.
@@ -62,13 +62,11 @@ import javax.annotation.Nullable;
  */
 public final class FileCreateTransaction extends Transaction<FileCreateTransaction> {
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     private Duration expirationTimeDuration = null;
 
-    @Nullable
-    private KeyList keys = null;
+    private @Nullable KeyList keys = null;
 
     private byte[] contents = {};
     private String fileMemo = "";
@@ -110,8 +108,7 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
      *
      * @return                          expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -147,8 +144,7 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
      *
      * @return                          list of keys
      */
-    @Nullable
-    public Collection<Key> getKeys() {
+    public @Nullable Collection<Key> getKeys() {
         return keys != null ? Collections.unmodifiableCollection(keys) : null;
     }
 

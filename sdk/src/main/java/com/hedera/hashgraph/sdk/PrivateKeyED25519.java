@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -17,6 +16,7 @@ import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.math.ec.rfc8032.Ed25519;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Encapsulate the ED25519 private key.
@@ -24,8 +24,7 @@ import org.bouncycastle.math.ec.rfc8032.Ed25519;
 class PrivateKeyED25519 extends PrivateKey {
     private final byte[] keyData;
 
-    @Nullable
-    private final KeyParameter chainCode;
+    private final @Nullable KeyParameter chainCode;
 
     /**
      * Constructor.

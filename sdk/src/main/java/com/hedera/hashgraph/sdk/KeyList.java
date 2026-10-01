@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A list of keys that are required to sign in unison, with an optional threshold controlling how many keys of
@@ -26,8 +26,7 @@ public final class KeyList extends Key implements Collection<Key> {
     /**
      * The minimum number of keys that must sign.
      */
-    @Nullable
-    public Integer threshold;
+    public @Nullable Integer threshold;
 
     /**
      * Create a new key list where all keys that are added will be required to sign.
@@ -92,8 +91,7 @@ public final class KeyList extends Key implements Collection<Key> {
      *
      * @return int
      */
-    @Nullable
-    public Integer getThreshold() {
+    public @Nullable Integer getThreshold() {
         return threshold;
     }
 

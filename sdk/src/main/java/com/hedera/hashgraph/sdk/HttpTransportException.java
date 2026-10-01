@@ -2,7 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A failure to obtain an HTTP response, carrying one of the cross-SDK

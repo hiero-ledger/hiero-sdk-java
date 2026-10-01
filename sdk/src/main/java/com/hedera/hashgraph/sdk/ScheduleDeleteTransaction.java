@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Mark a schedule in the network state as deleted.
@@ -28,8 +28,7 @@ import javax.annotation.Nullable;
  */
 public final class ScheduleDeleteTransaction extends Transaction<ScheduleDeleteTransaction> {
 
-    @Nullable
-    private ScheduleId scheduleId = null;
+    private @Nullable ScheduleId scheduleId = null;
 
     /**
      * Constructor.
@@ -67,8 +66,7 @@ public final class ScheduleDeleteTransaction extends Transaction<ScheduleDeleteT
      *
      * @return                          the schedule id
      */
-    @Nullable
-    public ScheduleId getScheduleId() {
+    public @Nullable ScheduleId getScheduleId() {
         return scheduleId;
     }
 

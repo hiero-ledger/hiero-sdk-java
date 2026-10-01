@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.TokenFreezeStatus;
 import com.hedera.hashgraph.sdk.proto.TokenKycStatus;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Token's information related to the given Account.
@@ -34,15 +34,13 @@ public class TokenRelationship {
      *
      * If the token does not have KYC key, KycNotApplicable is returned
      */
-    @Nullable
-    public final Boolean kycStatus;
+    public final @Nullable Boolean kycStatus;
     /**
      * The Freeze status of the account (FreezeNotApplicable, Frozen or
      * Unfrozen). If the token does not have Freeze key,
      * FreezeNotApplicable is returned
      */
-    @Nullable
-    public final Boolean freezeStatus;
+    public final @Nullable Boolean freezeStatus;
     /**
      * The amount of decimal places that this token supports.
      */
@@ -77,8 +75,7 @@ public class TokenRelationship {
      * @param freezeStatus              the protobuf
      * @return                          the freeze status
      */
-    @Nullable
-    static Boolean freezeStatusFromProtobuf(TokenFreezeStatus freezeStatus) {
+    static @Nullable Boolean freezeStatusFromProtobuf(TokenFreezeStatus freezeStatus) {
         return freezeStatus == TokenFreezeStatus.FreezeNotApplicable ? null : freezeStatus == TokenFreezeStatus.Frozen;
     }
 
@@ -88,8 +85,7 @@ public class TokenRelationship {
      * @param kycStatus                 the protobuf
      * @return                          the kyc status
      */
-    @Nullable
-    static Boolean kycStatusFromProtobuf(TokenKycStatus kycStatus) {
+    static @Nullable Boolean kycStatusFromProtobuf(TokenKycStatus kycStatus) {
         return kycStatus == TokenKycStatus.KycNotApplicable ? null : kycStatus == TokenKycStatus.Granted;
     }
 

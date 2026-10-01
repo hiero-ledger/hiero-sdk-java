@@ -10,7 +10,7 @@ import io.grpc.MethodDescriptor;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +32,9 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
             "Deprecated: AccountBalanceQuery is no longer supported. Use MirrorNodeAccountBalanceQuery or "
                     + "the mirror node REST API (GET /api/v1/accounts/{id}) to retrieve account balances.";
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     /**
      * Constructor.
@@ -53,8 +51,7 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
      *
      * @return {@code accountId}
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -77,8 +74,7 @@ public final class AccountBalanceQuery extends Query<AccountBalance, AccountBala
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

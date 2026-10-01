@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nullable;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -23,6 +22,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.util.Arrays;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Encapsulate the ECDSA private key.
@@ -31,8 +31,7 @@ public class PrivateKeyECDSA extends PrivateKey {
 
     private final BigInteger keyData;
 
-    @Nullable
-    private final KeyParameter chainCode;
+    private final @Nullable KeyParameter chainCode;
 
     /**
      * Constructor.

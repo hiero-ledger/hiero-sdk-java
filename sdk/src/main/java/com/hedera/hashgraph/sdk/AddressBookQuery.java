@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +25,9 @@ import org.slf4j.LoggerFactory;
 public class AddressBookQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressBookQuery.class);
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
-    @Nullable
-    private Integer limit = null;
+    private @Nullable Integer limit = null;
 
     private int maxAttempts = 10;
     private Duration maxBackoff = Duration.ofSeconds(8L);
@@ -60,8 +57,7 @@ public class AddressBookQuery {
      *
      * @return the file id that was assigned
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 
@@ -81,18 +77,17 @@ public class AddressBookQuery {
      *
      * @return the limit number that was assigned
      */
-    @Nullable
-    public Integer getLimit() {
+    public @Nullable Integer getLimit() {
         return limit;
     }
 
     /**
      * Assign the number of node addresses to retrieve or all nodes set to 0.
      *
-     * @param limit number of node addresses to get
+     * @param limit number of node addresses to get, must be non-negative
      * @return {@code this}
      */
-    public AddressBookQuery setLimit(@Nullable @Nonnegative Integer limit) {
+    public AddressBookQuery setLimit(@Nullable Integer limit) {
         this.limit = limit;
         return this;
     }
@@ -109,10 +104,10 @@ public class AddressBookQuery {
     /**
      * Assign the maximum number of attempts.
      *
-     * @param maxAttempts the maximum number of attempts
+     * @param maxAttempts the maximum number of attempts, must be non-negative
      * @return {@code this}
      */
-    public AddressBookQuery setMaxAttempts(@Nonnegative int maxAttempts) {
+    public AddressBookQuery setMaxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
         return this;
     }

@@ -28,6 +28,7 @@ dependencies.constraints {
     api("io.grpc:grpc-okhttp:$grpc")
     api("org.bouncycastle:bcpkix-jdk18on:$bouncycastle") { because("org.bouncycastle.pkix") }
     api("org.bouncycastle:bcprov-jdk18on:$bouncycastle") { because("org.bouncycastle.provider") }
+    api("org.jspecify:jspecify:1.0.1") { because("org.jspecify") }
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing

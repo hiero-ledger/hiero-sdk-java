@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction to update an existing registered node in the network
@@ -25,11 +25,9 @@ import javax.annotation.Nullable;
 public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeUpdateTransaction> {
     private Long registeredNodeId;
 
-    @Nullable
-    private Key adminKey;
+    private @Nullable Key adminKey;
 
-    @Nullable
-    private String description;
+    private @Nullable String description;
 
     private List<RegisteredServiceEndpoint> serviceEndpoints = new ArrayList<>();
 

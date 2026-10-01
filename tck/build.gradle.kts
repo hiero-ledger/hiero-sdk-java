@@ -25,7 +25,7 @@ mainModuleInfo {
     requires("com.fasterxml.jackson.databind")
     requires("com.fasterxml.jackson.annotation")
     requires("com.fasterxml.jackson.core")
-    requiresStatic("java.annotation")
+    requiresStatic("org.jspecify")
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("spring.boot.starter.web")
 }

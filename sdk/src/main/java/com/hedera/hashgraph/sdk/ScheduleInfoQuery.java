@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.ScheduleServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A query that returns information about the current state of a schedule
@@ -19,8 +19,7 @@ import javax.annotation.Nullable;
  * See <a href="https://docs.hedera.com/guides/docs/sdks/schedule-transaction/get-schedule-info">Hedera Documentation</a>
  */
 public class ScheduleInfoQuery extends com.hedera.hashgraph.sdk.Query<ScheduleInfo, ScheduleInfoQuery> {
-    @Nullable
-    private ScheduleId scheduleId = null;
+    private @Nullable ScheduleId scheduleId = null;
 
     /**
      * Constructor.
@@ -32,8 +31,7 @@ public class ScheduleInfoQuery extends com.hedera.hashgraph.sdk.Query<ScheduleIn
      *
      * @return                          the schedule id
      */
-    @Nullable
-    public ScheduleId getScheduleId() {
+    public @Nullable ScheduleId getScheduleId() {
         return scheduleId;
     }
 

@@ -9,7 +9,7 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get all of the information about a file, except for its contents.
@@ -23,8 +23,7 @@ import javax.annotation.Nullable;
  */
 public final class FileInfoQuery extends Query<FileInfo, FileInfoQuery> {
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
     /**
      * Constructor.
@@ -36,8 +35,7 @@ public final class FileInfoQuery extends Query<FileInfo, FileInfoQuery> {
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 

@@ -12,7 +12,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction body for an `appendContent` transaction.<br/>
@@ -42,8 +42,7 @@ import javax.annotation.Nullable;
 public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTransaction> {
     static int DEFAULT_CHUNK_SIZE = 4096;
 
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
     /**
      * Constructor.
@@ -85,8 +84,7 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 
@@ -116,8 +114,7 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
      *
      * @return                          the byte string representing the file
      */
-    @Nullable
-    public ByteString getContents() {
+    public @Nullable ByteString getContents() {
         return getData();
     }
 

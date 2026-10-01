@@ -14,7 +14,7 @@ import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Submit a message for consensus.
@@ -28,8 +28,7 @@ import javax.annotation.Nullable;
  * topicRunningHash.
  */
 public final class TopicMessageSubmitTransaction extends ChunkedTransaction<TopicMessageSubmitTransaction> {
-    @Nullable
-    private TopicId topicId = null;
+    private @Nullable TopicId topicId = null;
 
     /**
      * Constructor.
@@ -65,8 +64,7 @@ public final class TopicMessageSubmitTransaction extends ChunkedTransaction<Topi
      *
      * @return                          the topic id
      */
-    @Nullable
-    public TopicId getTopicId() {
+    public @Nullable TopicId getTopicId() {
         return topicId;
     }
 
