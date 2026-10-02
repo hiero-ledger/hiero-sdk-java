@@ -42,6 +42,8 @@ import javax.annotation.Nullable;
 public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTransaction> {
     static int DEFAULT_CHUNK_SIZE = 4096;
 
+    private static final int DEFAULT_TRANSACTION_CHUNK_SIZE = 2048;
+
     @Nullable
     private FileId fileId = null;
 
@@ -52,7 +54,7 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
         super();
 
         defaultMaxTransactionFee = new Hbar(5);
-        setChunkSize(2048);
+        setChunkSize(DEFAULT_TRANSACTION_CHUNK_SIZE);
     }
 
     /**
@@ -186,22 +188,37 @@ public final class FileAppendTransaction extends ChunkedTransaction<FileAppendTr
             fileId = FileId.fromProtobuf(body.getFileID());
         }
 
+        var chunkCount = 1;
+        var firstChunkSize = 0;
+
         if (!innerSignedTransactions.isEmpty()) {
+            chunkCount = 0;
             try {
                 for (var i = 0;
                         i < innerSignedTransactions.size();
                         i += nodeAccountIds.isEmpty() ? 1 : nodeAccountIds.size()) {
-                    data = data.concat(TransactionBody.parseFrom(
+                    var chunk = TransactionBody.parseFrom(
                                     innerSignedTransactions.get(i).getBodyBytes())
                             .getFileAppend()
-                            .getContents());
+                            .getContents();
+                    if (chunkCount == 0) {
+                        firstChunkSize = chunk.size();
+                    }
+                    data = data.concat(chunk);
+                    chunkCount++;
                 }
             } catch (InvalidProtocolBufferException exc) {
                 throw new IllegalArgumentException(exc.getMessage());
             }
         } else {
             data = body.getContents();
+            firstChunkSize = data.size();
         }
+
+        // Every chunk except the last is full, so the first chunk's size is the original chunk size
+        setChunkSizeInternal(
+                chunkCount > 1 ? firstChunkSize : Math.max(DEFAULT_TRANSACTION_CHUNK_SIZE, firstChunkSize));
+        setMaxChunksInternal(Math.max(getMaxChunks(), chunkCount));
     }
 
     /**
