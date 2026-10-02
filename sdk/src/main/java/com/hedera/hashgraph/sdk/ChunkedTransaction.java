@@ -165,6 +165,24 @@ abstract class ChunkedTransaction<T extends ChunkedTransaction<T>> extends Trans
         return (T) this;
     }
 
+    /**
+     * Restore the chunk size while deserializing, when the transaction may already be frozen.
+     *
+     * @param chunkSize                 the chunk size
+     */
+    void setChunkSizeInternal(int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
+
+    /**
+     * Restore the max number of chunks while deserializing, when the transaction may already be frozen.
+     *
+     * @param maxChunks                 the number of chunks
+     */
+    void setMaxChunksInternal(int maxChunks) {
+        this.maxChunks = maxChunks;
+    }
+
     @Override
     public byte[] getTransactionHash() {
         if (outerTransactions.size() > nodeAccountIds.size()) {
