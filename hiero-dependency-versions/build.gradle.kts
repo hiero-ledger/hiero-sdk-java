@@ -33,9 +33,9 @@ dependencies.constraints {
 
     // Testing
     api("com.fasterxml.jackson.core:jackson-core:2.22.3") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.7.1-android") { because("com.google.common") }
+    api("com.google.guava:guava:33.7.2-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
-    api("org.apache.commons:commons-lang3:3.20.0") { because("org.apache.commons.lang3") }
+    api("org.apache.commons:commons-lang3:3.21.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
     api("org.junit.jupiter:junit-jupiter-api:6.1.3") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
@@ -52,7 +52,7 @@ dependencies.constraints {
     api("org.springframework:spring-webmvc:7.0.9")
     api("org.springframework:spring-context:7.0.9")
     api("org.springframework:spring-web:7.0.9")
-    api("ch.qos.logback:logback-core:1.6.4")
+    api("ch.qos.logback:logback-core:1.6.5")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths
