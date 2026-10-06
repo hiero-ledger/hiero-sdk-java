@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Adds or removes key/value pairs in the storage of an EVM hook.
  */
 public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
 
-    private HookId hookId;
+    private @Nullable HookId hookId;
     private List<EvmHookStorageUpdate> storageUpdates = new ArrayList<>();
 
     /**
@@ -55,7 +56,7 @@ public class HookStoreTransaction extends Transaction<HookStoreTransaction> {
      *
      * @return the hook id
      */
-    public HookId getHookId() {
+    public @Nullable HookId getHookId() {
         return hookId;
     }
 

@@ -36,7 +36,7 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
      * @param description a short description of the service
      * @return {@code this}
      */
-    public GeneralServiceEndpoint setDescription(String description) {
+    public GeneralServiceEndpoint setDescription(@Nullable String description) {
         this.description = description;
         return this;
     }

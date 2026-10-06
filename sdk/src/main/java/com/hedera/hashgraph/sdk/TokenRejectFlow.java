@@ -41,7 +41,7 @@ public class TokenRejectFlow {
 
     private @Nullable PublicKey signPublicKey = null;
 
-    private UnaryOperator<byte @Nullable []> transactionSigner = null;
+    private @Nullable UnaryOperator<byte @Nullable []> transactionSigner = null;
 
     public TokenRejectFlow() {}
 
@@ -49,7 +49,7 @@ public class TokenRejectFlow {
      * Extract the Account ID of the Owner.
      * @return the Account ID of the Owner.
      */
-    public AccountId getOwnerId() {
+    public @Nullable AccountId getOwnerId() {
         return ownerId;
     }
 

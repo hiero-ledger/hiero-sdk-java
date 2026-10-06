@@ -12,8 +12,8 @@ import org.jspecify.annotations.Nullable;
  * that would modify that pending airdrop (such as a `claimAirdrop` or `cancelAirdrop`).
  */
 public class PendingAirdropId {
-    private AccountId sender;
-    private AccountId receiver;
+    private @Nullable AccountId sender;
+    private @Nullable AccountId receiver;
 
     private @Nullable TokenId tokenId;
 
@@ -35,7 +35,7 @@ public class PendingAirdropId {
         this.tokenId = null;
     }
 
-    public AccountId getSender() {
+    public @Nullable AccountId getSender() {
         return sender;
     }
 
@@ -44,7 +44,7 @@ public class PendingAirdropId {
         return this;
     }
 
-    public AccountId getReceiver() {
+    public @Nullable AccountId getReceiver() {
         return receiver;
     }
 
@@ -53,7 +53,7 @@ public class PendingAirdropId {
         return this;
     }
 
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -62,7 +62,7 @@ public class PendingAirdropId {
         return this;
     }
 
-    public NftId getNftId() {
+    public @Nullable NftId getNftId() {
         return nftId;
     }
 

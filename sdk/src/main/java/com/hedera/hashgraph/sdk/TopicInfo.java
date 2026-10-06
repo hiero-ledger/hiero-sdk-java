@@ -67,7 +67,7 @@ public final class TopicInfo {
      */
     public final LedgerId ledgerId;
 
-    public final Key feeScheduleKey;
+    public final @Nullable Key feeScheduleKey;
 
     public final List<Key> feeExemptKeys;
 
@@ -84,7 +84,7 @@ public final class TopicInfo {
             Duration autoRenewPeriod,
             @Nullable AccountId autoRenewAccountId,
             LedgerId ledgerId,
-            Key feeScheduleKey,
+            @Nullable Key feeScheduleKey,
             List<Key> feeExemptKeys,
             List<CustomFixedFee> customFees) {
         this.topicId = topicId;

@@ -52,7 +52,7 @@ public final class FileUpdateTransaction extends Transaction<FileUpdateTransacti
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private byte[] contents = {};
 

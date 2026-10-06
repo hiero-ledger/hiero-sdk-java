@@ -40,7 +40,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
     public boolean isApproved;
 
     // Optional typed hook calls for sender/receiver
+    @Nullable
     NftHookCall senderHookCall;
+
+    @Nullable
     NftHookCall receiverHookCall;
 
     /**

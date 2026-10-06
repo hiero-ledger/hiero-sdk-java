@@ -98,7 +98,7 @@ public class TokenCreateTransaction extends Transaction<TokenCreateTransaction> 
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private @Nullable Duration autoRenewPeriod = null;
 

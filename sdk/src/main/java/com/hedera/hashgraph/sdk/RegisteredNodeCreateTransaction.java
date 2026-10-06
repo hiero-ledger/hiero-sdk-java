@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  * completion of this transaction.
  */
 public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeCreateTransaction> {
-    private Key adminKey;
+    private @Nullable Key adminKey;
 
     private @Nullable String description;
 
@@ -62,7 +62,7 @@ public class RegisteredNodeCreateTransaction extends Transaction<RegisteredNodeC
      * Get administrative key controlled by the node operator.
      * @return {@code Key} the admin key
      */
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 

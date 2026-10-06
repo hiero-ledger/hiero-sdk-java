@@ -78,9 +78,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
     /**
      * The timeout for each execution attempt
      */
-    protected Duration grpcDeadline;
+    protected @Nullable Duration grpcDeadline;
 
-    protected Logger logger;
+    protected @Nullable Logger logger;
     private java.util.function.Function<ProtoRequestT, ProtoRequestT> requestListener;
     // Lambda responsible for executing synchronous gRPC requests. Pluggable for unit testing.
     @VisibleForTesting
@@ -110,7 +110,7 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
      *
      * @return The timeout for each execution attempt
      */
-    public final Duration grpcDeadline() {
+    public final @Nullable Duration grpcDeadline() {
         return grpcDeadline;
     }
 
@@ -933,9 +933,9 @@ abstract class Executable<SdkRequestT, ProtoRequestT extends MessageLite, Respon
         private final long startAt;
         private final long delay;
         private Duration grpcDeadline;
-        private ResponseT response;
+        private @Nullable ResponseT response;
         private double latency;
-        private Status responseStatus;
+        private @Nullable Status responseStatus;
 
         GrpcRequest(@Nullable Network network, int attempt, Duration grpcDeadline) {
             this.network = network;

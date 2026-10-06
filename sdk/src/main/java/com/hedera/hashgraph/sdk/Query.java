@@ -451,8 +451,8 @@ public abstract class Query<O, T extends Query<O, T>>
         private final Hbar maxCost;
         private final boolean notRequired;
 
-        private Client.Operator operator;
-        private Hbar cost;
+        private Client.@Nullable Operator operator;
+        private @Nullable Hbar cost;
 
         GrpcCostQuery(Client client) {
             Query.this.initWithNodeIds(client);
@@ -466,11 +466,11 @@ public abstract class Query<O, T extends Query<O, T>>
             }
         }
 
-        public Client.Operator getOperator() {
+        public Client.@Nullable Operator getOperator() {
             return operator;
         }
 
-        public Hbar getCost() {
+        public @Nullable Hbar getCost() {
             return cost;
         }
 

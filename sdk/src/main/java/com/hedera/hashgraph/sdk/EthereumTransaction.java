@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class EthereumTransaction extends Transaction<EthereumTransaction> {
     private byte[] ethereumData = new byte[0];
-    private FileId callDataFileId = null;
+    private @Nullable FileId callDataFileId = null;
     private Hbar maxGasAllowanceHbar = Hbar.ZERO;
 
     /**

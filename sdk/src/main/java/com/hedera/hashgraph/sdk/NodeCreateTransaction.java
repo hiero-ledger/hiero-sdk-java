@@ -94,7 +94,7 @@ public class NodeCreateTransaction extends Transaction<NodeCreateTransaction> {
      * Extract the Account ID of the Node.
      * @return the Account ID of the Node.
      */
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

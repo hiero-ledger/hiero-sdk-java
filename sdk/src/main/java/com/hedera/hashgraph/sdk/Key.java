@@ -87,7 +87,7 @@ public abstract class Key {
      * @return Key representation
      * @throws InvalidProtocolBufferException
      */
-    public static Key fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+    public static @Nullable Key fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
         return fromProtobufKey(com.hedera.hashgraph.sdk.proto.Key.parseFrom(bytes));
     }
 }

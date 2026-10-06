@@ -41,7 +41,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
 
-    private Long nodeId;
+    private @Nullable Long nodeId;
 
     private @Nullable AccountId accountId = null;
 
@@ -127,7 +127,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Extract the Account ID of the Node.
      * @return the Account ID of the Node.
      */
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -449,7 +449,7 @@ public class NodeUpdateTransaction extends Transaction<NodeUpdateTransaction> {
      * Get a list of registered nodes operated by the same entity as this node.
      * @return {@code List<Long>} the list of associated registered node.
      */
-    public List<Long> getAssociatedRegisteredNodes() {
+    public @Nullable List<Long> getAssociatedRegisteredNodes() {
         return associatedRegisteredNodes;
     }
 

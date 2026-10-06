@@ -99,7 +99,7 @@ public class ContractCreateFlow {
 
     private @Nullable PublicKey signPublicKey = null;
 
-    private UnaryOperator<byte @Nullable []> transactionSigner = null;
+    private @Nullable UnaryOperator<byte @Nullable []> transactionSigner = null;
 
     /**
      * Constructor
@@ -371,7 +371,7 @@ public class ContractCreateFlow {
      *
      * @return the contract memo
      */
-    public String getContractMemo() {
+    public @Nullable String getContractMemo() {
         return contractMemo;
     }
 

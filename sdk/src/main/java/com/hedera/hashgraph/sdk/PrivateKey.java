@@ -460,5 +460,5 @@ public abstract class PrivateKey extends Key {
      *
      * @return the chainCode
      */
-    public abstract KeyParameter getChainCode();
+    public abstract @Nullable KeyParameter getChainCode();
 }

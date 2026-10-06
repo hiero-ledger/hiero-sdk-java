@@ -63,7 +63,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
 
     private @Nullable Key submitKey = null;
 
-    private Key feeScheduleKey = null;
+    private @Nullable Key feeScheduleKey = null;
 
     private List<Key> feeExemptKeys = new ArrayList<>();
 
@@ -250,7 +250,7 @@ public final class TopicCreateTransaction extends Transaction<TopicCreateTransac
      * Returns the key which allows updates to the new topic’s fees.
      * @return the feeScheduleKey
      */
-    public Key getFeeScheduleKey() {
+    public @Nullable Key getFeeScheduleKey() {
         return feeScheduleKey;
     }
 

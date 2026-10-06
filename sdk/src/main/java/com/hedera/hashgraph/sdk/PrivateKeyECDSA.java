@@ -226,7 +226,7 @@ public class PrivateKeyECDSA extends PrivateKey {
         return publicKey;
     }
 
-    public KeyParameter getChainCode() {
+    public @Nullable KeyParameter getChainCode() {
         return chainCode;
     }
 

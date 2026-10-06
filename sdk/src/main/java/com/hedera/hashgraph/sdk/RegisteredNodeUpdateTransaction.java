@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
  * node state as requested.
  */
 public class RegisteredNodeUpdateTransaction extends Transaction<RegisteredNodeUpdateTransaction> {
-    private Long registeredNodeId;
+    private @Nullable Long registeredNodeId;
 
     private @Nullable Key adminKey;
 

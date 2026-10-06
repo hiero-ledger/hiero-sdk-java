@@ -122,7 +122,7 @@ public abstract class Transaction<T extends Transaction<T>>
     /**
      * Should the transaction id be regenerated
      */
-    protected Boolean regenerateTransactionId = null;
+    protected @Nullable Boolean regenerateTransactionId = null;
 
     private Duration transactionValidDuration;
 
@@ -134,7 +134,7 @@ public abstract class Transaction<T extends Transaction<T>>
 
     List<CustomFeeLimit> customFeeLimits = new ArrayList<>();
 
-    private Key batchKey = null;
+    private @Nullable Key batchKey = null;
 
     /**
      * Constructor.
@@ -934,7 +934,7 @@ public abstract class Transaction<T extends Transaction<T>>
     /**
      * Get the key that will sign the batch of which this Transaction is a part of.
      */
-    public Key getBatchKey() {
+    public @Nullable Key getBatchKey() {
         return batchKey;
     }
     /**
@@ -1081,7 +1081,7 @@ public abstract class Transaction<T extends Transaction<T>>
      *
      * @return should the transaction id be regenerated
      */
-    public final Boolean getRegenerateTransactionId() {
+    public final @Nullable Boolean getRegenerateTransactionId() {
         return regenerateTransactionId;
     }
 

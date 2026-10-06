@@ -41,7 +41,7 @@ public class PrngTransaction extends Transaction<PrngTransaction> {
      *
      * @return                          the range
      */
-    public Integer getRange() {
+    public @Nullable Integer getRange() {
         return range;
     }
 

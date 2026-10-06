@@ -52,7 +52,7 @@ public final class ContractUpdateTransaction extends Transaction<ContractUpdateT
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private @Nullable Key adminKey = null;
 

@@ -28,6 +28,7 @@ public class TokenTransfer {
 
     boolean isApproved;
 
+    @Nullable
     FungibleHookCall hookCall;
 
     /**

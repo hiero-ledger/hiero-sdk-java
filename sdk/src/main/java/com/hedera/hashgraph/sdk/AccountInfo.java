@@ -53,7 +53,7 @@ public final class AccountInfo {
      * The key for the account, which must sign in order to transfer out, or to modify the account in any way other than
      * extending its expiration date.
      */
-    public final Key key;
+    public final @Nullable Key key;
 
     /**
      * The current balance of account.
@@ -186,7 +186,7 @@ public final class AccountInfo {
             boolean isDeleted,
             @Nullable AccountId proxyAccountId,
             long proxyReceived,
-            Key key,
+            @Nullable Key key,
             long balance,
             long sendRecordThreshold,
             long receiveRecordThreshold,

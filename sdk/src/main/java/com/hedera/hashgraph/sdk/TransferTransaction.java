@@ -33,6 +33,8 @@ public class TransferTransaction extends AbstractTokenTransferTransaction<Transf
         final AccountId accountId;
         Hbar amount;
         boolean isApproved;
+
+        @Nullable
         FungibleHookCall hookCall;
 
         HbarTransfer(AccountId accountId, Hbar amount, boolean isApproved) {

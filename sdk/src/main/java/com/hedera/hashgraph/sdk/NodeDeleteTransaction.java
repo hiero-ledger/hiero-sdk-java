@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class NodeDeleteTransaction extends Transaction<NodeDeleteTransaction> {
 
-    private Long nodeId;
+    private @Nullable Long nodeId;
 
     /**
      * Constructor.

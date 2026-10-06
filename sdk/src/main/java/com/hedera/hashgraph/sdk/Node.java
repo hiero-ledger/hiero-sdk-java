@@ -92,6 +92,7 @@ class Node extends BaseNode<Node, AccountId> {
      *
      * @return                          the address book
      */
+    @Nullable
     NodeAddress getAddressBookEntry() {
         return addressBookEntry;
     }

@@ -48,7 +48,7 @@ public final class AccountUpdateTransaction extends Transaction<AccountUpdateTra
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private @Nullable Duration autoRenewPeriod = null;
 

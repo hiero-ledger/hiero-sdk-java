@@ -487,9 +487,9 @@ abstract class BaseNetwork<
      * Get all node proxies by key
      *
      * @param key                       the desired key
-     * @return                          the list of node proxies
+     * @return                          the list of node proxies, or null if there is none for the key
      */
-    synchronized List<BaseNodeT> getNodeProxies(KeyT key) {
+    synchronized @Nullable List<BaseNodeT> getNodeProxies(KeyT key) {
         // Attempt to readmit nodes each time a node is fetched.
         // Note: Readmitting nodes will only happen periodically so calling it each time should not harm
         // performance.

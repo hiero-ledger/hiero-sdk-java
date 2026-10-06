@@ -37,7 +37,7 @@ public class TokenUpdateNftsTransaction extends Transaction<TokenUpdateNftsTrans
 
     private List<Long> serials = new ArrayList<>();
 
-    private byte[] metadata = null;
+    private byte @Nullable [] metadata = null;
 
     /**
      * Constructor.

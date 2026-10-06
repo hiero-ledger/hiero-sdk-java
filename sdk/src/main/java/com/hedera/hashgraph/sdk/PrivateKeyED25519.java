@@ -228,7 +228,7 @@ class PrivateKeyED25519 extends PrivateKey {
         return publicKey;
     }
 
-    public KeyParameter getChainCode() {
+    public @Nullable KeyParameter getChainCode() {
         return chainCode;
     }
 

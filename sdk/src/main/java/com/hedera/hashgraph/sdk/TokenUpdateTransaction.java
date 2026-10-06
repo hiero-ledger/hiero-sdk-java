@@ -73,13 +73,13 @@ public class TokenUpdateTransaction extends Transaction<TokenUpdateTransaction> 
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private @Nullable Duration autoRenewPeriod = null;
 
     private @Nullable String tokenMemo = null;
 
-    private byte[] tokenMetadata = null;
+    private byte @Nullable [] tokenMetadata = null;
 
     private TokenKeyValidation tokenKeyVerificationMode = TokenKeyValidation.FULL_VALIDATION;
 

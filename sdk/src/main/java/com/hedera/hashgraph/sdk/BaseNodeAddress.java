@@ -76,7 +76,7 @@ class BaseNodeAddress {
      *
      * @return                          the name
      */
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
@@ -85,7 +85,7 @@ class BaseNodeAddress {
      *
      * @return                          the address
      */
-    public String getAddress() {
+    public @Nullable String getAddress() {
         return address;
     }
 

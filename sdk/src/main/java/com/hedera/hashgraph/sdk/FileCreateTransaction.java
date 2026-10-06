@@ -64,7 +64,7 @@ public final class FileCreateTransaction extends Transaction<FileCreateTransacti
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
     private @Nullable KeyList keys = null;
 

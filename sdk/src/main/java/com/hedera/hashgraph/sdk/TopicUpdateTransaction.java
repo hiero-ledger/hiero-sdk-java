@@ -46,13 +46,13 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
 
     private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
-    private Key feeScheduleKey = null;
+    private @Nullable Key feeScheduleKey = null;
 
-    private List<Key> feeExemptKeys = null;
+    private @Nullable List<Key> feeExemptKeys = null;
 
-    private List<CustomFixedFee> customFees = null;
+    private @Nullable List<CustomFixedFee> customFees = null;
 
     /**
      * Constructor.
@@ -344,7 +344,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the key which allows updates to the new topic’s fees.
      * @return feeScheduleKey
      */
-    public Key getFeeScheduleKey() {
+    public @Nullable Key getFeeScheduleKey() {
         return feeScheduleKey;
     }
 
@@ -369,7 +369,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the keys that will be exempt from paying fees.
      * @return {List of feeExemptKeys}
      */
-    public List<Key> getFeeExemptKeys() {
+    public @Nullable List<Key> getFeeExemptKeys() {
         return feeExemptKeys;
     }
 
@@ -414,7 +414,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the fixed fees to assess when a message is submitted to the new topic.
      * @return {List of CustomFixedFee}
      */
-    public List<CustomFixedFee> getCustomFees() {
+    public @Nullable List<CustomFixedFee> getCustomFees() {
         return customFees;
     }
 
