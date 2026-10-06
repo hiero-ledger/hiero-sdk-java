@@ -223,5 +223,47 @@ public class FileAppendTransactionTest {
         var tx = Transaction.fromScheduledTransaction(transactionBody);
 
         assertThat(tx).isInstanceOf(FileAppendTransaction.class);
+        assertThat(((FileAppendTransaction) tx).getChunkSize()).isEqualTo(2048);
+    }
+
+    private FileAppendTransaction spawnTestTransaction(byte[] contents, int chunkSize, int maxChunks) {
+        return new FileAppendTransaction()
+                .setNodeAccountIds(List.of(AccountId.fromString("0.0.444"), AccountId.fromString("0.0.555")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setFileId(FileId.fromString("0.0.6006"))
+                .setContents(contents)
+                .setChunkSize(chunkSize)
+                .setMaxChunks(maxChunks)
+                .freeze()
+                .sign(unusedPrivateKey);
+    }
+
+    @Test
+    void fromBytesRestoresDefaultChunkSizeForSingleChunk() throws Exception {
+        var contents = new byte[1500];
+        var tx = (FileAppendTransaction)
+                Transaction.fromBytes(spawnTestTransaction(contents, 2048, 20).toBytes());
+
+        assertThat(tx.getChunkSize()).isEqualTo(2048);
+        assertThat(tx.getContents().toByteArray()).isEqualTo(contents);
+        assertThat(tx.sign(secondPrivateKey).getSignatures()).hasSize(2);
+    }
+
+    @Test
+    void fromBytesRestoresCustomChunkSizeForMultipleChunks() throws Exception {
+        var tx = (FileAppendTransaction) Transaction.fromBytes(
+                spawnTestTransaction(new byte[5000], 1000, 20).toBytes());
+
+        assertThat(tx.getChunkSize()).isEqualTo(1000);
+        assertThat(tx.getAllSignatures()).hasSize(5);
+    }
+
+    @Test
+    void fromBytesRestoresMaxChunksAboveDefault() throws Exception {
+        var tx = (FileAppendTransaction) Transaction.fromBytes(
+                spawnTestTransaction(new byte[2500], 100, 25).toBytes());
+
+        assertThat(tx.getChunkSize()).isEqualTo(100);
+        assertThat(tx.getMaxChunks()).isGreaterThanOrEqualTo(25);
     }
 }

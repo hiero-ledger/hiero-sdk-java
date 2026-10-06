@@ -1332,9 +1332,10 @@ public abstract class Transaction<T extends Transaction<T>>
             map.put(nodeAccountId, keyMap);
 
             for (var sigPair : sigMap.getSigPairList()) {
+                var publicKey = PublicKey.fromBytes(sigPair.getPubKeyPrefix().toByteArray());
                 keyMap.put(
-                        PublicKey.fromBytes(sigPair.getPubKeyPrefix().toByteArray()),
-                        sigPair.getEd25519().toByteArray());
+                        publicKey,
+                        publicKey.extractSignatureFromProtobuf(sigPair).toByteArray());
             }
         }
 

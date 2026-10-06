@@ -53,7 +53,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           cache-read-only: false
 
@@ -89,11 +89,11 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@6a79c9451fc1b26a98536facc3b988ab122ffbc8 # v0.24.0
+        uses: hiero-ledger/hiero-solo-action@c5326debc5b38e50fa4032361c0a35f46166c0e7 # v0.25.0
         with:
           installMirrorNode: true
           soloVersion: v0.91.0
@@ -163,11 +163,11 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Prepare Hiero Solo (DUAL MODE)
         id: solo
-        uses: hiero-ledger/hiero-solo-action@6a79c9451fc1b26a98536facc3b988ab122ffbc8 # v0.24.0
+        uses: hiero-ledger/hiero-solo-action@c5326debc5b38e50fa4032361c0a35f46166c0e7 # v0.25.0
         with:
           installMirrorNode: true
           soloVersion: v0.91.0
@@ -223,11 +223,11 @@ jobs:
           packages: platform-tools
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@6a79c9451fc1b26a98536facc3b988ab122ffbc8 # v0.24.0
+        uses: hiero-ledger/hiero-solo-action@c5326debc5b38e50fa4032361c0a35f46166c0e7 # v0.25.0
         with:
           installMirrorNode: true
           soloVersion: v0.91.0
@@ -277,7 +277,7 @@ jobs:
           java-version: "21.0.6"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Build TCK
         run: ./gradlew assemble
