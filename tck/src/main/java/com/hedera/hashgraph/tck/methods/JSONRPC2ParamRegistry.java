@@ -7,14 +7,16 @@ import com.hedera.hashgraph.tck.exception.InvalidJSONRPC2ParamsException;
 import com.hedera.hashgraph.tck.methods.sdk.param.BaseParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.CustomFee;
 import com.hedera.hashgraph.tck.methods.sdk.param.GenerateKeyParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.PingParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.SetupParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.TransactionReceiptQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountAllowanceParams;
-import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountCreateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountDeleteParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.account.DeprecatedAccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.GetAccountInfoParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.account.MirrorNodeAccountBalanceParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
@@ -91,14 +93,18 @@ public final class JSONRPC2ParamRegistry {
                 entry(BaseParams.class, toUncheckedFunction(BaseParams::parse)),
                 entry(SetupParams.class, toUncheckedFunction(SetupParams::parse)),
                 entry(GenerateKeyParams.class, toUncheckedFunction(GenerateKeyParams::parse)),
+                entry(PingParams.class, toUncheckedFunction(PingParams::parse)),
                 entry(TransactionReceiptQueryParams.class, toUncheckedFunction(TransactionReceiptQueryParams::parse)),
                 entry(CustomFee.class, toUncheckedFunction(CustomFee::parse)),
                 entry(AccountAllowanceParams.class, toUncheckedFunction(AccountAllowanceParams::parse)),
-                entry(AccountBalanceQueryParams.class, toUncheckedFunction(AccountBalanceQueryParams::parse)),
                 entry(AccountCreateParams.class, toUncheckedFunction(AccountCreateParams::parse)),
                 entry(AccountDeleteParams.class, toUncheckedFunction(AccountDeleteParams::parse)),
                 entry(AccountUpdateParams.class, toUncheckedFunction(AccountUpdateParams::parse)),
                 entry(GetAccountInfoParams.class, toUncheckedFunction(GetAccountInfoParams::parse)),
+                entry(MirrorNodeAccountBalanceParams.class, toUncheckedFunction(MirrorNodeAccountBalanceParams::parse)),
+                entry(
+                        DeprecatedAccountBalanceQueryParams.class,
+                        toUncheckedFunction(DeprecatedAccountBalanceQueryParams::parse)),
                 entry(ContractByteCodeQueryParams.class, toUncheckedFunction(ContractByteCodeQueryParams::parse)),
                 entry(ContractCallQueryParams.class, toUncheckedFunction(ContractCallQueryParams::parse)),
                 entry(CreateContractParams.class, toUncheckedFunction(CreateContractParams::parse)),
