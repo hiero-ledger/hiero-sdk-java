@@ -3,12 +3,20 @@ package com.hedera.hashgraph.tck.methods.sdk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.tck.methods.sdk.param.*;
 import com.hedera.hashgraph.tck.methods.sdk.response.*;
+import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +25,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SdkServiceTest {
 
     private final SdkService sdkService = new SdkService();
+
+    @Test
+    void testPingMethodsBoundEachProbeAndPropagateFailures() throws Exception {
+        var service = spy(new SdkService());
+        var client = mock(Client.class);
+        var nodeId = AccountId.fromString("0.0.3");
+        var timeout = Duration.ofSeconds(30);
+        doReturn(client).when(service).getClient("session-ping");
+
+        assertEquals(
+                "SUCCESS", service.ping(new PingParams("0.0.3", "session-ping")).status());
+        assertEquals("SUCCESS", service.pingAll(new BaseParams("session-ping")).status());
+        verify(client).ping(nodeId, timeout);
+        verify(client).pingAll(timeout);
+
+        doThrow(new TimeoutException("unreachable")).when(client).ping(nodeId, timeout);
+        doThrow(new TimeoutException("unreachable")).when(client).pingAll(timeout);
+        assertThrows(TimeoutException.class, () -> service.ping(new PingParams("0.0.3", "session-ping")));
+        assertThrows(TimeoutException.class, () -> service.pingAll(new BaseParams("session-ping")));
+    }
 
     @Test
     void testSetup() throws Exception {
