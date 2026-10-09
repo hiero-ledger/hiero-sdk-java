@@ -3,7 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 // Using fully qualified names to avoid conflicts with generated classes
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Specifies the details of a hook's creation.
@@ -16,8 +16,7 @@ public class HookCreationDetails {
     private final long hookId;
     private final EvmHook hook;
 
-    @Nullable
-    private final Key adminKey;
+    private final @Nullable Key adminKey;
 
     /**
      * Create new hook creation details with an admin key.
@@ -77,8 +76,7 @@ public class HookCreationDetails {
      *
      * @return the admin key, or null if not set
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 

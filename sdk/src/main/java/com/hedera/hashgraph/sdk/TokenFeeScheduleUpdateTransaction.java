@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Update the custom fees for a given token. If the token does not have a
@@ -25,8 +25,7 @@ import javax.annotation.Nullable;
  * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/update-a-fee-schedule">Hedera Documentation</a>
  */
 public class TokenFeeScheduleUpdateTransaction extends Transaction<TokenFeeScheduleUpdateTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     private List<CustomFee> customFees = new ArrayList<>();
 
@@ -64,8 +63,7 @@ public class TokenFeeScheduleUpdateTransaction extends Transaction<TokenFeeSched
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 

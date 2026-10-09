@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction to delete a registered node from the network
@@ -20,7 +21,7 @@ import java.util.LinkedHashMap;
  * authorized by the Hiero network governance structure.
  */
 public class RegisteredNodeDeleteTransaction extends Transaction<RegisteredNodeDeleteTransaction> {
-    private Long registeredNodeId;
+    private @Nullable Long registeredNodeId;
 
     /**
      * Constructor.

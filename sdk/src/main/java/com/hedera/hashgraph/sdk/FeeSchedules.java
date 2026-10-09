@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.CurrentAndNextFeeSchedule;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This contains two Fee Schedules with expiry timestamp.
@@ -12,11 +12,9 @@ import javax.annotation.Nullable;
  * See <a href="https://docs.hedera.com/guides/docs/hedera-api/basic-types/currentandnextfeeschedule">Hedera Documentation</a>
  */
 public class FeeSchedules {
-    @Nullable
-    private FeeSchedule current;
+    private @Nullable FeeSchedule current;
 
-    @Nullable
-    private FeeSchedule next;
+    private @Nullable FeeSchedule next;
 
     /**
      * Constructor.
@@ -60,8 +58,7 @@ public class FeeSchedules {
      *
      * @return                          the current fee schedule
      */
-    @Nullable
-    public FeeSchedule getCurrent() {
+    public @Nullable FeeSchedule getCurrent() {
         return current != null ? current.clone() : null;
     }
 
@@ -81,8 +78,7 @@ public class FeeSchedules {
      *
      * @return                          the next fee schedule
      */
-    @Nullable
-    public FeeSchedule getNext() {
+    public @Nullable FeeSchedule getNext() {
         return next != null ? next.clone() : null;
     }
 

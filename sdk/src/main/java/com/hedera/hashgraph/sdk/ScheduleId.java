@@ -4,8 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.ScheduleID;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The entity ID of a schedule transaction.
@@ -14,61 +13,57 @@ import javax.annotation.Nullable;
  */
 public final class ScheduleId implements Comparable<ScheduleId> {
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
 
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
 
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * Constructor.
      *
-     * @param num                       the num part
+     * @param num                       the num part, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public ScheduleId(@Nonnegative long num) {
+    public ScheduleId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public ScheduleId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public ScheduleId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Constructor.
      *
-     * @param shard                     the shard part
-     * @param realm                     the realm part
-     * @param num                       the num part
+     * @param shard                     the shard part, must be non-negative
+     * @param realm                     the realm part, must be non-negative
+     * @param num                       the num part, must be non-negative
      * @param checksum                  the checksum
      */
     @SuppressWarnings("InconsistentOverloads")
-    ScheduleId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    ScheduleId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -145,8 +140,7 @@ public final class ScheduleId implements Comparable<ScheduleId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated
@@ -30,16 +30,13 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private byte[] hash = {};
 
-    @Nullable
-    private KeyList keys = null;
+    private @Nullable KeyList keys = null;
 
-    @Nullable
-    private Duration duration = null;
+    private @Nullable Duration duration = null;
 
     /**
      * Constructor.
@@ -65,8 +62,7 @@ public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransac
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -121,8 +117,7 @@ public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransac
      *
      * @return                          the key / key list
      */
-    @Nullable
-    public Collection<Key> getKeys() {
+    public @Nullable Collection<Key> getKeys() {
         return keys != null ? Collections.unmodifiableCollection(keys) : null;
     }
 
@@ -146,8 +141,7 @@ public final class LiveHashAddTransaction extends Transaction<LiveHashAddTransac
      *
      * @return                          the duration
      */
-    @Nullable
-    public Duration getDuration() {
+    public @Nullable Duration getDuration() {
         return duration;
     }
 

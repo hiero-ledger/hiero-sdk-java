@@ -5,7 +5,7 @@ import com.hedera.hashgraph.sdk.CustomFee;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent the tokenInfo query response.

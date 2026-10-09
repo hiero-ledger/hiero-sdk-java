@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID of an entity using a hook.
@@ -11,8 +12,8 @@ import java.util.Objects;
  * an account ID or a contract ID.
  */
 public class HookEntityId {
-    private final AccountId accountId;
-    private final ContractId contractId;
+    private final @Nullable AccountId accountId;
+    private final @Nullable ContractId contractId;
 
     /**
      * Create a HookEntityId with an account ID.
@@ -39,7 +40,7 @@ public class HookEntityId {
      *
      * @return the account ID, or null if this entity is a contract
      */
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -48,7 +49,7 @@ public class HookEntityId {
      *
      * @return the contract ID, or null if this entity is an account
      */
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

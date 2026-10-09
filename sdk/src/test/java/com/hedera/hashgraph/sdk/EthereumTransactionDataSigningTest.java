@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.esaulpaugh.headlong.rlp.RLPDecoder;
 import com.esaulpaugh.headlong.rlp.RLPItem;
 import java.math.BigInteger;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 public class EthereumTransactionDataSigningTest {

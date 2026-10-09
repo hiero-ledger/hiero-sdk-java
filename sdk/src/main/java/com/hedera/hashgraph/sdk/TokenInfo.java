@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Gets information about a fungible or non-fungible token instance.
@@ -53,50 +53,42 @@ public class TokenInfo {
     /**
      * The key which can perform update/delete operations on the token. If empty, the token can be perceived as immutable (not being able to be updated/deleted)
      */
-    @Nullable
-    public final Key adminKey;
+    public final @Nullable Key adminKey;
 
     /**
      * The key which can grant or revoke KYC of an account for the token's transactions. If empty, KYC is not required, and KYC grant or revoke operations are not possible.
      */
-    @Nullable
-    public final Key kycKey;
+    public final @Nullable Key kycKey;
 
     /**
      * The key which can freeze or unfreeze an account for token transactions. If empty, freezing is not possible
      */
-    @Nullable
-    public final Key freezeKey;
+    public final @Nullable Key freezeKey;
 
     /**
      * The key which can wipe token balance of an account. If empty, wipe is not possible
      */
-    @Nullable
-    public final Key wipeKey;
+    public final @Nullable Key wipeKey;
 
     /**
      * The key which can change the supply of a token. The key is used to sign Token Mint/Burn operations
      */
-    @Nullable
-    public final Key supplyKey;
+    public final @Nullable Key supplyKey;
 
     /**
      * The key which can change the custom fees of the token; if not set, the fees are immutable
      */
-    @Nullable
-    public final Key feeScheduleKey;
+    public final @Nullable Key feeScheduleKey;
 
     /**
      * The default Freeze status (not applicable, frozen or unfrozen) of Hedera accounts relative to this token. FreezeNotApplicable is returned if Token Freeze Key is empty. Frozen is returned if Token Freeze Key is set and defaultFreeze is set to true. Unfrozen is returned if Token Freeze Key is set and defaultFreeze is set to false
      */
-    @Nullable
-    public final Boolean defaultFreezeStatus;
+    public final @Nullable Boolean defaultFreezeStatus;
 
     /**
      * The default KYC status (KycNotApplicable or Revoked) of Hedera accounts relative to this token. KycNotApplicable is returned if KYC key is not set, otherwise Revoked
      */
-    @Nullable
-    public final Boolean defaultKycStatus;
+    public final @Nullable Boolean defaultKycStatus;
 
     /**
      * Specifies whether the token was deleted or not
@@ -106,20 +98,17 @@ public class TokenInfo {
     /**
      * An account which will be automatically charged to renew the token's expiration, at autoRenewPeriod interval
      */
-    @Nullable
-    public final AccountId autoRenewAccount;
+    public final @Nullable AccountId autoRenewAccount;
 
     /**
      * The interval at which the auto-renew account will be charged to extend the token's expiry
      */
-    @Nullable
-    public final Duration autoRenewPeriod;
+    public final @Nullable Duration autoRenewPeriod;
 
     /**
      * The epoch second at which the token will expire
      */
-    @Nullable
-    public final Instant expirationTime;
+    public final @Nullable Instant expirationTime;
 
     /**
      * The memo associated with the token
@@ -151,14 +140,12 @@ public class TokenInfo {
     /**
      * The Key which can pause and unpause the Token.
      */
-    @Nullable
-    public final Key pauseKey;
+    public final @Nullable Key pauseKey;
 
     /**
      * Specifies whether the token is paused or not. Null if pauseKey is not set.
      */
-    @Nullable
-    public final Boolean pauseStatus;
+    public final @Nullable Boolean pauseStatus;
 
     /**
      * Represents the metadata of the token definition.
@@ -169,8 +156,7 @@ public class TokenInfo {
      * The key which can change the metadata of a token
      * (token definition and individual NFTs).
      */
-    @Nullable
-    public final Key metadataKey;
+    public final @Nullable Key metadataKey;
 
     /**
      * The ledger ID the response was returned from; please see <a href="https://github.com/hashgraph/hedera-improvement-proposal/blob/master/HIP/hip-198.md">HIP-198</a> for the network-specific IDs.
@@ -242,8 +228,7 @@ public class TokenInfo {
      * @param freezeStatus              the freeze status
      * @return                          true / false / null
      */
-    @Nullable
-    static Boolean freezeStatusFromProtobuf(TokenFreezeStatus freezeStatus) {
+    static @Nullable Boolean freezeStatusFromProtobuf(TokenFreezeStatus freezeStatus) {
         return freezeStatus == TokenFreezeStatus.FreezeNotApplicable ? null : freezeStatus == TokenFreezeStatus.Frozen;
     }
 
@@ -253,8 +238,7 @@ public class TokenInfo {
      * @param kycStatus                 the kyc status
      * @return                          true / false / null
      */
-    @Nullable
-    static Boolean kycStatusFromProtobuf(TokenKycStatus kycStatus) {
+    static @Nullable Boolean kycStatusFromProtobuf(TokenKycStatus kycStatus) {
         return kycStatus == TokenKycStatus.KycNotApplicable ? null : kycStatus == TokenKycStatus.Granted;
     }
 
@@ -264,8 +248,7 @@ public class TokenInfo {
      * @param pauseStatus               the paused status
      * @return                          true / false / null
      */
-    @Nullable
-    static Boolean pauseStatusFromProtobuf(TokenPauseStatus pauseStatus) {
+    static @Nullable Boolean pauseStatusFromProtobuf(TokenPauseStatus pauseStatus) {
         return pauseStatus == TokenPauseStatus.PauseNotApplicable ? null : pauseStatus == TokenPauseStatus.Paused;
     }
 

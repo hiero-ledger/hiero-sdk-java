@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Result of invoking a contract via {@link ContractCallQuery}, or {@link ContractExecuteTransaction}, or the result of
@@ -35,14 +35,12 @@ public final class ContractFunctionResult {
     /**
      * The contract's 20-byte EVM address
      */
-    @Nullable
-    public final ContractId evmAddress;
+    public final @Nullable ContractId evmAddress;
 
     /**
      * message in case there was an error during smart contract execution
      */
-    @Nullable
-    public final String errorMessage;
+    public final @Nullable String errorMessage;
 
     /**
      * bloom filter for record
@@ -93,8 +91,7 @@ public final class ContractFunctionResult {
     /**
      * The account that is the "sender." If not present it is the accountId from the transactionId.
      */
-    @Nullable
-    public final AccountId senderAccountId;
+    public final @Nullable AccountId senderAccountId;
     /**
      * A list of updated contract account nonces containing the new nonce value for each contract account. This is
      * always empty in a ContractCallLocalResponse#ContractFunctionResult message, since no internal creations can

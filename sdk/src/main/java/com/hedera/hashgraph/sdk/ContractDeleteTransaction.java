@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Delete a smart contract, and transfer any remaining HBAR balance to a
@@ -41,17 +41,13 @@ import javax.annotation.Nullable;
  */
 public final class ContractDeleteTransaction extends Transaction<ContractDeleteTransaction> {
 
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
-    @Nullable
-    private ContractId transferContractId = null;
+    private @Nullable ContractId transferContractId = null;
 
-    @Nullable
-    private AccountId transferAccountId = null;
+    private @Nullable AccountId transferAccountId = null;
 
-    @Nullable
-    private Boolean permanentRemoval = null;
+    private @Nullable Boolean permanentRemoval = null;
 
     /**
      * Constructor.
@@ -87,8 +83,7 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 
@@ -110,8 +105,7 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
      *
      * @return                          the account id that will receive the remaining hbars
      */
-    @Nullable
-    public AccountId getTransferAccountId() {
+    public @Nullable AccountId getTransferAccountId() {
         return transferAccountId;
     }
 
@@ -135,8 +129,7 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
      *
      * @return                          the contract id that will receive the remaining hbars
      */
-    @Nullable
-    public ContractId getTransferContractId() {
+    public @Nullable ContractId getTransferContractId() {
         return transferContractId;
     }
 
@@ -160,8 +153,7 @@ public final class ContractDeleteTransaction extends Transaction<ContractDeleteT
      *
      * @return                          the permanent removal flag
      */
-    @Nullable
-    public Boolean getPermanentRemoval() {
+    public @Nullable Boolean getPermanentRemoval() {
         return permanentRemoval;
     }
 

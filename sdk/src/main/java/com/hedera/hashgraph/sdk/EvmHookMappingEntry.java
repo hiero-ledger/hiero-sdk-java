@@ -5,6 +5,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an entry in a Solidity mapping.
@@ -14,8 +15,8 @@ import java.util.Objects;
  * preimage-based keys for variable-length mapping keys.
  */
 public class EvmHookMappingEntry {
-    private final byte[] key;
-    private final byte[] preimage;
+    private final byte @Nullable [] key;
+    private final byte @Nullable [] preimage;
     private final byte[] value;
 
     /**
@@ -40,7 +41,7 @@ public class EvmHookMappingEntry {
         return new EvmHookMappingEntry(null, preimage, value);
     }
 
-    private EvmHookMappingEntry(byte[] key, byte[] preimage, byte[] value) {
+    private EvmHookMappingEntry(byte @Nullable [] key, byte @Nullable [] preimage, byte[] value) {
         Objects.requireNonNull(value, "value cannot be null");
         this.key = key != null ? key.clone() : null;
         this.preimage = preimage != null ? preimage.clone() : null;
@@ -70,7 +71,7 @@ public class EvmHookMappingEntry {
      *
      * @return a copy of the key bytes, or null if using preimage
      */
-    public byte[] getKey() {
+    public byte @Nullable [] getKey() {
         return key != null ? key.clone() : null;
     }
 
@@ -79,7 +80,7 @@ public class EvmHookMappingEntry {
      *
      * @return a copy of the preimage bytes, or null if using explicit key
      */
-    public byte[] getPreimage() {
+    public byte @Nullable [] getPreimage() {
         return preimage != null ? preimage.clone() : null;
     }
 

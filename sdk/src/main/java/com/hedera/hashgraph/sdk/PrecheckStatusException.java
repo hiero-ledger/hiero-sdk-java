@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Signals that a transaction has failed the pre-check.
@@ -21,8 +21,7 @@ public class PrecheckStatusException extends Exception {
      * This can be `null` if a query fails pre-check without an
      * associated payment transaction.
      */
-    @Nullable
-    public final TransactionId transactionId;
+    public final @Nullable TransactionId transactionId;
 
     /**
      * Constructor.

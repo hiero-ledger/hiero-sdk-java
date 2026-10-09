@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Delete a topic.
@@ -21,8 +21,7 @@ import javax.annotation.Nullable;
  * If there is no {@code adminKey}, this transaction will fail with {@link Status#UNAUTHORIZED}.
  */
 public final class TopicDeleteTransaction extends Transaction<TopicDeleteTransaction> {
-    @Nullable
-    private TopicId topicId = null;
+    private @Nullable TopicId topicId = null;
 
     /**
      * Constructor.
@@ -58,8 +57,7 @@ public final class TopicDeleteTransaction extends Transaction<TopicDeleteTransac
      *
      * @return                          the topic id
      */
-    @Nullable
-    public TopicId getTopicId() {
+    public @Nullable TopicId getTopicId() {
         return topicId;
     }
 

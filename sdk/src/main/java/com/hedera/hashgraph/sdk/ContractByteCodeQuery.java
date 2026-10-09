@@ -9,14 +9,13 @@ import com.hedera.hashgraph.sdk.proto.ResponseHeader;
 import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
 import io.grpc.MethodDescriptor;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get the bytecode for a smart contract instance.
  */
 public final class ContractByteCodeQuery extends Query<ByteString, ContractByteCodeQuery> {
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     /**
      * Constructor.
@@ -28,8 +27,7 @@ public final class ContractByteCodeQuery extends Query<ByteString, ContractByteC
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

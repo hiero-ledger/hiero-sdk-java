@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated
@@ -43,14 +43,11 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public final class SystemDeleteTransaction extends Transaction<SystemDeleteTransaction> {
-    @Nullable
-    private FileId fileId = null;
+    private @Nullable FileId fileId = null;
 
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
     /**
      * Constructor.
@@ -86,8 +83,7 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
      *
      * @return                          the file id
      */
-    @Nullable
-    public final FileId getFileId() {
+    public final @Nullable FileId getFileId() {
         return fileId;
     }
 
@@ -117,8 +113,7 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 
@@ -146,8 +141,7 @@ public final class SystemDeleteTransaction extends Transaction<SystemDeleteTrans
      *
      * @return                          the expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 

@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class used internally by the sdk.

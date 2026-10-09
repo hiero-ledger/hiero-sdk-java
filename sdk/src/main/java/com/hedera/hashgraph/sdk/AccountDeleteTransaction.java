@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Delete an account.<br/>
@@ -30,11 +30,9 @@ import javax.annotation.Nullable;
  * None
  */
 public final class AccountDeleteTransaction extends Transaction<AccountDeleteTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
-    @Nullable
-    private AccountId transferAccountId = null;
+    private @Nullable AccountId transferAccountId = null;
 
     /**
      * Constructor.
@@ -69,8 +67,7 @@ public final class AccountDeleteTransaction extends Transaction<AccountDeleteTra
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 
@@ -99,8 +96,7 @@ public final class AccountDeleteTransaction extends Transaction<AccountDeleteTra
      *
      * @return                          the account id that receives the hbar
      */
-    @Nullable
-    public AccountId getTransferAccountId() {
+    public @Nullable AccountId getTransferAccountId() {
         return transferAccountId;
     }
 

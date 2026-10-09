@@ -11,7 +11,7 @@ import com.hedera.hashgraph.sdk.proto.TokenTransferList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class.
@@ -40,7 +40,10 @@ public class TokenNftTransfer implements Comparable<TokenNftTransfer> {
     public boolean isApproved;
 
     // Optional typed hook calls for sender/receiver
+    @Nullable
     NftHookCall senderHookCall;
+
+    @Nullable
     NftHookCall receiverHookCall;
 
     /**

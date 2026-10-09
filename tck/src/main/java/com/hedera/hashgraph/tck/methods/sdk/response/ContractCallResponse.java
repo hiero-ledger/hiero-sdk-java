@@ -4,7 +4,7 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.ContractLogInfo;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent contractCall response.
