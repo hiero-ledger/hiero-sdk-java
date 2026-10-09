@@ -2,7 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import java.math.BigInteger;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated - User mirror nodes for contract traceability instead
@@ -28,8 +28,7 @@ public class StorageChange {
      * will be present but the inner value will be absent. If a value was
      * read and not written this value will not be present.
      */
-    @Nullable
-    public final BigInteger valueWritten;
+    public final @Nullable BigInteger valueWritten;
 
     /**
      * Constructor.

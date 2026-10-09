@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Update a topic.
@@ -32,34 +32,27 @@ import javax.annotation.Nullable;
  */
 public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransaction> {
 
-    @Nullable
-    private TopicId topicId = null;
+    private @Nullable TopicId topicId = null;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
-    @Nullable
-    private String topicMemo = null;
+    private @Nullable String topicMemo = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
-    @Nullable
-    private Key submitKey = null;
+    private @Nullable Key submitKey = null;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
-    @Nullable
-    private Instant expirationTime = null;
+    private @Nullable Instant expirationTime = null;
 
-    private Duration expirationTimeDuration = null;
+    private @Nullable Duration expirationTimeDuration = null;
 
-    private Key feeScheduleKey = null;
+    private @Nullable Key feeScheduleKey = null;
 
-    private List<Key> feeExemptKeys = null;
+    private @Nullable List<Key> feeExemptKeys = null;
 
-    private List<CustomFixedFee> customFees = null;
+    private @Nullable List<CustomFixedFee> customFees = null;
 
     /**
      * Constructor.
@@ -95,8 +88,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the topic id
      */
-    @Nullable
-    public TopicId getTopicId() {
+    public @Nullable TopicId getTopicId() {
         return topicId;
     }
 
@@ -121,8 +113,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the topic memo
      */
-    @Nullable
-    public String getTopicMemo() {
+    public @Nullable String getTopicMemo() {
         return topicMemo;
     }
 
@@ -160,8 +151,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the admin key
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -200,8 +190,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the submit key
      */
-    @Nullable
-    public Key getSubmitKey() {
+    public @Nullable Key getSubmitKey() {
         return submitKey;
     }
 
@@ -241,8 +230,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -273,8 +261,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      *
      * @return                          the auto renew account id
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 
@@ -326,8 +313,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     /**
      * @return Expiration time
      */
-    @Nullable
-    public Instant getExpirationTime() {
+    public @Nullable Instant getExpirationTime() {
         return expirationTime;
     }
 
@@ -358,7 +344,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the key which allows updates to the new topic’s fees.
      * @return feeScheduleKey
      */
-    public Key getFeeScheduleKey() {
+    public @Nullable Key getFeeScheduleKey() {
         return feeScheduleKey;
     }
 
@@ -383,7 +369,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the keys that will be exempt from paying fees.
      * @return {List of feeExemptKeys}
      */
-    public List<Key> getFeeExemptKeys() {
+    public @Nullable List<Key> getFeeExemptKeys() {
         return feeExemptKeys;
     }
 
@@ -428,7 +414,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
      * Returns the fixed fees to assess when a message is submitted to the new topic.
      * @return {List of CustomFixedFee}
      */
-    public List<CustomFixedFee> getCustomFees() {
+    public @Nullable List<CustomFixedFee> getCustomFees() {
         return customFees;
     }
 

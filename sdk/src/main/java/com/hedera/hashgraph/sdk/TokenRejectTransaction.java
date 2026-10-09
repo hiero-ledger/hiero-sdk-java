@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reject undesired token(s).<br/>
@@ -37,8 +37,7 @@ import javax.annotation.Nullable;
  */
 public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> {
 
-    @Nullable
-    private AccountId ownerId = null;
+    private @Nullable AccountId ownerId = null;
 
     private List<TokenId> tokenIds = new ArrayList<>();
 
@@ -76,8 +75,7 @@ public class TokenRejectTransaction extends Transaction<TokenRejectTransaction> 
      * Extract the Account ID of the Owner.
      * @return the Account ID of the Owner.
      */
-    @Nullable
-    public AccountId getOwnerId() {
+    public @Nullable AccountId getOwnerId() {
         return ownerId;
     }
 

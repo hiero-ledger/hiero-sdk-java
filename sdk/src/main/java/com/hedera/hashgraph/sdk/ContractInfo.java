@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Current information on the smart contract instance, including its balance.
@@ -39,8 +39,7 @@ public final class ContractInfo {
      * administrator to authorize changing the admin keys, so there can never be any admin keys
      * for that instance.
      */
-    @Nullable
-    public final Key adminKey;
+    public final @Nullable Key adminKey;
 
     /**
      * The current time at which this contract instance (and its account) is set to expire.
@@ -59,8 +58,7 @@ public final class ContractInfo {
      * an account with zero hbar balance, the contract's own hbar balance will be used to cover
      * auto-renewal fees.
      */
-    @Nullable
-    public final AccountId autoRenewAccountId;
+    public final @Nullable AccountId autoRenewAccountId;
 
     /**
      * Number of bytes of storage being used by this instance (which affects the cost to
@@ -96,8 +94,7 @@ public final class ContractInfo {
     /**
      * Staking metadata for this account.
      */
-    @Nullable
-    public final StakingInfo stakingInfo;
+    public final @Nullable StakingInfo stakingInfo;
 
     /**
      *  Constructor.

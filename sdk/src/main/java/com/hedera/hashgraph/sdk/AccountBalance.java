@@ -9,28 +9,29 @@ import com.hedera.hashgraph.sdk.proto.TokenBalance;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 
 /**
  * This class represents the account balance object
  */
 public class AccountBalance {
     /**
-     * The Hbar balance of the account
+     * The Hbar balance of the account. Always non-negative.
      */
-    @Nonnegative
     public final Hbar hbars;
 
     /**
+     * The token balances of the account. Every value is non-negative.
+     *
      * @deprecated - Use `tokens` instead
      */
     @Deprecated
-    @Nonnegative
     public final Map<TokenId, Long> token = new HashMap<>();
 
     public final Map<TokenId, Long> tokens;
 
-    @Nonnegative
+    /**
+     * The decimal places of each token held by the account. Every value is non-negative.
+     */
     public final Map<TokenId, Integer> tokenDecimals;
 
     AccountBalance(Hbar hbars, Map<TokenId, Long> token, Map<TokenId, Integer> decimal) {

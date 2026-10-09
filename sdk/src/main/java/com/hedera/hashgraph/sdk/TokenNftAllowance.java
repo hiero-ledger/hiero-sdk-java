@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Class to encapsulate the nft methods for token allowance's.
@@ -20,27 +20,23 @@ public class TokenNftAllowance {
     /**
      * The NFT token type that the allowance pertains to
      */
-    @Nullable
-    public final TokenId tokenId;
+    public final @Nullable TokenId tokenId;
 
     /**
      * The account ID of the token owner (ie. the grantor of the allowance)
      */
-    @Nullable
-    public final AccountId ownerAccountId;
+    public final @Nullable AccountId ownerAccountId;
 
     /**
      * The account ID of the token allowance spender
      */
-    @Nullable
-    public final AccountId spenderAccountId;
+    public final @Nullable AccountId spenderAccountId;
 
     /**
      * The account ID of the spender who is granted approvedForAll allowance and granting
      * approval on an NFT serial to another spender.
      */
-    @Nullable
-    public final AccountId delegatingSpender;
+    public final @Nullable AccountId delegatingSpender;
 
     /**
      * The list of serial numbers that the spender is permitted to transfer.
@@ -51,8 +47,7 @@ public class TokenNftAllowance {
      * If true, the spender has access to all of the owner's NFT units of type tokenId (currently
      * owned and any in the future).
      */
-    @Nullable
-    public final Boolean allSerials;
+    public final @Nullable Boolean allSerials;
 
     /**
      * Constructor.

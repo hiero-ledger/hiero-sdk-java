@@ -4,7 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a general-purpose service endpoint.
@@ -13,8 +13,7 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
     /**
      * A short description of the service provided.
      */
-    @Nullable
-    private String description;
+    private @Nullable String description;
 
     /**
      * Constructor.
@@ -37,7 +36,7 @@ public class GeneralServiceEndpoint extends RegisteredServiceEndpointBase<Genera
      * @param description a short description of the service
      * @return {@code this}
      */
-    public GeneralServiceEndpoint setDescription(String description) {
+    public GeneralServiceEndpoint setDescription(@Nullable String description) {
         this.description = description;
         return this;
     }

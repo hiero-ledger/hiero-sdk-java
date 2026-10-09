@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.Arrays;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Start a new smart contract instance.
@@ -63,42 +63,34 @@ import org.bouncycastle.util.Arrays;
  */
 public final class ContractCreateTransaction extends Transaction<ContractCreateTransaction> {
 
-    @Nullable
-    private FileId bytecodeFileId = null;
+    private @Nullable FileId bytecodeFileId = null;
 
-    @Nullable
-    private byte[] bytecode = null;
+    private byte @Nullable [] bytecode = null;
 
     /**
      * @deprecated with no replacement
      */
-    @Nullable
     @Deprecated
-    private AccountId proxyAccountId = null;
+    private @Nullable AccountId proxyAccountId = null;
 
-    @Nullable
-    private Key adminKey = null;
+    private @Nullable Key adminKey = null;
 
     private long gas = 0;
     private Hbar initialBalance = new Hbar(0);
     private int maxAutomaticTokenAssociations = 0;
 
-    @Nullable
-    private Duration autoRenewPeriod = null;
+    private @Nullable Duration autoRenewPeriod = null;
 
     private byte[] constructorParameters = {};
     private String contractMemo = "";
 
-    @Nullable
-    private AccountId stakedAccountId = null;
+    private @Nullable AccountId stakedAccountId = null;
 
-    @Nullable
-    private Long stakedNodeId = null;
+    private @Nullable Long stakedNodeId = null;
 
     private boolean declineStakingReward = false;
 
-    @Nullable
-    private AccountId autoRenewAccountId = null;
+    private @Nullable AccountId autoRenewAccountId = null;
 
     private List<HookCreationDetails> hookCreationDetails = new ArrayList<>();
 
@@ -139,8 +131,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return                          the file id as a byte code
      */
-    @Nullable
-    public FileId getBytecodeFileId() {
+    public @Nullable FileId getBytecodeFileId() {
         return bytecodeFileId;
     }
 
@@ -170,8 +161,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return                          the bytecode
      */
-    @Nullable
-    public byte[] getBytecode() {
+    public byte @Nullable [] getBytecode() {
         return bytecode != null ? Arrays.copyOf(bytecode, bytecode.length) : null;
     }
 
@@ -200,8 +190,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return the adminKey
      */
-    @Nullable
-    public Key getAdminKey() {
+    public @Nullable Key getAdminKey() {
         return adminKey;
     }
 
@@ -299,8 +288,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      * @return                          the proxy account id
      */
     @Deprecated
-    @Nullable
-    public AccountId getProxyAccountId() {
+    public @Nullable AccountId getProxyAccountId() {
         return proxyAccountId;
     }
 
@@ -360,8 +348,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return                          the auto renew period
      */
-    @Nullable
-    public Duration getAutoRenewPeriod() {
+    public @Nullable Duration getAutoRenewPeriod() {
         return autoRenewPeriod;
     }
 
@@ -449,8 +436,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return ID of the account to which this contract will stake.
      */
-    @Nullable
-    public AccountId getStakedAccountId() {
+    public @Nullable AccountId getStakedAccountId() {
         return stakedAccountId;
     }
 
@@ -472,8 +458,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return ID of the node this contract will be staked to.
      */
-    @Nullable
-    public Long getStakedNodeId() {
+    public @Nullable Long getStakedNodeId() {
         return stakedNodeId;
     }
 
@@ -532,8 +517,7 @@ public final class ContractCreateTransaction extends Transaction<ContractCreateT
      *
      * @return                          the auto renew accountId
      */
-    @Nullable
-    public AccountId getAutoRenewAccountId() {
+    public @Nullable AccountId getAutoRenewAccountId() {
         return autoRenewAccountId;
     }
 

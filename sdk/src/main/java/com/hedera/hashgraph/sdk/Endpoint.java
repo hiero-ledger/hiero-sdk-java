@@ -3,15 +3,14 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.protobuf.ByteString;
 import com.hedera.hashgraph.sdk.proto.ServiceEndpoint;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class used internally by the sdk.
  */
 public class Endpoint implements Cloneable {
 
-    @Nullable
-    byte[] address = null;
+    byte @Nullable [] address = null;
 
     int port;
 
@@ -42,8 +41,7 @@ public class Endpoint implements Cloneable {
      *
      * @return                          the ipv4 address
      */
-    @Nullable
-    public byte[] getAddress() {
+    public byte @Nullable [] getAddress() {
         return address;
     }
 

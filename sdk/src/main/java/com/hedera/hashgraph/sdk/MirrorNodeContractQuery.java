@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * MirrorNodeContractQuery returns a result from EVM execution such as cost-free execution of read-only smart contract
@@ -19,13 +20,13 @@ import org.bouncycastle.util.encoders.Hex;
  */
 public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<T>> {
     // The contract we are sending the transaction to
-    private ContractId contractId = null;
-    private String contractEvmAddress = null;
+    private @Nullable ContractId contractId = null;
+    private @Nullable String contractEvmAddress = null;
     // The account we are sending the transaction from
-    private AccountId sender = null;
-    private String senderEvmAddress = null;
+    private @Nullable AccountId sender = null;
+    private @Nullable String senderEvmAddress = null;
     // The transaction callData
-    private byte[] callData;
+    private byte @Nullable [] callData;
     // The amount we are sending to the contract
     private long value;
     // The gas limit
@@ -34,14 +35,14 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
     private long gasPrice;
     // The block for the simulation
     // Long so that if not set it defaults to empty which is latest
-    private Long block;
+    private @Nullable Long block;
 
     @SuppressWarnings("unchecked")
     protected T self() {
         return (T) this;
     }
 
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return this.contractId;
     }
 
@@ -57,7 +58,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public String getContractEvmAddress() {
+    public @Nullable String getContractEvmAddress() {
         return this.contractEvmAddress;
     }
 
@@ -74,7 +75,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public AccountId getSender() {
+    public @Nullable AccountId getSender() {
         return this.sender;
     }
 
@@ -90,7 +91,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public String getSenderEvmAddress() {
+    public @Nullable String getSenderEvmAddress() {
         return this.senderEvmAddress;
     }
 
@@ -107,7 +108,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public byte[] getCallData() {
+    public byte @Nullable [] getCallData() {
         return this.callData;
     }
 
@@ -202,7 +203,7 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         return self();
     }
 
-    public Long getBlockNumber() {
+    public @Nullable Long getBlockNumber() {
         return this.block;
     }
 

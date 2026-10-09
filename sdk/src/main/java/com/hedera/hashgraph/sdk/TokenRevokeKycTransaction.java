@@ -10,7 +10,7 @@ import com.hedera.hashgraph.sdk.proto.TransactionResponse;
 import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Revoke "Know Your Customer"(KYC) from one account for a single token.
@@ -28,11 +28,9 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenRevokeKycTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenRevokeKycTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     /**
      * Constructor.
@@ -68,8 +66,7 @@ public class TokenRevokeKycTransaction extends com.hedera.hashgraph.sdk.Transact
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -96,8 +93,7 @@ public class TokenRevokeKycTransaction extends com.hedera.hashgraph.sdk.Transact
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

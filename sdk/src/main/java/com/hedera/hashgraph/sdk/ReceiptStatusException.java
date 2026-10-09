@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An Exception thrown on error status by {@link TransactionId#getReceipt(Client)}.
@@ -14,8 +14,7 @@ public class ReceiptStatusException extends Exception {
      * The ID of the transaction that failed, in case that context is no longer available
      * (e.g. the exception was bubbled up).
      */
-    @Nullable
-    public final TransactionId transactionId;
+    public final @Nullable TransactionId transactionId;
 
     /**
      * The receipt of the transaction that failed; the only initialized field is

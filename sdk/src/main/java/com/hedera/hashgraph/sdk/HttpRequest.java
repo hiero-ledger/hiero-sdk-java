@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * One request handed to an {@link HttpTransport}.
@@ -26,8 +26,7 @@ public final class HttpRequest {
     private final HttpMethod method;
     private final String url;
 
-    @Nullable
-    private final byte[] body;
+    private final byte @Nullable [] body;
 
     @Nullable
     private final String contentType;
@@ -40,7 +39,7 @@ public final class HttpRequest {
     private HttpRequest(
             HttpMethod method,
             String url,
-            @Nullable byte[] body,
+            byte @Nullable [] body,
             @Nullable String contentType,
             Map<String, String> headers,
             @Nullable Duration deadline) {
@@ -150,8 +149,7 @@ public final class HttpRequest {
      *
      * @return the body, or null on a bodyless method
      */
-    @Nullable
-    public byte[] getBody() {
+    public byte @Nullable [] getBody() {
         return body == null ? null : body.clone();
     }
 

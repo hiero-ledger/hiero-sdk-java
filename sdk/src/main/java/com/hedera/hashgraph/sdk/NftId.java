@@ -4,7 +4,6 @@ package com.hedera.hashgraph.sdk;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.NftID;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 
 /**
  * The (non-fungible) token of which this NFT is an instance
@@ -16,18 +15,17 @@ public class NftId implements Comparable<NftId> {
     public final TokenId tokenId;
 
     /**
-     * The unique identifier of this instance
+     * The unique identifier of this instance. Always non-negative.
      */
-    @Nonnegative
     public final long serial;
 
     /**
      * Constructor.
      *
      * @param tokenId                   the token id
-     * @param serial                    the serial number
+     * @param serial                    the serial number, must be non-negative
      */
-    public NftId(TokenId tokenId, @Nonnegative long serial) {
+    public NftId(TokenId tokenId, long serial) {
         this.tokenId = Objects.requireNonNull(tokenId);
         this.serial = serial;
     }

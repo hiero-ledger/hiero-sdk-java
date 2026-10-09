@@ -12,7 +12,7 @@ import io.grpc.MethodDescriptor;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A transaction in Ethereum format.<br/>
@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
  */
 public class EthereumTransaction extends Transaction<EthereumTransaction> {
     private byte[] ethereumData = new byte[0];
-    private FileId callDataFileId = null;
+    private @Nullable FileId callDataFileId = null;
     private Hbar maxGasAllowanceHbar = Hbar.ZERO;
 
     /**
@@ -94,8 +94,7 @@ public class EthereumTransaction extends Transaction<EthereumTransaction> {
      *
      * @return the FileId of the call data
      */
-    @Nullable
-    public FileId getCallDataFileId() {
+    public @Nullable FileId getCallDataFileId() {
         return callDataFileId;
     }
 

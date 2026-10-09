@@ -12,7 +12,7 @@ import io.grpc.MethodDescriptor;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated
@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public final class LiveHashDeleteTransaction extends Transaction<LiveHashDeleteTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private byte[] hash = {};
 
@@ -56,8 +55,7 @@ public final class LiveHashDeleteTransaction extends Transaction<LiveHashDeleteT
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

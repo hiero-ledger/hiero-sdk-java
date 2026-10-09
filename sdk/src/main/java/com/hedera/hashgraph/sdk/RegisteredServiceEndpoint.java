@@ -6,17 +6,15 @@ import com.google.gson.JsonObject;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  *  Abstract class representing the service endpoint published by a registered node.
  */
 public abstract class RegisteredServiceEndpoint {
-    @Nullable
-    protected byte[] ipAddress;
+    protected byte @Nullable [] ipAddress;
 
-    @Nullable
-    protected String domainName;
+    protected @Nullable String domainName;
 
     protected int port;
     protected boolean requiresTls;
@@ -28,8 +26,7 @@ public abstract class RegisteredServiceEndpoint {
      *
      * @return the IP address, or null if using a domain name
      */
-    @Nullable
-    public byte[] getIpAddress() {
+    public byte @Nullable [] getIpAddress() {
         return ipAddress != null ? ipAddress.clone() : null;
     }
 
@@ -38,8 +35,7 @@ public abstract class RegisteredServiceEndpoint {
      *
      * @return the domain name, or null if using an IP address
      */
-    @Nullable
-    public String getDomainName() {
+    public @Nullable String getDomainName() {
         return domainName;
     }
 
@@ -130,8 +126,7 @@ public abstract class RegisteredServiceEndpoint {
     /**
      * Parse IpAddress from json response.
      */
-    @Nullable
-    private static byte[] parseIpAddress(JsonObject json) {
+    private static byte @Nullable [] parseIpAddress(JsonObject json) {
         if (json.has("ip_address") && !json.get("ip_address").isJsonNull()) {
             String rawIp = json.get("ip_address").getAsString();
             if (!rawIp.isEmpty()) {

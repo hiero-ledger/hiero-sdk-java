@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.proto.CustomFee;
 import com.hedera.hashgraph.sdk.proto.FixedFee;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A maximum custom fee that the user is willing to pay.
@@ -14,9 +15,9 @@ import java.util.stream.Collectors;
  */
 public class CustomFeeLimit {
 
-    private AccountId payerId;
+    private @Nullable AccountId payerId;
 
-    private List<CustomFixedFee> customFees;
+    private @Nullable List<CustomFixedFee> customFees;
 
     /**
      * Constructor
@@ -27,7 +28,7 @@ public class CustomFeeLimit {
      * Extracts the payer accountId
      * @return payerId
      */
-    public AccountId getPayerId() {
+    public @Nullable AccountId getPayerId() {
         return payerId;
     }
 
@@ -43,7 +44,7 @@ public class CustomFeeLimit {
      * Extracts a list of CustomFixedFee
      * @return
      */
-    public List<CustomFixedFee> getCustomFees() {
+    public @Nullable List<CustomFixedFee> getCustomFees() {
         return customFees;
     }
 

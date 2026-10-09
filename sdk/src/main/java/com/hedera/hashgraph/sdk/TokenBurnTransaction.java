@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Burns tokens from the Token's treasury Account.
@@ -38,8 +37,7 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenBurnTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenBurnTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     private long amount = 0;
 
@@ -79,8 +77,7 @@ public class TokenBurnTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -120,10 +117,10 @@ public class TokenBurnTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *
      * See <a href="https://docs.hedera.com/guides/docs/sdks/tokens/burn-a-token">Hedera Documentation</a>
      *
-     * @param amount                    the amount of tokens to burn
+     * @param amount                    the amount of tokens to burn, must be non-negative
      * @return {@code this}
      */
-    public TokenBurnTransaction setAmount(@Nonnegative long amount) {
+    public TokenBurnTransaction setAmount(long amount) {
         requireNotFrozen();
         this.amount = amount;
         return this;
@@ -162,10 +159,10 @@ public class TokenBurnTransaction extends com.hedera.hashgraph.sdk.Transaction<T
     /**
      * Add a serial number to the list of serials.
      *
-     * @param serial                    the serial number to add
+     * @param serial                    the serial number to add, must be non-negative
      * @return {@code this}
      */
-    public TokenBurnTransaction addSerial(@Nonnegative long serial) {
+    public TokenBurnTransaction addSerial(long serial) {
         requireNotFrozen();
         serials.add(serial);
         return this;

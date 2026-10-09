@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Mint tokens and deliver the new tokens to the token treasury account.
@@ -41,8 +40,7 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenMintTransaction extends com.hedera.hashgraph.sdk.Transaction<TokenMintTransaction> {
-    @Nullable
-    private TokenId tokenId = null;
+    private @Nullable TokenId tokenId = null;
 
     private List<byte[]> metadataList = new ArrayList<>();
 
@@ -82,8 +80,7 @@ public class TokenMintTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      *
      * @return                          the token id
      */
-    @Nullable
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -123,10 +120,10 @@ public class TokenMintTransaction extends com.hedera.hashgraph.sdk.Transaction<T
      * non-fungible/unique type.<br/>
      * If this value is non-zero, the token MUST be a fungible/common type.
      *
-     * @param amount                    the amount to mint
+     * @param amount                    the amount to mint, must be non-negative
      * @return {@code this}
      */
-    public TokenMintTransaction setAmount(@Nonnegative long amount) {
+    public TokenMintTransaction setAmount(long amount) {
         requireNotFrozen();
         this.amount = amount;
         return this;

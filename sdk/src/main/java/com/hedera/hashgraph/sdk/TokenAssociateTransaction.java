@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Associate a Hedera Token Service (HTS) token and an account.
@@ -35,8 +35,7 @@ import javax.annotation.Nullable;
  * None
  */
 public class TokenAssociateTransaction extends Transaction<TokenAssociateTransaction> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     private List<TokenId> tokenIds = new ArrayList<>();
 
@@ -76,8 +75,7 @@ public class TokenAssociateTransaction extends Transaction<TokenAssociateTransac
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

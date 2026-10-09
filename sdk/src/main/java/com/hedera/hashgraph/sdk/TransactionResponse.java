@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * When the client sends the node a transaction of any kind, the node replies with this, which simply says that the
@@ -59,9 +59,8 @@ public final class TransactionResponse {
     /**
      * The scheduled transaction ID
      */
-    @Nullable
     @Deprecated
-    public final TransactionId scheduledTransactionId;
+    public final @Nullable TransactionId scheduledTransactionId;
 
     @Nullable
     private final Transaction transaction;

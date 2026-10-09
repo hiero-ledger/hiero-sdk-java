@@ -11,7 +11,7 @@ import io.grpc.MethodDescriptor;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Call a function of the given smart contract instance, giving it functionParameters as its inputs.
@@ -27,15 +27,13 @@ import javax.annotation.Nullable;
  * It is faster and cheaper than a normal call, because it is purely local to a single  node.
  */
 public final class ContractCallQuery extends Query<ContractFunctionResult, ContractCallQuery> {
-    @Nullable
-    private ContractId contractId = null;
+    private @Nullable ContractId contractId = null;
 
     private long gas = 0;
     private byte[] functionParameters = {};
     private long maxResultSize = 0;
 
-    @Nullable
-    private AccountId senderAccountId = null;
+    private @Nullable AccountId senderAccountId = null;
 
     /**
      * Constructor.
@@ -47,8 +45,7 @@ public final class ContractCallQuery extends Query<ContractFunctionResult, Contr
      *
      * @return                          the contract id
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 
@@ -171,8 +168,7 @@ public final class ContractCallQuery extends Query<ContractFunctionResult, Contr
      * Get the sender account ID
      * @return the account that is the "sender"
      */
-    @Nullable
-    public AccountId getSenderAccountId() {
+    public @Nullable AccountId getSenderAccountId() {
         return senderAccountId;
     }
 

@@ -5,8 +5,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.hedera.hashgraph.sdk.proto.FileID;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The ID for a file on Hedera.
@@ -25,59 +24,55 @@ public final class FileId implements Comparable<FileId> {
      */
     public static final FileId EXCHANGE_RATES = new FileId(0, 0, 112);
     /**
-     * The shard number
+     * The shard number. Always non-negative.
      */
-    @Nonnegative
     public final long shard;
     /**
-     * The realm number
+     * The realm number. Always non-negative.
      */
-    @Nonnegative
     public final long realm;
     /**
-     * The id number
+     * The id number. Always non-negative.
      */
-    @Nonnegative
     public final long num;
 
-    @Nullable
-    private final String checksum;
+    private final @Nullable String checksum;
 
     /**
      * Assign the num portion of the file id.
      *
-     * @param num                       the num portion not negative
+     * @param num                       the num portion, must be non-negative
      *
      * Constructor that uses shard, realm and num should be used instead
      * as shard and realm should not assume 0 value
      */
     @Deprecated
-    public FileId(@Nonnegative long num) {
+    public FileId(long num) {
         this(0, 0, num);
     }
 
     /**
      * Assign the file id.
      *
-     * @param shard                     the shard portion
-     * @param realm                     the realm portion
-     * @param num                       the num portion
+     * @param shard                     the shard portion, must be non-negative
+     * @param realm                     the realm portion, must be non-negative
+     * @param num                       the num portion, must be non-negative
      */
     @SuppressWarnings("InconsistentOverloads")
-    public FileId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num) {
+    public FileId(long shard, long realm, long num) {
         this(shard, realm, num, null);
     }
 
     /**
      * Assign the file id and optional checksum.
      *
-     * @param shard                     the shard portion
-     * @param realm                     the realm portion
-     * @param num                       the num portion
+     * @param shard                     the shard portion, must be non-negative
+     * @param realm                     the realm portion, must be non-negative
+     * @param num                       the num portion, must be non-negative
      * @param checksum                  the optional checksum
      */
     @SuppressWarnings("InconsistentOverloads")
-    FileId(@Nonnegative long shard, @Nonnegative long realm, @Nonnegative long num, @Nullable String checksum) {
+    FileId(long shard, long realm, long num, @Nullable String checksum) {
         this.shard = shard;
         this.realm = realm;
         this.num = num;
@@ -173,8 +168,8 @@ public final class FileId implements Comparable<FileId> {
      * Constructs a FileId from shard, realm, and EVM address.
      * The EVM address must be a "long zero address" (first 12 bytes are zero).
      *
-     * @param shard      the shard number
-     * @param realm      the realm number
+     * @param shard      the shard number, must be non-negative
+     * @param realm      the realm number, must be non-negative
      * @param evmAddress the EVM address as a hex string
      * @return           the FileId object
      * @throws IllegalArgumentException if the EVM address is not a valid long zero address
@@ -240,8 +235,7 @@ public final class FileId implements Comparable<FileId> {
      *
      * @return                          the checksum
      */
-    @Nullable
-    public String getChecksum() {
+    public @Nullable String getChecksum() {
         return checksum;
     }
 

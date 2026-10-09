@@ -12,7 +12,7 @@ import io.grpc.MethodDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @deprecated
@@ -40,11 +40,9 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 public final class SystemUndeleteTransaction extends Transaction<SystemUndeleteTransaction> {
-    @Nullable
-    private FileId fileId;
+    private @Nullable FileId fileId;
 
-    @Nullable
-    private ContractId contractId;
+    private @Nullable ContractId contractId;
 
     /**
      * Constructor.
@@ -80,8 +78,7 @@ public final class SystemUndeleteTransaction extends Transaction<SystemUndeleteT
      *
      * @return                          the file id
      */
-    @Nullable
-    public FileId getFileId() {
+    public @Nullable FileId getFileId() {
         return fileId;
     }
 
@@ -112,8 +109,7 @@ public final class SystemUndeleteTransaction extends Transaction<SystemUndeleteT
      *
      * @return the contractId
      */
-    @Nullable
-    public ContractId getContractId() {
+    public @Nullable ContractId getContractId() {
         return contractId;
     }
 

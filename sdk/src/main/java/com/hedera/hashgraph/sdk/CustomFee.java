@@ -5,7 +5,7 @@ import com.google.common.base.MoreObjects;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for custom fees.
@@ -14,8 +14,7 @@ public abstract class CustomFee {
     /**
      * The account to receive the custom fee
      */
-    @Nullable
-    protected AccountId feeCollectorAccountId = null;
+    protected @Nullable AccountId feeCollectorAccountId = null;
 
     /**
      * If true, exempts all the token's fee collection accounts from this fee
@@ -91,8 +90,7 @@ public abstract class CustomFee {
      *
      * @return                          the fee collector account id
      */
-    @Nullable
-    public AccountId getFeeCollectorAccountId() {
+    public @Nullable AccountId getFeeCollectorAccountId() {
         return feeCollectorAccountId;
     }
 

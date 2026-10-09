@@ -12,8 +12,8 @@ import com.hedera.hashgraph.sdk.proto.ExchangeRateSet;
 import com.hedera.hashgraph.sdk.proto.TimestampSeconds;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.bouncycastle.util.encoders.Hex;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The consensus result for a transaction, which might not be currently
@@ -24,8 +24,7 @@ public final class TransactionReceipt {
     /**
      * The transaction's ID
      */
-    @Nullable
-    public final TransactionId transactionId;
+    public final @Nullable TransactionId transactionId;
     /**
      * Whether the transaction succeeded or failed (or is unknown).
      */
@@ -44,46 +43,39 @@ public final class TransactionReceipt {
     /**
      * The account ID, if a new account was created.
      */
-    @Nullable
-    public final AccountId accountId;
+    public final @Nullable AccountId accountId;
 
     /**
      * The file ID, if a new file was created.
      */
-    @Nullable
-    public final FileId fileId;
+    public final @Nullable FileId fileId;
 
     /**
      * The contract ID, if a new contract was created.
      */
-    @Nullable
-    public final ContractId contractId;
+    public final @Nullable ContractId contractId;
 
     /**
      * The topic ID, if a new topic was created.
      */
-    @Nullable
-    public final TopicId topicId;
+    public final @Nullable TopicId topicId;
 
     /**
      * The token ID, if a new token was created.
      */
-    @Nullable
-    public final TokenId tokenId;
+    public final @Nullable TokenId tokenId;
 
     /**
      * Updated sequence number for a consensus service topic.
      * Set for {@link TopicMessageSubmitTransaction}.
      */
-    @Nullable
-    public final Long topicSequenceNumber;
+    public final @Nullable Long topicSequenceNumber;
 
     /**
      * Updated running hash for a consensus service topic.
      * Set for {@link TopicMessageSubmitTransaction}.
      */
-    @Nullable
-    public final ByteString topicRunningHash;
+    public final @Nullable ByteString topicRunningHash;
 
     /**
      * In the receipt of TokenMint, TokenWipe, TokenBurn, For fungible tokens - the current total
@@ -95,16 +87,14 @@ public final class TransactionReceipt {
     /**
      * In the receipt of a ScheduleCreate, the id of the newly created Scheduled Entity
      */
-    @Nullable
-    public final ScheduleId scheduleId;
+    public final @Nullable ScheduleId scheduleId;
 
     /**
      * In the receipt of a ScheduleCreate or ScheduleSign that resolves to SUCCESS, the
      * TransactionID that should be used to query for the receipt or record of the relevant
      * scheduled transaction
      */
-    @Nullable
-    public final TransactionId scheduledTransactionId;
+    public final @Nullable TransactionId scheduledTransactionId;
 
     /**
      * In the receipt of a TokenMint for tokens of type NON_FUNGIBLE_UNIQUE, the serial numbers of

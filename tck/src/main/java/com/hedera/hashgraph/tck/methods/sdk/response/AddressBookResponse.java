@@ -4,7 +4,7 @@ package com.hedera.hashgraph.tck.methods.sdk.response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent the addressBook query response.

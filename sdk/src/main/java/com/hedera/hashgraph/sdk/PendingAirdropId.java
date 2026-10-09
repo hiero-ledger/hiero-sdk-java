@@ -2,8 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A unique, composite, identifier for a pending airdrop.
@@ -13,14 +12,12 @@ import javax.annotation.Nullable;
  * that would modify that pending airdrop (such as a `claimAirdrop` or `cancelAirdrop`).
  */
 public class PendingAirdropId {
-    private AccountId sender;
-    private AccountId receiver;
+    private @Nullable AccountId sender;
+    private @Nullable AccountId receiver;
 
-    @Nullable
-    private TokenId tokenId;
+    private @Nullable TokenId tokenId;
 
-    @Nullable
-    private NftId nftId;
+    private @Nullable NftId nftId;
 
     public PendingAirdropId() {}
 
@@ -38,25 +35,25 @@ public class PendingAirdropId {
         this.tokenId = null;
     }
 
-    public AccountId getSender() {
+    public @Nullable AccountId getSender() {
         return sender;
     }
 
-    public PendingAirdropId setSender(@Nonnull AccountId sender) {
+    public PendingAirdropId setSender(AccountId sender) {
         this.sender = sender;
         return this;
     }
 
-    public AccountId getReceiver() {
+    public @Nullable AccountId getReceiver() {
         return receiver;
     }
 
-    public PendingAirdropId setReceiver(@Nonnull AccountId receiver) {
+    public PendingAirdropId setReceiver(AccountId receiver) {
         this.receiver = receiver;
         return this;
     }
 
-    public TokenId getTokenId() {
+    public @Nullable TokenId getTokenId() {
         return tokenId;
     }
 
@@ -65,7 +62,7 @@ public class PendingAirdropId {
         return this;
     }
 
-    public NftId getNftId() {
+    public @Nullable NftId getNftId() {
         return nftId;
     }
 

@@ -10,15 +10,14 @@ import io.grpc.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Get all the records for an account for any transfers into it and out of it,
  * that were above the threshold, during the last 25 hours.
  */
 public final class AccountRecordsQuery extends Query<List<TransactionRecord>, AccountRecordsQuery> {
-    @Nullable
-    private AccountId accountId = null;
+    private @Nullable AccountId accountId = null;
 
     /**
      * Constructor.
@@ -30,8 +29,7 @@ public final class AccountRecordsQuery extends Query<List<TransactionRecord>, Ac
      *
      * @return                          the account id
      */
-    @Nullable
-    public AccountId getAccountId() {
+    public @Nullable AccountId getAccountId() {
         return accountId;
     }
 

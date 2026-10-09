@@ -9,7 +9,7 @@ import com.hedera.hashgraph.sdk.proto.ConsensusTopicInfo;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Current state of a topic.
@@ -43,14 +43,12 @@ public final class TopicInfo {
     /**
      * Access control for update/delete of the topic. Null if there is no key.
      */
-    @Nullable
-    public final Key adminKey;
+    public final @Nullable Key adminKey;
 
     /**
      * Access control for ConsensusService.submitMessage. Null if there is no key.
      */
-    @Nullable
-    public final Key submitKey;
+    public final @Nullable Key submitKey;
 
     /**
      * If an auto-renew account is specified, when the topic expires, its lifetime will be extended
@@ -62,15 +60,14 @@ public final class TopicInfo {
     /**
      * The account, if any, to charge for automatic renewal of the topic's lifetime upon expiry.
      */
-    @Nullable
-    public final AccountId autoRenewAccountId;
+    public final @Nullable AccountId autoRenewAccountId;
 
     /**
      * The ledger ID the response was returned from; please see <a href="https://github.com/hashgraph/hedera-improvement-proposal/blob/master/HIP/hip-198.md">HIP-198</a> for the network-specific IDs.
      */
     public final LedgerId ledgerId;
 
-    public final Key feeScheduleKey;
+    public final @Nullable Key feeScheduleKey;
 
     public final List<Key> feeExemptKeys;
 
@@ -87,7 +84,7 @@ public final class TopicInfo {
             Duration autoRenewPeriod,
             @Nullable AccountId autoRenewAccountId,
             LedgerId ledgerId,
-            Key feeScheduleKey,
+            @Nullable Key feeScheduleKey,
             List<Key> feeExemptKeys,
             List<CustomFixedFee> customFees) {
         this.topicId = topicId;
