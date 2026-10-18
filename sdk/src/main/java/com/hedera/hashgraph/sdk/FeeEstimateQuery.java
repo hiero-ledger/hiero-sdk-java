@@ -2,17 +2,14 @@
 package com.hedera.hashgraph.sdk;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Query the mirror node for fee estimates for a transaction.
@@ -21,9 +18,6 @@ import org.slf4j.LoggerFactory;
  * submitting transactions to the network.
  */
 public class FeeEstimateQuery {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeeEstimateQuery.class);
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-
     private @Nullable FeeEstimateMode mode = null;
 
     private com.hedera.hashgraph.sdk.proto.@Nullable Transaction transaction = null;
@@ -36,19 +30,6 @@ public class FeeEstimateQuery {
      * Constructor.
      */
     public FeeEstimateQuery() {}
-
-    private static boolean shouldRetry(Throwable throwable) {
-        return throwable instanceof HttpTimeoutException || throwable instanceof IOException;
-    }
-
-    private static boolean shouldRetry(int statusCode) {
-        // Retry on common transient HTTP statuses
-        return statusCode == 408 || statusCode == 429 || (statusCode >= 500 && statusCode < 600);
-    }
-
-    private static boolean isSuccessfulResponse(int statusCode) {
-        return statusCode >= 200 && statusCode < 300;
-    }
 
     /**
      * Extract the fee estimate mode.
@@ -201,60 +182,15 @@ public class FeeEstimateQuery {
      * @throws InterruptedException if the operation is interrupted
      */
     public FeeEstimateResponse execute(Client client, Duration timeout) throws IOException, InterruptedException {
-        var resolvedMode = mode != null ? mode : FeeEstimateMode.INTRINSIC;
-        var requestPayload = getRequestPayload();
-        var url = buildUrl(client, resolvedMode);
-
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                var response = HTTP_CLIENT.send(
-                        buildHttpRequest(url, timeout, requestPayload), HttpResponse.BodyHandlers.ofString());
-
-                var result = handleResponse(response, attempt);
-                if (result != null) {
-                    return result;
-                }
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception error) {
-                handleError(error, attempt);
+        try {
+            return executeAsync(client, timeout).get();
+        } catch (ExecutionException e) {
+            var cause = e.getCause();
+            if (cause instanceof IllegalStateException illegalStateException) {
+                throw illegalStateException;
             }
+            throw new RuntimeException(cause);
         }
-        throw new IOException("Failed to fetch fee estimate after " + maxAttempts + " attempts");
-    }
-
-    /**
-     * Handle the HTTP response and return the result or null if retry is needed.
-     */
-    private @Nullable FeeEstimateResponse handleResponse(HttpResponse<String> response, int attempt) {
-        if (isSuccessfulResponse(response.statusCode())) {
-            return FeeEstimateResponse.fromJson(response.body());
-        }
-
-        if (!shouldRetry(response.statusCode()) || attempt >= maxAttempts) {
-            throw new IllegalStateException("Failed to fetch fee estimate. HTTP status: " + response.statusCode()
-                    + " body: " + response.body());
-        }
-
-        warnAndDelay(attempt, new RuntimeException("HTTP status: " + response.statusCode()));
-        return null;
-    }
-
-    /**
-     * Handle errors during execution.
-     */
-    private void handleError(Exception error, int attempt) throws IOException, InterruptedException {
-        if (!shouldRetry(error) || attempt >= maxAttempts) {
-            LOGGER.error("Error attempting to get fee estimate", error);
-            if (error instanceof IOException ioException) {
-                throw ioException;
-            }
-            if (error instanceof InterruptedException interruptedException) {
-                throw interruptedException;
-            }
-            throw new IllegalStateException(error);
-        }
-        warnAndDelay(attempt, error);
     }
 
     /**
@@ -276,92 +212,60 @@ public class FeeEstimateQuery {
      */
     public CompletableFuture<FeeEstimateResponse> executeAsync(Client client, Duration timeout) {
         var resolvedMode = mode != null ? mode : FeeEstimateMode.INTRINSIC;
-        CompletableFuture<FeeEstimateResponse> returnFuture = new CompletableFuture<>();
-        executeAsync(client, timeout, resolvedMode, returnFuture, 1);
-        return returnFuture;
+        return executeAsync(client, timeout, resolvedMode);
     }
 
     /**
      * Execute the query asynchronously (internal implementation).
      *
      * @param client       the client object
-     * @param returnFuture the future to complete with the result
-     * @param attempt      the current attempt number
      */
-    void executeAsync(
-            Client client,
-            Duration timeout,
-            FeeEstimateMode resolvedMode,
-            CompletableFuture<FeeEstimateResponse> returnFuture,
-            int attempt) {
-        var requestPayload = getRequestPayload();
-        var url = buildUrl(client, resolvedMode);
+    CompletableFuture<FeeEstimateResponse> executeAsync(Client client, Duration timeout, FeeEstimateMode resolvedMode) {
+        var baseUrl = resolveBaseUrl(client);
+        var path = buildPath(resolvedMode);
+        var policy = client.getMirrorNodeHttpConfig()
+                .getRetryPolicy()
+                .withMaxAttempts(this.maxAttempts)
+                .withMaxBackoff(this.maxBackoff);
+        var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
+        var httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
+        var requestBody = getRequestPayload();
 
-        HTTP_CLIENT
-                .sendAsync(buildHttpRequest(url, timeout, requestPayload), HttpResponse.BodyHandlers.ofString())
-                .whenComplete((response, error) -> {
-                    if (error != null) {
-                        handleAsyncError(client, timeout, resolvedMode, returnFuture, attempt, error);
-                        return;
-                    }
-                    handleAsyncResponse(client, timeout, resolvedMode, returnFuture, attempt, response);
-                });
-    }
+        return CompletableFuture.supplyAsync(() -> {
+            HttpResponse response;
 
-    /**
-     * Handle async error response.
-     */
-    private void handleAsyncError(
-            Client client,
-            Duration timeout,
-            FeeEstimateMode resolvedMode,
-            CompletableFuture<FeeEstimateResponse> returnFuture,
-            int attempt,
-            Throwable error) {
-        if (attempt >= maxAttempts || !shouldRetry(error)) {
-            LOGGER.error("Error attempting to get fee estimate", error);
-            returnFuture.completeExceptionally(error);
-            return;
-        }
-        warnAndDelay(attempt, error);
-        executeAsync(client, timeout, resolvedMode, returnFuture, attempt + 1);
-    }
+            try {
+                response = httpClient.post(
+                        path,
+                        "application/protobuf",
+                        requestBody,
+                        Cancellation.none(),
+                        MirrorNodeHttpClient.CallDeadline.startingNow(total));
+            } catch (HttpTransportException e) {
+                var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                        ? mirrorNodeHttpException.getLastResponse()
+                        : null;
+                throw new CompletionException(new RuntimeException(
+                        "Failed to fetch fee estimation response: "
+                                + e.getKind().getId()
+                                + (lastResponse == null
+                                        ? ""
+                                        : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                        e));
+            }
 
-    /**
-     * Handle async success response.
-     */
-    private void handleAsyncResponse(
-            Client client,
-            Duration timeout,
-            FeeEstimateMode resolvedMode,
-            CompletableFuture<FeeEstimateResponse> returnFuture,
-            int attempt,
-            HttpResponse<String> response) {
-        if (isSuccessfulResponse(response.statusCode())) {
-            returnFuture.complete(FeeEstimateResponse.fromJson(response.body()));
-            return;
-        }
+            if (response.getStatusCode() != 200) {
+                throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
+                        + MirrorNodeErrorMessage.describe(response));
+            }
 
-        if (attempt >= maxAttempts || !shouldRetry(response.statusCode())) {
-            LOGGER.error(
-                    "Failed to fetch fee estimate.HTTP status: {} body: {}", response.statusCode(), response.body());
-            returnFuture.completeExceptionally(
-                    new RuntimeException("Failed to fetch fee estimate, status " + response.statusCode()));
-            return;
-        }
-
-        warnAndDelay(attempt, new RuntimeException("Transient HTTP status: " + response.statusCode()));
-        executeAsync(client, timeout, resolvedMode, returnFuture, attempt + 1);
-    }
-
-    /**
-     * Build the FeeEstimateQuery protobuf message.
-     *
-     * @return the protobuf query
-     */
-    HttpRequest buildRequest(Client client, Duration timeout, FeeEstimateMode resolvedMode) {
-        String url = buildUrl(client, resolvedMode);
-        return buildHttpRequest(url, timeout, getRequestPayload());
+            try {
+                var json = new String(response.getBody(), StandardCharsets.UTF_8);
+                return FeeEstimateResponse.fromJson(json);
+            } catch (RuntimeException e) {
+                throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
+            }
+        });
     }
 
     private byte[] getRequestPayload() {
@@ -372,36 +276,25 @@ public class FeeEstimateQuery {
         return transaction.toByteArray();
     }
 
-    private String buildUrl(Client client, FeeEstimateMode resolvedMode) {
+    private MirrorNodeRestPath buildPath(FeeEstimateMode resolvedMode) {
         // Keep mode casing consistent with JS SDK (uppercase)
-        String url = client.getMirrorRestBaseUrl() + "/network/fees?mode=" + resolvedMode.toString();
+        StringBuilder url = new StringBuilder("/network/fees?mode=")
+                .append(URLEncoder.encode(resolvedMode.toString(), StandardCharsets.UTF_8));
+
         if (highVolumeThrottle > 0) {
-            url += "&high_volume_throttle=" + highVolumeThrottle;
+            url.append("&high_volume_throttle=").append(highVolumeThrottle);
         }
-        return url;
+
+        return MirrorNodeRestPath.of(url.toString());
     }
 
-    private HttpRequest buildHttpRequest(String url, Duration timeout, byte[] payload) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(timeout)
-                .header("Content-Type", "application/protobuf")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(payload))
-                .build();
-    }
+    private String resolveBaseUrl(Client client) {
+        String baseUrl = client.getMirrorRestBaseUrl();
 
-    private void warnAndDelay(int attempt, Throwable error) {
-        var delay = Math.min(500 * (long) Math.pow(2, attempt), maxBackoff.toMillis());
-        LOGGER.warn(
-                "Error fetching fee estimate during attempt #{}. Waiting {} ms before next attempt: {}",
-                attempt,
-                delay,
-                error.getMessage());
-
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        // For localhost use the java-rest api port
+        if (baseUrl.contains("localhost:38081") || baseUrl.contains("127.0.0.1:38081")) {
+            baseUrl = baseUrl.replace(":38081", ":8084");
         }
+        return baseUrl;
     }
 }
