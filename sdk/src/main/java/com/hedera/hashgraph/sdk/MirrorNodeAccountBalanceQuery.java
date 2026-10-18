@@ -208,7 +208,7 @@ public final class MirrorNodeAccountBalanceQuery {
         var policy = client.getMirrorNodeHttpConfig()
                 .getRetryPolicy()
                 .withMaxAttempts(this.maxAttempts)
-                .withMaxBackoff(maxBackoff);
+                .withMaxBackoff(this.maxBackoff);
         var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
         var httpClient = client.newMirrorNodeHttpClient(policy);
 
