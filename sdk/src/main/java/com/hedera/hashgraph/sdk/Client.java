@@ -573,11 +573,14 @@ public final class Client implements AutoCloseable {
      * @return the adapter
      */
     MirrorNodeHttpClient newMirrorNodeHttpClient(MirrorNodeHttpRetryPolicy retryPolicy) {
+        var baseUrl = mirrorNetwork.getNextRestBaseUrlRoundRobin();
+        return newMirrorNodeHttpClient(baseUrl, retryPolicy);
+    }
+
+    MirrorNodeHttpClient newMirrorNodeHttpClient(String baseUrl, MirrorNodeHttpRetryPolicy retryPolicy) {
         var config = mirrorNodeHttpConfig;
         var transport = getOrCreateMirrorHttpTransport();
         var generation = mirrorHttpGeneration.get();
-
-        var baseUrl = mirrorNetwork.getNextRestBaseUrlRoundRobin();
 
         return MirrorNodeHttpClient.create(
                 baseUrl,
