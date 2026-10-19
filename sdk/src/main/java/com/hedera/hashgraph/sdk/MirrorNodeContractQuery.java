@@ -6,6 +6,7 @@ import static com.hedera.hashgraph.sdk.EntityIdHelper.performQueryToMirrorNodeAs
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -265,7 +266,6 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
     }
 
     private CompletableFuture<String> executeMirrorNodeRequest(Client client, boolean estimate) {
-        String apiEndpoint = "/contracts/call";
         String jsonPayload = createJsonPayload(
                 this.callData,
                 this.senderEvmAddress,
@@ -276,22 +276,17 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
                 this.block,
                 estimate);
 
-        String baseUrl = client.getMirrorRestBaseUrl();
+        String baseUrl = resolveBaseUrl(client);
+        MirrorNodeRestPath path = MirrorNodeRestPath.of("/contracts/call");
+        MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
+        MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
+        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
 
-        // For localhost contract calls, override to use port 8545 unless system property overrides
-        if (baseUrl.contains("localhost:38081") || baseUrl.contains("127.0.0.1:38081")) {
-            String contractPort = System.getProperty("hedera.mirror.contract.port");
-            if (contractPort != null && !contractPort.isEmpty()) {
-                baseUrl = baseUrl.replace(":38081", ":" + contractPort);
-            } else {
-                baseUrl = baseUrl.replace(":38081", ":8545");
-            }
-        }
-
-        return performQueryToMirrorNodeAsync(baseUrl, apiEndpoint, jsonPayload).exceptionally(ex -> {
-            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-            throw new CompletionException(ex);
-        });
+        return performQueryToMirrorNodeAsync(httpClient, path, total, jsonPayload)
+                .exceptionally(ex -> {
+                    client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+                    throw new CompletionException(ex);
+                });
     }
 
     static String createJsonPayload(
@@ -337,6 +332,22 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
 
     static long parseHexEstimateToLong(String responseBody) {
         return Integer.parseInt(parseContractCallResult(responseBody).substring(2), 16);
+    }
+
+    private static String resolveBaseUrl(Client client) {
+        String baseUrl = client.getMirrorRestBaseUrl();
+
+        // For localhost contract calls, override to use port 8545 unless system property overrides
+        if (baseUrl.contains("localhost:38081") || baseUrl.contains("127.0.0.1:38081")) {
+            String contractPort = System.getProperty("hedera.mirror.contract.port");
+            if (contractPort != null && !contractPort.isEmpty()) {
+                baseUrl = baseUrl.replace(":38081", ":" + contractPort);
+            } else {
+                baseUrl = baseUrl.replace(":38081", ":8545");
+            }
+        }
+
+        return baseUrl;
     }
 
     @Override

@@ -3,12 +3,9 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -262,8 +259,9 @@ public class EntityIdHelper {
      * @param evmAddress
      */
     static CompletableFuture<Long> getAccountNumFromMirrorNodeAsync(Client client, String evmAddress) {
-        String apiEndpoint = "/accounts/" + evmAddress;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
+        MirrorNodeRestPath path =
+                MirrorNodeRestPath.of("/accounts/" + URLEncoder.encode(evmAddress, StandardCharsets.UTF_8));
+        return performQueryToMirrorNodeAsync(client, path, null)
                 .thenApply(response -> parseNumFromMirrorNodeResponse(response, "account"));
     }
 
@@ -277,8 +275,8 @@ public class EntityIdHelper {
      * @param num
      */
     public static CompletableFuture<EvmAddress> getEvmAddressFromMirrorNodeAsync(Client client, long num) {
-        String apiEndpoint = "/accounts/" + num;
-        return performQueryToMirrorNodeAsync(client, apiEndpoint, null)
+        MirrorNodeRestPath path = MirrorNodeRestPath.of("/accounts/" + num);
+        return performQueryToMirrorNodeAsync(client, path, null)
                 .thenApply(response -> EvmAddress.fromString(parseStringMirrorNodeResponse(response, "evm_address")));
     }
 
@@ -292,49 +290,59 @@ public class EntityIdHelper {
      * @param evmAddress
      */
     public static CompletableFuture<Long> getContractNumFromMirrorNodeAsync(Client client, String evmAddress) {
-        String apiEndpoint = "/contracts/" + evmAddress;
-
-        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, apiEndpoint, null);
+        MirrorNodeRestPath path =
+                MirrorNodeRestPath.of("/contracts/" + URLEncoder.encode(evmAddress, StandardCharsets.UTF_8));
+        CompletableFuture<String> responseFuture = performQueryToMirrorNodeAsync(client, path, null);
 
         return responseFuture.thenApply(response -> parseNumFromMirrorNodeResponse(response, "contract_id"));
     }
 
-    static CompletableFuture<String> performQueryToMirrorNodeAsync(Client client, String apiEndpoint, String jsonBody) {
-        return performQueryToMirrorNodeAsync(client.getMirrorRestBaseUrl(), apiEndpoint, jsonBody);
+    static CompletableFuture<String> performQueryToMirrorNodeAsync(
+            Client client, MirrorNodeRestPath path, @Nullable String jsonBody) {
+        MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
+        MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(policy);
+        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
+
+        return performQueryToMirrorNodeAsync(httpClient, path, total, jsonBody);
     }
 
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
-            String baseUrl, String apiEndpoint, String jsonBody) {
-        String apiUrl = baseUrl + apiEndpoint;
+            MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, Duration total, @Nullable String jsonBody) {
+        var deadline = MirrorNodeHttpClient.CallDeadline.startingNow(total);
 
-        HttpClient httpClient = HttpClient.newHttpClient();
-        var httpBuilder =
-                HttpRequest.newBuilder().timeout(MIRROR_NODE_CONNECTION_TIMEOUT).uri(URI.create(apiUrl));
+        return CompletableFuture.supplyAsync(() -> {
+            HttpResponse response;
 
-        if (jsonBody != null) {
-            httpBuilder.header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(jsonBody));
-        }
-        var httpRequest = httpBuilder.build();
+            try {
+                if (jsonBody == null) {
+                    response = httpClient.get(path, Cancellation.none(), deadline);
+                } else {
+                    response = httpClient.post(
+                            path,
+                            "application/json",
+                            jsonBody.getBytes(StandardCharsets.UTF_8),
+                            Cancellation.none(),
+                            deadline);
+                }
+            } catch (HttpTransportException e) {
+                var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                        ? mirrorNodeHttpException.getLastResponse()
+                        : null;
+                throw new CompletionException(new RuntimeException(
+                        "Failed to send mirror node request: " + e.getKind().getId()
+                                + (lastResponse == null
+                                        ? ""
+                                        : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                        e));
+            }
 
-        return httpClient
-                .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .handle((response, ex) -> {
-                    if (ex != null) {
-                        if (ex instanceof HttpTimeoutException) {
-                            throw new CompletionException(new RuntimeException("Request to Mirror Node timed out", ex));
-                        } else {
-                            throw new CompletionException(
-                                    new RuntimeException("Failed to send request to Mirror Node", ex));
-                        }
-                    }
+            if (response.getStatusCode() != 200) {
+                throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
+                        + MirrorNodeErrorMessage.describe(response));
+            }
 
-                    int statusCode = response.statusCode();
-                    if (statusCode != 200) {
-                        throw new CompletionException(
-                                new RuntimeException("Received non-200 response from Mirror Node: " + response.body()));
-                    }
-                    return response.body();
-                });
+            return new String(response.getBody(), StandardCharsets.UTF_8);
+        });
     }
 
     private static String parseStringMirrorNodeResponse(String responseBody, String memberName) {
