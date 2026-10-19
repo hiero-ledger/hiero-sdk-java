@@ -577,6 +577,13 @@ public final class Client implements AutoCloseable {
         return newMirrorNodeHttpClient(baseUrl, retryPolicy);
     }
 
+    /**
+     * Build the adapter for one mirror node REST call with a baseUrl.
+     *
+     * @param baseUrl the baseUrl to use for mirrornode rest api
+     * @param retryPolicy the resolved budget for this call, whose total deadline must already be positive
+     * @return the adapter
+     */
     MirrorNodeHttpClient newMirrorNodeHttpClient(String baseUrl, MirrorNodeHttpRetryPolicy retryPolicy) {
         var config = mirrorNodeHttpConfig;
         var transport = getOrCreateMirrorHttpTransport();
