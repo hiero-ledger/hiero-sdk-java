@@ -337,8 +337,8 @@ public class EntityIdHelper {
             }
 
             if (response.getStatusCode() != 200) {
-                throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
-                        + MirrorNodeErrorMessage.describe(response));
+                throw new IllegalStateException("Received non-200 response from Mirror Node error: HTTP "
+                        + response.getStatusCode() + ": " + MirrorNodeErrorMessage.describe(response));
             }
 
             return new String(response.getBody(), StandardCharsets.UTF_8);
