@@ -6,7 +6,6 @@ import static com.hedera.hashgraph.sdk.EntityIdHelper.performQueryToMirrorNodeAs
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -278,15 +277,11 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
 
         String baseUrl = resolveBaseUrl(client);
         MirrorNodeRestPath path = MirrorNodeRestPath.of("/contracts/call");
-        MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
-        MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
-        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
 
-        return performQueryToMirrorNodeAsync(httpClient, path, total, jsonPayload)
-                .exceptionally(ex -> {
-                    client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-                    throw new CompletionException(ex);
-                });
+        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonPayload).exceptionally(ex -> {
+            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+            throw new CompletionException(ex);
+        });
     }
 
     static String createJsonPayload(

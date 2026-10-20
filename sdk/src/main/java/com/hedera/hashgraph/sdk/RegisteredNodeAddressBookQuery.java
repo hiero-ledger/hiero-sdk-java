@@ -177,12 +177,11 @@ public class RegisteredNodeAddressBookQuery {
                             .withMaxAttempts(this.maxAttempts)
                             .withMaxBackoff(this.maxBackoff);
                     var httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
+                    var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
 
                     boolean isLastPage = false;
 
                     while (!isLastPage) {
-                        var total =
-                                MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
                         JsonObject json = fetchPage(httpClient, apiPath, total);
 
                         if (json.has("registered_nodes")) {

@@ -231,41 +231,43 @@ public class FeeEstimateQuery {
         var httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
         var requestBody = getRequestPayload();
 
-        return CompletableFuture.supplyAsync(() -> {
-            HttpResponse response;
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    HttpResponse response;
 
-            try {
-                response = httpClient.post(
-                        path,
-                        "application/protobuf",
-                        requestBody,
-                        Cancellation.none(),
-                        MirrorNodeHttpClient.CallDeadline.startingNow(total));
-            } catch (HttpTransportException e) {
-                var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
-                        ? mirrorNodeHttpException.getLastResponse()
-                        : null;
-                throw new CompletionException(new RuntimeException(
-                        "Failed to fetch fee estimation response: "
-                                + e.getKind().getId()
-                                + (lastResponse == null
-                                        ? ""
-                                        : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
-                        e));
-            }
+                    try {
+                        response = httpClient.post(
+                                path,
+                                "application/protobuf",
+                                requestBody,
+                                Cancellation.none(),
+                                MirrorNodeHttpClient.CallDeadline.startingNow(total));
+                    } catch (HttpTransportException e) {
+                        var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                                ? mirrorNodeHttpException.getLastResponse()
+                                : null;
+                        throw new CompletionException(new RuntimeException(
+                                "Failed to fetch fee estimation response: "
+                                        + e.getKind().getId()
+                                        + (lastResponse == null
+                                                ? ""
+                                                : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                                e));
+                    }
 
-            if (response.getStatusCode() != 200) {
-                throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
-                        + MirrorNodeErrorMessage.describe(response));
-            }
+                    if (response.getStatusCode() != 200) {
+                        throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
+                                + MirrorNodeErrorMessage.describe(response));
+                    }
 
-            try {
-                var json = new String(response.getBody(), StandardCharsets.UTF_8);
-                return FeeEstimateResponse.fromJson(json);
-            } catch (RuntimeException e) {
-                throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
-            }
-        });
+                    try {
+                        var json = new String(response.getBody(), StandardCharsets.UTF_8);
+                        return FeeEstimateResponse.fromJson(json);
+                    } catch (RuntimeException e) {
+                        throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
+                    }
+                },
+                client.executor);
     }
 
     private byte[] getRequestPayload() {

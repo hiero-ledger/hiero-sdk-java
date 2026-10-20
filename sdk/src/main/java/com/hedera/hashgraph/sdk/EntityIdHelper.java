@@ -299,50 +299,53 @@ public class EntityIdHelper {
 
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
             Client client, MirrorNodeRestPath path, @Nullable String jsonBody) {
-        MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
-        MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(policy);
-        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
-
-        return performQueryToMirrorNodeAsync(httpClient, path, total, jsonBody);
+        var baseUrl = client.mirrorNetwork.getNextRestBaseUrlRoundRobin();
+        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonBody);
     }
 
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
-            MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, Duration total, @Nullable String jsonBody) {
+            String baseUrl, Client client, MirrorNodeRestPath path, @Nullable String jsonBody) {
+        MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
+        MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
+        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
         var deadline = MirrorNodeHttpClient.CallDeadline.startingNow(total);
 
-        return CompletableFuture.supplyAsync(() -> {
-            HttpResponse response;
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    HttpResponse response;
 
-            try {
-                if (jsonBody == null) {
-                    response = httpClient.get(path, Cancellation.none(), deadline);
-                } else {
-                    response = httpClient.post(
-                            path,
-                            "application/json",
-                            jsonBody.getBytes(StandardCharsets.UTF_8),
-                            Cancellation.none(),
-                            deadline);
-                }
-            } catch (HttpTransportException e) {
-                var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
-                        ? mirrorNodeHttpException.getLastResponse()
-                        : null;
-                throw new CompletionException(new RuntimeException(
-                        "Failed to send mirror node request: " + e.getKind().getId()
-                                + (lastResponse == null
-                                        ? ""
-                                        : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
-                        e));
-            }
+                    try {
+                        if (jsonBody == null) {
+                            response = httpClient.get(path, Cancellation.none(), deadline);
+                        } else {
+                            response = httpClient.post(
+                                    path,
+                                    "application/json",
+                                    jsonBody.getBytes(StandardCharsets.UTF_8),
+                                    Cancellation.none(),
+                                    deadline);
+                        }
+                    } catch (HttpTransportException e) {
+                        var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                                ? mirrorNodeHttpException.getLastResponse()
+                                : null;
+                        throw new CompletionException(new RuntimeException(
+                                "Failed to send mirror node request: "
+                                        + e.getKind().getId()
+                                        + (lastResponse == null
+                                                ? ""
+                                                : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                                e));
+                    }
 
-            if (response.getStatusCode() != 200) {
-                throw new IllegalStateException("Received non-200 response from Mirror Node error: HTTP "
-                        + response.getStatusCode() + ": " + MirrorNodeErrorMessage.describe(response));
-            }
+                    if (response.getStatusCode() != 200) {
+                        throw new IllegalStateException("Received non-200 response from Mirror Node: "
+                                + new String(response.getBody(), StandardCharsets.UTF_8));
+                    }
 
-            return new String(response.getBody(), StandardCharsets.UTF_8);
-        });
+                    return new String(response.getBody(), StandardCharsets.UTF_8);
+                },
+                client.executor);
     }
 
     private static String parseStringMirrorNodeResponse(String responseBody, String memberName) {
