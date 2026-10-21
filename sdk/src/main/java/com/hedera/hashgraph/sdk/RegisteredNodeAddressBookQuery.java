@@ -178,11 +178,12 @@ public class RegisteredNodeAddressBookQuery {
                             .withMaxBackoff(this.maxBackoff);
                     var httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
                     var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
+                    var deadline = MirrorNodeHttpClient.CallDeadline.startingNow(total);
 
                     boolean isLastPage = false;
 
                     while (!isLastPage) {
-                        JsonObject json = fetchPage(httpClient, apiPath, total);
+                        JsonObject json = fetchPage(httpClient, apiPath, deadline);
 
                         if (json.has("registered_nodes")) {
                             JsonArray nodesArray = json.getAsJsonArray("registered_nodes");
@@ -203,11 +204,11 @@ public class RegisteredNodeAddressBookQuery {
                 client.executor);
     }
 
-    private JsonObject fetchPage(MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, Duration total) {
+    private JsonObject fetchPage(MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, MirrorNodeHttpClient.CallDeadline deadline) {
         HttpResponse response;
 
         try {
-            response = httpClient.get(path, Cancellation.none(), MirrorNodeHttpClient.CallDeadline.startingNow(total));
+            response = httpClient.get(path, Cancellation.none(), deadline);
         } catch (HttpTransportException e) {
             var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
                     ? mirrorNodeHttpException.getLastResponse()
