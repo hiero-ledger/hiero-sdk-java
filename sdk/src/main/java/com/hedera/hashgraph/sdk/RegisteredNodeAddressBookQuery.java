@@ -204,7 +204,8 @@ public class RegisteredNodeAddressBookQuery {
                 client.executor);
     }
 
-    private JsonObject fetchPage(MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, MirrorNodeHttpClient.CallDeadline deadline) {
+    private JsonObject fetchPage(
+            MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, MirrorNodeHttpClient.CallDeadline deadline) {
         HttpResponse response;
 
         try {

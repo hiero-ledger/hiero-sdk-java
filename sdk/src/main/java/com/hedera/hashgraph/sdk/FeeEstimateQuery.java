@@ -256,8 +256,8 @@ public class FeeEstimateQuery {
                     }
 
                     if (response.getStatusCode() != 200) {
-                        throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
-                                + MirrorNodeErrorMessage.describe(response));
+                        throw new IllegalStateException("Mirror Node error: HTTP status " + response.getStatusCode()
+                                + ": " + MirrorNodeErrorMessage.describe(response));
                     }
 
                     try {
