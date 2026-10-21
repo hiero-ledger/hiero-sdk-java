@@ -5,16 +5,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.*;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractCreateTransaction;
+import com.hedera.hashgraph.sdk.FeeEstimate;
+import com.hedera.hashgraph.sdk.FeeEstimateMode;
+import com.hedera.hashgraph.sdk.FeeEstimateQuery;
+import com.hedera.hashgraph.sdk.FeeEstimateResponse;
+import com.hedera.hashgraph.sdk.FeeExtra;
+import com.hedera.hashgraph.sdk.FileAppendTransaction;
+import com.hedera.hashgraph.sdk.FileCreateTransaction;
+import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.Hbar;
+import com.hedera.hashgraph.sdk.TokenCreateTransaction;
+import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenMintTransaction;
+import com.hedera.hashgraph.sdk.TopicCreateTransaction;
+import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TopicMessageSubmitTransaction;
+import com.hedera.hashgraph.sdk.TransferTransaction;
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class FeeEstimateQueryIntegrationTest {
+    private static final Duration FEE_ESTIMATION_PROBE_INTERVAL = Duration.ofSeconds(5);
+    private static final Duration FEE_ESTIMATION_PROBE_TIMEOUT = Duration.ofMinutes(10);
 
-    private static final long MIRROR_SYNC_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(2);
+    private static volatile boolean feeEstimationReady;
+    private static volatile RuntimeException feeEstimationReadyError;
 
     private IntegrationTestEnv createFeeEstimateTestEnv() throws Exception {
         var testEnv = new IntegrationTestEnv(1);
@@ -43,7 +63,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             // When: A fee estimate is requested
             FeeEstimateResponse response = new FeeEstimateQuery()
@@ -68,7 +88,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -90,7 +110,7 @@ class FeeEstimateQueryIntegrationTest {
                     .addHbarTransfer(AccountId.fromString("0.0.3"), Hbar.fromTinybars(1))
                     .freezeWith(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -113,7 +133,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery().setTransaction(transaction).execute(testEnv.client);
 
@@ -133,7 +153,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -155,7 +175,7 @@ class FeeEstimateQueryIntegrationTest {
                     .setAmount(10)
                     .freezeWith(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -177,7 +197,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -200,7 +220,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -222,7 +242,7 @@ class FeeEstimateQueryIntegrationTest {
                     .freezeWith(testEnv.client)
                     .signWithOperator(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -244,7 +264,7 @@ class FeeEstimateQueryIntegrationTest {
                     .setContents(new byte[5000])
                     .freezeWith(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -266,7 +286,7 @@ class FeeEstimateQueryIntegrationTest {
                     .setMessage(new byte[128])
                     .freezeWith(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -288,7 +308,7 @@ class FeeEstimateQueryIntegrationTest {
                     .setMessage(new byte[5000])
                     .freezeWith(testEnv.client);
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             var response = new FeeEstimateQuery()
                     .setTransaction(transaction)
@@ -312,7 +332,7 @@ class FeeEstimateQueryIntegrationTest {
                     .setSignedTransactionBytes(invalidBytes)
                     .build();
 
-            waitForMirrorNodeSync();
+            waitForFeeEstimationServiceReady(testEnv);
 
             // When/Then: Executing the fee estimate query should throw INVALID_ARGUMENT
             assertThatThrownBy(() -> new FeeEstimateQuery()
@@ -374,10 +394,6 @@ class FeeEstimateQueryIntegrationTest {
         }
     }
 
-    private static void waitForMirrorNodeSync() throws InterruptedException {
-        Thread.sleep(MIRROR_SYNC_DELAY_MILLIS);
-    }
-
     private static long subtotal(FeeEstimate estimate) {
         return estimate.getBase()
                 + estimate.getExtras().stream().mapToLong(FeeExtra::getSubtotal).sum();
@@ -418,5 +434,65 @@ class FeeEstimateQueryIntegrationTest {
 
         assertThat(network.getSubtotal()).isEqualTo(nodeSubtotal * network.getMultiplier());
         assertThat(response.getTotal()).isEqualTo(network.getSubtotal() + nodeSubtotal + serviceSubtotal);
+    }
+
+    /**
+     * Blocks until the mirror node's FeeEstimationService can answer a known-good probe query.
+     * Re-issues a fresh INTRINSIC estimate for a 1-hbar self-transfer every 5 seconds until
+     * one succeeds or 10 minutes have elapsed.
+     */
+    private static synchronized void waitForFeeEstimationServiceReady(IntegrationTestEnv testEnv)
+            throws InterruptedException {
+        if (feeEstimationReady) {
+            return;
+        }
+
+        if (feeEstimationReadyError != null) {
+            throw feeEstimationReadyError;
+        }
+
+        var deadline = System.nanoTime() + FEE_ESTIMATION_PROBE_TIMEOUT.toNanos();
+        var attempt = 0;
+        Throwable lastError = null;
+
+        while (System.nanoTime() < deadline) {
+            attempt++;
+
+            try {
+                var probe = new TransferTransaction()
+                        .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(-100_000_000L))
+                        .addHbarTransfer(testEnv.operatorId, Hbar.fromTinybars(100_000_000L))
+                        .freezeWith(testEnv.client);
+
+                new FeeEstimateQuery()
+                        .setMode(FeeEstimateMode.INTRINSIC)
+                        .setTransaction(probe)
+                        .setMaxAttempts(1)
+                        .execute(testEnv.client);
+
+                feeEstimationReady = true;
+                return;
+            } catch (Throwable error) {
+                lastError = error;
+            }
+
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                break;
+            }
+
+            long sleepMillis = Math.min(
+                    FEE_ESTIMATION_PROBE_INTERVAL.toMillis(),
+                    Duration.ofNanos(remainingNanos).toMillis());
+
+            if (sleepMillis > 0) {
+                Thread.sleep(sleepMillis);
+            }
+        }
+
+        feeEstimationReadyError = new RuntimeException(
+                "FeeEstimationService never became ready after " + attempt + " probe attempts", lastError);
+
+        throw feeEstimationReadyError;
     }
 }
