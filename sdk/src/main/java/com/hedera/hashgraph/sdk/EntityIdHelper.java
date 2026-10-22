@@ -33,8 +33,6 @@ public class EntityIdHelper {
     private static final Pattern ENTITY_ID_REGEX =
             Pattern.compile("(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-([a-z]{5}))?$");
 
-    static final Duration MIRROR_NODE_CONNECTION_TIMEOUT = Duration.ofSeconds(30);
-
     /**
      * Constructor.
      */
