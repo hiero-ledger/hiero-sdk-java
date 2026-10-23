@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +26,6 @@ public class MirrorNodeContractQueryMockTest {
     private static final ContractId CONTRACT_ID = new ContractId(0, 0, 1234);
     private static final AccountId SENDER_ID = new AccountId(0, 0, 5005);
     private static final String MOCK_CONTRACT_EVM = "0x1111111111111111111111111111111111111111";
-    private static final String MOCK_SENDER_EVM = "0x2222222222222222222222222222222222222222";
     private static final ByteString MOCK_CALL_DATA = ByteString.copyFrom(new byte[] {1, 2, 3});
 
     private Client client;
@@ -40,6 +41,7 @@ public class MirrorNodeContractQueryMockTest {
         client.setMirrorNetwork(Collections.singletonList("localhost:" + stub.getPort()));
         client.setMirrorNodeHttpConfig(client.getMirrorNodeHttpConfig()
                 .withRetryPolicy(MirrorNodeHttpRetryPolicy.defaults()
+                        .withMaxAttempts(2)
                         .withInitialBackoff(Duration.ofMillis(1))
                         .withMaxBackoff(Duration.ofMillis(2))));
     }
@@ -106,6 +108,69 @@ public class MirrorNodeContractQueryMockTest {
         assertThat(body.get("block").getAsLong()).isEqualTo(99);
     }
 
+    @Test
+    @DisplayName("An explicit contract EVM address is used as 'to'")
+    void callUsesExplicitContractEvmAddress() throws Exception {
+        var query = new MirrorNodeContractCallQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .setContractEvmAddress(MOCK_CONTRACT_EVM);
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x1234\"}"));
+
+        var result = query.execute(client);
+        assertThat(result).isEqualTo("0x1234");
+        assertThat(stub.requestCount()).isEqualTo(1);
+
+        assertThat(stub.getLastBody().get("to").getAsString()).isEqualTo(MOCK_CONTRACT_EVM);
+    }
+
+    @Test
+    @DisplayName("Contract call fails on bad status response (HTTP 400)")
+    void contractCallFailsOnBadRequest() {
+        stub.enqueue(
+                new StubResponse(400, "{\"_status\":{\"messages\":[{\"message\":\"CONTRACT_REVERT_EXECUTED\"}]}}"));
+
+        assertThatThrownBy(() -> new MirrorNodeContractCallQuery()
+                        .setContractId(CONTRACT_ID)
+                        .setFunctionParameters(MOCK_CALL_DATA)
+                        .execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("Received non-200 response");
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Contract call returns the result on 200 after retryable error.")
+    void contractCallReturnsResultAfterRetryableError() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x1234\"}"));
+
+        var result = new MirrorNodeContractCallQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client);
+        assertThat(result).isEqualTo("0x1234");
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Contract call fails once the retry exceeded.")
+    void contractCallFailWhenRetryExceeded() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+
+        assertThatThrownBy(() -> new MirrorNodeContractCallQuery()
+                        .setContractId(CONTRACT_ID)
+                        .setFunctionParameters(MOCK_CALL_DATA)
+                        .execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("Failed to send mirror node request");
+
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
     // MirrorNodeContractEstimateGasQuery
 
     @Test
@@ -118,10 +183,58 @@ public class MirrorNodeContractQueryMockTest {
                 .setFunctionParameters(MOCK_CALL_DATA)
                 .execute(client);
         assertThat(gas).isEqualTo(21000L);
+        assertThat(stub.requestCount()).isEqualTo(1);
 
         var body = stub.getLastBody();
         assertThat(body.get("estimate").getAsBoolean()).isTrue();
         assertThat(body.get("to").getAsString()).isEqualTo(CONTRACT_ID.toEvmAddress());
+    }
+
+    @Test
+    @DisplayName("Gas estimation fails on bad status response (HTTP 400)")
+    void gasEstimationFailsOnBadRequest() {
+        stub.enqueue(
+                new StubResponse(400, "{\"_status\":{\"messages\":[{\"message\":\"CONTRACT_REVERT_EXECUTED\"}]}}"));
+
+        assertThatThrownBy(() -> new MirrorNodeContractEstimateGasQuery()
+                        .setContractId(CONTRACT_ID)
+                        .setFunctionParameters(MOCK_CALL_DATA)
+                        .execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("Received non-200 response");
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Gas estimation returns the result on 200 after retryable error.")
+    void gasEstimationReturnsResultAfterRetryableError() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x5208\"}"));
+
+        var result = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client);
+        assertThat(result).isEqualTo(21000L);
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Gas Estimation fails once the retry exceeded.")
+    void gasEstimationFailWhenRetryExceeded() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+
+        assertThatThrownBy(() -> new MirrorNodeContractEstimateGasQuery()
+                        .setContractId(CONTRACT_ID)
+                        .setFunctionParameters(MOCK_CALL_DATA)
+                        .execute(client))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("Failed to send mirror node request");
+
+        assertThat(stub.requestCount()).isEqualTo(2);
     }
 
     private static final class StubResponse {

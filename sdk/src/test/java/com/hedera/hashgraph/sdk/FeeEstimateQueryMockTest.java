@@ -27,7 +27,6 @@ class FeeEstimateQueryMockTest {
                     .build();
 
     private Client client;
-    private HttpServer server;
     private FeeEstimateQuery query;
     private StubMirrorRestServer stub;
 
