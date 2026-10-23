@@ -2,6 +2,7 @@
 package com.hedera.hashgraph.sdk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.ByteString;
 import com.sun.net.httpserver.HttpServer;
@@ -102,8 +103,7 @@ class FeeEstimateQueryMockTest {
         query.setTransaction(DUMMY_TRANSACTION);
 
         stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.INTRINSIC, 3, 10, 20)));
-
-        var response = query.execute(client);
+        query.execute(client);
 
         assertThat(stub.getLastQueryParams()).contains("mode=INTRINSIC");
     }
@@ -133,6 +133,56 @@ class FeeEstimateQueryMockTest {
                 .hasMessageContaining("400");
 
         assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Given FeeEstimateQuery without transaction, throws and sends no request")
+    void throwsWhenNoTransactionSet() {
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("transaction must be set");
+        assertThat(stub.requestCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("Given FeeEstimateQuery with STATE mode, sends mode=STATE")
+    void sendsExplicitMode() throws IOException, InterruptedException {
+        query.setTransaction(DUMMY_TRANSACTION).setMode(FeeEstimateMode.STATE);
+        stub.enqueue(new StubResponse(200, newSuccessResponse(FeeEstimateMode.STATE, 2, 6, 8)));
+        query.execute(client);
+
+        assertThat(stub.getLastQueryParams()).contains("mode=STATE");
+    }
+
+    @Test
+    @DisplayName("Given the malformed Mirror Node JSON response, it throws IllegalStateException")
+    void throwsOnMalformedResponse() {
+        query.setTransaction(DUMMY_TRANSACTION);
+        stub.enqueue(new StubResponse(200, "invalid json"));
+
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("malformed JSON response");
+    }
+
+    @Test
+    @DisplayName("Given every attempt returns 503, it stops after maxAttempts and fails")
+    void failsAfterMaxAttemptsExceeded() {
+        query.setTransaction(DUMMY_TRANSACTION).setMaxAttempts(2);
+
+        stub.enqueue(new StubResponse(503, "unavailable"));
+        stub.enqueue(new StubResponse(503, "unavailable"));
+
+        assertThatThrownBy(() -> query.execute(client))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Failed to fetch fee estimation response");
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("A client that has made no mirror REST call has built no transport")
+    void buildsTheTransportLazily() {
+        assertThat(client.getMirrorNodeHttpConfig().getTransport()).isNull();
     }
 
     private static String newSuccessResponse(
