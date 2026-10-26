@@ -89,6 +89,23 @@ public class ScheduleCreateTransactionTest {
     }
 
     @Test
+    void shouldRestoreWaitForExpiryFromBytes() throws Exception {
+        var transferTransaction = new TransferTransaction()
+                .addHbarTransfer(AccountId.fromString("0.0.555"), new Hbar(-10))
+                .addHbarTransfer(AccountId.fromString("0.0.333"), new Hbar(10));
+
+        var tx = transferTransaction
+                .schedule()
+                .setNodeAccountIds(Arrays.asList(AccountId.fromString("0.0.5005"), AccountId.fromString("0.0.5006")))
+                .setTransactionId(TransactionId.withValidStart(AccountId.fromString("0.0.5006"), validStart))
+                .setMaxTransactionFee(new Hbar(1))
+                .setWaitForExpiry(true);
+
+        var tx2 = (ScheduleCreateTransaction) Transaction.fromBytes(tx.toBytes());
+        assertThat(tx2.isWaitForExpiry()).isTrue();
+    }
+
+    @Test
     void setExpirationTimeDurationOnFrozenTransactionShouldThrow() {
         var tx = spawnTestTransaction();
         assertThrows(IllegalStateException.class, () -> tx.setExpirationTime(Duration.ofSeconds(1)));
