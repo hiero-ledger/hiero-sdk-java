@@ -19,6 +19,3 @@ gradle.properties
 .DS_Store
 /examples/address-book.proto.bin
 local.properties
-
-.dccache
-snyk-test.json
