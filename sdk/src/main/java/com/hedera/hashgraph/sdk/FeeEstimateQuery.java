@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -165,10 +164,9 @@ public class FeeEstimateQuery {
      *
      * @param client the client object
      * @return the fee estimate response
-     * @throws IOException if an I/O error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    public FeeEstimateResponse execute(Client client) throws IOException, InterruptedException {
+    public FeeEstimateResponse execute(Client client) throws InterruptedException {
         return execute(client, client.getRequestTimeout());
     }
 
@@ -178,18 +176,19 @@ public class FeeEstimateQuery {
      * @param client  the client object
      * @param timeout the user supplied timeout
      * @return the fee estimate response
-     * @throws IOException if an I/O error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    public FeeEstimateResponse execute(Client client, Duration timeout) throws IOException, InterruptedException {
+    public FeeEstimateResponse execute(Client client, Duration timeout) throws InterruptedException {
         try {
             return executeAsync(client, timeout).get();
         } catch (ExecutionException e) {
             var cause = e.getCause();
             if (cause instanceof IllegalStateException illegalStateException) {
                 throw illegalStateException;
+            } else if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
-            throw new RuntimeException(cause);
+            throw new RuntimeException("Failed to execute fee estimate query", cause);
         }
     }
 
@@ -218,7 +217,10 @@ public class FeeEstimateQuery {
     /**
      * Execute the query asynchronously (internal implementation).
      *
-     * @param client       the client object
+     * @param client  the client object
+     * @param timeout the user supplied timeout
+     * @param resolvedMode the fee estimate mode
+     * @return a future representing fee estimate response
      */
     CompletableFuture<FeeEstimateResponse> executeAsync(Client client, Duration timeout, FeeEstimateMode resolvedMode) {
         var baseUrl = resolveBaseUrl(client);
