@@ -349,6 +349,7 @@ public final class ScheduleCreateTransaction extends Transaction<ScheduleCreateT
             expirationTime = InstantConverter.fromProtobuf(body.getExpirationTime());
         }
         scheduleMemo = body.getMemo();
+        waitForExpiry = body.getWaitForExpiry();
     }
 
     @Override
