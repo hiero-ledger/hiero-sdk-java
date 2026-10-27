@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -166,7 +167,7 @@ public class FeeEstimateQuery {
      * @return the fee estimate response
      * @throws InterruptedException if the operation is interrupted
      */
-    public FeeEstimateResponse execute(Client client) throws InterruptedException {
+    public FeeEstimateResponse execute(Client client) throws IOException, InterruptedException {
         return execute(client, client.getRequestTimeout());
     }
 
@@ -178,7 +179,7 @@ public class FeeEstimateQuery {
      * @return the fee estimate response
      * @throws InterruptedException if the operation is interrupted
      */
-    public FeeEstimateResponse execute(Client client, Duration timeout) throws InterruptedException {
+    public FeeEstimateResponse execute(Client client, Duration timeout) throws IOException, InterruptedException {
         try {
             return executeAsync(client, timeout).get();
         } catch (ExecutionException e) {
