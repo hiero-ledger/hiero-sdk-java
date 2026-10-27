@@ -39,6 +39,10 @@ class MirrorNodeAccountBalanceQueryMockTest {
         client = Client.forNetwork(Collections.emptyMap());
         client.setRequestTimeout(Duration.ofSeconds(10));
         client.setMirrorNetwork(Collections.singletonList("localhost:" + stub.getPort()));
+        client.setMirrorNodeHttpConfig(client.getMirrorNodeHttpConfig()
+                .withRetryPolicy(MirrorNodeHttpRetryPolicy.defaults()
+                        .withInitialBackoff(Duration.ofMillis(1))
+                        .withMaxBackoff(Duration.ofMillis(2))));
 
         query = new MirrorNodeAccountBalanceQuery();
     }
@@ -144,7 +148,7 @@ class MirrorNodeAccountBalanceQueryMockTest {
     @DisplayName("Given an EVM address, it is sent to the mirror node in 0x-prefixed form")
     void sendsEvmAddress() throws Exception {
         var evmAddress = new AccountId(0, 0, 12345678).toEvmAddress();
-        query.setAccountId(AccountId.fromEvmAddress("0x" + evmAddress));
+        query.setAccountId(AccountId.fromEvmAddress("0x" + evmAddress, 0, 0));
 
         stub.enqueue(new StubResponse(200, newBalanceResponse("0.0.12345", 500L)));
 
@@ -251,6 +255,12 @@ class MirrorNodeAccountBalanceQueryMockTest {
                 .hasMessageContaining("accountId must be set");
 
         assertThat(stub.requestCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("A client that has made no mirror REST call has built no transport")
+    void buildsTheTransportLazily() {
+        assertThat(client.getMirrorNodeHttpConfig().getTransport()).isNull();
     }
 
     private static String newBalanceResponse(String account, long tinybars) {

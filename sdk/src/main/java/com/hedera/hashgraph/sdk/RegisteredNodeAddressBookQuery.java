@@ -5,28 +5,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Query the mirror node for the RegisteredAddressBook.
  */
 public class RegisteredNodeAddressBookQuery {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegisteredNodeAddressBookQuery.class);
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private final int DEFAULT_LIMIT = 25;
 
     private long registeredNodeId = -1;
@@ -119,14 +111,6 @@ public class RegisteredNodeAddressBookQuery {
         return this;
     }
 
-    private static boolean shouldRetry(Throwable throwable) {
-        return throwable instanceof HttpTimeoutException || throwable instanceof IOException;
-    }
-
-    private static boolean shouldRetry(int statusCode) {
-        return statusCode == 408 || statusCode == 429 || (statusCode >= 500 && statusCode < 600);
-    }
-
     /**
      * Executes the query with the user supplied client
      *
@@ -186,13 +170,20 @@ public class RegisteredNodeAddressBookQuery {
         return CompletableFuture.supplyAsync(
                 () -> {
                     List<RegisteredNode> registeredNodes = new ArrayList<>();
-                    String baseUrl = buildBaseUrl(client);
-                    String apiEndpoint = buildInitialPath();
+                    var baseUrl = resolveBaseUrl(client);
+                    var apiPath = buildInitialPath();
+                    var policy = client.getMirrorNodeHttpConfig()
+                            .getRetryPolicy()
+                            .withMaxAttempts(this.maxAttempts)
+                            .withMaxBackoff(this.maxBackoff);
+                    var httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
+                    var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
+                    var deadline = MirrorNodeHttpClient.CallDeadline.startingNow(total);
 
                     boolean isLastPage = false;
 
                     while (!isLastPage) {
-                        JsonObject json = fetchPage(baseUrl + apiEndpoint, timeout);
+                        JsonObject json = fetchPage(httpClient, apiPath, deadline);
 
                         if (json.has("registered_nodes")) {
                             JsonArray nodesArray = json.getAsJsonArray("registered_nodes");
@@ -201,9 +192,9 @@ public class RegisteredNodeAddressBookQuery {
                             }
                         }
 
-                        String nextUrl = getNextPagePath(json);
-                        if (nextUrl != null) {
-                            apiEndpoint = nextUrl;
+                        String nextLink = getNextPageLink(json);
+                        if (nextLink != null) {
+                            apiPath = MirrorNodeRestPath.fromNextLink(nextLink);
                         } else {
                             isLastPage = true;
                         }
@@ -213,39 +204,37 @@ public class RegisteredNodeAddressBookQuery {
                 client.executor);
     }
 
-    private JsonObject fetchPage(String url, Duration timeout) {
-        int attempt = 0;
-        Exception lastException = null;
+    private JsonObject fetchPage(
+            MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, MirrorNodeHttpClient.CallDeadline deadline) {
+        HttpResponse response;
 
-        while (attempt < maxAttempts) {
-            attempt++;
-            try {
-                HttpResponse<String> response =
-                        HTTP_CLIENT.send(buildHttpRequest(url, timeout), HttpResponse.BodyHandlers.ofString());
-
-                if (response.statusCode() == 200) {
-                    return JsonParser.parseString(response.body()).getAsJsonObject();
-                }
-
-                if (!shouldRetry(response.statusCode()) || attempt > maxAttempts) {
-                    throw new IllegalStateException("Mirror Node error: HTTP " + response.statusCode());
-                }
-
-                lastException = new RuntimeException("HTTP " + response.statusCode());
-                warnAndDelay(attempt, lastException);
-            } catch (Exception e) {
-                lastException = e;
-                if (attempt > maxAttempts || !shouldRetry(e)) {
-                    throw new RuntimeException("Failed to fetch page after " + attempt + " attempts", e);
-                }
-                warnAndDelay(attempt, lastException);
-            }
+        try {
+            response = httpClient.get(path, Cancellation.none(), deadline);
+        } catch (HttpTransportException e) {
+            var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                    ? mirrorNodeHttpException.getLastResponse()
+                    : null;
+            throw new CompletionException(new RuntimeException(
+                    "Failed to fetch registered node address book: "
+                            + e.getKind().getId()
+                            + (lastResponse == null ? "" : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                    e));
         }
 
-        throw new RuntimeException("Failed to fetch page after " + maxAttempts + " attempts", lastException);
+        if (response.getStatusCode() != 200) {
+            throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
+                    + MirrorNodeErrorMessage.describe(response));
+        }
+
+        try {
+            return JsonParser.parseString(new String(response.getBody(), StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
+        }
     }
 
-    private @Nullable String getNextPagePath(JsonObject response) {
+    private @Nullable String getNextPageLink(JsonObject response) {
         if (response.has("links") && !response.get("links").isJsonNull()) {
             JsonObject links = response.getAsJsonObject("links");
             if (links.has("next") && !links.get("next").isJsonNull()) {
@@ -255,7 +244,7 @@ public class RegisteredNodeAddressBookQuery {
         return null;
     }
 
-    private String buildBaseUrl(Client client) {
+    private String resolveBaseUrl(Client client) {
         String baseUrl = client.getMirrorRestBaseUrl();
 
         // For localhost registered node calls, override to use port 8084 unless system property overrides
@@ -268,11 +257,11 @@ public class RegisteredNodeAddressBookQuery {
             }
         }
 
-        return baseUrl.replace("/api/v1", "");
+        return baseUrl;
     }
 
-    private String buildInitialPath() {
-        StringBuilder path = new StringBuilder("/api/v1/network/registered-nodes");
+    private MirrorNodeRestPath buildInitialPath() {
+        StringBuilder path = new StringBuilder("/network/registered-nodes");
         limit = limit > 0 ? limit : DEFAULT_LIMIT;
         path.append("?limit=").append(limit);
 
@@ -280,29 +269,6 @@ public class RegisteredNodeAddressBookQuery {
             path.append("&registerednode.id=").append(registeredNodeId);
         }
 
-        return path.toString();
-    }
-
-    private HttpRequest buildHttpRequest(String url, Duration timeout) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(timeout)
-                .GET()
-                .build();
-    }
-
-    private void warnAndDelay(int attempt, Throwable error) {
-        var delay = Math.min(500 * (long) Math.pow(2, attempt), maxBackoff.toMillis());
-        LOGGER.warn(
-                "Error fetching registered nodes during attempt #{}. Waiting {} ms before next attempt: {}",
-                attempt,
-                delay,
-                error.getMessage());
-
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        return MirrorNodeRestPath.of(path.toString());
     }
 }

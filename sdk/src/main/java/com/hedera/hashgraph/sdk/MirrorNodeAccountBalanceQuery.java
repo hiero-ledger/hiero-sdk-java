@@ -4,13 +4,7 @@ package com.hedera.hashgraph.sdk;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.IOException;
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
@@ -18,8 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Get the HBAR balance of an account from the mirror node REST API
@@ -51,9 +43,6 @@ import org.slf4j.LoggerFactory;
  * <p>This query is free.
  */
 public final class MirrorNodeAccountBalanceQuery {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MirrorNodeAccountBalanceQuery.class);
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-
     private @Nullable AccountId accountId = null;
 
     private int maxAttempts = 10;
@@ -136,14 +125,6 @@ public final class MirrorNodeAccountBalanceQuery {
         return this;
     }
 
-    private static boolean shouldRetry(Throwable throwable) {
-        return throwable instanceof HttpTimeoutException || throwable instanceof IOException;
-    }
-
-    private static boolean shouldRetry(int statusCode) {
-        return statusCode == 408 || statusCode == 429 || (statusCode >= 500 && statusCode < 600);
-    }
-
     /**
      * Executes the query with the user supplied client.
      *
@@ -223,11 +204,18 @@ public final class MirrorNodeAccountBalanceQuery {
         Objects.requireNonNull(timeout, "timeout must not be null");
 
         // Validate before scheduling any work so a misconfigured query never reaches the network.
-        String url = buildUrl(client);
+        var path = buildPath(client);
+        var policy = client.getMirrorNodeHttpConfig()
+                .getRetryPolicy()
+                .withMaxAttempts(this.maxAttempts)
+                .withMaxBackoff(this.maxBackoff);
+        var total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
+        var httpClient = client.newMirrorNodeHttpClient(policy);
 
         return CompletableFuture.supplyAsync(
                 () -> {
-                    var balance = MirrorNodeAccountBalance.fromJson(fetch(url, timeout));
+                    var json = fetch(httpClient, path, total);
+                    var balance = MirrorNodeAccountBalance.fromJson(json);
 
                     if (balance == null) {
                         // The mirror node answers HTTP 200 with an empty `balances` array for an account
@@ -240,51 +228,35 @@ public final class MirrorNodeAccountBalanceQuery {
                 client.executor);
     }
 
-    private JsonObject fetch(String url, Duration timeout) {
-        String body = fetchBody(url, timeout);
+    private JsonObject fetch(MirrorNodeHttpClient httpClient, MirrorNodeRestPath path, Duration total) {
+        HttpResponse response;
 
         try {
-            return JsonParser.parseString(body).getAsJsonObject();
+            response = httpClient.get(path, Cancellation.none(), MirrorNodeHttpClient.CallDeadline.startingNow(total));
+        } catch (HttpTransportException e) {
+            var lastResponse = e instanceof MirrorNodeHttpException mirrorNodeHttpException
+                    ? mirrorNodeHttpException.getLastResponse()
+                    : null;
+            throw new CompletionException(new RuntimeException(
+                    "Failed to fetch account balance: " + e.getKind().getId()
+                            + (lastResponse == null ? "" : "(" + MirrorNodeErrorMessage.describe(lastResponse) + ")"),
+                    e));
+        }
+
+        if (response.getStatusCode() != 200) {
+            throw new IllegalStateException("Mirror Node error: HTTP " + response.getStatusCode() + ": "
+                    + MirrorNodeErrorMessage.describe(response));
+        }
+
+        try {
+            return JsonParser.parseString(new String(response.getBody(), StandardCharsets.UTF_8))
+                    .getAsJsonObject();
         } catch (RuntimeException e) {
             throw new IllegalStateException("Mirror Node returned a malformed JSON response", e);
         }
     }
 
-    private String fetchBody(String url, Duration timeout) {
-        int attempt = 0;
-        Exception lastException = null;
-
-        while (attempt < maxAttempts) {
-            attempt++;
-            try {
-                HttpResponse<String> response =
-                        HTTP_CLIENT.send(buildHttpRequest(url, timeout), HttpResponse.BodyHandlers.ofString());
-
-                if (response.statusCode() == 200) {
-                    return response.body();
-                }
-
-                if (!shouldRetry(response.statusCode()) || attempt >= maxAttempts) {
-                    throw new IllegalStateException("Mirror Node error: HTTP " + response.statusCode());
-                }
-
-                lastException = new RuntimeException("HTTP " + response.statusCode());
-                warnAndDelay(attempt, lastException);
-            } catch (IllegalStateException e) {
-                throw e;
-            } catch (Exception e) {
-                lastException = e;
-                if (attempt >= maxAttempts || !shouldRetry(e)) {
-                    throw new RuntimeException("Failed to fetch account balance after " + attempt + " attempts", e);
-                }
-                warnAndDelay(attempt, lastException);
-            }
-        }
-
-        throw new RuntimeException("Failed to fetch account balance after " + maxAttempts + " attempts", lastException);
-    }
-
-    private String buildUrl(Client client) {
+    private MirrorNodeRestPath buildPath(Client client) {
         if (accountId == null) {
             throw new IllegalStateException("accountId must be set before executing MirrorNodeAccountBalanceQuery");
         }
@@ -297,8 +269,8 @@ public final class MirrorNodeAccountBalanceQuery {
             }
         }
 
-        return client.getMirrorRestBaseUrl() + "/balances?account.id="
-                + URLEncoder.encode(toAccountIdParam(accountId), StandardCharsets.UTF_8);
+        return MirrorNodeRestPath.of(
+                "/balances?account.id=" + URLEncoder.encode(toAccountIdParam(accountId), StandardCharsets.UTF_8));
     }
 
     /**
@@ -322,29 +294,6 @@ public final class MirrorNodeAccountBalanceQuery {
         }
 
         return accountId.toString();
-    }
-
-    private HttpRequest buildHttpRequest(String url, Duration timeout) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(timeout)
-                .GET()
-                .build();
-    }
-
-    private void warnAndDelay(int attempt, Throwable error) {
-        var delay = Math.min(500 * (long) Math.pow(2, attempt), maxBackoff.toMillis());
-        LOGGER.warn(
-                "Error fetching account balance during attempt #{}. Waiting {} ms before next attempt: {}",
-                attempt,
-                delay,
-                error.getMessage());
-
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     @Override
