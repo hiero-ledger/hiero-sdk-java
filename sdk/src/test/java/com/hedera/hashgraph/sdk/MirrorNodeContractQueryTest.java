@@ -133,9 +133,11 @@ class MirrorNodeContractQueryTest {
         ByteString params = ByteString.copyFromUtf8("gasParams");
         mirrorNodeContractEstimateGasQuery.setFunctionParameters(params);
         assertThrows(NullPointerException.class, () -> mirrorNodeContractEstimateGasQuery.estimate(null));
+        assertThrows(NullPointerException.class, () -> mirrorNodeContractEstimateGasQuery.estimate(null, null));
 
         mirrorNodeContractCallQuery.setFunctionParameters(params);
         assertThrows(NullPointerException.class, () -> mirrorNodeContractCallQuery.estimate(null));
+        assertThrows(NullPointerException.class, () -> mirrorNodeContractCallQuery.estimate(null, null));
     }
 
     @Test

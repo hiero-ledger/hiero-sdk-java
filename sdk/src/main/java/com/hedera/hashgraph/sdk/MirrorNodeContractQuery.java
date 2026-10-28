@@ -6,6 +6,7 @@ import static com.hedera.hashgraph.sdk.EntityIdHelper.performQueryToMirrorNodeAs
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -223,26 +224,51 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
     /**
      * Returns gas estimation for the EVM execution
      *
-     * @param client
+     * @param client The Client instance to perform the operation with
      * @throws ExecutionException
      * @throws InterruptedException
      */
     protected long estimate(Client client) throws ExecutionException, InterruptedException {
+        return estimate(client, null);
+    }
+
+    /**
+     * Returns gas estimation for the EVM execution
+     *
+     * @param client The Client instance to perform the operation with
+     * @param timeout The budget for the whole call, retries and backoff included
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    protected long estimate(Client client, @Nullable Duration timeout) throws ExecutionException, InterruptedException {
         fillEvmAddresses();
-        return getEstimateGasFromMirrorNodeAsync(client).get();
+        return getEstimateGasFromMirrorNodeAsync(client, timeout).get();
     }
 
     /**
      * Does transient simulation of read-write operations and returns the result in hexadecimal string format. The
      * result can be any solidity type.
      *
-     * @param client
+     * @param client The Client instance to perform the operation with
      * @throws ExecutionException
      * @throws InterruptedException
      */
     protected String call(Client client) throws ExecutionException, InterruptedException {
+        return call(client, null);
+    }
+
+    /**
+     * Does transient simulation of read-write operations and returns the result in hexadecimal string format. The
+     * result can be any solidity type.
+     *
+     * @param client The Client instance to perform the operation with
+     * @param timeout The budget for the whole call, retries and backoff included
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    protected String call(Client client, @Nullable Duration timeout) throws ExecutionException, InterruptedException {
         fillEvmAddresses();
-        return getContractCallResultFromMirrorNodeAsync(client).get();
+        return getContractCallResultFromMirrorNodeAsync(client, timeout).get();
     }
 
     private void fillEvmAddresses() {
@@ -256,15 +282,19 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         }
     }
 
-    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(Client client) {
-        return executeMirrorNodeRequest(client, false).thenApply(MirrorNodeContractQuery::parseContractCallResult);
+    private CompletableFuture<String> getContractCallResultFromMirrorNodeAsync(
+            Client client, @Nullable Duration timeout) {
+        return executeMirrorNodeRequest(client, false, timeout)
+                .thenApply(MirrorNodeContractQuery::parseContractCallResult);
     }
 
-    private CompletableFuture<Long> getEstimateGasFromMirrorNodeAsync(Client client) {
-        return executeMirrorNodeRequest(client, true).thenApply(MirrorNodeContractQuery::parseHexEstimateToLong);
+    private CompletableFuture<Long> getEstimateGasFromMirrorNodeAsync(Client client, @Nullable Duration timeout) {
+        return executeMirrorNodeRequest(client, true, timeout)
+                .thenApply(MirrorNodeContractQuery::parseHexEstimateToLong);
     }
 
-    private CompletableFuture<String> executeMirrorNodeRequest(Client client, boolean estimate) {
+    private CompletableFuture<String> executeMirrorNodeRequest(
+            Client client, boolean estimate, @Nullable Duration timeout) {
         String jsonPayload = createJsonPayload(
                 this.callData,
                 this.senderEvmAddress,
@@ -278,10 +308,11 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
         String baseUrl = resolveBaseUrl(client);
         MirrorNodeRestPath path = MirrorNodeRestPath.of("/contracts/call");
 
-        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonPayload).exceptionally(ex -> {
-            client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
-            throw new CompletionException(ex);
-        });
+        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonPayload, timeout)
+                .exceptionally(ex -> {
+                    client.getLogger().error("Error while performing post request to Mirror Node: " + ex.getMessage());
+                    throw new CompletionException(ex);
+                });
     }
 
     static String createJsonPayload(
