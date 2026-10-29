@@ -19,6 +19,7 @@ public record CommonTransactionParams(
         Optional<Long> validTransactionDuration,
         Optional<String> memo,
         Optional<Boolean> regenerateTransactionId,
+        Optional<Boolean> highVolume,
         Optional<List<String>> signers) {
     public static CommonTransactionParams parse(Map<String, Object> jrpcParams) throws ClassCastException {
         var parsedTransactionId = Optional.ofNullable((String) jrpcParams.get("transactionId"));
@@ -26,6 +27,7 @@ public record CommonTransactionParams(
         var parsedValidTransactionDuration = Optional.ofNullable((Long) jrpcParams.get("validTransactionDuration"));
         var parsedMemo = Optional.ofNullable((String) jrpcParams.get("memo"));
         var parsedRegenerateTransactionId = Optional.ofNullable((Boolean) jrpcParams.get("regenerateTransactionId"));
+        var parsedHighVolume = Optional.ofNullable((Boolean) jrpcParams.get("highVolume"));
 
         Optional<List<String>> signers = Optional.empty();
         if (jrpcParams.containsKey("signers")) {
@@ -40,6 +42,7 @@ public record CommonTransactionParams(
                 parsedValidTransactionDuration,
                 parsedMemo,
                 parsedRegenerateTransactionId,
+                parsedHighVolume,
                 signers);
     }
 
@@ -52,6 +55,7 @@ public record CommonTransactionParams(
                 validDuration -> transaction.setTransactionValidDuration(Duration.ofSeconds(validDuration)));
         memo.ifPresent(transaction::setTransactionMemo);
         regenerateTransactionId.ifPresent(transaction::setRegenerateTransactionId);
+        highVolume.ifPresent(transaction::setHighVolume);
         signers.ifPresent(s -> {
             transaction.freezeWith(client);
             s.forEach(signer -> {
