@@ -1791,7 +1791,7 @@ public abstract class Transaction<T extends Transaction<T>>
     public int getTransactionSize() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
-                    "transaction must have been frozen before getting it's size, try calling `freeze`");
+                    "transaction must have been frozen before getting its size, try calling `freeze`");
         }
 
         return makeRequest().getSerializedSize();
@@ -1804,7 +1804,7 @@ public abstract class Transaction<T extends Transaction<T>>
     public int getTransactionBodySize() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
-                    "transaction must have been frozen before getting it's body size, try calling `freeze`");
+                    "transaction must have been frozen before getting its body size, try calling `freeze`");
         }
 
         if (frozenBodyBuilder != null) {
