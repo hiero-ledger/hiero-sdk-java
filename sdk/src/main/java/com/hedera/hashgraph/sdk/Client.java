@@ -1027,7 +1027,7 @@ public final class Client implements AutoCloseable {
      * The `transactionSigner` is invoked to sign all transactions executed by this client.
      *
      * @param accountId         The AccountId of the operator
-     * @param publicKey         The PrivateKey of the operator
+     * @param publicKey         The PublicKey of the operator
      * @param transactionSigner The signer for the operator
      * @return {@code this}
      */
