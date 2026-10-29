@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import java.time.Duration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -318,5 +320,36 @@ class MirrorNodeContractQueryTest {
 
         assertEquals(1L, query.estimate(mockClient));
         verify(query).estimate(mockClient, null);
+    }
+
+    @Test
+    void executeGasEstimateRejectsNullClientAndNullTimeout() {
+        var params = ByteString.copyFromUtf8("gasParams");
+        var client = Mockito.mock(Client.class);
+        var timeout = Duration.ofSeconds(5);
+
+        var query = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(mockContractId)
+                .setFunctionParameters(params);
+
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null, timeout)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(client, null)));
+    }
+
+    @Test
+    void executeContractCallRejectsNullClientAndNullTimeout() {
+        var params = ByteString.copyFromUtf8("gasParams");
+        var client = Mockito.mock(Client.class);
+        var timeout = Duration.ofSeconds(5);
+
+        var query =
+                new MirrorNodeContractCallQuery().setContractId(mockContractId).setFunctionParameters(params);
+
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null, timeout)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(client, null)));
     }
 }

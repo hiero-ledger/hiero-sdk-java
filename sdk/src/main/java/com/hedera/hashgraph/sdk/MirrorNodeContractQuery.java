@@ -225,8 +225,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      * Returns gas estimation for the EVM execution
      *
      * @param client The Client instance to perform the operation with
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * @throws ExecutionException if the query fails
+     * @throws InterruptedException if the thread is interrupted
      */
     protected long estimate(Client client) throws ExecutionException, InterruptedException {
         return estimate(client, null);
@@ -237,8 +237,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      *
      * @param client The Client instance to perform the operation with
      * @param timeout The budget for the whole call, retries and backoff included
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * @throws ExecutionException if the query fails
+     * @throws InterruptedException if the thread is interrupted
      */
     protected long estimate(Client client, @Nullable Duration timeout) throws ExecutionException, InterruptedException {
         fillEvmAddresses();
@@ -250,8 +250,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      * result can be any solidity type.
      *
      * @param client The Client instance to perform the operation with
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * @throws ExecutionException if the query fails
+     * @throws InterruptedException if the thread is interrupted
      */
     protected String call(Client client) throws ExecutionException, InterruptedException {
         return call(client, null);
@@ -263,8 +263,8 @@ public abstract class MirrorNodeContractQuery<T extends MirrorNodeContractQuery<
      *
      * @param client The Client instance to perform the operation with
      * @param timeout The budget for the whole call, retries and backoff included
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * @throws ExecutionException if the query fails
+     * @throws InterruptedException if the thread is interrupted
      */
     protected String call(Client client, @Nullable Duration timeout) throws ExecutionException, InterruptedException {
         fillEvmAddresses();

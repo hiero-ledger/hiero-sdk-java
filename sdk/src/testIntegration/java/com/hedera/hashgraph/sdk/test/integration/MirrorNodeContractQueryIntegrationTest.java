@@ -17,6 +17,7 @@ import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.MirrorNodeContractCallQuery;
 import com.hedera.hashgraph.sdk.MirrorNodeContractEstimateGasQuery;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.DisplayName;
@@ -276,6 +277,60 @@ class MirrorNodeContractQueryIntegrationTest {
                     .setSenderEvmAddress(owner)
                     .setValue(123)
                     .execute(testEnv.client);
+        }
+    }
+
+    @Test
+    @DisplayName("Can call the gas estimate and contract call query with explicit timeout.")
+    void canExecuteQueryWithExplicitTimeout() throws Exception {
+        try (var testEnv = new IntegrationTestEnv(1)) {
+            var response = new FileCreateTransaction()
+                    .setKeys(testEnv.operatorKey)
+                    .setContents(SMART_CONTRACT_BYTECODE)
+                    .execute(testEnv.client);
+            var fileId = Objects.requireNonNull(response.getReceipt(testEnv.client).fileId);
+
+            response = new ContractCreateTransaction()
+                    .setAdminKey(testEnv.operatorKey)
+                    .setGas(400000)
+                    .setBytecodeFileId(fileId)
+                    .execute(testEnv.client);
+            var contractId = Objects.requireNonNull(response.getReceipt(testEnv.client).contractId);
+
+            // Wait for mirror node
+            Thread.sleep(5000);
+
+            var timeout = Duration.ofSeconds(60);
+            var gas = new MirrorNodeContractEstimateGasQuery()
+                    .setContractId(contractId)
+                    .setFunction("getOwner")
+                    .execute(testEnv.client, timeout);
+
+            var mirrorCallResult = new MirrorNodeContractCallQuery()
+                    .setContractId(contractId)
+                    .setFunction("getOwner")
+                    .execute(testEnv.client, timeout);
+
+            var callResult = new ContractCallQuery()
+                    .setContractId(contractId)
+                    .setGas(gas)
+                    .setFunction("getOwner")
+                    .setQueryPayment(new Hbar(1))
+                    .execute(testEnv.client);
+
+            assertThat(callResult.getAddress(0)).isEqualTo(mirrorCallResult.substring(26));
+
+            // delete contract/file
+            new ContractDeleteTransaction()
+                    .setTransferAccountId(testEnv.operatorId)
+                    .setContractId(contractId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
+
+            new FileDeleteTransaction()
+                    .setFileId(fileId)
+                    .execute(testEnv.client)
+                    .getReceipt(testEnv.client);
         }
     }
 }
