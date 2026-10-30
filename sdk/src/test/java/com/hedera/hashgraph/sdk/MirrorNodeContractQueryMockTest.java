@@ -171,6 +171,47 @@ public class MirrorNodeContractQueryMockTest {
         assertThat(stub.requestCount()).isEqualTo(2);
     }
 
+    @Test
+    @DisplayName("Contract call returns the result string on explicitTimeout")
+    void callReturnsResultOnExplicitTimeout() throws Exception {
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x1234\"}"));
+
+        var result = new MirrorNodeContractCallQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client, Duration.ofSeconds(60));
+
+        assertThat(result).isEqualTo("0x1234");
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Contract call returns result after retry with explicit timeout.")
+    void contractCallReturnsResultAfterRetryWithExplicitTimeout() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x1234\"}"));
+
+        var result = new MirrorNodeContractCallQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client, Duration.ofSeconds(60));
+
+        assertThat(result).isEqualTo("0x1234");
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Contract call gives up when the timeout expires.")
+    void callFailsWhenTimeoutExpires() {
+        var query = new MirrorNodeContractCallQuery().setContractId(CONTRACT_ID).setFunctionParameters(MOCK_CALL_DATA);
+
+        // use short timeout 1ms
+        assertThatThrownBy(() -> query.execute(client, Duration.ofMillis(1)))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("deadline-exceeded-error");
+    }
+
     // MirrorNodeContractEstimateGasQuery
 
     @Test
@@ -235,6 +276,48 @@ public class MirrorNodeContractQueryMockTest {
                 .hasMessageContaining("Failed to send mirror node request");
 
         assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Gas estimate query return result with explicit timeout")
+    void estimateReturnResultWithExplicitTimeout() throws Exception {
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x5208\"}"));
+
+        var gas = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client, Duration.ofSeconds(60));
+
+        assertThat(gas).isEqualTo(21000L);
+        assertThat(stub.requestCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Gas estimation returns the result after retry with explicit timeout.")
+    void gasEstimationReturnsResultAfterRetryWithExplicitTimeout() throws Exception {
+        stub.enqueue(new StubResponse(503, "service unavailable"));
+        stub.enqueue(new StubResponse(200, "{\"result\": \"0x5208\"}"));
+
+        var result = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA)
+                .execute(client, Duration.ofSeconds(60));
+        assertThat(result).isEqualTo(21000L);
+        assertThat(stub.requestCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Gas estimation gives up when the timeout expires.")
+    void estimateFailsWhenTimeoutExpires() {
+        var query = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(CONTRACT_ID)
+                .setFunctionParameters(MOCK_CALL_DATA);
+
+        // use short timeout 1ms
+        assertThatThrownBy(() -> query.execute(client, Duration.ofMillis(1)))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .hasMessageContaining("deadline-exceeded-error");
     }
 
     private static final class StubResponse {

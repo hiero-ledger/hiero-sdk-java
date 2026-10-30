@@ -1,15 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.hedera.hashgraph.sdk;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import io.github.jsonSnapshot.SnapshotMatcher;
+import java.time.Duration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,9 +140,11 @@ class MirrorNodeContractQueryTest {
         ByteString params = ByteString.copyFromUtf8("gasParams");
         mirrorNodeContractEstimateGasQuery.setFunctionParameters(params);
         assertThrows(NullPointerException.class, () -> mirrorNodeContractEstimateGasQuery.estimate(null));
+        assertThrows(NullPointerException.class, () -> mirrorNodeContractEstimateGasQuery.estimate(null, null));
 
         mirrorNodeContractCallQuery.setFunctionParameters(params);
         assertThrows(NullPointerException.class, () -> mirrorNodeContractCallQuery.estimate(null));
+        assertThrows(NullPointerException.class, () -> mirrorNodeContractCallQuery.estimate(null, null));
     }
 
     @Test
@@ -291,5 +300,56 @@ class MirrorNodeContractQueryTest {
 
         SnapshotMatcher.expect(mirrorNodeContractEstimateGasQuery.toString() + mirrorNodeContractCallQuery.toString())
                 .toMatchSnapshot();
+    }
+
+    @Test
+    void callWithoutTimeoutDelegatesWithNull() throws Exception {
+        var mockClient = Mockito.mock(Client.class);
+        var query = spy(new MirrorNodeContractCallQuery());
+        doReturn("0x01").when(query).call(any(Client.class), isNull());
+
+        assertEquals("0x01", query.call(mockClient));
+        verify(query).call(mockClient, null);
+    }
+
+    @Test
+    void estimateWithoutTimeoutDelegatesWithNull() throws Exception {
+        var mockClient = Mockito.mock(Client.class);
+        var query = spy(new MirrorNodeContractEstimateGasQuery());
+        doReturn(1L).when(query).estimate(any(Client.class), isNull());
+
+        assertEquals(1L, query.estimate(mockClient));
+        verify(query).estimate(mockClient, null);
+    }
+
+    @Test
+    void executeGasEstimateRejectsNullClientAndNullTimeout() {
+        var params = ByteString.copyFromUtf8("gasParams");
+        var client = Mockito.mock(Client.class);
+        var timeout = Duration.ofSeconds(5);
+
+        var query = new MirrorNodeContractEstimateGasQuery()
+                .setContractId(mockContractId)
+                .setFunctionParameters(params);
+
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null, timeout)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(client, null)));
+    }
+
+    @Test
+    void executeContractCallRejectsNullClientAndNullTimeout() {
+        var params = ByteString.copyFromUtf8("gasParams");
+        var client = Mockito.mock(Client.class);
+        var timeout = Duration.ofSeconds(5);
+
+        var query =
+                new MirrorNodeContractCallQuery().setContractId(mockContractId).setFunctionParameters(params);
+
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(null, timeout)),
+                () -> assertThrows(NullPointerException.class, () -> query.execute(client, null)));
     }
 }
