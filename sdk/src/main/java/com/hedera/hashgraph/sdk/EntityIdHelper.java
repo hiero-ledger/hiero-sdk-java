@@ -298,14 +298,18 @@ public class EntityIdHelper {
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
             Client client, MirrorNodeRestPath path, @Nullable String jsonBody) {
         var baseUrl = client.mirrorNetwork.getNextRestBaseUrlRoundRobin();
-        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonBody);
+        return performQueryToMirrorNodeAsync(baseUrl, client, path, jsonBody, null);
     }
 
     static CompletableFuture<String> performQueryToMirrorNodeAsync(
-            String baseUrl, Client client, MirrorNodeRestPath path, @Nullable String jsonBody) {
+            String baseUrl,
+            Client client,
+            MirrorNodeRestPath path,
+            @Nullable String jsonBody,
+            @Nullable Duration timeout) {
         MirrorNodeHttpRetryPolicy policy = client.getMirrorNodeHttpConfig().getRetryPolicy();
         MirrorNodeHttpClient httpClient = client.newMirrorNodeHttpClient(baseUrl, policy);
-        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), null);
+        Duration total = MirrorNodeHttpClient.resolveTotalDeadline(policy, client.getRequestTimeout(), timeout);
         var deadline = MirrorNodeHttpClient.CallDeadline.startingNow(total);
 
         return CompletableFuture.supplyAsync(
