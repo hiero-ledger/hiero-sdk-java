@@ -308,12 +308,12 @@ public final class TransactionRecord {
             fees.add(AssessedCustomFee.fromProtobuf(fee));
         }
 
-        // HACK: This is a bit bad, any takers to clean this up
-        var contractFunctionResult = transactionRecord.hasContractCallResult()
-                ? new ContractFunctionResult(transactionRecord.getContractCallResult())
-                : transactionRecord.hasContractCreateResult()
-                        ? new ContractFunctionResult(transactionRecord.getContractCreateResult())
-                        : null;
+        ContractFunctionResult contractFunctionResult = null;
+        if (transactionRecord.hasContractCallResult()) {
+            contractFunctionResult = new ContractFunctionResult(transactionRecord.getContractCallResult());
+        } else if (transactionRecord.hasContractCreateResult()) {
+            contractFunctionResult = new ContractFunctionResult(transactionRecord.getContractCreateResult());
+        }
 
         var automaticTokenAssociations =
                 new ArrayList<TokenAssociation>(transactionRecord.getAutomaticTokenAssociationsCount());
