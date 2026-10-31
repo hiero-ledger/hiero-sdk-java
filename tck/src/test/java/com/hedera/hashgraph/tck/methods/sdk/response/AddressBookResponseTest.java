@@ -24,7 +24,7 @@ public class AddressBookResponseTest {
 
         Assertions.assertTrue(
                 json.contains(
-                        "\"nodeAddresses\":[{\"publicKey\":\"publicKey\",\"accountId\":\"0.0.1\",\"nodeId\":1,\"certHash\":\"certHex\",\"serviceEndpoints\":[{\"address\":\"127.0.0.1\",\"port\":8080,\"domainName\":\"test.co.in\"}],\"description\":\"Test Node\",\"stake\":1}]"));
+                        "\"nodeAddresses\":[{\"rsaPublicKey\":\"publicKey\",\"accountId\":\"0.0.1\",\"nodeId\":1,\"nodeCertHash\":\"certHex\",\"serviceEndpoints\":[{\"ipAddressV4\":\"127.0.0.1\",\"port\":8080,\"domainName\":\"test.co.in\"}],\"description\":\"Test Node\",\"stake\":1}]"));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class AddressBookResponseTest {
 
         Assertions.assertTrue(
                 json.contains(
-                        "\"nodeAddresses\":[{\"publicKey\":\"publicKey\",\"accountId\":\"0.0.1\",\"nodeId\":1,\"certHash\":\"certHex\",\"serviceEndpoints\":[],\"description\":\"Test Node\",\"stake\":1}]"));
+                        "\"nodeAddresses\":[{\"rsaPublicKey\":\"publicKey\",\"accountId\":\"0.0.1\",\"nodeId\":1,\"nodeCertHash\":\"certHex\",\"serviceEndpoints\":[],\"description\":\"Test Node\",\"stake\":1}]"));
     }
 
     @Test
