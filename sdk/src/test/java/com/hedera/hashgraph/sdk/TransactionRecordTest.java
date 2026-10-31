@@ -121,4 +121,72 @@ public class TransactionRecordTest {
         var originalRecord = spawnRecordExample(null, 4 /* chosen by fair dice roll.  Guaranteed to be random */);
         SnapshotMatcher.expect(originalRecord.toJson()).toMatchSnapshot();
     }
+
+    @Test
+    void canConstructTransactionRecordFromProtobuf() {
+        var originalRecord = spawnRecordExample(ByteString.copyFrom("very random bytes", StandardCharsets.UTF_8), null);
+        var proto = originalRecord.toProtobuf();
+        var newRecord = TransactionRecord.fromProtobuf(proto);
+        assertThat(newRecord.toString()).isEqualTo(originalRecord.toString());
+        SnapshotMatcher.expect(originalRecord.toJson()).toMatchSnapshot();
+    }
+
+    @Test
+    void fromProtobufMapsContractCallResult() {
+        var proto = com.hedera.hashgraph.sdk.proto.TransactionRecord.newBuilder()
+                .setReceipt(spawnReceiptExample().toProtobuf())
+                .setTransactionHash(ByteString.copyFromUtf8("hello"))
+                .setConsensusTimestamp(InstantConverter.toProtobuf(time))
+                .setTransactionID(TransactionId.withValidStart(AccountId.fromString("3.3.3"), time)
+                        .toProtobuf())
+                .setMemo("memo")
+                .setTransactionFee(3000L)
+                .setContractCallResult(com.hedera.hashgraph.sdk.proto.ContractFunctionResult.newBuilder()
+                        .setContractID(ContractId.fromString("1.2.3").toProtobuf())
+                        .setContractCallResult(ByteString.copyFrom(callResult)))
+                .build();
+
+        var record = TransactionRecord.fromProtobuf(proto);
+
+        assertThat(record.contractFunctionResult).isNotNull();
+        assertThat(record.contractFunctionResult.contractId).isEqualTo(ContractId.fromString("1.2.3"));
+    }
+
+    @Test
+    void fromProtobufMapsContractCreateResult() {
+        var proto = com.hedera.hashgraph.sdk.proto.TransactionRecord.newBuilder()
+                .setReceipt(spawnReceiptExample().toProtobuf())
+                .setTransactionHash(ByteString.copyFromUtf8("hello"))
+                .setConsensusTimestamp(InstantConverter.toProtobuf(time))
+                .setTransactionID(TransactionId.withValidStart(AccountId.fromString("3.3.3"), time)
+                        .toProtobuf())
+                .setMemo("memo")
+                .setTransactionFee(3000L)
+                .setContractCreateResult(com.hedera.hashgraph.sdk.proto.ContractFunctionResult.newBuilder()
+                        .setContractID(ContractId.fromString("4.5.6").toProtobuf())
+                        .setContractCallResult(ByteString.copyFrom(callResult)))
+                .build();
+
+        var record = TransactionRecord.fromProtobuf(proto);
+
+        assertThat(record.contractFunctionResult).isNotNull();
+        assertThat(record.contractFunctionResult.contractId).isEqualTo(ContractId.fromString("4.5.6"));
+    }
+
+    @Test
+    void fromProtobufIgnoreContractCallOrCreateResult() {
+        var proto = com.hedera.hashgraph.sdk.proto.TransactionRecord.newBuilder()
+                .setReceipt(spawnReceiptExample().toProtobuf())
+                .setTransactionHash(ByteString.copyFromUtf8("hello"))
+                .setConsensusTimestamp(InstantConverter.toProtobuf(time))
+                .setTransactionID(TransactionId.withValidStart(AccountId.fromString("3.3.3"), time)
+                        .toProtobuf())
+                .setMemo("memo")
+                .setTransactionFee(3000L)
+                .build();
+
+        var record = TransactionRecord.fromProtobuf(proto);
+
+        assertThat(record.contractFunctionResult).isNull();
+    }
 }
