@@ -52,7 +52,7 @@ dependencies.constraints {
     api("org.springframework:spring-webmvc:7.0.10")
     api("org.springframework:spring-context:7.0.10")
     api("org.springframework:spring-web:7.0.10")
-    api("ch.qos.logback:logback-core:1.6.5")
+    api("ch.qos.logback:logback-core:1.6.6")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths
