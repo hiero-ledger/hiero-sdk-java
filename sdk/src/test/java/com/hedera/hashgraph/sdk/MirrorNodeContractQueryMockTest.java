@@ -308,7 +308,7 @@ public class MirrorNodeContractQueryMockTest {
 
     @Test
     @DisplayName("Gas estimation gives up when the timeout expires.")
-    void estimateFailsWhenTimeoutExpires() throws ExecutionException, InterruptedException {
+    void estimateFailsWhenTimeoutExpires() {
         var query = new MirrorNodeContractEstimateGasQuery()
                 .setContractId(CONTRACT_ID)
                 .setFunctionParameters(MOCK_CALL_DATA);

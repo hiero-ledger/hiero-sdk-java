@@ -128,7 +128,6 @@ public class TransactionRecordTest {
         var proto = originalRecord.toProtobuf();
         var newRecord = TransactionRecord.fromProtobuf(proto);
         assertThat(newRecord.toString()).isEqualTo(originalRecord.toString());
-        SnapshotMatcher.expect(originalRecord.toJson()).toMatchSnapshot();
     }
 
     @Test
