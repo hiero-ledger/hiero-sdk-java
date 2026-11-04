@@ -341,7 +341,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Returns the key which allows updates to the new topic’s fees.
+     * Returns the key which allows updates to the topic’s fees.
      * @return feeScheduleKey
      */
     public @Nullable Key getFeeScheduleKey() {
@@ -349,7 +349,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Sets the key which allows updates to the new topic’s fees.
+     * Sets the key which allows updates to the topic’s fees.
      * @param feeScheduleKey the feeScheduleKey
      * @return {@code this}
      */
@@ -411,7 +411,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Returns the fixed fees to assess when a message is submitted to the new topic.
+     * Returns the fixed fees to assess when a message is submitted to the topic.
      * @return {List of CustomFixedFee}
      */
     public @Nullable List<CustomFixedFee> getCustomFees() {
@@ -419,7 +419,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Sets the fixed fees to assess when a message is submitted to the new topic.
+     * Sets the fixed fees to assess when a message is submitted to the topic.
      *
      * @param customFees List of CustomFixedFee customFees
      * @return {@code this}
@@ -443,7 +443,7 @@ public final class TopicUpdateTransaction extends Transaction<TopicUpdateTransac
     }
 
     /**
-     * Adds fixed fee to assess when a message is submitted to the new topic.
+     * Adds fixed fee to assess when a message is submitted to the topic.
      *
      * @param customFixedFee {CustomFixedFee} customFee
      * @return {@code this}
