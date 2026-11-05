@@ -9,6 +9,7 @@ import com.hedera.hashgraph.sdk.proto.SignaturePair;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
 import com.hedera.hashgraph.sdk.proto.TransactionBody;
 import com.hedera.hashgraph.sdk.proto.TransactionList;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
@@ -142,6 +143,14 @@ public abstract class Transaction<T extends Transaction<T>>
 
     private @Nullable Key batchKey = null;
 
+    // Compare editable state, not re-encoded source bytes, before reusing an unsigned import.
+    private @Nullable TransactionBody importedBodyState;
+    private List<AccountId> importedNodes = Collections.emptyList();
+    private int importedChunkSize;
+    private int importedMaxChunks;
+    private boolean bodyHashLocked;
+    private boolean bodyPreparationInProgress;
+
     /**
      * Constructor.
      */
@@ -227,7 +236,10 @@ public abstract class Transaction<T extends Transaction<T>>
                 }
             }
 
-            nodeAccountIds.remove(new AccountId(0, 0, 0));
+            if (!parseTransactionBody(innerSignedTransactions.get(0).getBodyBytes())
+                    .hasNodeAccountID()) {
+                nodeAccountIds.remove(DUMMY_ACCOUNT_ID);
+            }
 
             // Verify that transaction bodies match
             for (int i = 0; i < txCount; i++) {
@@ -240,7 +252,10 @@ public abstract class Transaction<T extends Transaction<T>>
                         firstTxBody = txBody;
                     } else {
                         requireProtoMatches(
-                                firstTxBody, txBody, new HashSet<>(List.of("NodeAccountID")), "TransactionBody");
+                                bodyForContentComparison(firstTxBody),
+                                bodyForContentComparison(txBody),
+                                new HashSet<>(List.of("NodeAccountID")),
+                                "TransactionBody");
                     }
                 }
             }
@@ -251,11 +266,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 for (int k = 1; k < innerSignedTransactions.size(); k++) {
                     var chunkBody =
                             parseTransactionBody(innerSignedTransactions.get(k).getBodyBytes());
-                    if (chunkBody.getDataCase() != chunk0Body.getDataCase()) {
-                        throw new IllegalArgumentException("failed because transaction body type "
-                                + chunkBody.getDataCase() + " does not match chunk 0 body type "
-                                + chunk0Body.getDataCase());
-                    }
+                    requireMatchingBodyType(chunk0Body, chunkBody);
                     requireProtoMatches(chunk0Body, chunkBody, CHUNK_VARYING_FIELDS, "TransactionBody");
                 }
             }
@@ -302,7 +313,21 @@ public abstract class Transaction<T extends Transaction<T>>
             dataCase = processSingleTransaction(bytes, txsMap);
         }
 
-        return createTransactionFromDataCase(dataCase, txsMap);
+        var transaction = createTransactionFromDataCase(dataCase, txsMap);
+        if (!transaction.isFrozen()) {
+            var body = transaction.spawnBodyBuilder(null);
+            if (!transaction.transactionIds.isEmpty()) {
+                body.setTransactionID(transaction.transactionIds.get(0).toProtobuf());
+            }
+            transaction.onFreeze(body);
+            transaction.importedBodyState = body.build();
+            transaction.importedNodes = new ArrayList<>(transaction.nodeAccountIds.getList());
+            if (transaction instanceof ChunkedTransaction<?> chunked) {
+                transaction.importedChunkSize = chunked.getChunkSize();
+                transaction.importedMaxChunks = chunked.getMaxChunks();
+            }
+        }
+        return transaction;
     }
 
     /**
@@ -317,7 +342,7 @@ public abstract class Transaction<T extends Transaction<T>>
         var builtTransaction = prepareSingleTransaction(transaction);
 
         var signedTransaction = SignedTransaction.parseFrom(builtTransaction.getSignedTransactionBytes());
-        var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+        var txBody = parseBodyHashInput(signedTransaction.getBodyBytes());
 
         addTransactionToMap(builtTransaction, txBody, txsMap);
 
@@ -364,14 +389,26 @@ public abstract class Transaction<T extends Transaction<T>>
 
         var firstTransaction = transactionList.get(0);
         var firstSignedTransaction = SignedTransaction.parseFrom(firstTransaction.getSignedTransactionBytes());
-        var firstTxBody = TransactionBody.parseFrom(firstSignedTransaction.getBodyBytes());
+        var firstTxBody = parseBodyHashInput(firstSignedTransaction.getBodyBytes());
         var dataCase = firstTxBody.getDataCase();
 
         for (com.hedera.hashgraph.sdk.proto.Transaction transaction : transactionList) {
             var signedTransaction = SignedTransaction.parseFrom(transaction.getSignedTransactionBytes());
-            var txBody = TransactionBody.parseFrom(signedTransaction.getBodyBytes());
+            var txBody = parseBodyHashInput(signedTransaction.getBodyBytes());
+            requireMatchingBodyType(firstTxBody, txBody);
+
+            if (transactionList.size() > 1 && (!txBody.hasTransactionID() || !txBody.hasNodeAccountID())) {
+                throw new IllegalArgumentException("TransactionList entries must have transaction and node IDs");
+            }
 
             addTransactionToMap(transaction, txBody, txsMap);
+        }
+
+        var nodes = txsMap.values().iterator().next().keySet();
+        for (var chunk : txsMap.values()) {
+            if (!chunk.keySet().equals(nodes)) {
+                throw new IllegalArgumentException("TransactionList chunks must have the same node set");
+            }
         }
 
         return dataCase;
@@ -394,9 +431,7 @@ public abstract class Transaction<T extends Transaction<T>>
                 ? Objects.requireNonNull(txsMap.get(transactionId))
                 : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
 
-        if (!transactionId.equals(DUMMY_TRANSACTION_ID)
-                && !account.equals(DUMMY_ACCOUNT_ID)
-                && linked.containsKey(account)) {
+        if (linked.containsKey(account)) {
             throw new IllegalArgumentException("Duplicate transaction entry detected in TransactionList for"
                     + " transactionId=" + transactionId + " and nodeAccountId=" + account);
         }
@@ -748,6 +783,208 @@ public abstract class Transaction<T extends Transaction<T>>
         return hash;
     }
 
+    private static void requireMatchingBodyType(TransactionBody first, TransactionBody next) {
+        if (next.getDataCase() != first.getDataCase()) {
+            throw new IllegalArgumentException("failed because transaction body type " + next.getDataCase()
+                    + " does not match chunk 0 body type " + first.getDataCase());
+        }
+    }
+
+    private static TransactionBody parseBodyHashInput(ByteString bytes) throws InvalidProtocolBufferException {
+        var wire = new BodyHashWireReader(bytes);
+        var operation = 0;
+        while (wire.next()) {
+            if (wire.field == 1 || wire.field == 2) {
+                if (wire.type != 2) {
+                    throw new IllegalArgumentException("Transaction identifiers must be length-delimited messages");
+                }
+                if (wire.field == 1) {
+                    validateTransactionIdRecords(wire.payload());
+                } else {
+                    validateIdentifierRecords(wire.payload());
+                }
+            }
+            if (TransactionBody.DataCase.forNumber(wire.field) != null) {
+                if (wire.type != 2 || (operation != 0 && (operation != wire.field || wire.field == 74))) {
+                    throw new IllegalArgumentException("Invalid or conflicting transaction body operations");
+                }
+                operation = wire.field;
+            }
+        }
+        return TransactionBody.parseFrom(bytes);
+    }
+
+    private static void validateTransactionIdRecords(ByteString bytes) {
+        var wire = new BodyHashWireReader(bytes);
+        while (wire.next()) {
+            if (wire.field == 1 || wire.field == 2) {
+                if (wire.type != 2) {
+                    throw new IllegalArgumentException("Transaction timestamp and account ID must be messages");
+                }
+                validateIdentifierRecords(wire.payload());
+            }
+        }
+    }
+
+    private static void validateIdentifierRecords(ByteString bytes) {
+        var wire = new BodyHashWireReader(bytes);
+        while (wire.next()) {
+            // next() validates each record; length-delimited identifier values remain opaque.
+        }
+    }
+
+    private static void requirePreparedBody(TransactionBody body) {
+        if (!body.hasTransactionID()
+                || !body.getTransactionID().hasAccountID()
+                || !body.getTransactionID().hasTransactionValidStart()
+                || !body.hasNodeAccountID()
+                || body.getDataCase() == TransactionBody.DataCase.DATA_NOT_SET) {
+            throw new IllegalArgumentException("Prepared bodies must have transaction IDs, node IDs and an operation");
+        }
+    }
+
+    private static TransactionBody bodyForContentComparison(TransactionBody body)
+            throws InvalidProtocolBufferException {
+        if (body.getDataCase() != TransactionBody.DataCase.ATOMIC_BATCH) {
+            return body;
+        }
+        var batch = body.getAtomicBatch().toBuilder().clearTransactions();
+        for (var envelope : body.getAtomicBatch().getTransactionsList()) {
+            batch.addTransactions(batchChildBodyBytes(envelope));
+        }
+        // This projection is only for comparison; stored and hashed bytes retain their original envelopes.
+        return body.toBuilder().setAtomicBatch(batch).build();
+    }
+
+    private static ByteString batchChildBodyBytes(ByteString envelope) throws InvalidProtocolBufferException {
+        var child = new BodyHashWireReader(envelope);
+        ByteString childBytes = null;
+        while (child.next()) {
+            if (child.field == 1) {
+                if (child.type != 2 || childBytes != null) {
+                    throw new IllegalArgumentException("Repeated or mistyped child bodyBytes");
+                }
+                childBytes = child.payload();
+            }
+        }
+        if (childBytes == null || childBytes.isEmpty()) {
+            throw new IllegalArgumentException("Batch children must have nonempty bodyBytes");
+        }
+        SignedTransaction.parseFrom(envelope);
+        return childBytes;
+    }
+
+    private static byte[] bodyEntryHash(ByteString bytes, TransactionBody body) throws InvalidProtocolBufferException {
+        if (body.getDataCase() != TransactionBody.DataCase.ATOMIC_BATCH) {
+            return hash(bytes.toByteArray());
+        }
+
+        var outer = new ByteArrayOutputStream();
+        var wire = new BodyHashWireReader(bytes);
+        var batch = ByteString.EMPTY;
+        while (wire.next()) {
+            if (wire.field == 74) {
+                batch = wire.payload();
+            } else {
+                outer.writeBytes(wire.record().toByteArray());
+            }
+        }
+        var parts = new ByteArrayOutputStream();
+        parts.writeBytes(hash(outer.toByteArray()));
+        var children = new BodyHashWireReader(batch);
+        var count = 0;
+        while (children.next()) {
+            if (children.field != 1 || children.type != 2) {
+                throw new IllegalArgumentException("Unsupported atomic batch wrapper field");
+            }
+            var childBytes = batchChildBodyBytes(children.payload());
+            var childBody = parseBodyHashInput(childBytes);
+            requirePreparedBody(childBody);
+            if (childBody.getDataCase() == TransactionBody.DataCase.ATOMIC_BATCH) {
+                throw new IllegalArgumentException("Nested atomic batches are not supported");
+            }
+            parts.writeBytes(hash(childBytes.toByteArray()));
+            count++;
+        }
+        if (count == 0) {
+            throw new IllegalArgumentException("Atomic batch must contain children");
+        }
+        return hash(parts.toByteArray());
+    }
+
+    // Keep record boundaries so hashing can remove field 74 without re-encoding any other bytes.
+    private static final class BodyHashWireReader {
+        private final ByteString bytes;
+        private int position;
+        private int start;
+        private int payloadStart;
+        private int field;
+        private int type;
+
+        private BodyHashWireReader(ByteString bytes) {
+            this.bytes = bytes;
+        }
+
+        private long varint(int maxBytes) {
+            long value = 0;
+            for (int shift = 0; shift < maxBytes * 7; shift += 7) {
+                if (position == bytes.size()) {
+                    throw new IllegalArgumentException("Truncated protobuf varint");
+                }
+                var next = bytes.byteAt(position++) & 0xff;
+                if (shift == 63 && next > 1) {
+                    throw new IllegalArgumentException("Overflowing protobuf varint");
+                }
+                value |= (long) (next & 0x7f) << shift;
+                if (next < 128) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException("Protobuf varint exceeds the proposed profile's supported width");
+        }
+
+        private void skip(long size) {
+            if (size < 0 || size > bytes.size() - position) {
+                throw new IllegalArgumentException("Truncated protobuf field");
+            }
+            position += (int) size;
+        }
+
+        private boolean next() {
+            if (position == bytes.size()) {
+                return false;
+            }
+            start = position;
+            var tag = varint(5);
+            if (tag >>> 3 == 0 || tag >>> 3 >= 1L << 29) {
+                throw new IllegalArgumentException("Invalid protobuf field number");
+            }
+            field = (int) (tag >>> 3);
+            type = (int) (tag & 7);
+            payloadStart = position;
+            switch (type) {
+                case 0 -> varint(10);
+                case 1 -> skip(8);
+                case 2 -> {
+                    var size = varint(5);
+                    payloadStart = position;
+                    skip(size);
+                }
+                case 5 -> skip(4);
+                default -> throw new IllegalArgumentException("Unsupported protobuf wire type");
+            }
+            return true;
+        }
+
+        private ByteString payload() {
+            return bytes.substring(payloadStart, position);
+        }
+
+        private ByteString record() {
+            return bytes.substring(start, position);
+        }
+    }
+
     private static boolean publicKeyIsInSigPairList(ByteString publicKeyBytes, List<SignaturePair> sigPairList) {
         for (var pair : sigPairList) {
             if (pair.getPubKeyPrefix().equals(publicKeyBytes)) {
@@ -987,19 +1224,7 @@ public abstract class Transaction<T extends Transaction<T>>
             list.addTransactionList(transaction);
         } else {
             // Generate the SignedTransaction protobuf objects if the Transaction's not frozen.
-            if (!this.isFrozen()) {
-                frozenBodyBuilder = spawnBodyBuilder(null);
-                if (!transactionIds.isEmpty()) {
-                    frozenBodyBuilder.setTransactionID(transactionIds.get(0).toProtobuf());
-                }
-                onFreeze(frozenBodyBuilder);
-
-                int requiredChunks = getRequiredChunks();
-                if (!transactionIds.isEmpty()) {
-                    generateTransactionIds(transactionIds.get(0), requiredChunks);
-                }
-                wipeTransactionLists(requiredChunks);
-            }
+            prepareTransactionBodies(null);
 
             // Build all the Transaction protobuf objects and add them to the TransactionList protobuf object.
             buildAllTransactions();
@@ -1012,6 +1237,82 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     /**
+     * Hash every prepared body across all nodes and chunks, returning 48 raw SHA-384 bytes.
+     *
+     * <p>This implements the candidate profile under discussion in SDK collaboration hub PR #288.
+     * Framing, import ordering and rejection rules require maintainer agreement before SDK PRs merge.
+     * The hash commits to the original protobuf representation; independently encoded, semantically
+     * equivalent bodies need not have equal hashes.
+     *
+     * <p>Ordinary entries contribute SHA-384(bodyBytes). Batch entries contribute
+     * SHA-384(SHA-384(outer body without field 74) || SHA-384(child bodyBytes) || ...), excluding
+     * child signature maps and envelope metadata. The result is SHA-384 of all entry digests, even
+     * for one entry. Chunks follow first transaction-ID appearance and nodes follow first-chunk order.
+     *
+     * <p>No signer callbacks or network requests are made. Success locks the reviewed transaction IDs
+     * and node membership against execution regeneration, while leaving subsequent signing possible.
+     * Failure preserves state. Existing network transaction hashes and serialization are unaffected.
+     * Review, freeze preparation and automatic ID replacement synchronize on this transaction.
+     * Reentrant review from a preparation callback is rejected. This is not a general SDK
+     * thread-safety guarantee.
+     *
+     * @return the whole-transaction body hash
+     * @throws IllegalStateException if this transaction is not frozen or is still preparing bodies
+     * @throws IllegalArgumentException if prepared bodies are incomplete, malformed or unsupported
+     */
+    public synchronized byte[] getTransactionBodyHash() {
+        if (bodyPreparationInProgress) {
+            throw new IllegalStateException(
+                    "Transaction body preparation must finish before calculating its body hash");
+        }
+        if (!isFrozen()) {
+            throw new IllegalStateException("Transaction must be frozen before calculating its body hash");
+        }
+        if (innerSignedTransactions.isEmpty()) {
+            throw new IllegalArgumentException("Transaction has no prepared bodies");
+        }
+        var chunks = new LinkedHashMap<TransactionId, LinkedHashMap<AccountId, byte[]>>();
+        try {
+            for (var signed : innerSignedTransactions) {
+                var bytes = signed.getBodyBytes();
+                var body = parseBodyHashInput(bytes);
+                requirePreparedBody(body);
+                var id = TransactionId.fromProtobuf(body.getTransactionID());
+                var node = AccountId.fromProtobuf(body.getNodeAccountID());
+                var chunk = chunks.computeIfAbsent(id, ignored -> new LinkedHashMap<>());
+                if (chunk.containsKey(node)) {
+                    throw new IllegalArgumentException("Duplicate prepared transaction and node ID");
+                }
+                chunk.put(node, bodyEntryHash(bytes, body));
+            }
+        } catch (InvalidProtocolBufferException error) {
+            throw new IllegalArgumentException("Malformed prepared transaction body", error);
+        }
+
+        var nodes = chunks.values().iterator().next().keySet();
+        if (chunks.size() != transactionIds.size()
+                || !chunks.keySet().equals(new HashSet<>(transactionIds.getList()))
+                || nodes.size() != nodeAccountIds.size()
+                || !nodes.equals(new HashSet<>(nodeAccountIds.getList()))) {
+            throw new IllegalArgumentException("Prepared body IDs must match the execution IDs and nodes");
+        }
+        var entries = new ByteArrayOutputStream();
+        for (var chunk : chunks.values()) {
+            if (!chunk.keySet().equals(nodes)) {
+                throw new IllegalArgumentException("Prepared chunks must have the same node set");
+            }
+            for (var node : nodes) {
+                entries.writeBytes(chunk.get(node));
+            }
+        }
+        var result = hash(entries.toByteArray());
+        transactionIds.setLocked(true);
+        nodeAccountIds.setLocked(true);
+        bodyHashLocked = true;
+        return result;
+    }
+
+    /**
      * Extract a byte array of the transaction hash.
      *
      * @return the transaction hash
@@ -1019,7 +1320,8 @@ public abstract class Transaction<T extends Transaction<T>>
     public byte[] getTransactionHash() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
-                    "transaction must have been frozen before calculating the hash will be stable, try calling `freeze`");
+                    "transaction must have been frozen before calculating the hash will be stable, try calling"
+                            + " `freeze`");
         }
 
         transactionIds.setLocked(true);
@@ -1040,7 +1342,8 @@ public abstract class Transaction<T extends Transaction<T>>
     public Map<AccountId, byte[]> getTransactionHashPerNode() {
         if (!this.isFrozen()) {
             throw new IllegalStateException(
-                    "transaction must have been frozen before calculating the hash will be stable, try calling `freeze`");
+                    "transaction must have been frozen before calculating the hash will be stable, try calling"
+                            + " `freeze`");
         }
 
         buildAllTransactions();
@@ -1069,7 +1372,8 @@ public abstract class Transaction<T extends Transaction<T>>
     public final TransactionId getTransactionId() {
         if (transactionIds.isEmpty() || !this.isFrozen()) {
             throw new IllegalStateException(
-                    "No transaction ID generated yet. Try freezing the transaction or manually setting the transaction ID.");
+                    "No transaction ID generated yet. Try freezing the transaction or manually setting the transaction"
+                            + " ID.");
         }
 
         return transactionIds.setLocked(true).getCurrent();
@@ -1449,7 +1753,7 @@ public abstract class Transaction<T extends Transaction<T>>
      * @param client the configured client
      * @return {@code this}
      */
-    public T freezeWith(@Nullable Client client) {
+    public synchronized T freezeWith(@Nullable Client client) {
         if (isFrozen()) {
             // noinspection unchecked
             return (T) this;
@@ -1491,13 +1795,7 @@ public abstract class Transaction<T extends Transaction<T>>
             }
         }
 
-        frozenBodyBuilder =
-                spawnBodyBuilder(client).setTransactionID(transactionIds.get(0).toProtobuf());
-        onFreeze(frozenBodyBuilder);
-
-        int requiredChunks = getRequiredChunks();
-        generateTransactionIds(transactionIds.get(0), requiredChunks);
-        wipeTransactionLists(requiredChunks);
+        prepareTransactionBodies(client);
 
         var clientDefaultRegenerateTransactionId = client != null ? client.getDefaultRegenerateTransactionId() : null;
         regenerateTransactionId =
@@ -1505,6 +1803,41 @@ public abstract class Transaction<T extends Transaction<T>>
 
         // noinspection unchecked
         return (T) this;
+    }
+
+    private synchronized void prepareTransactionBodies(@Nullable Client client) {
+        if (isFrozen()) {
+            return;
+        }
+        bodyPreparationInProgress = true;
+        try {
+            frozenBodyBuilder = spawnBodyBuilder(client);
+            if (!transactionIds.isEmpty()) {
+                frozenBodyBuilder.setTransactionID(transactionIds.get(0).toProtobuf());
+            }
+            onFreeze(frozenBodyBuilder);
+            var sameChunking = !(this instanceof ChunkedTransaction<?> chunked)
+                    || (importedChunkSize == chunked.getChunkSize() && importedMaxChunks == chunked.getMaxChunks());
+            if (importedBodyState != null
+                    && importedBodyState.equals(frozenBodyBuilder.build())
+                    && importedNodes.equals(nodeAccountIds.getList())
+                    && sameChunking) {
+                // Preserve original encoding, chunk IDs and boundaries; this is not hash normalization.
+                frozenBodyBuilder = sourceTransactionBody.toBuilder();
+                return;
+            }
+            int requiredChunks = getRequiredChunks();
+            if (!transactionIds.isEmpty()) {
+                generateTransactionIds(transactionIds.get(0), requiredChunks);
+            }
+            wipeTransactionLists(requiredChunks);
+        } catch (RuntimeException | Error error) {
+            // A published builder is not a complete freeze; retain the imported source for retry.
+            frozenBodyBuilder = null;
+            throw error;
+        } finally {
+            bodyPreparationInProgress = false;
+        }
     }
 
     /**
@@ -1651,6 +1984,21 @@ public abstract class Transaction<T extends Transaction<T>>
     final com.hedera.hashgraph.sdk.proto.Transaction makeRequest() {
         var index = nodeAccountIds.getIndex() + (transactionIds.getIndex() * nodeAccountIds.size());
 
+        if (!transactionIds.isEmpty() && !nodeAccountIds.isEmpty()) {
+            var id = TransactionId.fromProtobuf(transactionIds.getCurrent().toProtobuf());
+            var node = nodeAccountIds.getCurrent();
+            index = -1;
+            for (int i = 0; i < innerSignedTransactions.size(); i++) {
+                if (matchesTargetTransactionAndNode(parseTransactionBody(innerSignedTransactions.get(i)), id, node)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index < 0) {
+                throw new IllegalStateException("No prepared body matches the selected transaction and node IDs");
+            }
+        }
+
         buildTransaction(index);
 
         return outerTransactions.get(index);
@@ -1711,9 +2059,12 @@ public abstract class Transaction<T extends Transaction<T>>
     }
 
     @Override
-    ExecutionState getExecutionState(Status status, com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
+    synchronized ExecutionState getExecutionState(
+            Status status, com.hedera.hashgraph.sdk.proto.TransactionResponse response) {
         if (status == Status.TRANSACTION_EXPIRED) {
-            if ((regenerateTransactionId != null && !regenerateTransactionId) || transactionIds.isLocked()) {
+            if ((regenerateTransactionId != null && !regenerateTransactionId)
+                    || bodyHashLocked
+                    || transactionIds.isLocked()) {
                 return ExecutionState.REQUEST_ERROR;
             } else {
                 var firstTransactionId = Objects.requireNonNull(transactionIds.get(0));
@@ -1743,7 +2094,14 @@ public abstract class Transaction<T extends Transaction<T>>
         return true;
     }
 
-    Transaction regenerateTransactionId(Client client) {
+    synchronized boolean isBodyHashLocked() {
+        return bodyHashLocked;
+    }
+
+    synchronized Transaction regenerateTransactionId(Client client) {
+        if (bodyHashLocked) {
+            throw new IllegalStateException("Cannot regenerate transaction IDs after body hash review");
+        }
         Objects.requireNonNull(client.getOperatorAccountId());
         transactionIds.setLocked(false);
         var newTransactionID = TransactionId.generate(client.getOperatorAccountId());
@@ -1964,8 +2322,7 @@ public abstract class Transaction<T extends Transaction<T>>
         TransactionId bodyTxID = TransactionId.fromProtobuf(body.getTransactionID());
         AccountId bodyNodeID = AccountId.fromProtobuf(body.getNodeAccountID());
 
-        return bodyTxID.toString().equals(targetTransactionID.toString())
-                && bodyNodeID.toString().equals(targetNodeID.toString());
+        return bodyTxID.equals(targetTransactionID) && bodyNodeID.equals(targetNodeID);
     }
 
     /**
