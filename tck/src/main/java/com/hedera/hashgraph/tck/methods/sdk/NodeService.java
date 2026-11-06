@@ -7,6 +7,7 @@ import com.hedera.hashgraph.sdk.AddressBookQuery;
 import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.Endpoint;
 import com.hedera.hashgraph.sdk.FileId;
+import com.hedera.hashgraph.sdk.NodeAddress;
 import com.hedera.hashgraph.sdk.NodeAddressBook;
 import com.hedera.hashgraph.sdk.NodeCreateTransaction;
 import com.hedera.hashgraph.sdk.NodeDeleteTransaction;
@@ -46,25 +47,29 @@ public class NodeService extends AbstractJSONRPC2Service {
         NodeAddressBook addressBook = query.execute(client);
         AddressBookResponse response = new AddressBookResponse();
 
-        addressBook.getNodeAddresses().forEach(address -> {
-            List<AddressBookResponse.Endpoint> mappedEndpoints = address.getAddresses().stream()
-                    .map(sdkEndpoint -> new AddressBookResponse.Endpoint(
-                            sdkEndpoint.getAddress() != null ? Hex.toHexString(sdkEndpoint.getAddress()) : null,
-                            sdkEndpoint.getPort(),
-                            sdkEndpoint.getDomainName() != null ? sdkEndpoint.getDomainName() : ""))
-                    .collect(Collectors.toList());
-
-            response.addNodeAddress(new AddressBookResponse.NodeAddress(
-                    address.getPublicKey() != null ? address.getPublicKey() : "",
-                    address.getAccountId() != null ? address.getAccountId().toString() : "",
-                    address.getNodeId(),
-                    address.getCertHash() != null ? address.getCertHash().toString() : "",
-                    mappedEndpoints,
-                    address.getDescription(),
-                    address.getStake()));
-        });
+        addressBook.getNodeAddresses().forEach(address -> response.addNodeAddress(toNodeAddress(address)));
 
         return response;
+    }
+
+    static AddressBookResponse.NodeAddress toNodeAddress(final NodeAddress address) {
+        List<AddressBookResponse.Endpoint> mappedEndpoints = address.getAddresses().stream()
+                .map(sdkEndpoint -> new AddressBookResponse.Endpoint(
+                        sdkEndpoint.getAddress() != null ? Hex.toHexString(sdkEndpoint.getAddress()) : null,
+                        sdkEndpoint.getPort(),
+                        sdkEndpoint.getDomainName() != null ? sdkEndpoint.getDomainName() : ""))
+                .collect(Collectors.toList());
+
+        return new AddressBookResponse.NodeAddress(
+                address.getPublicKey() != null ? address.getPublicKey() : "",
+                address.getAccountId() != null ? address.getAccountId().toString() : "",
+                address.getNodeId(),
+                // The address book stores the SHA-384 hash as hex characters encoded
+                // as UTF-8, so decoding the bytes gives the 96-character hash.
+                address.getCertHash() != null ? address.getCertHash().toStringUtf8() : "",
+                mappedEndpoints,
+                address.getDescription(),
+                address.getStake());
     }
 
     @JSONRPC2Method("createNode")
