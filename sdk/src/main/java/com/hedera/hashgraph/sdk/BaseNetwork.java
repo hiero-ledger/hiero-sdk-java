@@ -276,7 +276,7 @@ abstract class BaseNetwork<
     /**
      * Returns a list of index in descending order to remove from the current node list.
      *
-     * Descending order is important here because {@link BaseNetwork#setNetwork(Map<String, KeyT>)} uses a for-each loop.
+     * Descending order is important here because {@link #setNetwork(Map)} uses a for-each loop.
      *
      * @param network - the new network
      * @return - list of indexes in descending order
