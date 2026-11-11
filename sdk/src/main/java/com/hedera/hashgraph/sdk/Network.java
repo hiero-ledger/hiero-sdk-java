@@ -242,7 +242,7 @@ class Network extends BaseNetwork<Network, AccountId, Node> {
      * Pick 1/3 of the nodes sorted by health and expected delay from the network.
      * This is used by Query and Transaction for selecting node AccountId's.
      *
-     * @return {@link java.util.List<com.hedera.hashgraph.sdk.AccountId>}
+     * @return the list of node account IDs to use for this request
      */
     synchronized List<AccountId> getNodeAccountIdsForExecute() throws InterruptedException {
         var nodes = getNumberOfMostHealthyNodes(getNumberOfNodesForRequest());
