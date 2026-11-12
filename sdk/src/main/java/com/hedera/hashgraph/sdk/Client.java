@@ -66,7 +66,7 @@ public final class Client implements AutoCloseable {
     // so that this doesn't happen in unit tests.
     static final Duration NETWORK_UPDATE_INITIAL_DELAY = Duration.ofSeconds(10);
     private static final Hbar DEFAULT_MAX_QUERY_PAYMENT = new Hbar(1);
-    private static final AccountId PING_PROBE_ACCOUNT_ID = new AccountId(0, 0, 2);
+    private static final int PING_PROBE_ACCOUNT_ID_NUM = 2;
     private static final String MAINNET = "mainnet";
     private static final String TESTNET = "testnet";
     private static final String PREVIEWNET = "previewnet";
@@ -186,7 +186,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, false, null, 0, 0);
+        return createClient(executor, network, mirrorNetwork, null, false, null);
     }
 
     /**
@@ -203,32 +203,10 @@ public final class Client implements AutoCloseable {
      */
     public static Client forNetwork(Map<String, AccountId> networkMap) {
         var executor = createExecutor();
-        var isValidNetwork = true;
-        var shard = 0L;
-        var realm = 0L;
-
-        for (AccountId accountId : networkMap.values()) {
-            if (shard == 0) {
-                shard = accountId.shard;
-            }
-            if (realm == 0) {
-                realm = accountId.realm;
-            }
-
-            if (shard != accountId.shard || realm != accountId.realm) {
-                isValidNetwork = false;
-                break;
-            }
-        }
-
-        if (!isValidNetwork) {
-            throw new IllegalArgumentException("Network is not valid, all nodes must be in the same shard and realm");
-        }
-
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
+        return createClient(executor, network, mirrorNetwork, null, true, null);
     }
 
     /**
@@ -290,15 +268,8 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return new Client(
-                executor,
-                network,
-                mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                false,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -312,15 +283,8 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return new Client(
-                executor,
-                network,
-                mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                false,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -335,15 +299,8 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
-        return new Client(
-                executor,
-                network,
-                mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                false,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -357,15 +314,8 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return new Client(
-                executor,
-                network,
-                mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                true,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -379,15 +329,8 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return new Client(
-                executor,
-                network,
-                mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                true,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
     }
 
     /**
@@ -402,15 +345,32 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
+        return createClient(
+                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+    }
+
+    private static Client createClient(
+            ExecutorService executor,
+            Network network,
+            MirrorNetwork mirrorNetwork,
+            @Nullable Duration networkUpdateInitialDelay,
+            boolean shouldShutdownExecutor,
+            @Nullable Duration networkUpdatePeriod) {
+        Objects.requireNonNull(executor, "executor must not be null");
+        Objects.requireNonNull(network, "network must not be null");
+        Objects.requireNonNull(mirrorNetwork, "mirrorNetwork must not be null");
+
+        // TODO: Need to decide weather to add this resolution for the forMainnet()/Testnet()/Previewnet()
+        var shardRealm = resolveNetworkShardRealm(network.getNetwork());
         return new Client(
                 executor,
                 network,
                 mirrorNetwork,
-                NETWORK_UPDATE_INITIAL_DELAY,
-                true,
-                DEFAULT_NETWORK_UPDATE_PERIOD,
-                0,
-                0);
+                networkUpdateInitialDelay,
+                shouldShutdownExecutor,
+                networkUpdatePeriod,
+                shardRealm.shard,
+                shardRealm.realm);
     }
 
     /**
@@ -696,7 +656,15 @@ public final class Client implements AutoCloseable {
      */
     public synchronized Client setNetworkFromAddressBook(NodeAddressBook addressBook)
             throws InterruptedException, TimeoutException {
-        network.setNetwork(Network.addressBookToNetwork(addressBook.nodeAddresses));
+        var networkMap = Network.addressBookToNetwork(addressBook.nodeAddresses);
+        var shardRealm = resolveNetworkShardRealm(network.getNetwork());
+
+        // TODO: Since the shard/realm field are mark final, need to decided if to override value or throw exception.
+        if (shardRealm.shard() != this.shard || shardRealm.realm() != this.realm) {
+            throw new IllegalArgumentException("Network shard/realm does not match client shard/realm");
+        }
+
+        network.setNetwork(networkMap);
         network.setAddressBook(addressBook);
         return this;
     }
@@ -720,6 +688,13 @@ public final class Client implements AutoCloseable {
      */
     public synchronized Client setNetwork(Map<String, AccountId> network)
             throws InterruptedException, TimeoutException {
+        var shardRealm = resolveNetworkShardRealm(network);
+
+        // TODO: Since the shard/realm field are mark final, need to decided if to override value or throw exception.
+        if (shardRealm.shard() != this.shard || shardRealm.realm() != this.realm) {
+            throw new IllegalArgumentException("Network shard/realm does not match client shard/realm");
+        }
+
         this.network.setNetwork(network);
         return this;
     }
@@ -816,7 +791,7 @@ public final class Client implements AutoCloseable {
     public @Nullable Void ping(AccountId nodeAccountId, Duration timeout)
             throws PrecheckStatusException, TimeoutException {
         new AccountInfoQuery()
-                .setAccountId(PING_PROBE_ACCOUNT_ID)
+                .setAccountId(new AccountId(this.shard, this.realm, PING_PROBE_ACCOUNT_ID_NUM))
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
                 .getCost(this, timeout);
 
@@ -843,7 +818,7 @@ public final class Client implements AutoCloseable {
     public CompletableFuture<Void> pingAsync(AccountId nodeAccountId, Duration timeout) {
         var result = new CompletableFuture<Void>();
         new AccountInfoQuery()
-                .setAccountId(PING_PROBE_ACCOUNT_ID)
+                .setAccountId(new AccountId(this.shard, this.realm, PING_PROBE_ACCOUNT_ID_NUM))
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
                 .getCostAsync(this, timeout)
                 .whenComplete((cost, error) -> {
@@ -1715,6 +1690,37 @@ public final class Client implements AutoCloseable {
                 throw new RuntimeException(mirrorNetworkError);
             }
         }
+    }
+
+    /**
+     * Resolves the shard and realm of a network by verifying that every node belongs to the same one.
+     *
+     * @param networkMap the map of node IDs to node addresses that make up the network.
+     * @return the shard and realm shared by all nodes, or {@link ShardRealm#DEFAULT} if the map is empty
+     */
+    private static ShardRealm resolveNetworkShardRealm(Map<String, AccountId> networkMap) {
+        Objects.requireNonNull(networkMap, "networkMap must not be null");
+
+        ShardRealm networkShardRealm = null;
+        for (var entry : networkMap.entrySet()) {
+            Objects.requireNonNull(entry.getKey(), "networkMap contains a null address");
+
+            var nodeAccountId = Objects.requireNonNull(entry.getValue(), "networkMap contains a null nodeAccountId");
+            if (networkShardRealm == null) {
+                networkShardRealm = new ShardRealm(nodeAccountId.shard, nodeAccountId.realm);
+            } else if (networkShardRealm.shard() != nodeAccountId.shard
+                    || networkShardRealm.realm() != nodeAccountId.realm) {
+                throw new IllegalArgumentException(
+                        "Network is not valid, all nodes must be in the same shard and realm");
+            }
+        }
+
+        return networkShardRealm != null ? networkShardRealm : ShardRealm.DEFAULT;
+    }
+
+    /** Represent shard and realm shared by nodes of a valid network */
+    private record ShardRealm(long shard, long realm) {
+        static ShardRealm DEFAULT = new ShardRealm(0L, 0L);
     }
 
     static class Operator {
