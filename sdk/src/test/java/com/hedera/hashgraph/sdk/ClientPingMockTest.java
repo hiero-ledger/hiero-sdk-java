@@ -218,4 +218,22 @@ class ClientPingMockTest {
                     .withMessageContaining("INVALID_ACCOUNT_ID");
         }
     }
+
+    @Test
+    @DisplayName("ping probes the treasury account in the client's configured shard and realm")
+    void pingUsesConfiguredShardAndRealm() throws Exception {
+        var shard = 1L;
+        var realm = 2L;
+        var captured = new ArrayList<Query>();
+
+        try (var mocker = Mocker.withResponses(List.of(recordingCostAnswer(captured)), shard, realm)) {
+            mocker.client.ping(new AccountId(1, 2, 3));
+        }
+
+        assertThat(captured).hasSize(1);
+        var accountId = captured.get(0).getCryptoGetInfo().getAccountID();
+        assertThat(accountId.getShardNum()).isEqualTo(shard);
+        assertThat(accountId.getRealmNum()).isEqualTo(realm);
+        assertThat(accountId.getAccountNum()).isEqualTo(2);
+    }
 }
