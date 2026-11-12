@@ -207,6 +207,10 @@ public final class TransactionResponse {
             return false;
         }
 
+        if (transaction.isBodyHashLocked()) {
+            return false;
+        }
+
         if (!transaction.canRegenerateSignatures()) {
             // signatures supplied via addSignature() cannot be reproduced over a new body, so the
             // resubmission would be under-signed
@@ -230,16 +234,17 @@ public final class TransactionResponse {
     private void resubmitThrottled(Client client, Duration timeout) throws PrecheckStatusException, TimeoutException {
         var tx = Objects.requireNonNull(transaction);
 
-        // reset the transaction body so execute() re-freezes and re-signs it under the new transaction ID
-        tx.frozenBodyBuilder = null;
-        // regenerate the transaction id
-        tx.regenerateTransactionId(client);
+        synchronized (tx) {
+            // Regeneration rechecks review after backoff, before changing IDs or clearing frozen state.
+            tx.regenerateTransactionId(client);
+            tx.frozenBodyBuilder = null;
 
-        var response = (TransactionResponse) tx.execute(client, timeout);
+            var response = (TransactionResponse) tx.execute(client, timeout);
 
-        this.transactionId = response.transactionId;
-        this.nodeId = response.nodeId;
-        this.transactionHash = response.transactionHash;
+            this.transactionId = response.transactionId;
+            this.nodeId = response.nodeId;
+            this.transactionHash = response.transactionHash;
+        }
     }
 
     /**
