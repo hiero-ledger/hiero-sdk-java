@@ -38,10 +38,14 @@ public class Mocker implements AutoCloseable {
     private final List<Server> servers = new ArrayList<>();
 
     Mocker(List<List<Object>> responses) {
-        this(responses, true);
+        this(responses, true, 0, 0);
     }
 
-    Mocker(List<List<Object>> responses, boolean withOperator) {
+    Mocker(List<List<Object>> responses, long shard, long realm) {
+        this(responses, true, shard, realm);
+    }
+
+    Mocker(List<List<Object>> responses, boolean withOperator, long shard, long realm) {
         this.responses = responses;
 
         var network = new HashMap<String, AccountId>(responses.size());
@@ -50,7 +54,7 @@ public class Mocker implements AutoCloseable {
             var index = new AtomicInteger();
             var response = responses.get(i);
             var name = InProcessServerBuilder.generateName();
-            var nodeAccountId = new AccountId(0, 0, 3 + i);
+            var nodeAccountId = new AccountId(shard, realm, 3 + i);
             var builder = InProcessServerBuilder.forName(name);
 
             configureServerBuilder(builder);
@@ -125,7 +129,11 @@ public class Mocker implements AutoCloseable {
     }
 
     public static Mocker withResponses(List<List<Object>> responses) {
-        return new Mocker(responses);
+        return withResponses(responses, 0, 0);
+    }
+
+    public static Mocker withResponses(List<List<Object>> responses, long shard, long realm) {
+        return new Mocker(responses, shard, realm);
     }
 
     /**
@@ -133,7 +141,11 @@ public class Mocker implements AutoCloseable {
      * requests that must work on an operator-less client (e.g. the {@code ping} liveness probe).
      */
     public static Mocker withResponsesAndNoOperator(List<List<Object>> responses) {
-        return new Mocker(responses, false);
+        return new Mocker(responses, false, 0, 0);
+    }
+
+    public static Mocker withResponsesAndNoOperator(List<List<Object>> responses, long shard, long realm) {
+        return new Mocker(responses, false, shard, realm);
     }
 
     public void close() throws TimeoutException, InterruptedException {
