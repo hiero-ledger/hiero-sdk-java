@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -555,13 +556,13 @@ class ClientTest {
     @Test
     @DisplayName("forNetwork() with executor validates network with same shard and realm")
     void forNetworkWithExecutorValidatesSameShardAndRealm() throws TimeoutException {
-
+        var executor = Executors.newSingleThreadExecutor();
         var network = Map.of(
                 "127.0.0.1:50211", new AccountId(1, 2, 3),
                 "127.0.0.1:50212", new AccountId(1, 2, 4),
                 "127.0.0.1:50213", new AccountId(1, 2, 5));
 
-        var client = Client.forNetwork(network);
+        var client = Client.forNetwork(network, executor);
 
         assertThat(client.getShard()).isEqualTo(1);
         assertThat(client.getRealm()).isEqualTo(2);
@@ -572,12 +573,13 @@ class ClientTest {
     @Test
     @DisplayName("forNetwork() with executor throws exception when nodes have different shards")
     void forNetworkWithExecutorThrowsExceptionForDifferentShards() {
+        var executor = Executors.newSingleThreadExecutor();
         var network = Map.of(
                 "127.0.0.1:50211", new AccountId(2, 2, 3),
                 "127.0.0.1:50212", new AccountId(1, 2, 4),
                 "127.0.0.1:50213", new AccountId(1, 2, 5));
 
-        assertThatThrownBy(() -> Client.forNetwork(network))
+        assertThatThrownBy(() -> Client.forNetwork(network, executor))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
     }
@@ -585,12 +587,13 @@ class ClientTest {
     @Test
     @DisplayName("forNetwork() with executor throws exception when nodes have different realms")
     void forNetworkWithExecutorThrowsExceptionForDifferentRealms() {
+        var executor = Executors.newSingleThreadExecutor();
         var network = Map.of(
                 "127.0.0.1:50211", new AccountId(1, 1, 3),
                 "127.0.0.1:50212", new AccountId(1, 2, 4),
                 "127.0.0.1:50213", new AccountId(1, 2, 5));
 
-        assertThatThrownBy(() -> Client.forNetwork(network))
+        assertThatThrownBy(() -> Client.forNetwork(network, executor))
                 .hasMessageEndingWith("Network is not valid, all nodes must be in the same shard and realm");
     }
 
