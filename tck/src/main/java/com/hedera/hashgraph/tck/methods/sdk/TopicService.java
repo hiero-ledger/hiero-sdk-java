@@ -26,6 +26,7 @@ import com.hedera.hashgraph.tck.util.QueryBuilders;
 import com.hedera.hashgraph.tck.util.TransactionBuilders;
 import java.time.Duration;
 import java.util.List;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * TopicService for topic related methods
@@ -113,7 +114,7 @@ public class TopicService extends AbstractJSONRPC2Service {
     /**
      * Map TopicInfo from SDK to TopicInfoResponse for JSON-RPC
      */
-    private TopicInfoResponse mapTopicInfoResponse(final TopicInfo topicInfo) {
+    static TopicInfoResponse mapTopicInfoResponse(final TopicInfo topicInfo) {
         String adminKey = topicInfo.adminKey != null ? topicInfo.adminKey.toString() : null;
         String submitKey = topicInfo.submitKey != null ? topicInfo.submitKey.toString() : null;
         String autoRenewAccountId =
@@ -133,7 +134,7 @@ public class TopicService extends AbstractJSONRPC2Service {
                 topicInfo.topicId.toString(),
                 topicInfo.topicMemo,
                 String.valueOf(topicInfo.sequenceNumber),
-                topicInfo.runningHash.toString(),
+                Hex.toHexString(topicInfo.runningHash.toByteArray()),
                 adminKey,
                 submitKey,
                 autoRenewAccountId,
@@ -148,7 +149,7 @@ public class TopicService extends AbstractJSONRPC2Service {
     /**
      * Map TopicInfo CustomFixedFee from SDK to TopicInfoResponse.CustomFeeResponse for JSON-RPC
      */
-    private TopicInfoResponse.CustomFeeResponse mapToCustomFeeResponse(final CustomFixedFee fee) {
+    private static TopicInfoResponse.CustomFeeResponse mapToCustomFeeResponse(final CustomFixedFee fee) {
         TopicInfoResponse.FixedFeeResponse fixedFee = new TopicInfoResponse.FixedFeeResponse(
                 String.valueOf(fee.getAmount()),
                 fee.getDenominatingTokenId() != null

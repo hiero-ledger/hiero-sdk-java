@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -461,13 +462,13 @@ public class AccountService extends AbstractJSONRPC2Service {
     /**
      * Map TransactionReceipt from SDK to TransactionReceiptResponse for JSON-RPC
      */
-    private TransactionReceiptResponse mapTransactionReceiptResponse(TransactionReceipt receipt) {
+    static TransactionReceiptResponse mapTransactionReceiptResponse(TransactionReceipt receipt) {
         List<TransactionReceiptResponse> duplicates = receipt.duplicates.stream()
-                .map(this::mapTransactionReceiptResponse)
+                .map(AccountService::mapTransactionReceiptResponse)
                 .toList();
 
         List<TransactionReceiptResponse> children = receipt.children.stream()
-                .map(this::mapTransactionReceiptResponse)
+                .map(AccountService::mapTransactionReceiptResponse)
                 .toList();
 
         TransactionReceiptResponse.ExchangeRate exchangeRate = new TransactionReceiptResponse.ExchangeRate(
@@ -485,7 +486,7 @@ public class AccountService extends AbstractJSONRPC2Service {
                 receipt.scheduleId != null ? receipt.scheduleId.toString() : null,
                 exchangeRate,
                 receipt.topicSequenceNumber != null ? receipt.topicSequenceNumber.toString() : null,
-                receipt.topicRunningHash != null ? receipt.topicRunningHash.toString() : null,
+                receipt.topicRunningHash != null ? Hex.toHexString(receipt.topicRunningHash.toByteArray()) : null,
                 receipt.totalSupply != null ? receipt.totalSupply.toString() : null,
                 receipt.scheduledTransactionId != null ? receipt.scheduledTransactionId.toString() : null,
                 receipt.serials,
