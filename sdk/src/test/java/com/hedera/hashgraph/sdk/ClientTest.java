@@ -269,6 +269,50 @@ class ClientTest {
     }
 
     @Test
+    @DisplayName("setNetwork() functions updates client shard and realm")
+    void setNetworkWorksWithCustomShardRealm() throws Exception {
+        var defaultNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
+
+        var client = Client.forNetwork(defaultNetwork);
+
+        assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
+        assertThat(client.getShard()).isEqualTo(0);
+        assertThat(client.getRealm()).isEqualTo(0);
+
+        var customNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(1, 2, 3),
+                "1.testnet.hedera.com:50211", new AccountId(1, 2, 4));
+        client.setNetwork(customNetwork);
+
+        assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(customNetwork);
+        assertThat(client.getShard()).isEqualTo(1);
+        assertThat(client.getRealm()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("setNetwork() throws an exception when nodes have inconsistent shard and realm")
+    void setNetworkThrowsExceptionForInconsistentShardAndRealm() throws Exception {
+        var defaultNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
+
+        var client = Client.forNetwork(defaultNetwork);
+
+        assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
+        assertThat(client.getShard()).isEqualTo(0);
+        assertThat(client.getRealm()).isEqualTo(0);
+
+        var customNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(1, 2, 3),
+                "1.testnet.hedera.com:50211", new AccountId(3, 4, 4));
+        assertThatThrownBy(() -> client.setNetwork(customNetwork))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
+    }
+
+    @Test
     @DisplayName("setMirrorNetwork() functions correctly")
     void setMirrorNetworkWorks() throws Exception {
         var defaultNetwork = List.of("testnet.mirrornode.hedera.com:443");
@@ -406,10 +450,12 @@ class ClientTest {
     }
 
     com.hedera.hashgraph.sdk.proto.NodeAddress nodeAddress(
-            long accountNum, String rsaPubKeyHex, byte[] certHash, byte[] ipv4) {
+            long shard, long realm, long accountNum, String rsaPubKeyHex, byte[] certHash, byte[] ipv4) {
         com.hedera.hashgraph.sdk.proto.NodeAddress.Builder builder =
                 com.hedera.hashgraph.sdk.proto.NodeAddress.newBuilder()
                         .setNodeAccountId(com.hedera.hashgraph.sdk.proto.AccountID.newBuilder()
+                                .setShardNum(shard)
+                                .setRealmNum(realm)
                                 .setAccountNum(accountNum)
                                 .build())
                         .addServiceEndpoint(com.hedera.hashgraph.sdk.proto.ServiceEndpoint.newBuilder()
@@ -423,6 +469,11 @@ class ClientTest {
         return builder.build();
     }
 
+    com.hedera.hashgraph.sdk.proto.NodeAddress nodeAddress(
+            long accountNum, String rsaPubKeyHex, byte[] certHash, byte[] ipv4) {
+        return nodeAddress(0, 0, accountNum, rsaPubKeyHex, certHash, ipv4);
+    }
+
     @Test
     @DisplayName("setNetworkFromAddressBook() updates security parameters in the client")
     void setNetworkFromAddressBook() throws Exception {
@@ -434,8 +485,8 @@ class ClientTest {
                     .getAddressBookEntry();
 
             // reconfigure client network from addressbook (add new nodes)
-            client.setNetworkFromAddressBook(
-                    NodeAddressBook.fromBytes(com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
+            client.setNetworkFromAddressBook(NodeAddressBook.fromBytes(
+                    com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
                             .addNodeAddress(nodeAddress(10001, "10001", new byte[] {1, 0, 1}, new byte[] {10, 0, 0, 1}))
                             .addNodeAddress(nodeAddress(10002, "10002", new byte[] {1, 0, 2}, new byte[] {10, 0, 0, 2}))
                             .build()
@@ -448,8 +499,8 @@ class ClientTest {
             assertThat(nodeAddress.apply(10002).publicKey).isEqualTo("10002");
 
             // reconfigure client network from addressbook without `certHash`
-            client.setNetworkFromAddressBook(
-                    NodeAddressBook.fromBytes(com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
+            client.setNetworkFromAddressBook(NodeAddressBook.fromBytes(
+                    com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
                             .addNodeAddress(nodeAddress(10001, "10001", null, new byte[] {10, 0, 0, 1}))
                             .addNodeAddress(nodeAddress(10002, "10002", null, new byte[] {10, 0, 0, 2}))
                             .build()
@@ -462,8 +513,8 @@ class ClientTest {
             assertThat(nodeAddress.apply(10002).publicKey).isEqualTo("10002");
 
             // reconfigure client network from addressbook (update existing nodes)
-            client.setNetworkFromAddressBook(
-                    NodeAddressBook.fromBytes(com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
+            client.setNetworkFromAddressBook(NodeAddressBook.fromBytes(
+                    com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
                             .addNodeAddress(
                                     nodeAddress(10001, "810001", new byte[] {8, 1, 0, 1}, new byte[] {10, 0, 0, 1}))
                             .addNodeAddress(
@@ -477,6 +528,54 @@ class ClientTest {
             assertThat(nodeAddress.apply(10002).certHash).isEqualTo(ByteString.copyFrom(new byte[] {8, 1, 0, 2}));
             assertThat(nodeAddress.apply(10002).publicKey).isEqualTo("810002");
         }
+    }
+
+    @Test
+    @DisplayName("setNetworkFromAddressBook() updates the client shard and realm")
+    void setNetworkFromAddressBookContainingCustomShardRealm() throws Exception {
+        var defaultNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
+        var client = Client.forNetwork(defaultNetwork);
+
+        assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
+        assertThat(client.getShard()).isEqualTo(0);
+        assertThat(client.getRealm()).isEqualTo(0);
+
+        var shard = 1;
+        var realm = 2;
+        var addressBook = NodeAddressBook.fromBytes(com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
+                .addNodeAddress(nodeAddress(shard, realm, 10001, "10001", null, new byte[] {10, 0, 0, 1}))
+                .addNodeAddress(nodeAddress(shard, realm, 10002, "10002", null, new byte[] {10, 0, 0, 2}))
+                .build()
+                .toByteString());
+        client.setNetworkFromAddressBook(addressBook);
+
+        assertThat(client.getShard()).isEqualTo(shard);
+        assertThat(client.getRealm()).isEqualTo(realm);
+    }
+
+    @Test
+    @DisplayName("setNetworkFromAddressBook() throws an exception when nodes have inconsistent shard and realm")
+    void setNetworkFromAddressBookThrowExceptionForInconsistentShardRealm() throws Exception {
+        var defaultNetwork = Map.of(
+                "0.testnet.hedera.com:50211", new AccountId(0, 0, 3),
+                "1.testnet.hedera.com:50211", new AccountId(0, 0, 4));
+        var client = Client.forNetwork(defaultNetwork);
+
+        assertThat(client.getNetwork()).containsExactlyInAnyOrderEntriesOf(defaultNetwork);
+        assertThat(client.getShard()).isEqualTo(0);
+        assertThat(client.getRealm()).isEqualTo(0);
+
+        var addressBook = NodeAddressBook.fromBytes(com.hedera.hashgraph.sdk.proto.NodeAddressBook.newBuilder()
+                .addNodeAddress(nodeAddress(1, 2, 10001, "10001", null, new byte[] {10, 0, 0, 1}))
+                .addNodeAddress(nodeAddress(1, 0, 10002, "10002", null, new byte[] {10, 0, 0, 2}))
+                .build()
+                .toByteString());
+
+        assertThatThrownBy(() -> client.setNetworkFromAddressBook(addressBook))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Network is not valid, all nodes must be in the same shard and realm");
     }
 
     @Test
