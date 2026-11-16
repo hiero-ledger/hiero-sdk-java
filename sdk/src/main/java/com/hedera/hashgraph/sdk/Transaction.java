@@ -1786,7 +1786,7 @@ public abstract class Transaction<T extends Transaction<T>>
 
     /**
      * This method retrieves the size of the transaction
-     * @return
+     * @return the serialized size of the transaction in bytes
      */
     public int getTransactionSize() {
         if (!this.isFrozen()) {
@@ -1799,7 +1799,7 @@ public abstract class Transaction<T extends Transaction<T>>
 
     /**
      * This method retrieves the transaction body size
-     * @return
+     * @return the serialized size of the transaction body in bytes
      */
     public int getTransactionBodySize() {
         if (!this.isFrozen()) {
