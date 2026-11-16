@@ -225,8 +225,11 @@ class ClientPingMockTest {
         var shard = 1L;
         var realm = 2L;
         var captured = new ArrayList<Query>();
-
-        try (var mocker = Mocker.withResponses(List.of(recordingCostAnswer(captured)), shard, realm)) {
+        var responses = List.of(recordingCostAnswer(captured));
+        try (var mocker = Mocker.withResponses(responses)) {
+            // Configure a custom network with shard/realm by updating the mocker network nodeAccountId
+            var customNetwork = mocker.buildNetwork(responses, shard, realm);
+            mocker.client.setNetwork(customNetwork);
             mocker.client.ping(new AccountId(1, 2, 3));
         }
 
@@ -235,5 +238,33 @@ class ClientPingMockTest {
         assertThat(accountId.getShardNum()).isEqualTo(shard);
         assertThat(accountId.getRealmNum()).isEqualTo(realm);
         assertThat(accountId.getAccountNum()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("ping probes the treasury account in the client's current shard and realm, including after setNetwork")
+    void pingFollowsShardAndRealmAcrossSetNetwork() throws Exception {
+        var capture = new ArrayList<Query>();
+        var responses = List.of(recordingCostAnswer(capture), recordingCostAnswer(capture));
+
+        try (var mocker = Mocker.withResponses(responses)) {
+            mocker.client.ping(new AccountId(0, 0, 3));
+
+            // Update network
+            var customNetwork = mocker.buildNetwork(responses, 1, 2);
+            mocker.client.setNetwork(customNetwork);
+            mocker.client.ping(new AccountId(1, 2, 3));
+        }
+
+        assertThat(capture).hasSize(2);
+
+        var accountId1 = capture.get(0).getCryptoGetInfo().getAccountID();
+        assertThat(accountId1.getShardNum()).isEqualTo(0);
+        assertThat(accountId1.getRealmNum()).isEqualTo(0);
+        assertThat(accountId1.getAccountNum()).isEqualTo(2);
+
+        var accountId2 = capture.get(1).getCryptoGetInfo().getAccountID();
+        assertThat(accountId2.getShardNum()).isEqualTo(1);
+        assertThat(accountId2.getRealmNum()).isEqualTo(2);
+        assertThat(accountId2.getAccountNum()).isEqualTo(2);
     }
 }

@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,15 +39,29 @@ public class Mocker implements AutoCloseable {
     private final List<Server> servers = new ArrayList<>();
 
     Mocker(List<List<Object>> responses) {
-        this(responses, true, 0, 0);
+        this(responses, true);
     }
 
-    Mocker(List<List<Object>> responses, long shard, long realm) {
-        this(responses, true, shard, realm);
-    }
-
-    Mocker(List<List<Object>> responses, boolean withOperator, long shard, long realm) {
+    Mocker(List<List<Object>> responses, boolean withOperator) {
         this.responses = responses;
+        var network = buildNetwork(responses, 0, 0);
+        var client = Client.forNetwork(network)
+                .setMinBackoff(Duration.ofMillis(0))
+                .setMaxBackoff(Duration.ofMillis(0))
+                .setNodeMinBackoff(Duration.ofMillis(0))
+                .setNodeMaxBackoff(Duration.ofMillis(0))
+                .setMinNodeReadmitTime(Duration.ofMillis(0))
+                .setMaxNodeReadmitTime(Duration.ofMillis(0))
+                .setLogger(new Logger(LogLevel.SILENT));
+
+        if (withOperator) {
+            client.setOperator(new AccountId(0, 0, 1800), PRIVATE_KEY);
+        }
+
+        this.client = client;
+    }
+
+    protected Map<String, AccountId> buildNetwork(List<List<Object>> responses, long shard, long realm) {
 
         var network = new HashMap<String, AccountId>(responses.size());
 
@@ -102,26 +117,13 @@ public class Mocker implements AutoCloseable {
             }
 
             try {
+                this.servers.clear();
                 this.servers.add(builder.directExecutor().build().start());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        var client = Client.forNetwork(network)
-                .setMinBackoff(Duration.ofMillis(0))
-                .setMaxBackoff(Duration.ofMillis(0))
-                .setNodeMinBackoff(Duration.ofMillis(0))
-                .setNodeMaxBackoff(Duration.ofMillis(0))
-                .setMinNodeReadmitTime(Duration.ofMillis(0))
-                .setMaxNodeReadmitTime(Duration.ofMillis(0))
-                .setLogger(new Logger(LogLevel.SILENT));
-
-        if (withOperator) {
-            client.setOperator(new AccountId(0, 0, 1800), PRIVATE_KEY);
-        }
-
-        this.client = client;
+        return network;
     }
 
     protected void configureServerBuilder(InProcessServerBuilder builder) {
@@ -129,11 +131,7 @@ public class Mocker implements AutoCloseable {
     }
 
     public static Mocker withResponses(List<List<Object>> responses) {
-        return withResponses(responses, 0, 0);
-    }
-
-    public static Mocker withResponses(List<List<Object>> responses, long shard, long realm) {
-        return new Mocker(responses, shard, realm);
+        return new Mocker(responses);
     }
 
     /**
@@ -141,11 +139,7 @@ public class Mocker implements AutoCloseable {
      * requests that must work on an operator-less client (e.g. the {@code ping} liveness probe).
      */
     public static Mocker withResponsesAndNoOperator(List<List<Object>> responses) {
-        return new Mocker(responses, false, 0, 0);
-    }
-
-    public static Mocker withResponsesAndNoOperator(List<List<Object>> responses, long shard, long realm) {
-        return new Mocker(responses, false, shard, realm);
+        return new Mocker(responses, false);
     }
 
     public void close() throws TimeoutException, InterruptedException {

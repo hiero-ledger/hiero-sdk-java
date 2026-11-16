@@ -92,8 +92,8 @@ public final class Client implements AutoCloseable {
     private boolean defaultRegenerateTransactionId = true;
     private boolean allowReceiptNodeFailover = false;
     private final boolean shouldShutdownExecutor;
-    private final long shard;
-    private final long realm;
+    private long shard;
+    private long realm;
     // If networkUpdatePeriod is null, any network updates in progress will not complete
     private @Nullable Duration networkUpdatePeriod;
 
@@ -359,8 +359,6 @@ public final class Client implements AutoCloseable {
         Objects.requireNonNull(executor, "executor must not be null");
         Objects.requireNonNull(network, "network must not be null");
         Objects.requireNonNull(mirrorNetwork, "mirrorNetwork must not be null");
-
-        // TODO: Need to decide weather to add this resolution for the forMainnet()/Testnet()/Previewnet()
         var shardRealm = resolveNetworkShardRealm(network.getNetwork());
         return new Client(
                 executor,
@@ -657,12 +655,10 @@ public final class Client implements AutoCloseable {
     public synchronized Client setNetworkFromAddressBook(NodeAddressBook addressBook)
             throws InterruptedException, TimeoutException {
         var networkMap = Network.addressBookToNetwork(addressBook.nodeAddresses);
-        var shardRealm = resolveNetworkShardRealm(network.getNetwork());
+        var shardRealm = resolveNetworkShardRealm(networkMap);
 
-        // TODO: Since the shard/realm field are mark final, need to decided if to override value or throw exception.
-        if (shardRealm.shard() != this.shard || shardRealm.realm() != this.realm) {
-            throw new IllegalArgumentException("Network shard/realm does not match client shard/realm");
-        }
+        this.shard = shardRealm.shard();
+        this.realm = shardRealm.realm();
 
         network.setNetwork(networkMap);
         network.setAddressBook(addressBook);
@@ -690,10 +686,8 @@ public final class Client implements AutoCloseable {
             throws InterruptedException, TimeoutException {
         var shardRealm = resolveNetworkShardRealm(network);
 
-        // TODO: Since the shard/realm field are mark final, need to decided if to override value or throw exception.
-        if (shardRealm.shard() != this.shard || shardRealm.realm() != this.realm) {
-            throw new IllegalArgumentException("Network shard/realm does not match client shard/realm");
-        }
+        this.shard = shardRealm.shard();
+        this.realm = shardRealm.realm();
 
         this.network.setNetwork(network);
         return this;
