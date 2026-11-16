@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 group = "org.hiero"
 
-val bouncycastle = "1.86"
+val bouncycastle = "1.87"
 val grpc = "1.85.1"
 val protobuf = "4.36.2"
 val slf4j = "2.0.20"
