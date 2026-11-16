@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-plugins { id("org.hiero.gradle.build") version "0.7.4" }
+plugins { id("org.hiero.gradle.build") version "0.7.13" }
 
 @Suppress("UnstableApiUsage") dependencyResolutionManagement { repositories.mavenCentral() }
 
