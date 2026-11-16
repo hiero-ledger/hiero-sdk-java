@@ -267,7 +267,7 @@ public final class AccountId implements Comparable<AccountId> {
 
     /**
      * toEvmAddress returns EVM-compatible address representation of the entity
-     * @return
+     * @return the EVM-compatible address representation of the entity
      */
     public String toEvmAddress() {
         if (evmAddress != null) {
