@@ -180,7 +180,7 @@ public class ContractId extends Key implements Comparable<ContractId> {
 
     /**
      * toEvmAddress returns EVM-compatible address representation of the entity
-     * @return
+     *@return the EVM-compatible address representation of the contract
      */
     public String toEvmAddress() {
         if (evmAddress != null) {
