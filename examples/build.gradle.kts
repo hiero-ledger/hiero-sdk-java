@@ -17,7 +17,7 @@ dependencyAnalysis {
 }
 
 dependencies.constraints {
-    implementation("com.google.guava:guava:33.4.8-android")
+    implementation("com.google.guava:guava:33.8.0-android")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
     implementation("com.hedera.hashgraph:sdk:2.79.0")
     implementation("com.hedera.hashgraph:sdk-full:2.79.0")
