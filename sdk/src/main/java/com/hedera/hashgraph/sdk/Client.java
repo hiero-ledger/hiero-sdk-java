@@ -657,8 +657,8 @@ public final class Client implements AutoCloseable {
         var networkMap = Network.addressBookToNetwork(addressBook.nodeAddresses);
         var shardRealm = resolveNetworkShardRealm(networkMap);
 
-        this.shard = shardRealm.shard();
-        this.realm = shardRealm.realm();
+        this.shard = shardRealm.shard;
+        this.realm = shardRealm.realm;
 
         network.setNetwork(networkMap);
         network.setAddressBook(addressBook);
@@ -686,8 +686,8 @@ public final class Client implements AutoCloseable {
             throws InterruptedException, TimeoutException {
         var shardRealm = resolveNetworkShardRealm(network);
 
-        this.shard = shardRealm.shard();
-        this.realm = shardRealm.realm();
+        this.shard = shardRealm.shard;
+        this.realm = shardRealm.realm;
 
         this.network.setNetwork(network);
         return this;
@@ -1702,8 +1702,8 @@ public final class Client implements AutoCloseable {
             var nodeAccountId = Objects.requireNonNull(entry.getValue(), "networkMap contains a null nodeAccountId");
             if (networkShardRealm == null) {
                 networkShardRealm = new ShardRealm(nodeAccountId.shard, nodeAccountId.realm);
-            } else if (networkShardRealm.shard() != nodeAccountId.shard
-                    || networkShardRealm.realm() != nodeAccountId.realm) {
+            } else if (networkShardRealm.shard != nodeAccountId.shard
+                    || networkShardRealm.realm != nodeAccountId.realm) {
                 throw new IllegalArgumentException(
                         "Network is not valid, all nodes must be in the same shard and realm");
             }
@@ -1713,8 +1713,16 @@ public final class Client implements AutoCloseable {
     }
 
     /** Represent shard and realm shared by nodes of a valid network */
-    private record ShardRealm(long shard, long realm) {
-        static ShardRealm DEFAULT = new ShardRealm(0L, 0L);
+    private static class ShardRealm {
+        final long shard;
+        final long realm;
+
+        static final ShardRealm DEFAULT = new ShardRealm(0L, 0L);
+
+        ShardRealm(long shard, long realm) {
+            this.shard = shard;
+            this.realm = realm;
+        }
     }
 
     static class Operator {
