@@ -84,12 +84,6 @@ Before submitting your pull request, refer to the pull request readiness checkli
 
 To contribute, please fork the GitHub repository and submit a pull request to the `main` branch.
 
-### Versioning
-
-The version in [version.txt](../../version.txt) on `main` is always a `-SNAPSHOT` version; release versions only exist on
-tagged release commits. Pull requests must not change `version.txt`, this is done by the maintainers as part of the
-[release process](release-process.md).
-
 ### Getting Your Pull Request Merged
 
 All Pull Requests must be approved by at least one member of the SDK team before it can be merged in. The members only have limited bandwidth to review Pull Requests so it's not unusual for a Pull Request to go unreviewed for a few days, especially if it's a large or complex one. After a couple of weeks, if you haven't received any feedback regarding your Pull Request from the SDK team, feel free to contact us on [Discord][discord] to ask for a review.
