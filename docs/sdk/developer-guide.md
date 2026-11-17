@@ -102,6 +102,13 @@ Running test function:
 2. Update "Run" configuration to pass the required Gradle properties (`OPERATOR_ID`, `OPERATOR_KEY` and `HEDERA_NETWORK`).
    <img src="../assets/intellij-integration-tests.png">
 
+## Versioning
+
+The version in [version.txt](../../version.txt) on `main` is always a `-SNAPSHOT` version (e.g. `2.80.0-SNAPSHOT`).
+Release versions only exist on the tagged release commits. This means that `./gradlew publishToMavenLocal` on `main`
+publishes `-SNAPSHOT` artifacts to your local Maven repository, which never shadow an official release.
+See the [release process](release-process.md) for details.
+
 ## Managing dependencies
 
 This project uses a combination of Java Modules (JPMS) and Gradle to define and manage dependencies to 3rd party
