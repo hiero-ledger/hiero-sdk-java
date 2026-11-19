@@ -23,6 +23,9 @@ Gradle setup. More details on how to work with the project can be found in the
 ./gradlew :sdk:test
 ```
 
+The [whole-transaction body hash candidate](transaction-body-hash.md) describes the local PR #288
+profile and its pending maintainer agreement. Its fixture tests run without a configured network.
+
 ### Integration Tests
 
 > The tests are only executed if the configuration is provided.
