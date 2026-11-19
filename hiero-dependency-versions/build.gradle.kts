@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 group = "org.hiero"
 
-val bouncycastle = "1.86"
+val bouncycastle = "1.87"
 val grpc = "1.85.1"
 val protobuf = "4.36.2"
 val slf4j = "2.0.20"
@@ -9,13 +9,13 @@ val mockito = "5.24.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:4.1.2"))
-    api(platform("io.netty:netty-bom:4.2.19.Final"))
+    api(platform("io.netty:netty-bom:4.2.20.Final"))
 }
 
 dependencies.constraints {
     api("com.esaulpaugh:headlong:13.3.1") { because("com.esaulpaugh.headlong") }
     api("com.google.code.findbugs:jsr305:3.0.2") { because("java.annotation") }
-    api("com.google.code.gson:gson:2.14.0") { because("com.google.gson") }
+    api("com.google.code.gson:gson:2.15.0") { because("com.google.gson") }
     api("com.google.protobuf:protobuf-java:$protobuf") { because("com.google.protobuf") }
     api("com.google.protobuf:protobuf-javalite:$protobuf") { because("com.google.protobuf") }
     api("io.grpc:grpc-api:$grpc") { because("io.grpc") }
@@ -32,10 +32,10 @@ dependencies.constraints {
     api("org.slf4j:slf4j-api:$slf4j") { because("org.slf4j") }
 
     // Testing
-    api("com.fasterxml.jackson.core:jackson-core:2.22.4") { because("com.fasterxml.jackson.core") }
-    api("com.google.guava:guava:33.7.2-android") { because("com.google.common") }
+    api("com.fasterxml.jackson.core:jackson-core:2.23.0") { because("com.fasterxml.jackson.core") }
+    api("com.google.guava:guava:33.8.0-android") { because("com.google.common") }
     api("io.github.json-snapshot:json-snapshot:1.0.17") { because("json.snapshot") }
-    api("org.apache.commons:commons-lang3:3.21.0") { because("org.apache.commons.lang3") }
+    api("org.apache.commons:commons-lang3:3.22.0") { because("org.apache.commons.lang3") }
     api("org.assertj:assertj-core:3.27.7") { because("org.assertj.core") }
     api("org.junit.jupiter:junit-jupiter-api:6.1.3") { because("org.junit.jupiter.api") }
     api("org.mockito:mockito-core:$mockito") { because("org.mockito") }
@@ -52,7 +52,7 @@ dependencies.constraints {
     api("org.springframework:spring-webmvc:7.0.10")
     api("org.springframework:spring-context:7.0.10")
     api("org.springframework:spring-web:7.0.10")
-    api("ch.qos.logback:logback-core:1.6.5")
+    api("ch.qos.logback:logback-core:1.6.6")
 
     tasks.checkVersionConsistency {
         // Versions of additional tools that are not part of the product or test module paths

@@ -15,7 +15,6 @@ import java.util.function.Supplier;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -514,7 +513,6 @@ public class ContractFunctionParametersTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("BigInteger checks")
     void bigIntChecks() {
         ContractFunctionParameters params = new ContractFunctionParameters();
@@ -609,10 +607,21 @@ public class ContractFunctionParametersTest {
                     })
                     .get();
 
+            // The top-bit-set value is the type minimum for the signed methods (e.g. int8's -128).
+            // The primitive paths wrap to that automatically, but a 256-bit BigInteger of 2^255 is
+            // +2^255, which is out of range for a signed int256 (max 2^255 - 1). Feed the signed
+            // methods the equivalent in-range minimum -2^255 instead; it encodes to the same
+            // 0x80..00 bytes, so the snapshot is unchanged.
+            var signedArgVal = bitWidth == 256 ? BigInteger.ONE.shiftLeft(255).negate() : argVal;
+
             var argArrayVal = Array.newInstance(argType, 2);
             Array.set(argArrayVal, 0, argVal);
             Array.set(argArrayVal, 1, argVal);
             var argArrayType = argArrayVal.getClass();
+
+            var signedArgArrayVal = Array.newInstance(argType, 2);
+            Array.set(signedArgArrayVal, 0, signedArgVal);
+            Array.set(signedArgArrayVal, 1, signedArgVal);
 
             var cl = ContractFunctionParameters.class;
             var addIntMethod = cl.getMethod("addInt" + n, argType);
@@ -621,9 +630,9 @@ public class ContractFunctionParametersTest {
             var addUintArrayMethod = cl.getMethod("addUint" + n + "Array", argArrayType);
 
             var params = new ContractFunctionParameters();
-            addIntMethod.invoke(params, argVal);
+            addIntMethod.invoke(params, signedArgVal);
             addUintMethod.invoke(params, argVal);
-            addIntArrayMethod.invoke(params, argArrayVal);
+            addIntArrayMethod.invoke(params, signedArgArrayVal);
             addUintArrayMethod.invoke(params, argArrayVal);
 
             snapshotStrings.add("bitWidth = " + bitWidth + ": "

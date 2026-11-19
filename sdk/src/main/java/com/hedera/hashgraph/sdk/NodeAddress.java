@@ -3,7 +3,6 @@ package com.hedera.hashgraph.sdk;
 
 import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
-import com.hedera.hashgraph.sdk.proto.ServiceEndpoint;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,13 +61,6 @@ public class NodeAddress implements Cloneable {
      */
     static NodeAddress fromProtobuf(com.hedera.hashgraph.sdk.proto.NodeAddress nodeAddress) {
         var address = new ArrayList<Endpoint>(nodeAddress.getServiceEndpointCount());
-
-        if (!nodeAddress.getIpAddress().isEmpty()) {
-            address.add(Endpoint.fromProtobuf(ServiceEndpoint.newBuilder()
-                    .setIpAddressV4(nodeAddress.getIpAddress())
-                    .setPort(nodeAddress.getPortno())
-                    .build()));
-        }
 
         for (var endpoint : nodeAddress.getServiceEndpointList()) {
             address.add(Endpoint.fromProtobuf(endpoint));

@@ -731,6 +731,13 @@ public final class ContractFunctionParameters {
      * @return {@code this}
      */
     public ContractFunctionParameters addInt256(BigInteger value) {
+        // A Solidity int256 holds values in [-2^255, 2^255 - 1]. BigInteger.bitLength() excludes the
+        // sign bit, so any value needing more than 255 bits is out of range (both 2^255 and -2^256
+        // report a bit length of 256, while 2^254 and -2^255 report 255).
+        if (value.bitLength() > 255) {
+            throw new IllegalArgumentException("BigInteger out of range for Solidity integers");
+        }
+
         args.add(new Argument("int256", int256(value, 256), false));
 
         return this;

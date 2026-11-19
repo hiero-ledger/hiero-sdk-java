@@ -1,0 +1,8 @@
+com.hedera.hashgraph.sdk.NodeAddressTest.fromProtobuf=[
+  "NodeAddress{publicKey=0x7f3a9c2e8b1d4f605a7e9c3b2d8f1046, accountId=0.0.100, nodeId=1, certHash=0x8b2f6d1a9c4e7f305b8d2a6c1e9f43708d5b2a6c4e1f9037b8d5a2c6e9f10438, addresses=[127.0.0.1:8080, test.node.com:8080], description=Unit test node, stake=1}"
+]
+
+
+com.hedera.hashgraph.sdk.NodeAddressTest.toProtobuf=[
+  "# com.hedera.hashgraph.sdk.proto.NodeAddress@f211a75d\ndescription: \"Unit test node\"\nnode_account_id {\n  account_num: 100\n  realm_num: 0\n  shard_num: 0\n}\nnode_cert_hash: \"0x8b2f6d1a9c4e7f305b8d2a6c1e9f43708d5b2a6c4e1f9037b8d5a2c6e9f10438\"\nnode_id: 1\nr_s_a_pub_key: \"0x7f3a9c2e8b1d4f605a7e9c3b2d8f1046\"\nservice_endpoint {\n  ip_address_v4: \"\\177\\000\\000\\001\"\n  port: 8080\n}\nservice_endpoint {\n  domain_name: \"test.node.com\"\n  port: 8080\n}\nstake: 0"
+]

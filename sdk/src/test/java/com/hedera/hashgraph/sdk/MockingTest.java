@@ -11,6 +11,7 @@ import com.hedera.hashgraph.sdk.proto.Query;
 import com.hedera.hashgraph.sdk.proto.Response;
 import com.hedera.hashgraph.sdk.proto.ResponseCodeEnum;
 import com.hedera.hashgraph.sdk.proto.ResponseHeader;
+import com.hedera.hashgraph.sdk.proto.ResponseType;
 import com.hedera.hashgraph.sdk.proto.SignedTransaction;
 import com.hedera.hashgraph.sdk.proto.SmartContractServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.Transaction;
@@ -31,13 +32,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -653,29 +652,60 @@ class MockingTest {
         server.close();
     }
 
-    @Disabled
+    /**
+     * A COST_ANSWER reply from getAccountInfo quoting {@code costTinybars} as the price of the query.
+     * This is what the SDK compares against the configured maximum query payment.
+     */
+    private static Response accountInfoCostAnswer(long costTinybars) {
+        return Response.newBuilder()
+                .setCryptoGetInfo(CryptoGetInfoResponse.newBuilder()
+                        .setHeader(ResponseHeader.newBuilder()
+                                .setNodeTransactionPrecheckCode(ResponseCodeEnum.OK)
+                                .setResponseType(ResponseType.COST_ANSWER)
+                                .setCost(costTinybars)))
+                .build();
+    }
+
     @Test
     @DisplayName("Client.setDefaultMaxQueryPayment() functions correctly")
     void defaultMaxQueryPaymentTest() throws Exception {
-        var service = new TestCryptoService();
-        var server = new TestServer("queryPayment", service);
+        var accountId = new AccountId(0, 0, 10);
 
-        var response = Response.newBuilder()
-                .setCryptogetAccountBalance(
-                        new AccountBalance(new Hbar(0), new HashMap<TokenId, Long>(), new HashMap<TokenId, Integer>())
-                                .toProtobuf())
+        // Unlike the free AccountBalanceQuery, getAccountInfo is a paid query, so it actually
+        // consults the client's default max query payment: the node first answers the COST_ANSWER
+        // probe with the price, and the SDK compares that against the ceiling before paying.
+        var infoAnswer = Response.newBuilder()
+                .setCryptoGetInfo(CryptoGetInfoResponse.newBuilder()
+                        .setHeader(ResponseHeader.newBuilder()
+                                .setNodeTransactionPrecheckCode(ResponseCodeEnum.OK)
+                                .setResponseType(ResponseType.ANSWER_ONLY))
+                        .setAccountInfo(CryptoGetInfoResponse.AccountInfo.newBuilder()
+                                .setAccountID(accountId.toProtobuf())
+                                .setKey(PrivateKey.generateED25519()
+                                        .getPublicKey()
+                                        .toProtobufKey())
+                                .setLedgerId(LedgerId.TESTNET.toByteString())))
                 .build();
 
-        service.buffer
-                .enqueueResponse(TestResponse.query(response))
-                .enqueueResponse(TestResponse.query(response))
-                .enqueueResponse(TestResponse.query(response));
+        // Raising the ceiling above the SDK's built-in 1 ℏ default lets the 2 ℏ query through.
+        try (var mocker =
+                Mocker.withResponses(List.of(List.of(accountInfoCostAnswer(new Hbar(2).toTinybars()), infoAnswer)))) {
+            mocker.client.setDefaultMaxQueryPayment(new Hbar(5));
 
-        // TODO: this will take some work, since I have to contend with Query's getCost behavior
-        // TODO: actually, because AccountBalanceQuery is free, I'll need some other query type to test this.
-        //       Perhaps getAccountInfo?
+            var info = new AccountInfoQuery().setAccountId(accountId).execute(mocker.client);
 
-        server.close();
+            Assertions.assertEquals(accountId, info.accountId);
+        }
+
+        // Lowering the ceiling below the query cost makes the same query fail. The 0.5 ℏ cost would
+        // pass under the built-in 1 ℏ default, so a rejection here proves the lowered value is used.
+        try (var mocker = Mocker.withResponses(List.of(List.of(accountInfoCostAnswer(new Hbar(1).toTinybars() / 2))))) {
+            mocker.client.setDefaultMaxQueryPayment(Hbar.fromTinybars(new Hbar(1).toTinybars() / 10));
+
+            Assertions.assertThrows(
+                    MaxQueryPaymentExceededException.class,
+                    () -> new AccountInfoQuery().setAccountId(accountId).execute(mocker.client));
+        }
     }
 
     @Test

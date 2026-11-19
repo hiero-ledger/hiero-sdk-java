@@ -93,8 +93,10 @@ public class TokenService extends AbstractJSONRPC2Service {
         TokenInfoQuery query = QueryBuilders.TokenBuilder.buildTokenInfo(params);
         Client client = sdkService.getClient(params.sessionId());
 
-        TokenInfo txResponse = query.execute(client);
+        return toTokenInfoResponse(query.execute(client));
+    }
 
+    static TokenInfoResponse toTokenInfoResponse(final TokenInfo txResponse) {
         return new TokenInfoResponse(
                 txResponse.tokenId.toString(),
                 txResponse.name,
@@ -121,7 +123,7 @@ public class TokenService extends AbstractJSONRPC2Service {
                 String.valueOf(txResponse.maxSupply),
                 txResponse.pauseKey != null ? txResponse.pauseKey.toString() : "",
                 txResponse.pauseStatus,
-                txResponse.metadata != null ? txResponse.metadata.toString() : "",
+                txResponse.metadata != null ? Hex.toHexString(txResponse.metadata) : "",
                 txResponse.metadataKey != null ? txResponse.metadataKey.toString() : "",
                 txResponse.ledgerId.toString());
     }
