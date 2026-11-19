@@ -423,15 +423,16 @@ public final class TransactionResponse {
      * @return future result of the transaction record
      */
     public CompletableFuture<TransactionRecord> getRecordAsync(Client client, Duration timeout) {
-        return getReceiptAsync(client, timeout).thenCompose((receipt) -> getRecordQuery(client)
-                .executeAsync(client, timeout)
-                .thenCompose(record -> {
-                    try {
-                        return CompletableFuture.completedFuture(record.validateReceiptStatus(validateStatus));
-                    } catch (ReceiptStatusException e) {
-                        return CompletableFuture.failedFuture(e);
-                    }
-                }));
+        return getReceiptAsync(client, timeout)
+                .thenCompose((receipt) -> getRecordQuery(client)
+                        .executeAsync(client, timeout)
+                        .thenCompose(record -> {
+                            try {
+                                return CompletableFuture.completedFuture(record.validateReceiptStatus(validateStatus));
+                            } catch (ReceiptStatusException e) {
+                                return CompletableFuture.failedFuture(e);
+                            }
+                        }));
     }
 
     /**

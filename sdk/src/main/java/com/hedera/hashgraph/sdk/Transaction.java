@@ -397,8 +397,9 @@ public abstract class Transaction<T extends Transaction<T>>
             var txBody = parseBodyHashInput(signedTransaction.getBodyBytes());
             requireMatchingBodyType(firstTxBody, txBody);
 
-            if (transactionList.size() > 1 && (!txBody.hasTransactionID() || !txBody.hasNodeAccountID())) {
-                throw new IllegalArgumentException("TransactionList entries must have transaction and node IDs");
+            // Incomplete (HIP-745) lists may lack transaction IDs; the body hash still rejects them.
+            if (transactionList.size() > 1 && !txBody.hasNodeAccountID()) {
+                throw new IllegalArgumentException("TransactionList entries must have node IDs");
             }
 
             addTransactionToMap(transaction, txBody, txsMap);
@@ -431,7 +432,8 @@ public abstract class Transaction<T extends Transaction<T>>
                 ? Objects.requireNonNull(txsMap.get(transactionId))
                 : new LinkedHashMap<AccountId, com.hedera.hashgraph.sdk.proto.Transaction>();
 
-        if (linked.containsKey(account)) {
+        // toBytes() repeats each ID-less node entry once per chunk; those copies collapse as before.
+        if (!transactionId.equals(DUMMY_TRANSACTION_ID) && linked.containsKey(account)) {
             throw new IllegalArgumentException("Duplicate transaction entry detected in TransactionList for"
                     + " transactionId=" + transactionId + " and nodeAccountId=" + account);
         }

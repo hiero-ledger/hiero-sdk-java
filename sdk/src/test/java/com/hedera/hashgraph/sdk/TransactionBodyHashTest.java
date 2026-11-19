@@ -383,8 +383,9 @@ class TransactionBodyHashTest {
         assertThat(signedBytes).isNotEqualTo(unsignedBytes);
         assertThat(transaction.getTransactionHash()).isNotEqualTo(unsignedNetworkHash);
         assertThat(transaction.getTransactionBodyHash()).isEqualTo(hash);
-        assertThat(transaction.getSignatures().values()).allSatisfy(signatures -> assertThat(signatures)
-                .containsKeys(firstKey.getPublicKey(), secondKey.getPublicKey()));
+        assertThat(transaction.getSignatures().values())
+                .allSatisfy(signatures ->
+                        assertThat(signatures).containsKeys(firstKey.getPublicKey(), secondKey.getPublicKey()));
         transaction.removeAllSignatures();
         assertThat(transaction.getTransactionBodyHash()).isEqualTo(hash);
         transaction.sign(secondKey).sign(firstKey);
@@ -808,15 +809,17 @@ class TransactionBodyHashTest {
         assertThat(signedBodies).isEmpty();
         assertThat(transaction.transactionIds.getIndex()).isEqualTo(1);
         assertThat(transaction.nodeAccountIds.getIndex()).isEqualTo(1);
-        assertThat(transaction.sigPairLists).allSatisfy(signatures -> assertThat(signatures.getSigPairCount())
-                .isZero());
+        assertThat(transaction.sigPairLists)
+                .allSatisfy(
+                        signatures -> assertThat(signatures.getSigPairCount()).isZero());
         assertThat(preparedBodies(transaction)).containsExactlyElementsOf(bodies);
 
         transaction.toBytes();
 
         assertThat(signedBodies).containsExactlyElementsOf(bodies);
-        assertThat(transaction.getAllSignatures()).allSatisfy(chunk -> assertThat(chunk.values())
-                .allSatisfy(signatures -> assertThat(signatures).containsKey(key.getPublicKey())));
+        assertThat(transaction.getAllSignatures())
+                .allSatisfy(chunk -> assertThat(chunk.values())
+                        .allSatisfy(signatures -> assertThat(signatures).containsKey(key.getPublicKey())));
         assertThat(transaction.getTransactionBodyHash()).isEqualTo(hash);
         assertThat(transaction.transactionIds.getIndex()).isEqualTo(1);
         assertThat(transaction.nodeAccountIds.getIndex()).isEqualTo(1);
@@ -1265,6 +1268,26 @@ class TransactionBodyHashTest {
     @MethodSource("invalidLayouts")
     void invalidPreparedLayoutsAreRejected(String name, byte[] input) {
         assertRejected(input);
+    }
+
+    @Test
+    void incompleteTransactionsWithNodeIdsButNoTransactionIdStillImport() throws Exception {
+        // HIP-745: toBytes() before a transaction ID exists emits one ID-less entry per node and chunk.
+        var transfer = Transaction.fromBytes(
+                new TransferTransaction().setNodeAccountIds(NODES).toBytes());
+        assertThat(transfer.getNodeAccountIds()).isEqualTo(NODES);
+
+        var contents = "x".repeat(5000);
+        var append = (FileAppendTransaction) Transaction.fromBytes(new FileAppendTransaction()
+                .setNodeAccountIds(NODES)
+                .setFileId(new FileId(5))
+                .setContents(contents)
+                .toBytes());
+        assertThat(append.getNodeAccountIds()).isEqualTo(NODES);
+        assertThat(append.getContents().toStringUtf8()).isEqualTo(contents);
+        append.setTransactionId(TransactionId.withValidStart(PAYER, VALID_START))
+                .freeze();
+        assertThat(append.getTransactionBodyHash()).hasSize(48);
     }
 
     private static Stream<Arguments> malformedBodies() throws Exception {

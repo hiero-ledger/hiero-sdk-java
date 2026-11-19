@@ -57,10 +57,12 @@ and preserves stored envelope order and bytes. Existing network hash APIs keep t
 result shapes.
 
 Duplicate decoded `(transaction ID, node ID)` entries and incomplete or different node sets are rejected
-before import regrouping can discard evidence. Existing transaction-type, body-content and chunk
-validation still applies. Modern signed-transaction envelopes and supported legacy `bodyBytes` imports
-retain their original prepared bodies. Unsigned imports remain editable: freezing an unchanged import
-retains its original bytes, chunk IDs and boundaries; edits rebuild its bodies through the normal path.
+before import regrouping can discard evidence. Incomplete (HIP-745) exports without transaction IDs
+still import as before; they cannot be hashed until frozen with IDs. Existing transaction-type,
+body-content and chunk validation still applies. Modern signed-transaction envelopes and supported
+legacy `bodyBytes` imports retain their original prepared bodies. Unsigned imports remain editable:
+freezing an unchanged import retains its original bytes, chunk IDs and boundaries; edits rebuild its
+bodies through the normal path.
 
 Batch content consistency compares each child's original body bytes in order. Child signatures and
 envelope metadata may differ between prepared node entries. A temporary comparison projection excludes
