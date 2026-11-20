@@ -469,6 +469,14 @@ public abstract class Transaction<T extends Transaction<T>>
             case REGISTEREDNODECREATE -> new RegisteredNodeCreateTransaction(txs);
             case REGISTEREDNODEUPDATE -> new RegisteredNodeUpdateTransaction(txs);
             case REGISTEREDNODEDELETE -> new RegisteredNodeDeleteTransaction(txs);
+            case CLPRREGISTERCHANNEL -> new ClprRegisterChannelTransaction(txs);
+            case CLPRCOMPLETECHANNEL -> new ClprCompleteChannelTransaction(txs);
+            case CLPRCLOSECHANNEL -> new ClprCloseChannelTransaction(txs);
+            case CLPRSUBMITBUNDLE -> new ClprSubmitBundleTransaction(txs);
+            case CLPRREGISTERCONNECTOR -> new ClprRegisterConnectorTransaction(txs);
+            case CLPRCOMPLETECONNECTOR -> new ClprCompleteConnectorTransaction(txs);
+            case CLPRDEREGISTERCONNECTOR -> new ClprDeregisterConnectorTransaction(txs);
+            case CLPRUPDATELEDGERCONFIGURATION -> new ClprUpdateLedgerConfigurationTransaction(txs);
             default -> throw new IllegalArgumentException("parsed transaction body has no data");
         };
     }

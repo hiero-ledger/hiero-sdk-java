@@ -544,7 +544,73 @@ public enum RequestType {
     /**
      * Vote on wrapped record migration hash state.
      */
-    MIGRATION_ROOT_HASH_VOTE(HederaFunctionality.MigrationRootHashVote);
+    MIGRATION_ROOT_HASH_VOTE(HederaFunctionality.MigrationRootHashVote),
+
+    /**
+     * Update the local CLPR ledger configuration.
+     */
+    CLPR_UPDATE_LEDGER_CONFIGURATION(HederaFunctionality.ClprUpdateLedgerConfiguration),
+
+    /**
+     * Register a new CLPR Channel to a peer ledger.
+     */
+    CLPR_REGISTER_CHANNEL(HederaFunctionality.ClprRegisterChannel),
+
+    /**
+     * Complete a PENDING CLPR Channel (reveal phase).
+     */
+    CLPR_COMPLETE_CHANNEL(HederaFunctionality.ClprCompleteChannel),
+
+    /**
+     * Initiate graceful closure of a CLPR Channel.
+     */
+    CLPR_CLOSE_CHANNEL(HederaFunctionality.ClprCloseChannel),
+
+    /**
+     * Get the current CLPR ledger configuration.
+     */
+    CLPR_GET_LEDGER_CONFIGURATION(HederaFunctionality.ClprGetLedgerConfiguration),
+
+    /**
+     * Submit a bundle of cross-ledger messages from a peer sync.
+     */
+    CLPR_SUBMIT_BUNDLE(HederaFunctionality.ClprSubmitBundle),
+
+    /**
+     * Register a Connector on the CLPR Service.
+     */
+    CLPR_REGISTER_CONNECTOR(HederaFunctionality.ClprRegisterConnector),
+
+    /**
+     * Remove a Connector from the CLPR Service.
+     */
+    CLPR_DEREGISTER_CONNECTOR(HederaFunctionality.ClprDeregisterConnector),
+
+    /**
+     * Complete a Connector registration (reveal phase).
+     */
+    CLPR_COMPLETE_CONNECTOR(HederaFunctionality.ClprCompleteConnector),
+
+    /**
+     * Self-publish a node's CLPR endpoint into a manifest construction (spec §2.4.1 /
+     * `dev-context/clpr-endpoint-self-publication-design.md`).
+     */
+    CLPR_ENDPOINT_PUBLICATION(HederaFunctionality.ClprEndpointPublication),
+
+    /**
+     * Get the current CLPR endpoint manifest (spec §6.5).
+     */
+    CLPR_GET_ENDPOINT_MANIFEST(HederaFunctionality.ClprGetEndpointManifest),
+
+    /**
+     * (Internal-only) Externalize CLPR singleton maintenance.
+     */
+    CLPR_MAINTENANCE(HederaFunctionality.ClprMaintenance),
+
+    /**
+     * Remove a peer endpoint from a CLPR Channel's cached endpoint manifest.
+     */
+    CLPR_EVICT_PEER_ENDPOINT(HederaFunctionality.ClprEvictPeerEndpoint);
 
     final HederaFunctionality code;
 
@@ -653,6 +719,19 @@ public enum RequestType {
             case RegisteredNodeUpdate -> REGISTERED_NODE_UPDATE;
             case RegisteredNodeDelete -> REGISTERED_NODE_DELETE;
             case MigrationRootHashVote -> MIGRATION_ROOT_HASH_VOTE;
+            case ClprUpdateLedgerConfiguration -> CLPR_UPDATE_LEDGER_CONFIGURATION;
+            case ClprRegisterChannel -> CLPR_REGISTER_CHANNEL;
+            case ClprCompleteChannel -> CLPR_COMPLETE_CHANNEL;
+            case ClprCloseChannel -> CLPR_CLOSE_CHANNEL;
+            case ClprGetLedgerConfiguration -> CLPR_GET_LEDGER_CONFIGURATION;
+            case ClprSubmitBundle -> CLPR_SUBMIT_BUNDLE;
+            case ClprRegisterConnector -> CLPR_REGISTER_CONNECTOR;
+            case ClprDeregisterConnector -> CLPR_DEREGISTER_CONNECTOR;
+            case ClprCompleteConnector -> CLPR_COMPLETE_CONNECTOR;
+            case ClprEndpointPublication -> CLPR_ENDPOINT_PUBLICATION;
+            case ClprGetEndpointManifest -> CLPR_GET_ENDPOINT_MANIFEST;
+            case ClprMaintenance -> CLPR_MAINTENANCE;
+            case ClprEvictPeerEndpoint -> CLPR_EVICT_PEER_ENDPOINT;
             default -> throw new IllegalStateException("(BUG) unhandled HederaFunctionality");
         };
     }
@@ -759,6 +838,19 @@ public enum RequestType {
             case REGISTERED_NODE_UPDATE -> "REGISTERED_NODE_UPDATE";
             case REGISTERED_NODE_DELETE -> "REGISTERED_NODE_DELETE";
             case MIGRATION_ROOT_HASH_VOTE -> "MIGRATION_ROOT_HASH_VOTE";
+            case CLPR_UPDATE_LEDGER_CONFIGURATION -> "CLPR_UPDATE_LEDGER_CONFIGURATION";
+            case CLPR_REGISTER_CHANNEL -> "CLPR_REGISTER_CHANNEL";
+            case CLPR_COMPLETE_CHANNEL -> "CLPR_COMPLETE_CHANNEL";
+            case CLPR_CLOSE_CHANNEL -> "CLPR_CLOSE_CHANNEL";
+            case CLPR_GET_LEDGER_CONFIGURATION -> "CLPR_GET_LEDGER_CONFIGURATION";
+            case CLPR_SUBMIT_BUNDLE -> "CLPR_SUBMIT_BUNDLE";
+            case CLPR_REGISTER_CONNECTOR -> "CLPR_REGISTER_CONNECTOR";
+            case CLPR_DEREGISTER_CONNECTOR -> "CLPR_DEREGISTER_CONNECTOR";
+            case CLPR_COMPLETE_CONNECTOR -> "CLPR_COMPLETE_CONNECTOR";
+            case CLPR_ENDPOINT_PUBLICATION -> "CLPR_ENDPOINT_PUBLICATION";
+            case CLPR_GET_ENDPOINT_MANIFEST -> "CLPR_GET_ENDPOINT_MANIFEST";
+            case CLPR_MAINTENANCE -> "CLPR_MAINTENANCE";
+            case CLPR_EVICT_PEER_ENDPOINT -> "CLPR_EVICT_PEER_ENDPOINT";
         };
     }
 }

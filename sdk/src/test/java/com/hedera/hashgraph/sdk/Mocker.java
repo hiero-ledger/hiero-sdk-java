@@ -3,6 +3,7 @@ package com.hedera.hashgraph.sdk;
 
 import com.hedera.hashgraph.sdk.logger.LogLevel;
 import com.hedera.hashgraph.sdk.logger.Logger;
+import com.hedera.hashgraph.sdk.proto.ClprServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.ConsensusServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.CryptoServiceGrpc;
 import com.hedera.hashgraph.sdk.proto.FileServiceGrpc;
@@ -33,7 +34,8 @@ public class Mocker implements AutoCloseable {
             FileServiceGrpc.getServiceDescriptor(),
             SmartContractServiceGrpc.getServiceDescriptor(),
             ConsensusServiceGrpc.getServiceDescriptor(),
-            TokenServiceGrpc.getServiceDescriptor());
+            TokenServiceGrpc.getServiceDescriptor(),
+            ClprServiceGrpc.getServiceDescriptor());
     private final List<List<Object>> responses;
     private final List<Server> servers = new ArrayList<>();
 

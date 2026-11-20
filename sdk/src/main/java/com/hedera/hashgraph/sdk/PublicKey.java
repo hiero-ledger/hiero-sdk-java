@@ -212,6 +212,14 @@ public abstract class PublicKey extends Key {
      */
     public abstract byte[] toBytesRaw();
 
+    /**
+     * Extract the 64-byte uncompressed ECDSA secp256k1 point {@code x || y}, without the SEC1 {@code 0x04} prefix.
+     *
+     * @return                          the uncompressed {@code x || y} coordinates
+     * @throws IllegalStateException    if this is an Ed25519 key
+     */
+    public abstract byte[] toBytesRawUncompressed();
+
     @Override
     public String toString() {
         return toStringDER();
