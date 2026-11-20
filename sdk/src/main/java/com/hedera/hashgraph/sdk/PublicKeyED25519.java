@@ -101,6 +101,11 @@ class PublicKeyED25519 extends PublicKey {
     }
 
     @Override
+    public byte[] toBytesRawUncompressed() {
+        throw new IllegalStateException("Uncompressed coordinates are not supported for Ed25519 keys");
+    }
+
+    @Override
     public EvmAddress toEvmAddress() {
         throw new IllegalStateException("unsupported operation on Ed25519PublicKey");
     }

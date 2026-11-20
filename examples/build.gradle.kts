@@ -86,6 +86,8 @@ abstract class RunAllExample : DefaultTask() {
                 .filter { it != "ContractHooksExample" }
                 .filter { it != "TransferTransactionHooksExample" }
                 .filter { it != "FeeEstimateQueryExample" }
+                // CLPR is off by default and needs clpr.enabled, contracts and peer proof material
+                .filter { !it.startsWith("Clpr") }
                 // remove after official release
                 .filter { it != "CreateAccountWithCodeDelegationExample" }
                 .filter { it != "UpdateAccountToClearCodeDelegationExample" }
@@ -99,7 +101,7 @@ abstract class RunAllExample : DefaultTask() {
             ---EXECUTING $className:
 
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
             exec.javaexec {

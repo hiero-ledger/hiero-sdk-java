@@ -25,12 +25,12 @@ testModuleInfo {
     requires("com.fasterxml.jackson.annotation")
     requires("com.fasterxml.jackson.core")
     requires("com.fasterxml.jackson.databind")
+    requires("jdk.httpserver")
     requires("json.snapshot")
     requires("org.assertj.core")
     requires("org.junit.jupiter.api")
     requires("org.junit.jupiter.params")
     requires("org.mockito")
-    requires("jdk.httpserver")
 
     runtimeOnly("io.grpc.netty.shaded")
     runtimeOnly("org.slf4j.simple")
@@ -55,6 +55,9 @@ tasks.withType<Test>().configureEach {
     systemProperty("HEDERA_NETWORK", providers.gradleProperty("HEDERA_NETWORK").getOrElse(""))
     systemProperty("OPERATOR_ID", providers.gradleProperty("OPERATOR_ID").getOrElse(""))
     systemProperty("OPERATOR_KEY", providers.gradleProperty("OPERATOR_KEY").getOrElse(""))
+    // CLPR integration tests: unset skips them, "true" needs clpr.enabled=true on the node,
+    // "false" checks CLPR_NOT_ENABLED on a node with clpr.enabled=false.
+    systemProperty("CLPR_ENABLED", providers.gradleProperty("CLPR_ENABLED").getOrElse(""))
 }
 
 tasks.testIntegration {
@@ -92,7 +95,7 @@ tasks.register<Exec>("updateProto") {
 tasks.withType<Test>().configureEach {
     if (project.hasProperty("skipNodeUpdateTest")) {
         exclude(
-            "com/hedera/hashgraph/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class"
+            "com/hedera/hashgraph/sdk/test/integration/NodeUpdateTransactionIntegrationTest.class",
         )
     }
 }

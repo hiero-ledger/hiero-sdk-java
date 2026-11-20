@@ -17,6 +17,15 @@ import com.hedera.hashgraph.tck.methods.sdk.param.account.AccountUpdateParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.DeprecatedAccountBalanceQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.GetAccountInfoParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.account.MirrorNodeAccountBalanceParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprCloseChannelParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprCompleteChannelParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprCompleteConnectorParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprDeregisterConnectorParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprQueryParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprRegisterChannelParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprRegisterConnectorParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprSubmitBundleParams;
+import com.hedera.hashgraph.tck.methods.sdk.param.clpr.ClprUpdateLedgerConfigurationParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractByteCodeQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.ContractCallQueryParams;
 import com.hedera.hashgraph.tck.methods.sdk.param.contract.CreateContractParams;
@@ -122,6 +131,17 @@ public final class JSONRPC2ParamRegistry {
                 entry(AddressBookQueryParams.class, toUncheckedFunction(AddressBookQueryParams::parse)),
                 entry(NodeCreateParams.class, toUncheckedFunction(NodeCreateParams::parse)),
                 entry(NodeDeleteParams.class, toUncheckedFunction(NodeDeleteParams::parse)),
+                entry(ClprRegisterChannelParams.class, toUncheckedFunction(ClprRegisterChannelParams::parse)),
+                entry(ClprCompleteChannelParams.class, toUncheckedFunction(ClprCompleteChannelParams::parse)),
+                entry(ClprCloseChannelParams.class, toUncheckedFunction(ClprCloseChannelParams::parse)),
+                entry(ClprSubmitBundleParams.class, toUncheckedFunction(ClprSubmitBundleParams::parse)),
+                entry(ClprRegisterConnectorParams.class, toUncheckedFunction(ClprRegisterConnectorParams::parse)),
+                entry(ClprCompleteConnectorParams.class, toUncheckedFunction(ClprCompleteConnectorParams::parse)),
+                entry(ClprDeregisterConnectorParams.class, toUncheckedFunction(ClprDeregisterConnectorParams::parse)),
+                entry(
+                        ClprUpdateLedgerConfigurationParams.class,
+                        toUncheckedFunction(ClprUpdateLedgerConfigurationParams::parse)),
+                entry(ClprQueryParams.class, toUncheckedFunction(ClprQueryParams::parse)),
                 entry(NodeUpdateParams.class, toUncheckedFunction(NodeUpdateParams::parse)),
                 entry(ScheduleCreateParams.class, toUncheckedFunction(ScheduleCreateParams::parse)),
                 entry(ScheduleDeleteParams.class, toUncheckedFunction(ScheduleDeleteParams::parse)),

@@ -1,0 +1,8 @@
+com.hedera.hashgraph.sdk.ClprQueryTest.endpointManifestQueryShouldSerialize=[
+  "# com.hedera.hashgraph.sdk.proto.Query\nclpr_get_endpoint_manifest {\n  header {\n    payment {\n      signed_transaction_bytes: \"\\336\\255\\276\\357\"\n    }\n  }\n}"
+]
+
+
+com.hedera.hashgraph.sdk.ClprQueryTest.ledgerConfigurationQueryShouldSerialize=[
+  "# com.hedera.hashgraph.sdk.proto.Query\nclpr_get_ledger_configuration {\n  header {\n    payment {\n      signed_transaction_bytes: \"\\336\\255\\276\\357\"\n    }\n  }\n}"
+]

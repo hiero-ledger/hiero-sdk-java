@@ -1,0 +1,8 @@
+com.hedera.hashgraph.sdk.ClprInfoTest.endpointManifestShouldSerialize=[
+  "ClprEndpointManifestInfo{version=18446744073709551615, serviceAddress=000000000000000000000000000000000000016e, endpoints=[ClprEndpoint{serviceEndpoint=ClprServiceEndpoint{ipAddress=127.0.0.1, port=50211}, tlsCertificate=3082, accountId=0102}], manifestStateProof=cafe}"
+]
+
+
+com.hedera.hashgraph.sdk.ClprInfoTest.ledgerConfigurationShouldSerialize=[
+  "ClprLedgerConfigurationInfo{protocolVersion=1, chainId=hedera-local, serviceAddress=000000000000000000000000000000000000016e, timestamp=2019-04-01T22:42:22.000000007Z, throttles=ClprThrottles{maxMessagesPerBundle=10, maxMessagePayloadBytes=4096, maxGasPerMessage=18446744073709551615, maxQueueDepth=4294967295, maxSyncBytes=1048576, maxLocalEndpoints=0, maxPeerEndpoints=5}, initialTrustAnchor=aabb, initialTrustAnchorId=ccdd, configurationStateProof=deadbeef}"
+]
