@@ -51,7 +51,7 @@ dependencies.constraints {
     api("org.apache.tomcat.embed:tomcat-embed-core:11.0.27")
     api("org.springframework:spring-webmvc:7.0.10")
     api("org.springframework:spring-context:7.0.10")
-    api("org.springframework:spring-web:7.0.10")
+    api("org.springframework:spring-web:7.1.0")
     api("ch.qos.logback:logback-core:1.6.6")
 
     tasks.checkVersionConsistency {
