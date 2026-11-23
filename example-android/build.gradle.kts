@@ -2,5 +2,5 @@
 
 plugins {
     id("com.android.application") version "9.0.1" apply false
-    id("com.autonomousapps.dependency-analysis") version "3.20.2"
+    id("com.autonomousapps.dependency-analysis") version "3.20.4"
 }
