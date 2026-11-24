@@ -9,7 +9,7 @@ val mockito = "5.24.0"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:4.1.2"))
-    api(platform("io.netty:netty-bom:4.2.20.Final"))
+    api(platform("io.netty:netty-bom:4.2.21.Final"))
 }
 
 dependencies.constraints {
@@ -48,9 +48,9 @@ dependencies.constraints {
 
     // Temporary override due to SNYK-JAVA-ORGAPACHETOMCATEMBED-16643259
     // TO BE removed when spring-boot-dependencies gets updated
-    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.27")
+    api("org.apache.tomcat.embed:tomcat-embed-core:11.0.29")
     api("org.springframework:spring-webmvc:7.0.10")
-    api("org.springframework:spring-context:7.0.10")
+    api("org.springframework:spring-context:7.1.0")
     api("org.springframework:spring-web:7.1.0")
     api("ch.qos.logback:logback-core:1.6.6")
 
