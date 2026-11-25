@@ -43,6 +43,16 @@
 * [Account hooks](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/AccountHooksExample.java)
 * [Lambda SStore](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/LambdaSStoreExample.java)
 
+### CLPR (HIP-1535)
+
+CLPR is off by default. These examples need a network with `clpr.enabled=true` and are not run by `runAllExamples`.
+
+* [Get the ledger configuration](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ClprGetLedgerConfigurationExample.java)
+* [Get the endpoint manifest](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ClprGetEndpointManifestExample.java)
+* [Update the ledger configuration](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ClprUpdateLedgerConfigurationExample.java)
+* [Channel lifecycle](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ClprChannelLifecycleExample.java)
+* [Connector lifecycle](../examples/src/main/java/com/hedera/hashgraph/sdk/examples/ClprConnectorLifecycleExample.java)
+
 ### Consensus Service
 
 * [Create a topic](../examples/src/main/java/org/hiero/sdk/java/examples/CreateTopicExample.java)

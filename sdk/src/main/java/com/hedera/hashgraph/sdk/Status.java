@@ -1859,7 +1859,7 @@ public enum Status {
 
     /**
      * The list of batch transactions contains a transaction type that is
-     * in the AtomicBatch blacklist as configured in the network.
+     * not in the AtomicBatch whitelist as configured in the network.
      */
     BATCH_TRANSACTION_IN_BLACKLIST(ResponseCodeEnum.BATCH_TRANSACTION_IN_BLACKLIST),
 
@@ -2127,7 +2127,214 @@ public enum Status {
     /**
      * The number of associated registered nodes exceeds the maximum allowed limit.
      */
-    MAX_REGISTERED_NODES_EXCEEDED(ResponseCodeEnum.MAX_REGISTERED_NODES_EXCEEDED);
+    MAX_REGISTERED_NODES_EXCEEDED(ResponseCodeEnum.MAX_REGISTERED_NODES_EXCEEDED),
+
+    /**
+     * The contents of a configuration system file (network properties or HAPI permissions)
+     * could not be parsed as a `ServicesConfigurationList`.<br/>
+     * The bytes were committed, but no configuration change was applied. This is expected
+     * for every part but the last of a multi-part upload.
+     */
+    CONFIG_FILE_PART_UPLOADED(ResponseCodeEnum.CONFIG_FILE_PART_UPLOADED),
+
+    /**
+     * The CLPR service is not enabled on this ledger.
+     */
+    CLPR_NOT_ENABLED(ResponseCodeEnum.CLPR_NOT_ENABLED),
+
+    /**
+     * A CLPR configuration field has an invalid value.<br/>
+     * Throttle values such as max_messages_per_bundle, max_message_payload_bytes,
+     * and max_queue_depth must be greater than zero.
+     */
+    INVALID_CLPR_CONFIGURATION(ResponseCodeEnum.INVALID_CLPR_CONFIGURATION),
+
+    /**
+     * The chain_id in a CLPR ledger configuration is immutable
+     * (set at genesis from configuration properties).
+     */
+    CLPR_CHAIN_ID_IMMUTABLE(ResponseCodeEnum.CLPR_CHAIN_ID_IMMUTABLE),
+
+    /**
+     * Too many endpoints were specified in the CLPR configuration.<br/>
+     * The maximum number of endpoints is set by `max_local_endpoints` when
+     * that value is non-zero.
+     */
+    CLPR_TOO_MANY_SEED_ENDPOINTS(ResponseCodeEnum.CLPR_TOO_MANY_SEED_ENDPOINTS),
+
+    /**
+     * An endpoint in the CLPR configuration is missing required fields
+     * (service_endpoint, tls_certificate, or ecdsa_signing_key).
+     */
+    CLPR_INVALID_SEED_ENDPOINT(ResponseCodeEnum.CLPR_INVALID_SEED_ENDPOINT),
+
+    /**
+     * A CLPR Channel with the given channel_id already exists, or (on
+     * registerChannel) the ownership commitment is already registered, either
+     * pending reveal or bound to an existing Channel in any status, including
+     * CLOSED.
+     */
+    CLPR_CHANNEL_ALREADY_EXISTS(ResponseCodeEnum.CLPR_CHANNEL_ALREADY_EXISTS),
+
+    /**
+     * The signature on the CLPR channel completion is invalid.
+     */
+    CLPR_INVALID_SIGNATURE(ResponseCodeEnum.CLPR_INVALID_SIGNATURE),
+
+    /**
+     * The verifier contract account does not exist or is not a smart contract.
+     */
+    CLPR_INVALID_VERIFIER_CONTRACT(ResponseCodeEnum.CLPR_INVALID_VERIFIER_CONTRACT),
+
+    /**
+     * The verifier contract's verifyConfig call failed or returned invalid data.
+     */
+    CLPR_VERIFIER_CONFIG_FAILED(ResponseCodeEnum.CLPR_VERIFIER_CONFIG_FAILED),
+
+    /**
+     * The keccak256(channel_id || public_key) does not match any stored
+     * ownership commitment.
+     */
+    CLPR_COMMITMENT_MISMATCH(ResponseCodeEnum.CLPR_COMMITMENT_MISMATCH),
+
+    /**
+     * The specified channel_id does not correspond to any known CLPR channel.
+     */
+    CLPR_CHANNEL_NOT_FOUND(ResponseCodeEnum.CLPR_CHANNEL_NOT_FOUND),
+
+    /**
+     * The channel's current status does not allow the requested transition
+     * (e.g., attempting to close an already-closing or closed channel).
+     */
+    CLPR_INVALID_CHANNEL_STATUS(ResponseCodeEnum.CLPR_INVALID_CHANNEL_STATUS),
+
+    /**
+     * The specified message ID does not exist in the queue.
+     */
+    CLPR_MESSAGE_NOT_FOUND(ResponseCodeEnum.CLPR_MESSAGE_NOT_FOUND),
+
+    /**
+     * The endpoint signature is invalid or the signer is not a registered endpoint.
+     */
+    CLPR_INVALID_ENDPOINT_SIGNATURE(ResponseCodeEnum.CLPR_INVALID_ENDPOINT_SIGNATURE),
+
+    /**
+     * The bundle proof verification failed.
+     */
+    CLPR_BUNDLE_VERIFICATION_FAILED(ResponseCodeEnum.CLPR_BUNDLE_VERIFICATION_FAILED),
+
+    /**
+     * The running hash in the bundle does not match the expected value.
+     */
+    CLPR_RUNNING_HASH_MISMATCH(ResponseCodeEnum.CLPR_RUNNING_HASH_MISMATCH),
+
+    /**
+     * The message queue has reached the maximum depth for this Channel.
+     */
+    CLPR_QUEUE_FULL(ResponseCodeEnum.CLPR_QUEUE_FULL),
+
+    /**
+     * The specified Connector does not exist.
+     */
+    CLPR_CONNECTOR_NOT_FOUND(ResponseCodeEnum.CLPR_CONNECTOR_NOT_FOUND),
+
+    /**
+     * A Connector with the same (channel_id, connector_id) already exists, or
+     * (on registerConnector) the commitment is already registered, either
+     * pending reveal or already used to create a Connector, including one that
+     * has since been deregistered.
+     */
+    CLPR_CONNECTOR_ALREADY_EXISTS(ResponseCodeEnum.CLPR_CONNECTOR_ALREADY_EXISTS),
+
+    /**
+     * The caller is not the admin of the specified Connector.
+     */
+    CLPR_CONNECTOR_UNAUTHORIZED(ResponseCodeEnum.CLPR_CONNECTOR_UNAUTHORIZED),
+
+    /**
+     * The connector_id is missing or empty.
+     */
+    CLPR_INVALID_CONNECTOR_ADDRESS(ResponseCodeEnum.CLPR_INVALID_CONNECTOR_ADDRESS),
+
+    /**
+     * The connector_contract does not refer to a deployed smart contract.
+     */
+    CLPR_INVALID_CONNECTOR_CONTRACT(ResponseCodeEnum.CLPR_INVALID_CONNECTOR_CONTRACT),
+
+    /**
+     * The locked_stake amount is below the minimum required by ClprConfig.
+     */
+    CLPR_INSUFFICIENT_STAKE(ResponseCodeEnum.CLPR_INSUFFICIENT_STAKE),
+
+    /**
+     * The message payload exceeds the destination ledger's max_message_payload_bytes.
+     */
+    CLPR_PAYLOAD_TOO_LARGE(ResponseCodeEnum.CLPR_PAYLOAD_TOO_LARGE),
+
+    /**
+     * The Connector's authorization contract rejected the message.
+     */
+    CLPR_AUTHORIZATION_FAILED(ResponseCodeEnum.CLPR_AUTHORIZATION_FAILED),
+
+    /**
+     * The Connector has exceeded its per-Channel queue quota. Other
+     * Connectors may still enqueue messages on this Channel.
+     */
+    CLPR_QUEUE_QUOTA_EXCEEDED(ResponseCodeEnum.CLPR_QUEUE_QUOTA_EXCEEDED),
+
+    /**
+     * The Connector's balance is insufficient to cover the queue fee
+     * (including any congestion escalation).
+     */
+    CLPR_INSUFFICIENT_CONNECTOR_BALANCE(ResponseCodeEnum.CLPR_INSUFFICIENT_CONNECTOR_BALANCE),
+
+    /**
+     * Internal CLPR state is corrupt (e.g., an outbound message ID was assigned but the
+     * message does not exist in the queue). Requires investigation and possible data migration.
+     */
+    CLPR_INTERNAL_STATE_CORRUPTION(ResponseCodeEnum.CLPR_INTERNAL_STATE_CORRUPTION),
+
+    /**
+     * Cannot deregister a Connector that still has unresolved outbound in-flight messages.
+     * All enqueued DATA messages must be acknowledged by a terminal reply before deregistration.
+     */
+    CLPR_CONNECTOR_HAS_IN_FLIGHT_MESSAGES(ResponseCodeEnum.CLPR_CONNECTOR_HAS_IN_FLIGHT_MESSAGES),
+
+    /**
+     * A per-message protobuf decode failed inside a verifier-accepted bundle. Because the
+     * verifier already attested to the bundle contents, a decode failure means the verifier
+     * signed off on malformed data. The Channel is transitioned to PAUSED and remaining
+     * messages in the bundle are not processed.
+     */
+    CLPR_BUNDLE_DECODE_FAILED(ResponseCodeEnum.CLPR_BUNDLE_DECODE_FAILED),
+
+    /**
+     * The submitted bundle carries no application messages, no trust anchor advance, and
+     * no ack progress. Such a bundle has nothing to deliver and is rejected to prevent
+     * endpoints from posting empty proofs.
+     * @deprecated Use CLPR_NO_PROGRESS instead.
+     */
+    CLPR_EMPTY_BUNDLE(ResponseCodeEnum.CLPR_EMPTY_BUNDLE),
+
+    /**
+     * The submitting endpoint has exceeded its fair share of the per-ledger
+     * max_bundles_per_sec throttle. Each endpoint's share is
+     * max_bundles_per_sec / num_registered_endpoints; submissions beyond that
+     * within a one-second window are rejected and the endpoint is charged a
+     * misbehavior penalty.
+     */
+    CLPR_RATE_LIMITED(ResponseCodeEnum.CLPR_RATE_LIMITED),
+
+    /**
+     * A submitted bundle satisfies none of the four Bundle Progress Criteria (spec §2.1.2).
+     * The submitting endpoint is charged a penalty fee.
+     */
+    CLPR_NO_PROGRESS(ResponseCodeEnum.CLPR_NO_PROGRESS),
+
+    /**
+     * The peer endpoint to evict is not in the Channel's cached endpoint manifest.
+     */
+    CLPR_PEER_ENDPOINT_NOT_FOUND(ResponseCodeEnum.CLPR_PEER_ENDPOINT_NOT_FOUND);
 
     final ResponseCodeEnum code;
 
@@ -2545,6 +2752,41 @@ public enum Status {
             case INVALID_REGISTERED_ENDPOINT_TYPE -> INVALID_REGISTERED_ENDPOINT_TYPE;
             case REGISTERED_NODE_STILL_ASSOCIATED -> REGISTERED_NODE_STILL_ASSOCIATED;
             case MAX_REGISTERED_NODES_EXCEEDED -> MAX_REGISTERED_NODES_EXCEEDED;
+            case CONFIG_FILE_PART_UPLOADED -> CONFIG_FILE_PART_UPLOADED;
+            case CLPR_NOT_ENABLED -> CLPR_NOT_ENABLED;
+            case INVALID_CLPR_CONFIGURATION -> INVALID_CLPR_CONFIGURATION;
+            case CLPR_CHAIN_ID_IMMUTABLE -> CLPR_CHAIN_ID_IMMUTABLE;
+            case CLPR_TOO_MANY_SEED_ENDPOINTS -> CLPR_TOO_MANY_SEED_ENDPOINTS;
+            case CLPR_INVALID_SEED_ENDPOINT -> CLPR_INVALID_SEED_ENDPOINT;
+            case CLPR_CHANNEL_ALREADY_EXISTS -> CLPR_CHANNEL_ALREADY_EXISTS;
+            case CLPR_INVALID_SIGNATURE -> CLPR_INVALID_SIGNATURE;
+            case CLPR_INVALID_VERIFIER_CONTRACT -> CLPR_INVALID_VERIFIER_CONTRACT;
+            case CLPR_VERIFIER_CONFIG_FAILED -> CLPR_VERIFIER_CONFIG_FAILED;
+            case CLPR_COMMITMENT_MISMATCH -> CLPR_COMMITMENT_MISMATCH;
+            case CLPR_CHANNEL_NOT_FOUND -> CLPR_CHANNEL_NOT_FOUND;
+            case CLPR_INVALID_CHANNEL_STATUS -> CLPR_INVALID_CHANNEL_STATUS;
+            case CLPR_MESSAGE_NOT_FOUND -> CLPR_MESSAGE_NOT_FOUND;
+            case CLPR_INVALID_ENDPOINT_SIGNATURE -> CLPR_INVALID_ENDPOINT_SIGNATURE;
+            case CLPR_BUNDLE_VERIFICATION_FAILED -> CLPR_BUNDLE_VERIFICATION_FAILED;
+            case CLPR_RUNNING_HASH_MISMATCH -> CLPR_RUNNING_HASH_MISMATCH;
+            case CLPR_QUEUE_FULL -> CLPR_QUEUE_FULL;
+            case CLPR_CONNECTOR_NOT_FOUND -> CLPR_CONNECTOR_NOT_FOUND;
+            case CLPR_CONNECTOR_ALREADY_EXISTS -> CLPR_CONNECTOR_ALREADY_EXISTS;
+            case CLPR_CONNECTOR_UNAUTHORIZED -> CLPR_CONNECTOR_UNAUTHORIZED;
+            case CLPR_INVALID_CONNECTOR_ADDRESS -> CLPR_INVALID_CONNECTOR_ADDRESS;
+            case CLPR_INVALID_CONNECTOR_CONTRACT -> CLPR_INVALID_CONNECTOR_CONTRACT;
+            case CLPR_INSUFFICIENT_STAKE -> CLPR_INSUFFICIENT_STAKE;
+            case CLPR_PAYLOAD_TOO_LARGE -> CLPR_PAYLOAD_TOO_LARGE;
+            case CLPR_AUTHORIZATION_FAILED -> CLPR_AUTHORIZATION_FAILED;
+            case CLPR_QUEUE_QUOTA_EXCEEDED -> CLPR_QUEUE_QUOTA_EXCEEDED;
+            case CLPR_INSUFFICIENT_CONNECTOR_BALANCE -> CLPR_INSUFFICIENT_CONNECTOR_BALANCE;
+            case CLPR_INTERNAL_STATE_CORRUPTION -> CLPR_INTERNAL_STATE_CORRUPTION;
+            case CLPR_CONNECTOR_HAS_IN_FLIGHT_MESSAGES -> CLPR_CONNECTOR_HAS_IN_FLIGHT_MESSAGES;
+            case CLPR_BUNDLE_DECODE_FAILED -> CLPR_BUNDLE_DECODE_FAILED;
+            case CLPR_EMPTY_BUNDLE -> CLPR_EMPTY_BUNDLE;
+            case CLPR_RATE_LIMITED -> CLPR_RATE_LIMITED;
+            case CLPR_NO_PROGRESS -> CLPR_NO_PROGRESS;
+            case CLPR_PEER_ENDPOINT_NOT_FOUND -> CLPR_PEER_ENDPOINT_NOT_FOUND;
             case UNRECOGNIZED ->
                 // NOTE: Protobuf deserialization will not give us the code on the wire
                 throw new IllegalArgumentException(
