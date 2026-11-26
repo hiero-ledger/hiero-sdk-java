@@ -66,7 +66,7 @@ public final class Client implements AutoCloseable {
     // so that this doesn't happen in unit tests.
     static final Duration NETWORK_UPDATE_INITIAL_DELAY = Duration.ofSeconds(10);
     private static final Hbar DEFAULT_MAX_QUERY_PAYMENT = new Hbar(1);
-    private static final int PING_PROBE_ACCOUNT_ID_NUM = 2;
+    private static final AccountId PING_PROBE_ACCOUNT_ID = new AccountId(0, 0, 2);
     private static final String MAINNET = "mainnet";
     private static final String TESTNET = "testnet";
     private static final String PREVIEWNET = "previewnet";
@@ -186,7 +186,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return createClient(executor, network, mirrorNetwork, null, false, null);
+        return forNetwork(executor, network, mirrorNetwork, null, false, null);
     }
 
     /**
@@ -206,7 +206,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return createClient(executor, network, mirrorNetwork, null, true, null);
+        return forNetwork(executor, network, mirrorNetwork, null, true, null);
     }
 
     /**
@@ -268,8 +268,15 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -283,8 +290,15 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -299,8 +313,15 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, false, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                false,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -314,8 +335,15 @@ public final class Client implements AutoCloseable {
         var network = Network.forMainnet(executor);
         var mirrorNetwork = MirrorNetwork.forMainnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -329,8 +357,15 @@ public final class Client implements AutoCloseable {
         var network = Network.forTestnet(executor);
         var mirrorNetwork = MirrorNetwork.forTestnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
     /**
@@ -345,11 +380,18 @@ public final class Client implements AutoCloseable {
         var network = Network.forPreviewnet(executor);
         var mirrorNetwork = MirrorNetwork.forPreviewnet(executor);
 
-        return createClient(
-                executor, network, mirrorNetwork, NETWORK_UPDATE_INITIAL_DELAY, true, DEFAULT_NETWORK_UPDATE_PERIOD);
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                NETWORK_UPDATE_INITIAL_DELAY,
+                true,
+                DEFAULT_NETWORK_UPDATE_PERIOD,
+                0,
+                0);
     }
 
-    private static Client createClient(
+    private static Client forNetwork(
             ExecutorService executor,
             Network network,
             MirrorNetwork mirrorNetwork,
@@ -785,7 +827,7 @@ public final class Client implements AutoCloseable {
     public @Nullable Void ping(AccountId nodeAccountId, Duration timeout)
             throws PrecheckStatusException, TimeoutException {
         new AccountInfoQuery()
-                .setAccountId(new AccountId(this.shard, this.realm, PING_PROBE_ACCOUNT_ID_NUM))
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
                 .getCost(this, timeout);
 
@@ -812,7 +854,7 @@ public final class Client implements AutoCloseable {
     public CompletableFuture<Void> pingAsync(AccountId nodeAccountId, Duration timeout) {
         var result = new CompletableFuture<Void>();
         new AccountInfoQuery()
-                .setAccountId(new AccountId(this.shard, this.realm, PING_PROBE_ACCOUNT_ID_NUM))
+                .setAccountId(PING_PROBE_ACCOUNT_ID)
                 .setNodeAccountIds(Collections.singletonList(nodeAccountId))
                 .getCostAsync(this, timeout)
                 .whenComplete((cost, error) -> {
