@@ -92,8 +92,8 @@ public final class Client implements AutoCloseable {
     private boolean defaultRegenerateTransactionId = true;
     private boolean allowReceiptNodeFailover = false;
     private final boolean shouldShutdownExecutor;
-    private final long shard;
-    private final long realm;
+    private long shard;
+    private long realm;
     // If networkUpdatePeriod is null, any network updates in progress will not complete
     private @Nullable Duration networkUpdatePeriod;
 
@@ -186,7 +186,7 @@ public final class Client implements AutoCloseable {
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, false, null, 0, 0);
+        return forNetwork(executor, network, mirrorNetwork, null, false, null);
     }
 
     /**
@@ -203,32 +203,10 @@ public final class Client implements AutoCloseable {
      */
     public static Client forNetwork(Map<String, AccountId> networkMap) {
         var executor = createExecutor();
-        var isValidNetwork = true;
-        var shard = 0L;
-        var realm = 0L;
-
-        for (AccountId accountId : networkMap.values()) {
-            if (shard == 0) {
-                shard = accountId.shard;
-            }
-            if (realm == 0) {
-                realm = accountId.realm;
-            }
-
-            if (shard != accountId.shard || realm != accountId.realm) {
-                isValidNetwork = false;
-                break;
-            }
-        }
-
-        if (!isValidNetwork) {
-            throw new IllegalArgumentException("Network is not valid, all nodes must be in the same shard and realm");
-        }
-
         var network = Network.forNetwork(executor, networkMap);
         var mirrorNetwork = MirrorNetwork.forNetwork(executor, new ArrayList<>());
 
-        return new Client(executor, network, mirrorNetwork, null, true, null, shard, realm);
+        return forNetwork(executor, network, mirrorNetwork, null, true, null);
     }
 
     /**
@@ -411,6 +389,28 @@ public final class Client implements AutoCloseable {
                 DEFAULT_NETWORK_UPDATE_PERIOD,
                 0,
                 0);
+    }
+
+    private static Client forNetwork(
+            ExecutorService executor,
+            Network network,
+            MirrorNetwork mirrorNetwork,
+            @Nullable Duration networkUpdateInitialDelay,
+            boolean shouldShutdownExecutor,
+            @Nullable Duration networkUpdatePeriod) {
+        Objects.requireNonNull(executor, "executor must not be null");
+        Objects.requireNonNull(network, "network must not be null");
+        Objects.requireNonNull(mirrorNetwork, "mirrorNetwork must not be null");
+        var shardRealm = resolveNetworkShardRealm(network.getNetwork());
+        return new Client(
+                executor,
+                network,
+                mirrorNetwork,
+                networkUpdateInitialDelay,
+                shouldShutdownExecutor,
+                networkUpdatePeriod,
+                shardRealm.shard,
+                shardRealm.realm);
     }
 
     /**
@@ -696,7 +696,13 @@ public final class Client implements AutoCloseable {
      */
     public synchronized Client setNetworkFromAddressBook(NodeAddressBook addressBook)
             throws InterruptedException, TimeoutException {
-        network.setNetwork(Network.addressBookToNetwork(addressBook.nodeAddresses));
+        var networkMap = Network.addressBookToNetwork(addressBook.nodeAddresses);
+        var shardRealm = resolveNetworkShardRealm(networkMap);
+
+        this.shard = shardRealm.shard;
+        this.realm = shardRealm.realm;
+
+        network.setNetwork(networkMap);
         network.setAddressBook(addressBook);
         return this;
     }
@@ -720,6 +726,11 @@ public final class Client implements AutoCloseable {
      */
     public synchronized Client setNetwork(Map<String, AccountId> network)
             throws InterruptedException, TimeoutException {
+        var shardRealm = resolveNetworkShardRealm(network);
+
+        this.shard = shardRealm.shard;
+        this.realm = shardRealm.realm;
+
         this.network.setNetwork(network);
         return this;
     }
@@ -1714,6 +1725,45 @@ public final class Client implements AutoCloseable {
             } else {
                 throw new RuntimeException(mirrorNetworkError);
             }
+        }
+    }
+
+    /**
+     * Resolves the shard and realm of a network by verifying that every node belongs to the same one.
+     *
+     * @param networkMap the map of node IDs to node addresses that make up the network.
+     * @return the shard and realm shared by all nodes, or {@link ShardRealm#DEFAULT} if the map is empty
+     */
+    private static ShardRealm resolveNetworkShardRealm(Map<String, AccountId> networkMap) {
+        Objects.requireNonNull(networkMap, "networkMap must not be null");
+
+        ShardRealm networkShardRealm = null;
+        for (var entry : networkMap.entrySet()) {
+            Objects.requireNonNull(entry.getKey(), "networkMap contains a null address");
+
+            var nodeAccountId = Objects.requireNonNull(entry.getValue(), "networkMap contains a null nodeAccountId");
+            if (networkShardRealm == null) {
+                networkShardRealm = new ShardRealm(nodeAccountId.shard, nodeAccountId.realm);
+            } else if (networkShardRealm.shard != nodeAccountId.shard
+                    || networkShardRealm.realm != nodeAccountId.realm) {
+                throw new IllegalArgumentException(
+                        "Network is not valid, all nodes must be in the same shard and realm");
+            }
+        }
+
+        return networkShardRealm != null ? networkShardRealm : ShardRealm.DEFAULT;
+    }
+
+    /** Represent shard and realm shared by nodes of a valid network */
+    private static class ShardRealm {
+        final long shard;
+        final long realm;
+
+        static final ShardRealm DEFAULT = new ShardRealm(0L, 0L);
+
+        ShardRealm(long shard, long realm) {
+            this.shard = shard;
+            this.realm = realm;
         }
     }
 
